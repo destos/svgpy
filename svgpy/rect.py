@@ -1,0 +1,445 @@
+# Copyright (C) 2018 Tetsuya Miura <miute.dev@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import copy
+
+
+class Rect(object):
+    def __init__(self, x=None, y=None, width=0, height=0):
+        """Constructs a Rect object.
+
+        Arguments:
+            x (float, optional): The absolute x-coordinate of the rectangle's
+                left edge.
+            y (float, optional): The absolute y-coordinate of the rectangle's
+                top edge.
+            width (float, optional): The width of the rectangle.
+            height (float, optional): The height of the rectangle.
+        """
+        self._x = x
+        self._y = y
+        self._width = width
+        self._height = height
+
+    def __and__(self, other):
+        if not isinstance(other, Rect):
+            return NotImplemented
+        return self.intersected(other)
+
+    def __eq__(self, other):
+        if not isinstance(other, Rect):
+            return NotImplemented
+        # elif not self.isvalid():
+        #     raise ValueError('Left value is not valid')
+        # elif not other.isvalid():
+        #     raise ValueError('Right value is not valid')
+        elif self.x == other.x and self.y == other.y \
+                and self.width == other.width and self.height == other.height:
+            return True
+        return False
+
+    def __iand__(self, other):
+        if not isinstance(other, Rect):
+            return NotImplemented
+        self.intersect(other)
+        return self
+
+    def __ior__(self, other):
+        if not isinstance(other, Rect):
+            return NotImplemented
+        self.unite(other.x, other.y, other.width, other.height)
+        return self
+
+    def __or__(self, other):
+        if not isinstance(other, Rect):
+            return NotImplemented
+        return self.united(other.x, other.y, other.width, other.height)
+
+    def __repr__(self):
+        return (
+            "<{}.{} object at {}"
+            " ('x': {}, 'y': {}, 'width': {:g}, 'height': {:g})>".format(
+                type(self).__module__, type(self).__name__, hex(id(self)),
+                '{:g}'.format(self._x) if isinstance(
+                    self._x, (float, int)) else self._x,
+                '{:g}'.format(self._y) if isinstance(
+                    self._y, (float, int)) else self._y,
+                self._width, self._height))
+
+    @property
+    def bottom(self):
+        """float: The y-coordinate of the rectangle's bottom edge."""
+        if self._y is None:
+            return None
+        return self._y + self._height
+
+    @bottom.setter
+    def bottom(self, bottom):
+        if self._y is None:
+            raise ValueError('Property not initialized: y')
+        self._height = bottom - self._y
+
+    @property
+    def height(self):
+        """float: The height of the rectangle."""
+        return self._height
+
+    @height.setter
+    def height(self, height):
+        self._height = height
+
+    @property
+    def left(self):
+        """float: The x-coordinate of the rectangle's left edge.
+        Equivalent to Rect.x.
+        """
+        return self._x
+
+    @left.setter
+    def left(self, x):
+        self._x = x
+
+    @property
+    def right(self):
+        """float: The x-coordinate of the rectangle's right edge."""
+        if self._x is None:
+            return None
+        return self._x + self._width
+
+    @right.setter
+    def right(self, x):
+        if self._x is None:
+            raise ValueError('Property not initialized: x')
+        self._width = x - self._x
+
+    @property
+    def top(self):
+        """float: The y-coordinate of the rectangle's top edge.
+        Equivalent to Rect.y.
+        """
+        return self._y
+
+    @top.setter
+    def top(self, y):
+        self._y = y
+
+    @property
+    def width(self):
+        """float: The width of the rectangle."""
+        return self._width
+
+    @width.setter
+    def width(self, width):
+        self._width = width
+
+    @property
+    def x(self):
+        """float: The x-coordinate of the rectangle's left edge.
+        Equivalent to Rect.left.
+        """
+        return self.left
+
+    @x.setter
+    def x(self, x):
+        self.left = x
+
+    @property
+    def y(self):
+        """float: The y-coordinate of the rectangle's top edge.
+        Equivalent to Rect.top.
+        """
+        return self.top
+
+    @y.setter
+    def y(self, y):
+        self.top = y
+
+    def adjust(self, dx1, dy1, dx2, dy2):
+        """Adds dx1, dy1, dx2 and dy2 respectively to the existing coordinates 
+        of the rectangle.
+        """
+        if not self.isvalid():
+            return
+        x1, y1, x2, y2 = self.get_coords()
+        x1 += dx1
+        y1 += dy1
+        x2 += dx2
+        y2 += dy2
+        self.set_coords(x1, y1, x2, y2)
+        return self
+
+    def adjusted(self, dx1, dy1, dx2, dy2):
+        rect = copy.copy(self)
+        rect.adjust(dx1, dy1, dx2, dy2)
+        return rect
+
+    def contains(self, x, y, width=0, height=0):
+        """Returns True if the given point (x, y) or rectangle is inside or on
+        the edge of the rectangle; otherwise returns False.
+        """
+        if not self.isvalid():
+            return False
+        if width <= 0 or height <= 0:
+            if self.left <= x <= self.right and self.top <= y <= self.bottom:
+                return True
+            return False
+        right = x + width
+        bottom = y + height
+        if self.left <= x <= self.right \
+                and self.left <= right <= self.right \
+                and self.top <= y <= self.bottom \
+                and self.top <= bottom <= self.bottom:
+            return True
+        return False
+
+    @staticmethod
+    def fromjson(text):
+        fields = eval(text)
+        rect = Rect(fields['X'], fields['Y'], fields['Width'], fields['Height'])
+        return rect
+
+    def get_coords(self):
+        """Returns the position of the rectangle's top-left corner and
+        bottom-right corner.
+        """
+        return self.left, self.top, self.right, self.bottom
+
+    def get_rect(self):
+        """Returns the position of the rectangle's top-left corner, width,
+        and height.
+        """
+        return self.left, self.top, self.width, self.height
+
+    def get_size(self):
+        """Returns the size of the rectangle."""
+        return self.width, self.height
+
+    def intersect(self, other):
+        """Computes the intersection of this rectangle and the given rectangle.
+        """
+        if not isinstance(other, Rect):
+            raise TypeError('Expected Rect, got {}'.format(type(other)))
+        elif not self.isvalid() or not other.isvalid():
+            return self
+        elif other.contains(self.x, self.y, self.width, self.height):
+            return self
+
+        x1, y1, x2, y2 = self.get_coords()
+
+        # left-edge
+        if self.left < other.left < self.right \
+                and ((other.top < self.top and self.bottom < other.bottom)
+                     or self.top <= other.top < self.bottom
+                     or self.top < other.bottom <= self.bottom):
+            x1 = other.left
+
+        # top-edge
+        if self.top < other.top < self.bottom \
+                and ((other.left < self.left and self.right < other.right)
+                     or self.left <= other.left < self.right
+                     or self.left < other.right <= self.right):
+            y1 = other.top
+
+        # right-edge
+        if self.left < other.right < self.right \
+                and ((other.top < self.top and self.bottom < other.bottom)
+                     or self.top <= other.top < self.bottom
+                     or self.top < other.bottom <= self.bottom):
+            x2 = other.right
+
+        # bottom-edge
+        if self.top < other.bottom < self.bottom \
+                and ((other.left < self.left and self.right < other.right)
+                     or self.left <= other.left < self.right
+                     or self.left < other.right <= self.right):
+            y2 = other.bottom
+
+        self.set_coords(x1, y1, x2, y2)
+        return self
+
+    def intersected(self, other):
+        """Returns the intersection of this rectangle and the given rectangle.
+        """
+        rect = copy.copy(self)
+        rect.intersect(other)
+        return rect
+
+    def isempty(self):
+        """Returns True if the rectangle is empty, otherwise returns False.
+
+        An empty rectangle has a width<=0 or height<=0.
+        """
+        return (self._x is None or self._y is None
+                or self._width <= 0 or self._height <= 0)
+
+    def isvalid(self):
+        """Returns True if the rectangle is valid, otherwise returns False.
+        
+        A valid rectangle has a width>0 and height>0.
+        """
+        return (self._x is not None and self._y is not None
+                and self._width > 0 and self._height > 0)
+
+    def move_to(self, x, y):
+        """Sets the top-left corner of the rectangle to the given position 
+        (x, y). The rectangle's size is unchanged.
+        """
+        self._x = x
+        self._y = y
+        return self
+
+    def normalized(self):
+        """Returns a normalized rectangle."""
+        x1, y1, x2, y2 = self.get_coords()
+        width, height = self.get_size()
+        # x1 = self._x
+        # y1 = self._y
+        # x2 = x1 + self._width
+        # y2 = y1 + self._height
+        if width is not None and width < 0:
+            x1, x2 = x2, x1
+            width = x2 - x1
+        if height is not None and height < 0:
+            y1, y2 = y2, y1
+            height = y2 - y1
+        return Rect(x1, y1, width, height)
+
+    def set_coords(self, x1, y1, x2, y2):
+        self._x = x1
+        self._y = y1
+        self._width = x2 - x1
+        self._height = y2 - y1
+        return self
+
+    def set_rect(self, x1, y1, width, height):
+        self._x = x1
+        self._y = y1
+        self._width = width
+        self._height = height
+        return self
+
+    def set_size(self, width, height):
+        self._width = width
+        self._height = height
+        return self
+
+    def tojson(self):
+        fields = {
+            'X': self.x,
+            'Y': self.y,
+            'Width': self.width,
+            'Height': self.height,
+        }
+        return repr(fields)
+
+    def transform(self, matrix):
+        if not self.isvalid():
+            return self
+        # clockwise
+        x1, y1, x3, y3 = self.get_coords()
+        x2 = x3
+        y2 = y1
+        x4 = x1
+        y4 = y3
+        x1, y1 = matrix.point(x1, y1)
+        x2, y2 = matrix.point(x2, y2)
+        x3, y3 = matrix.point(x3, y3)
+        x4, y4 = matrix.point(x4, y4)
+        x1 = min(x1, x2, x3, x4)
+        y1 = min(y1, y2, y3, y4)
+        x3 = max(x1, x2, x3, x4)
+        y3 = max(y1, y2, y3, y4)
+        self.set_coords(x1, y1, x3, y3)
+        return self
+
+    def transformed(self, matrix):
+        rect = copy.copy(self)
+        rect.transform(matrix)
+        return rect
+
+    def translate(self, dx, dy):
+        """Moves the rectangle dx along the x-axis and dy along the y-axis, 
+        relative to the current position.
+        """
+        self._x += dx
+        self._y += dy
+        return self
+
+    def translated(self, dx, dy):
+        """Returns a copy of the rectangle that is translated dx along the 
+        x-axis and dy along the y-axis, relative to the current position.
+        """
+        rect = copy.copy(self)
+        rect.translate(dx, dy)
+        return rect
+
+    def transpose(self):
+        """Swaps width with height."""
+        self._width, self._height = self._height, self._width
+        return self
+
+    def transposed(self):
+        """Returns a copy of the rectangle that has its width and height 
+        exchanged.
+        """
+        rect = copy.copy(self)
+        rect.transpose()
+        return rect
+
+    def unite(self, x, y, width=0, height=0):
+        """Computes the bounding rectangle of this rectangle and the given 
+        rectangle.
+        """
+        if x is None or y is None:
+            return self
+        # elif not self.isvalid():
+        #     self.set_rect(x, y, width, height)
+        #     return self
+        elif self.contains(x, y, width, height):
+            return self
+
+        x1, y1, x2, y2 = self.get_coords()
+
+        if x1 is None or x < x1:
+            x1 = x
+        elif x > x2:
+            x2 = x
+
+        if y1 is None or y < y1:
+            y1 = y
+        elif y > y2:
+            y2 = y
+
+        if width > 0 and height > 0:
+            right = x + width
+            bottom = y + height
+            if x2 is None or right > x2:
+                x2 = right
+            if y2 is None or bottom > y2:
+                y2 = bottom
+
+        if x2 is not None and y2 is not None:
+            self.set_coords(x1, y1, x2, y2)
+        else:
+            self.x = x1
+            self.y = y1
+        return self
+
+    def united(self, x, y, width=0, height=0):
+        """Returns the bounding rectangle of this rectangle and the given 
+        rectangle.
+        """
+        rect = copy.copy(self)
+        rect.unite(x, y, width, height)
+        return rect

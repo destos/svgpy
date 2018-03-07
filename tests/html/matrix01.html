@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        function matrix_to_string(m) {
+            return '[' + m.a + ', ' + m.b + ', ' + m.c + ', ' + m.d + ', ' + m.e + ', ' + m.f + ']';
+        }
+
+        var root;
+        window.onload = function() {
+            root = document.getElementById("root");
+            document.getElementById("mA").value = 1;
+            document.getElementById("mB").value = 0;
+            document.getElementById("mC").value = 0;
+            document.getElementById("mD").value = 1;
+            document.getElementById("mE").value = 0;
+            document.getElementById("mF").value = 0;
+            document.getElementById("scaleX").value = 1;
+            document.getElementById("scaleY").value = 1;
+            show_ctm();
+        }
+
+        function show_ctm() {
+            var m = document.getElementById("g01").getCTM();
+            document.getElementById("ctm").textContent = "CTM: " + matrix_to_string(m);
+        }
+
+        function postmul_matrix() {
+            var b = root.createSVGMatrix();
+            b.a = parseFloat(document.getElementById("mA").value);
+            b.b = parseFloat(document.getElementById("mB").value);
+            b.c = parseFloat(document.getElementById("mC").value);
+            b.d = parseFloat(document.getElementById("mD").value);
+            b.e = parseFloat(document.getElementById("mE").value);
+            b.f = parseFloat(document.getElementById("mF").value);
+            var a = document.getElementById("g01").getCTM();
+            a = a.multiply(b)
+            var transform = root.createSVGTransform();
+            transform.setMatrix(a);
+            document.getElementById("g01").transform.baseVal.initialize(transform);
+            show_ctm();
+        }
+
+        function initialize_matrix() {
+            var b = root.createSVGMatrix();
+            b.a = parseFloat(document.getElementById("mA").value);
+            b.b = parseFloat(document.getElementById("mB").value);
+            b.c = parseFloat(document.getElementById("mC").value);
+            b.d = parseFloat(document.getElementById("mD").value);
+            b.e = parseFloat(document.getElementById("mE").value);
+            b.f = parseFloat(document.getElementById("mF").value);
+            var transform = root.createSVGTransform();
+            transform.setMatrix(b);
+            document.getElementById("g01").transform.baseVal.initialize(transform);
+            show_ctm();
+        }
+
+        function postmul_translate() {
+            var x = parseFloat(document.getElementById("translateX").value);
+            var y = parseFloat(document.getElementById("translateY").value);
+            var a = document.getElementById("g01").getCTM();
+            a = a.translate(x, y);
+            var transform = root.createSVGTransform();
+            transform.setMatrix(a);
+            document.getElementById("g01").transform.baseVal.initialize(transform);
+            show_ctm();
+        }
+
+        function postmul_scale() {
+            var x = parseFloat(document.getElementById("scaleX").value);
+            var y = parseFloat(document.getElementById("scaleY").value);
+            var a = document.getElementById("g01").getCTM();
+            a = a.scaleNonUniform(x, y);
+            var transform = root.createSVGTransform();
+            transform.setMatrix(a);
+            document.getElementById("g01").transform.baseVal.initialize(transform);
+            show_ctm();
+        }
+
+        function postmul_rotate() {
+            var d = parseFloat(document.getElementById("rotateA").value);
+            var x = parseFloat(document.getElementById("rotateX").value);
+            var y = parseFloat(document.getElementById("rotateY").value);
+            var a = document.getElementById("g01").getCTM();
+            a = a.translate(x, y);
+            a = a.rotate(d);
+            a = a.translate(-x, -y);
+            var transform = root.createSVGTransform();
+            transform.setMatrix(a);
+            document.getElementById("g01").transform.baseVal.initialize(transform);
+            show_ctm();
+        }
+
+        function postmul_skewx() {
+            var x = parseFloat(document.getElementById("skewX").value);
+            var a = document.getElementById("g01").getCTM();
+            a = a.skewX(x);
+            var transform = root.createSVGTransform();
+            transform.setMatrix(a);
+            document.getElementById("g01").transform.baseVal.initialize(transform);
+            show_ctm();
+        }
+
+        function postmul_skewy() {
+            var y = parseFloat(document.getElementById("skewY").value);
+            var a = document.getElementById("g01").getCTM();
+            a = a.skewY(y);
+            var transform = root.createSVGTransform();
+            transform.setMatrix(a);
+            document.getElementById("g01").transform.baseVal.initialize(transform);
+            show_ctm();
+        }
+
+    </script>
+    <style>
+        input { width: 60px; }
+
+    </style>
+</head>
+<body>
+<svg width="800" height="400" viewBox="0 0 800 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1" id="root">
+
+    <g id="g01" transform="translate(400 200)">
+        <ellipse cx="0" cy="0" rx="100" ry="50"
+                 id="ellipse01"
+                 fill="none" stroke="red" stroke-width="5"/>
+        <circle cx="0" cy="-50" r="5" fill="white" stroke="blue"
+                stroke-width="2"/>
+        <circle cx="0" cy="0" r="3" fill="blue"/>
+    </g>
+
+</svg>
+<div id="ctm"></div>
+<table class="input" border="0">
+    <tr>
+        <td>Matrix:</td>
+        <td>a:<input id="mA" type="number" step="0.1" value="1"/></td>
+        <td>b:<input id="mB" type="number" step="0.1" value="0"/></td>
+        <td>c:<input id="mC" type="number" step="0.1" value="0"/></td>
+        <td>d:<input id="mD" type="number" step="0.1" value="1"/></td>
+        <td>e:<input id="mE" type="number" step="0.1" value="0"/></td>
+        <td>f:<input id="mF" type="number" step="0.1" value="0"/></td>
+        <td><input type="button" value="Post-multiply"
+                   onclick="postmul_matrix()" style="width:100px;"/></td>
+        <td><input type="button" value="Initialize"
+                   onclick="initialize_matrix()"/></td>
+    </tr>
+    <tr>
+        <td>Translate:</td>
+        <td>x:<input id="translateX" type="number" step="0.1" value="0"/></td>
+        <td>y:<input id="translateY" type="number" step="0.1" value="0"/></td>
+        <td colspan="6"><input type="button" value="Post-multiply"
+                               onclick="postmul_translate()"
+                               style="width:100px;"/></td>
+    </tr>
+    <tr>
+        <td>Scale:</td>
+        <td>x:<input id="scaleX" type="number" step="0.1" value="1"/></td>
+        <td>y:<input id="scaleY" type="number" step="0.1" value="1"/></td>
+        <td colspan="6"><input type="button" value="Post-multiply"
+                               onclick="postmul_scale()" style="width:100px;"/>
+        </td>
+    </tr>
+    <tr>
+        <td>Rotate:</td>
+        <td>a:</label><input id="rotateA" type="number" step="0.1" value="0"/>
+        </td>
+        <td>x:<input id="rotateX" type="number" step="0.1" value="0"/></td>
+        <td>y:<input id="rotateY" type="number" step="0.1" value="0"/></td>
+        <td colspan="5"><input type="button" value="Post-multiply"
+                               onclick="postmul_rotate()"
+                               style="width:100px;"/></td>
+    </tr>
+    <tr>
+        <td>SkewX:</td>
+        <td>x:<input id="skewX" type="number" step="0.1" value="0"/></td>
+        <td colspan="7"><input type="button" value="Post-multiply"
+                               onclick="postmul_skewx()" style="width:100px;"/>
+        </td>
+    </tr>
+    <tr>
+        <td>SkewY:</td>
+        <td>y:<input id="skewY" type="number" step="0.1" value="0"/></td>
+        <td colspan="7"><input type="button" value="Post-multiply"
+                               onclick="postmul_skewy()" style="width:100px;"/>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

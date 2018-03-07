@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function() {
+            function matrix_to_string(m) {
+                if (m === null) return 'null';
+                return '[' + m.a + ', ' + m.b + ', ' + m.c + ', ' + m.d + ', ' + m.e + ', ' + m.f + ']';
+            }
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('path-length'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var ctm = element.getCTM();
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="12cm" height="5.25cm" viewBox="0 0 1200 525" version="1.1"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Example arcs02 - arc options in paths</title>
+    <desc>Pictures showing the result of setting
+        large-arc-flag and sweep-flag to the four
+        possible combinations of 0 and 1.
+    </desc>
+    <g font-family="Verdana">
+        <defs>
+            <g id="baseEllipses" font-size="20">
+                <ellipse cx="125" cy="125" rx="100" ry="50"
+                         fill="none" stroke="#888888" stroke-width="2"/>
+                <ellipse cx="225" cy="75" rx="100" ry="50"
+                         fill="none" stroke="#888888" stroke-width="2"/>
+                <text x="35" y="70">Arc start</text>
+                <text x="225" y="145">Arc end</text>
+            </g>
+        </defs>
+        <rect x="1" y="1" width="1198" height="523"
+              fill="none" stroke="blue" stroke-width="1"/>
+
+        <g font-size="30">
+            <g transform="translate(0,0)">
+                <use xlink:href="#baseEllipses"/>
+            </g>
+            <g transform="translate(400,0)">
+                <text x="50" y="210">large-arc-flag=0</text>
+                <text x="50" y="250">sweep-flag=0</text>
+                <use xlink:href="#baseEllipses"/>
+                <path d="M 125,75 a100,50 0 0,0 100,50"
+                      id="path01" class="path-length"
+                      fill="none" stroke="red" stroke-width="6"/>
+                <path d="M125,75 C125,102.614 169.772,125 225,125"
+                      id="path01norm"
+                      fill="none" stroke="blue" stroke-width="4" stroke-dasharray="5"/>
+            </g>
+            <g transform="translate(800,0)">
+                <text x="50" y="210">large-arc-flag=0</text>
+                <text x="50" y="250">sweep-flag=1</text>
+                <use xlink:href="#baseEllipses"/>
+                <path d="M 125,75 a100,50 0 0,1 100,50"
+                      id="path02" class="path-length"
+                      fill="none" stroke="red" stroke-width="6"/>
+                <path d="M125,75 C180.228,75 225,97.386 225,125"
+                      id="path02norm"
+                      fill="none" stroke="blue" stroke-width="4"
+                      stroke-dasharray="5"/>
+            </g>
+            <g transform="translate(400,250)">
+                <text x="50" y="210">large-arc-flag=1</text>
+                <text x="50" y="250">sweep-flag=0</text>
+                <use xlink:href="#baseEllipses"/>
+                <path d="M 125,75 a100,50 0 1,0 100,50"
+                      id="path03" class="path-length"
+                      fill="none" stroke="red" stroke-width="6"/>
+                <path d="M125,75 C69.772,75 25,97.386 25,125 25,152.614 69.772,175 125,175 180.228,175 225,152.614 225,125"
+                      id="path03norm"
+                      fill="none" stroke="blue" stroke-width="4"
+                      stroke-dasharray="5"/>
+                <circle cx="125" cy="125" r="5" fill="green" stroke="black"
+                        id="center3"/>
+            </g>
+            <g transform="translate(800,250)">
+                <text x="50" y="210">large-arc-flag=1</text>
+                <text x="50" y="250">sweep-flag=1</text>
+                <use xlink:href="#baseEllipses"/>
+                <path d="M 125,75 a100,50 0 1,1 100,50"
+                      id="path04" class="path-length"
+                      fill="none" stroke="red" stroke-width="6"/>
+                <path d="M125,75 C125,47.386 169.772,25 225,25 280.228,25 325,47.386 325,75 325,102.614 280.228,125 225,125"
+                      id="path04norm"
+                      fill="none" stroke="blue" stroke-width="4"
+                      stroke-dasharray="5"/>
+                <circle cx="125" cy="75" r="5" fill="white" stroke="black"/>
+                <circle cx="225" cy="125" r="5" fill="red" stroke="black"/>
+                <circle cx="225" cy="75" r="5" fill="green" stroke="black"/>
+            </g>
+        </g>
+    </g>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>length</th>
+        <th>CTM</th>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('path-length'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getAttribute('stroke');
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="12cm" height="4cm" viewBox="0 0 1200 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <desc>Example polyline01 - increasingly larger bars</desc>
+
+    <!-- Show outline of viewport using 'rect' element -->
+    <rect x="1" y="1" width="1198" height="398"
+          fill="none" stroke="blue" stroke-width="2"/>
+
+    <polyline fill="none" stroke="blue" stroke-width="10"
+              id="polyline01" class="path-length"
+              points="50,375
+                    150,375 150,325 250,325 250,375
+                    350,375 350,250 450,250 450,375
+                    550,375 550,175 650,175 650,375
+                    750,375 750,100 850,100 850,375
+                    950,375 950,25 1050,25 1050,375
+                    1150,375"/>
+    <path id="path01" stroke="red" stroke-width="5" stroke-dasharray="10 5"
+          fill="none" class="path-length"
+          d="M50,375 L150,375 150,325 250,325 250,375 350,375 350,250 450,250
+             450,375 550,375 550,175 650,175 650,375 750,375 750,100 850,100
+             850,375 950,375 950,25 1050,25 1050,375 1150,375"/>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>stroke</th>
+        <th>length</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

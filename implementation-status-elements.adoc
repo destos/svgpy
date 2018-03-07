@@ -1,0 +1,552 @@
+= Implementation Status [v0.1]
+:numbered:
+:toc: right
+:toclevels: 3
+:doctype: article
+:source-highlighter: coderay
+:icons: font
+
+== Elements
+// Not Planned | Draft | Planned / Scheduled | Canceled | In Progress | Verified | Completed 
+|====
+^|Element ^|Class ^|Status ^|Priority ^|Notes
+
+|a |link:#SVGAElement[SVGAElement] ^|Planned | |
+|animate |SVGAnimateElement ^|TBD ^|Low |SVG Animations
+|animateMotion |SVGAnimateMotionElement ^|TBD ^|Low |SVG Animations
+|animateTransform |SVGAnimateTransformElement ^|TBD ^|Low |SVG Animations
+|audio |HTMLAudioElement ^|TBD ||
+|canvas |HTMLCanvasElement ^|TBD ||
+|circle |link:#SVGCircleElement[SVGCircleElement] ^|In Progress ||
+|clipPath |link:#SVGClipPathElement[SVGClipPathElement] ^|TBD ||CSS Masking Module
+|cursor |SVGCursorElement ^|TBD ||
+|defs |link:#SVGDefsElement[SVGDefsElement] ^|In Progress ||
+|desc |SVGDescElement ^|✓ ||
+|discard |SVGDiscardElement ^|TBD ^|Low |SVG Animations
+|ellipse |link:#SVGEllipseElement[SVGEllipseElement] ^|In Progress ||
+|feBlend | ^|TBD ^|Low |Filter Effects Module
+|feColorMatrix | ^|TBD ^|Low |Filter Effects Module
+|feComponentTransfer | ^|TBD ^|Low |Filter Effects Module
+|feComposite | ^|TBD ^|Low |Filter Effects Module
+|feConvolveMatrix | ^|TBD ^|Low |Filter Effects Module
+|feDiffuseLighting | ^|TBD ^|Low |Filter Effects Module
+|feDisplacementMap | ^|TBD ^|Low |Filter Effects Module
+|feDistantLight | ^|TBD ^|Low |Filter Effects Module
+|feDropShadow | ^|TBD ^|Low |Filter Effects Module
+|feFlood | ^|TBD ^|Low |Filter Effects Module
+|feFuncA | ^|TBD ^|Low |Filter Effects Module
+|feFuncB | ^|TBD ^|Low |Filter Effects Module
+|feFuncG | ^|TBD ^|Low |Filter Effects Module
+|feFuncR | ^|TBD ^|Low |Filter Effects Module
+|feGaussianBlur | ^|TBD ^|Low |Filter Effects Module
+|feImage | ^|TBD ^|Low |Filter Effects Module
+|feMerge | ^|TBD ^|Low |Filter Effects Module
+|feMergeNode | ^|TBD ^|Low |Filter Effects Module
+|feMorphology | ^|TBD ^|Low |Filter Effects Module
+|feOffset | ^|TBD ^|Low |Filter Effects Module
+|fePointLight | ^|TBD ^|Low |Filter Effects Module
+|feSpecularLighting | ^|TBD ^|Low |Filter Effects Module
+|feSpotLight | ^|TBD ^|Low |Filter Effects Module
+|feTile | ^|TBD ^|Low |Filter Effects Module
+|feTurbulence | ^|TBD ^|Low |Filter Effects Module
+|filter | ^|TBD ^|Low |Filter Effects Module
+|foreignObject |link:#SVGForeignObjectElement[SVGForeignObjectElement] ^|Planned ||
+|g |link:#SVGGElement[SVGGElement] ^|In Progress ||
+|hatch |SVGHatchElement ^|TBD ||
+|hatchpath |SVGHatchpathElement ^|TBD ||
+|iframe |HTMLIFrameElement ^|TBD ||
+|image |link:#SVGImageElement[SVGImageElement] ^|Planned ||
+|line |link:#SVGLineElement[SVGLineElement] ^|In Progress ||
+|linearGradient |SVGLinearGradientElement ^|Planned ||
+|marker |link:#SVGMarkerElement[SVGMarkerElement] ^|Planned ||
+|mask |SVGMaskElement ^|TBD ^| |CSS Masking Module
+|mesh |link:#SVGMeshElement[SVGMeshElement] ^|TBD ||
+|meshgradient |SVGMeshGradientElement ^|TBD ^||
+|meshpatch |SVGMeshpatchElement ^|TBD ^||
+|meshrow |SVGMeshrowElement ^|TBD ^||
+|metadata |SVGMetadataElement ^|✓ ||
+|mpath |SVGMPathElement ^|TBD ^|Low |SVG Animations
+|path |link:#SVGPathElement[SVGPathElement] ^|In Progress ||
+|pattern |link:#SVGPatternElement[SVGPatternElement] ^|Planned ||
+|polygon |link:#SVGPolygonElement[SVGPolygonElement] ^|In Progress ||
+|polyline |link:#SVGPolylineElement[SVGPolylineElement] ^|In Progress ||
+|radialGradient |SVGRadialGradientElement ^|Planned ||
+|rect |link:#SVGRectElement[SVGRectElement] ^|In Progress ||
+|script |SVGScriptElement ^|TBD ||
+|set |SVGSetElement ^|TBD ^|Low |SVG Animations
+|solidcolor |SVGSolidcolorElement ^|✓ ||
+|stop |SVGStopElement ^|TBD ||
+|style |link:#SVGStyleElement[SVGStyleElement] ^|Planned ||
+|svg |link:#SVGSVGElement[SVGSVGElement] ^|In Progress ||
+|switch |link:#SVGSwitchElement[SVGSwitchElement] ^|Planned ||
+|symbol |link:#SVGSymbolElement[SVGSymbolElement] ^|In Progress ||
+|text |link:#SVGTextElement[SVGTextElement] ^|In Progress ^|High |
+|textPath |link:#SVGTextPathElement[SVGTextPathElement] ^|In Progress ||
+|title |SVGTitleElement ^|✓ ||
+|tspan |link:#SVGTSpanElement[SVGTSpanElement] ^|In Progress ^|High |
+|unknown |link:#SVGUnknownElement[SVGUnknownElement] ^|TBD ||
+|use |link:#SVGUseElement[SVGUseElement] ^|In Progress ||
+|video |HTMLVideoElement ^|TBD ||
+|view |link:#SVGViewElement[SVGViewElement] ^|Planned ||
+|====
+
+== Interfaces
+=== DOM
+==== DOM4 Interfaces
+[options="header"]
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.45+|[[Element]]Element .26+|Node |nodeType ^|✓ ||
+|nodeName ^|✓ ||
+|baseURI ^|Not Planned ||Use base property insted
+|ownerDocument ^|Not Planned ||Use getroottree() insted
+|parentNode ^|Not Planned ||Use getparent() insted
+|parentElement ^|Not Planned ||Use getparent() insted
+|hasChildNodes() ^|Not Planned ||Use len(self) insted
+|childNodes ^|Not Planned ||Use iterator insted
+|firstChild ^|Not Planned ||
+|lastChild ^|Not Planned ||
+|previousSibling ^|Not Planned ||Use getprevious() insted
+|nextSibling ^|Not Planned ||Use getnext() insted
+|nodeValue ^|✓ ||
+|textContent ^|✓ ||
+|normalize() ^|Not Planned ||
+|cloneNode() ^|Not Planned ||
+|isEqualNode() ^|Not Planned ||
+|compareDocumentPosition() ^|Not Planned ||
+|contains() ^|Not Planned ||
+|lookupPrefix() ^|Not Planned ||
+|lookupNamespaceURI() ^|Not Planned ||
+|isDefaultNamespace() ^|Not Planned ||
+|insertBefore() ^|Not Planned ||Use insert() insted
+|appendChild() ^|Not Planned ||Use append() insted
+|replaceChild() ^|Not Planned ||Use replace() insted
+|removeChild() ^|Not Planned ||Use remove() insted
+.19+|-|namespaceURI ^|✓ ||
+|prefix ^|✓ ||
+|localName ^|✓ ||
+|tagName ^|✓ ||
+|id ^|✓ ||
+|className ^|✓ ||
+|classList ^|TBD ||
+|attributes ^|✓ ||
+|getAttribute() ^|Not Planned ||Use attributes.get() insted
+|getAttributeNS() ^|Not Planned ||Use attributes.get_ns() insted
+|setAttribute() ^|Not Planned ||Use attributes.set() insted
+|setAttributeNS() ^|Not Planned ||Use attributes.set_ns() insted
+|removeAttribute() ^|Not Planned ||Use attributes.pop() insted
+|removeAttributeNS() ^|Not Planned ||Use attributes.pop_ns() insted
+|hasAttribute() ^|TBD ||
+|hasAttributeNS() ^|TBD ||
+|getElementsByTagName() ^|✓ ||Include itself
+|getElementsByTagNameNS() ^|✓ ||Include itself
+|getElementsByClassName() ^|✓ ||Include itself
+
+.33+|Comment .26+|Node |nodeType ^|✓ ||
+|nodeName ^|✓ ||
+|baseURI ^|Not Planned ||
+|ownerDocument ^|Not Planned ||Use getroottree() insted
+|parentNode ^|Not Planned ||Use getparent() insted
+|parentElement ^|Not Planned ||Use getparent() insted
+|hasChildNodes() ^|Not Planned ||
+|childNodes ^|Not Planned ||
+|firstChild ^|Not Planned ||
+|lastChild ^|Not Planned ||
+|previousSibling ^|Not Planned ||Use getprevious() insted
+|nextSibling ^|Not Planned ||Use getnext() insted
+|nodeValue ^|✓ ||
+|textContent ^|✓ ||
+|normalize() ^|Not Planned ||
+|cloneNode() ^|Not Planned ||
+|isEqualNode() ^|Not Planned ||
+|compareDocumentPosition() ^|Not Planned ||
+|contains() ^|Not Planned ||
+|lookupPrefix() ^|Not Planned ||
+|lookupNamespaceURI() ^|Not Planned ||
+|isDefaultNamespace() ^|Not Planned ||
+|insertBefore() ^|Not Planned ||Use insert() insted
+|appendChild() ^|Not Planned ||Use append() insted
+|replaceChild() ^|Not Planned ||Use replace() insted
+|removeChild() ^|Not Planned ||Use remove() insted
+.7+|CharacterData |data ^|✓ ||
+|length ^|Not Planned ||Use len(data) insted
+|substringData() ^|Not Planned ||
+|appendData() ^|Not Planned ||
+|insertData() ^|Not Planned ||
+|deleteData() ^|Not Planned ||
+|replaceData() ^|Not Planned ||
+|====
+
+==== Geometry Interfaces
+[options="header"]
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+|DOMPoint |- | ^|Not Planned ||Use tuple class insted
+
+|DOMRect |- | ^|Not Planned ||Use Rect class insted
+
+|DOMQuad |- | ^|Not Planned ||
+
+.56+|DOMMatrix <1> .22+|DOMMatrixReadOnly |fromMatrix() ^|Not Planned ||Use copy.deepcopy() insted
+|fromFloat32Array() ^|Not Planned ||
+|fromFloat64Array() ^|Not Planned ||
+|is2D ^|Not Planned ||
+|isIdentity ^|Not Planned ||
+|translate() ^|✓ ||2D only
+|scale() ^|✓ ||2D only
+|scale3d() ^|Not Planned ||
+|rotate() ^|✓ ||2D only
+|rotateFromVector() ^|TBD ||
+|rotateAxisAngle() ^|TBD ||
+|skewX() ^|✓ ||
+|skewY() ^|✓ ||
+|multiply() ^|✓ ||
+|flipX() ^|✓ ||
+|flipY() ^|✓ ||
+|inverse() ^|✓ ||
+|transformPoint() ^|✓ ||Rename to point()
+|toFloat32Array() ^|✓ ||Rename to toarray()
+|toFloat64Array() ^|✓ ||Use toarray() insted
+|stringifier ^|✓ ||Rename to tostring()
+|toJSON() ^|✓ ||
+.34+|- |a ^|✓ ||
+|b ^|✓ ||
+|c ^|✓ ||
+|d ^|✓ ||
+|e ^|✓ ||
+|f ^|✓ ||
+|m11 ^|✓ ||
+|m12 ^|✓ ||
+|m13 ^|Not Planned ||
+|m14 ^|Not Planned ||
+|m21 ^|✓ ||
+|m22 ^|✓ ||
+|m23 ^|Not Planned ||
+|m24 ^|Not Planned ||
+|m31 ^|✓ ||
+|m32 ^|✓ ||
+|m33 ^|Not Planned ||
+|m34 ^|Not Planned ||
+|m41 ^|✓ ||
+|m42 ^|✓ ||
+|m43 ^|Not Planned ||
+|m44 ^|Not Planned ||
+|multiplySelf() ^|✓ ||
+|preMultiplySelf() ^|TBD ||
+|translateSelf() ^|✓ ||2D only
+|scaleSelf() ^|✓ ||2D only
+|scale3dSelf() ^|Not Planned ||
+|rotateSelf() ^|✓ ||2D only
+|rotateFromVectorSelf() ^|TBD ||
+|rotateAxisAngleSelf() ^|TBD ||
+|skewXSelf() ^|✓ ||
+|skewYSelf() ^|✓ ||
+|invertSelf() ^|✓ ||
+|setMatrixValue() ^|✓ ||Rename to set_matrix()
+|====
+<1> Rename to Matrix.
+
+=== SVG
+==== Basic Data Types and Interfaces
+[options="header"]
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.8+|[[SVGElement]]SVGElement .1+|link:#Element[Element] ||||
+.7+|-|className ^|Not Planned ||Deprecated
+|dataset ^|Not Planned ||
+|ownerSVGElement ^|✓ ||
+|viewportElement ^|✓ ||
+|tabIndex ^|Not Planned ||
+|focus() ^|Not Planned ||
+|blur() ^|Not Planned ||
+
+|SVGBoundingBoxOptions |-|- ^|✓ ||
+
+.5+|[[SVGGraphicsElement]]SVGGraphicsElement .1+|link:#SVGElement[SVGElement] |- |||
+.4+|- |transform ^|✓ ||
+|getBBox() ^|In Progress ^|High |Support object bounding box only
+|getCTM() ^|In Progress ^|High |
+|getScreenCTM() ^|TBD ||
+
+.6+|[[SVGGeometryElement]]SVGGeometryElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] ||||
+.5+|- |pathLength ^|Planned ||
+|isPointInFill() ^|TBD ||
+|isPointInStroke() ^|TBD ||
+|getTotalLength() ^|In Progress ^|Medium |Exclude 'R'\|'r' path command
+|getPointAtLength() ^|TBD ||
+
+|SVGNumber |- | ^|Not Planned ||
+
+.6+|SVGLength .6+|- |unitType ^|✓ ||Rename to unit
+|value ^|✓ ||Rename to value()
+|valueInSpecifiedUnits ^|✓ ||Use value() insted
+|valueAsString ^|✓ ||Rename to tostring()
+|newValueSpecifiedUnits() ^|✓ ||Rename to new_value()
+|convertToSpecifiedUnits() ^|✓ ||Rename to convert()
+
+|SVGAngle |- | ^|TBD ||
+
+|SVGUnitTypes |- | ^|Not Planned ||
+
+.2+|[[SVGTests]]SVGTests .2+|- |requiredExtensions ^|TBD ||
+|systemLanguage ^|TBD ||
+
+.2+|[[SVGFitToViewBox]]SVGFitToViewBox .2+|- |viewBox ^|✓ ||
+|preserveAspectRatio ^|✓ ||
+
+|[[SVGZoomAndPan]]SVGZoomAndPan |- |zoomAndPan ^|✓ ||
+
+|[[SVGURIReference]]SVGURIReference |- |href ^|✓ ||Support internal link only
+|====
+
+==== Document Structure
+[options="header"]
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.25+|[[SVGSVGElement]]SVGSVGElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only
+.24+|- |x ^|Not Planned ||Use get_computed_geometry() insted
+|y ^|Not Planned ||Same as above
+|width ^|Not Planned ||Same as above
+|height ^|Not Planned ||Same as above
+|currentScale ^|TBD ||
+|currentTranslate ^|TBD ||
+|getIntersectionList() ^|TBD ||
+|getEnclosureList() ^|TBD ||
+|checkIntersection() ^|TBD ||
+|checkEnclosure() ^|TBD ||
+|deselectAll() ^|Not Planned ||
+|createSVGNumber() ^|Not Planned ||
+|createSVGLength() ^|Not Planned ||
+|createSVGAngle() ^|Not Planned ||
+|createSVGPoint() ^|Not Planned ||
+|createSVGMatrix() ^|Not Planned ||
+|createSVGRect() ^|Not Planned ||
+|createSVGTransform() ^|Not Planned ||
+|createSVGTransformFromMatrix() ^|Not Planned ||
+|getElementById() ^|✓ ||Implement in Element class
+|suspendRedraw() ^|Not Planned ||
+|unsuspendRedraw() ^|Not Planned ||
+|unsuspendRedrawAll() ^|Not Planned ||
+|forceRedraw() ^|Not Planned ||
+
+|[[SVGGElement]]SVGGElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only
+
+|[[SVGUnknownElement]]SVGUnknownElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|TBD ||
+
+|[[SVGDefsElement]]SVGDefsElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|✓ ||Returns empty bbox
+
+|[[SVGDescElement]]SVGDescElement |link:#SVGElement[SVGElement] |- ^|✓ ||
+
+|[[SVGMetadataElement]]SVGMetadataElement |link:#SVGElement[SVGElement] |- ^|✓ ||
+
+|[[SVGTitleElement]]SVGTitleElement |link:#SVGElement[SVGElement] |- ^|✓ ||
+
+|[[SVGSymbolElement]]SVGSymbolElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only
+
+.7+|[[SVGUseElement]]SVGUseElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only. Support internal contents only
+.6+|- |x ^|Not Planned ||Use get_computed_geometry() insted
+|y ^|Not Planned ||Same as above
+|width ^|Not Planned ||Same as above
+|height ^|Not Planned ||Same as above
+|instanceRoot ^|✓ ||
+|animatedInstanceRoot ^|Not Planned ||
+
+|SVGUseElementShadowRoot |ShadowRoot |- ^|Not Planned ||
+
+.2+|SVGElementInstance .2+|- |correspondingElement ^|Not Planned ||
+|correspondingUseElement ^|Not Planned ||
+
+|ShadowAnimation |Animation |sourceAnimation ^|Not Planned ||
+
+|[[SVGSwitchElement]]SVGSwitchElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|TBD ||
+
+|GetSVGDocument |- |getSVGDocument() ^|Not Planned ||
+|====
+
+==== Styling
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.5+|[[SVGStyleElement]]SVGStyleElement .1+|link:#SVGElement[SVGElement] |- |||
+.1+|LinkStyle .1+|sheet ^|TBD ||
+.3+|- |type ^|TBD ||
+|media ^|TBD ||
+|title ^|TBD ||
+|====
+
+==== Coordinate Systems, Transformations
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.9+|SVGTransform .9+|- |type ^|✓ ||
+|matrix ^|✓ ||
+|angle ^|✓ ||
+|setMatrix() ^|✓ ||
+|setTranslate() ^|✓ ||
+|setScale() ^|✓ ||
+|setRotate() ^|✓ ||
+|setSkewX() ^|✓ ||
+|setSkewY() ^|✓ ||
+
+.12+|SVGTransformList .12+|- |length ^|✓ ||Use len(self) insted
+|numberOfItems ^|✓ ||Use len(self) insted
+|clear() ^|✓ ||
+|initialize() ^|Not Planned ||
+|getItem() ^|✓ ||Use s[i] insted
+|insertItemBefore() ^|✓ ||Use insert() insted
+|replaceItem() ^|✓ ||Use s[i] = t insted
+|removeItem() ^|✓ ||Use remove() or pop() insted
+|appendItem() ^|✓ ||Use append() insted
+|setter() ^|✓ ||Same as replaceItem()
+|createSVGTransformFromMatrix() ^|Not Planned ||
+|consolidate() ^|✓ ||
+
+|SVGAnimatedTransformList |- | ^|Not Planned ||
+
+.2+|[[SVGPreserveAspectRatio]]SVGPreserveAspectRatio .2+|- |align ^|✓ ||
+|meetOrSlice ^|✓ ||
+
+|SVGAnimatedPreserveAspectRatio |- | ^|Not Planned ||
+|====
+
+==== Paths
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.2+|[[SVGPathSegment]]SVGPathSegment .2+|- |type ^|✓ ||
+|values ^|✓ ||
+
+|[[SVGPathDataSettings]]SVGPathDataSettings |- |normalize ^|✓ ||
+
+.2+|[[SVGPathData]]SVGPathData .2+|- |getPathData() ^|✓ ||Implement in SVGGeometryElement class
+|setPathData() ^|✓ ||
+
+.4+|[[SVGPathElement]]SVGPathElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.1+|link:#SVGPathData[SVGPathData] .1+|- ^| ||
+.2+|- |pathLength ^|TBD ||
+|getPathSegmentAtLength() ^|TBD ||
+|====
+
+==== Basic Shapes
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.7+|[[SVGRectElement]]SVGRectElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.6+|- |x ^|Not Planned | |Use get_computed_geometry() insted
+|y ^|Not Planned ||Same as above
+|width ^|Not Planned ||Same as above
+|height ^|Not Planned ||Same as above
+|rx ^|Not Planned ||Same as above
+|ry ^|Not Planned ||Same as above
+
+.4+|[[SVGCircleElement]]SVGCircleElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.3+|- |cx ^|Not Planned ||Use get_computed_geometry() insted
+|cy ^|Not Planned ||Same as above
+|r ^|Not Planned ||Same as above
+
+.5+|[[SVGEllipseElement]]SVGEllipseElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.4+|- |cx ^|Not Planned ||Use get_computed_geometry() insted
+|cy ^|Not Planned ||Same as above
+|rx ^|Not Planned ||Same as above
+|ry ^|Not Planned ||Same as above
+
+.5+|[[SVGLineElement]]SVGLineElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.4+|- |x1 ^|Not Planned ||Use get_computed_geometry() insted
+|y1 ^|Not Planned ||Same as above
+|x2 ^|Not Planned ||Same as above
+|y2 ^|Not Planned ||Same as above
+
+.2+|[[SVGMeshElement]]SVGMeshElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.1+|link:#SVGURIReference[SVGURIReference] |- |||
+
+.2+|[[SVGAnimatedPoints]]SVGAnimatedPoints .2+|- |points ^|✓ ||
+|animatedPoints ^|Not Planned ||
+
+|SVGPointList |- | ^|Not Planned ||Use list class insted
+
+.2+|[[SVGPolylineElement]]SVGPolylineElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.1+|link:#SVGAnimatedPoints[SVGAnimatedPoints] |- |||
+
+.2+|[[SVGPolygonElement]]SVGPolygonElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
+.1+|link:#SVGAnimatedPoints[SVGAnimatedPoints] |- |||
+|====
+
+==== Text
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.12+|[[SVGTextContentElement]]SVGTextContentElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ^|High |Support object bounding box only. Word and line break does not support yet
+.11+|- |textLength ^|TBD ||
+|lengthAdjust ^|TBD ||
+|getNumberOfChars() ^|✓ ||
+|getComputedTextLength() ^|✓ ||
+|getSubStringLength() ^|✓ ||
+|getStartPositionOfChar() ^|TBD ||
+|getEndPositionOfChar() ^|TBD ||
+|getExtentOfChar() ^|TBD ||
+|getRotationOfChar() ^|TBD ||
+|getCharNumAtPosition() ^|TBD ||
+|selectSubString() ^|Not Planned ||
+
+.6+|[[SVGTextPositioningElement]]SVGTextPositioningElement .1+|link:#SVGTextContentElement[SVGTextContentElement] |- |||
+.5+|- |x ^|Not Planned ||Use get_computed_geometry() insted
+|y ^|Not Planned ||Same as above
+|dx ^|Not Planned ||Same as above
+|dy ^|Not Planned ||Same as above
+|rotate ^|Not Planned ||Same as above
+
+|[[SVGTextElement]]SVGTextElement |link:#SVGTextPositioningElement[SVGTextPositioningElement] |- |||
+
+|[[SVGTSpanElement]]SVGTSpanElement |link:#SVGTextPositioningElement[SVGTextPositioningElement] |- |||
+
+.5+|[[SVGTextPathElement]]SVGTextPathElement .1+|link:#SVGTextContentElement[SVGTextContentElement] |- |||
+.1+|link:#SVGURIReference[SVGURIReference] .1+|- |||
+.3+|- |startOffset ^|TBD ||
+|method ^|TBD ||
+|spacing ^|TBD ||
+|====
+
+==== Embedded Content
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.8+|[[SVGImageElement]]SVGImageElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|TBD ^| |
+.1+|link:#SVGURIReference[SVGURIReference] .1+|- |||
+.6+|- |x ^|Not Planned ||
+|y ^|Not Planned ||
+|width ^|Not Planned ||
+|height ^|Not Planned ||
+|preserveAspectRatio ^|TBD ||
+|crossOrigin ^|TBD ||
+
+
+.8+|[[SVGForeignObjectElement]]SVGForeignObjectElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|TBD ^| |
+.4+|- |x ^|Not Planned ||
+|y ^|Not Planned ||
+|width ^|Not Planned ||
+|height ^|Not Planned ||
+|====
+
+==== Markers
+|====
+^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
+
+.12+|[[SVGMarkerElement]]SVGMarkerElement .1+|link:#SVGElement[SVGElement] |- | ||
+.1+|link:#SVGFitToViewBox[SVGFitToViewBox] .1+|- |||
+.10+|- |refX ^|Not Planned ||
+|refY ^|Not Planned ||
+|markerUnits ^|TBD ||
+|markerWidth ^|TBD ||
+|markerHeight ^|TBD ||
+|orientType ^|TBD ||
+|orientAngle ^|TBD ||
+|orient ^|TBD ||
+|setOrientToAuto() ^|TBD | |
+|setOrientToAngle() ^|TBD | |
+|====
+
+// === HTML

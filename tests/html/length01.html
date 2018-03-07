@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Length01</title>
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('text-bbox'),
+                            function (element) {
+                var style = document.defaultView.getComputedStyle(element, null);
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = style.fontFamily + ': ' + style.fontSize;
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="100%" height="100%" viewBox="0 0 1000 300"
+     id="root" class="text-bbox"
+     xmlns="http://www.w3.org/2000/svg">
+    <g id="g01" class="text-bbox" font-family="DejaVu Sans, sans-serif"
+       font-size="18">
+        <rect x="9.824" y="1" width="131.176" height="257" fill="none"
+              stroke="red"
+              stroke-dasharray="3"/>
+        <g transform="translate(10 10)">
+            <text id="text-xx-small" class="text-bbox" x="0" y="0"
+                  font-size="xx-small">
+                xx-small
+            </text>
+            <rect x="0" y="-8" width="37.859" height="10.406" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 50)">
+            <text id="text-x-small" class="text-bbox" x="0" y="0"
+                  font-size="x-small">
+                x-small
+            </text>
+            <rect x="0" y="-8.922" width="36.125" height="11.359" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 90)">
+            <text id="text-small" class="text-bbox" x="0" y="0"
+                  font-size="small">
+                small
+            </text>
+            <rect x="0" y="-12.172" width="34.609" height="15.422" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 130)">
+            <text id="text-medium" class="text-bbox" x="0" y="0"
+                  font-size="medium">
+                medium
+            </text>
+            <rect x="0" y="-14.609" width="65.734" height="18.672" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 170)">
+            <text id="text-large" class="text-bbox" x="0" y="0"
+                  font-size="large">
+                large
+            </text>
+            <rect x="0" y="-17.047" width="45.594" height="21.109" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 210)">
+            <text id="text-x-large" class="text-bbox" x="0" y="0"
+                  font-size="x-large">
+                x-large
+            </text>
+            <rect x="0" y="-21.922" width="83.672" height="27.609" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 250)">
+            <text id="text-xx-large" class="text-bbox" x="0" y="0"
+                  font-size="xx-large">
+                xx-large
+            </text>
+            <rect x="0" y="-30.047" width="130.5" height="37.359" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+    </g>
+    <g id="g02" class="text-bbox" font-family="DejaVu Sans Mono, monospace"
+       font-size="18"
+       transform="translate(150)">
+        <rect x="10" y="1.891" width="154.109" height="255.422" fill="none"
+              stroke="red"
+              stroke-dasharray="3"/>
+        <g transform="translate(10 10)">
+            <text id="text-xx-small-mono" class="text-bbox" x="0" y="0"
+                  font-size="xx-small">
+                xx-small
+            </text>
+            <rect x="0" y="-8.109" width="43.313" height="10.547" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 50)">
+            <text id="text-x-small-mono" class="text-bbox" x="0" y="0"
+                  font-size="x-small">
+                x-small
+            </text>
+            <rect x="0" y="-8.922" width="42.109" height="11.359" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 90)">
+            <text id="text-small-mono" class="text-bbox" x="0" y="0"
+                  font-size="small">
+                small
+            </text>
+            <rect x="0" y="-12.172" width="39.125" height="15.422" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 130)">
+            <text id="text-medium-mono" class="text-bbox" x="0" y="0"
+                  font-size="medium">
+                medium
+            </text>
+            <rect x="0" y="-14.609" width="58.703" height="18.672" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 170)">
+            <text id="text-large-mono" class="text-bbox" x="0" y="0"
+                  font-size="large">
+                large
+            </text>
+            <rect x="0" y="-17.047" width="54.156" height="21.109" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 210)">
+            <text id="text-x-large-mono" class="text-bbox" x="0" y="0"
+                  font-size="x-large">
+                x-large
+            </text>
+            <rect x="0" y="-21.922" width="101.125" height="27.609" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+        <g transform="translate(10 250)">
+            <text id="text-xx-large-mono" class="text-bbox" x="0" y="0"
+                  font-size="xx-large">
+                xx-large
+            </text>
+            <rect x="0" y="-30.047" width="154.109" height="37.359" fill="none"
+                  stroke="blue" stroke-dasharray="2"/>
+        </g>
+    </g>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>font-size</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

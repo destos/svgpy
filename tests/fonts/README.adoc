@@ -1,0 +1,5 @@
+* https://dejavu-fonts.github.io/[DejaVu fonts] link:dejavu/LICENSE[(LICENSE)]
+
+* http://mojikiban.ipa.go.jp/1300.html[IPAmjMincho] link:ipamjm00401/IPA_Font_License_Agreement_v1.0.txt[(LICENSE)]
+
+* https://github.com/rastikerdar/vazir-font[Vazir-Font] link:vazir/LICENSE[(LICENSE)]

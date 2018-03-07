@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('path-length'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getAttribute('stroke');
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="12cm" height="5.25cm" viewBox="0 0 1200 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <title>Example arcs01 - arc commands in path data</title>
+    <desc>Picture of a pie chart with two pie wedges and
+        a picture of a line with arc blips
+    </desc>
+    <rect x="1" y="1" width="1198" height="398"
+          fill="none" stroke="blue" stroke-width="1"/>
+
+    <path d="M300,200 h-150 a150,150 0 1,0 150,-150 z"
+          id="path01" class="path-length"
+          fill="red" stroke="steelblue" stroke-width="5"/>
+
+    <path d="M275,175 v-150 a150,150 0 0,0 -150,150 z"
+          id="path02" class="path-length"
+          fill="yellow" stroke="navy" stroke-width="5"/>
+
+    <path d="M600,350 l 50,-25
+           a25,25  -30 0,1 50,-25 l 50,-25
+           a25,50  -30 0,1 50,-25 l 50,-25
+           a25,75  -30 0,1 50,-25 l 50,-25
+           a25,100 -30 0,1 50,-25 l 50,-25"
+          id="path03" class="path-length"
+          fill="none" stroke="pink" stroke-width="5"/>
+
+    <path d="M950,175
+           a25,100 0 0,1 50,-25"
+          id="path04" class="path-length"
+          fill="none" stroke="cyan" stroke-width="5"/>
+    <path d="M950,175 C946.243,157.787 951.287,97.252 963.733,72.361 976.178,47.47 991.312,67.648 1000,150"
+          fill="none" stroke="darkcyan" stroke-width="3" stroke-dasharray="3"/>
+
+    <path d="M950,175
+           a25,100 -30 0,1 50,-25"
+          id="path05" class="path-length"
+          fill="none" stroke="lime" stroke-width="5" stroke-dasharray="10 5"/>
+    <path d="M950,175 C917.568,116.885 905.572,69.669 920.741,65.176 935.909,60.683 972.499,100.614 1000,150"
+          fill="none" stroke="red" stroke-width="3" stroke-dasharray="6 2"/>
+
+    <path d="M950,175
+           a25,100 30 0,1 50,-25"
+          id="path06" class="path-length"
+          fill="none" stroke="gray" stroke-width="5" stroke-dasharray="8 5"/>
+    <path d="M950,175 C988.939,138.516 994.366,138.049 1000,150"
+          fill="none" stroke="#ccc" stroke-width="3" stroke-dasharray="6 2"/>
+    <path d="M950,175 C961.201,155.808 930.521,197.64 909.893,240.907 889.265,284.175 885.058,315.52 900.052,314.23 915.046,312.941 944.611,279.415 969.213,235.806 993.814,192.196 1005.855
+,151.968 1000,150"
+          fill="none" stroke="#e9e" stroke-width="3" stroke-dasharray="6 2"/>
+
+    <ellipse cx="975" cy="162.5" rx="27.9038" ry="111.615" stroke="blue"
+             stroke-width="3" stroke-dasharray="8" fill="none"
+             transform="rotate(-30 975 162.5)"/>
+    <ellipse cx="945.586" cy="226.768" rx="25" ry="100" stroke="gray"
+             stroke-width="3" stroke-dasharray="5 10" fill="none"
+             transform="rotate(30 945.586 226.768)"/>
+    <circle cx="950" cy="175" r="5" fill="white" stroke="black"/>
+    <circle cx="1000" cy="150" r="5" fill="red" stroke="black"/>
+    <circle cx="975" cy="162.5" r="5" fill="green" stroke="black"/>
+    <circle cx="945.586" cy="226.768" r="5" fill="green" stroke="black"/>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>stroke</th>
+        <th>length</th>
+    </tr>
+</table>
+</body>
+</html>

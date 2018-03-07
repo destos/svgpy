@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Units</title>
+    <script type="text/javascript">
+        function getStyle(e) {
+            var style = document.defaultView.getComputedStyle(e, '');
+            var i = style.length;
+            var props = [];
+            while (i--) {
+                var name = style[i];
+                props.push(name + ' = ' + style.getPropertyValue(name));
+            }
+            props.sort();
+            return props;
+        }
+        function getBBox(e) {
+            var bbox = e.getBBox();
+            return '('
+                + parseFloat((bbox.x).toFixed(6)) + ', '
+                + parseFloat((bbox.y).toFixed(6)) + ') '
+                + parseFloat((bbox.width).toFixed(6)) + ' x '
+                + parseFloat((bbox.height).toFixed(6));
+        }
+        window.onload = function() {
+            var select = document.getElementById('rect');
+            select.onchange = function() {
+                var selected = this.options[this.selectedIndex];
+                var element = document.getElementById(selected.value);
+                var props = getStyle(element);
+                var rect = element.getBoundingClientRect();
+                props.splice(0, 0, '*BBox = ' + getBBox(element));
+                props.splice(0, 0, '*BoundingClientRect.height = ' + rect.height);
+                props.splice(0, 0, '*BoundingClientRect.width = ' + rect.width);
+                document.getElementById('s1').textContent = 'style (' + selected.value + '): \n' + props.join('\n');
+            }
+        }
+    </script>
+</head>
+<body>
+<svg width="400px" height="200px" viewBox="0 0 4000 2000"
+     xmlns="http://www.w3.org/2000/svg">
+    <title>Example Units</title>
+    <desc>Illustrates various units options</desc>
+
+    <!-- Frame the picture -->
+    <rect x="5" y="5" width="3990" height="1990"
+          fill="none" stroke="blue" stroke-width="10"/>
+
+    <g fill="blue" stroke="red" font-family="Verdana" font-size="150">
+        <!-- Absolute unit specifiers -->
+        <g transform="translate(400,0)">
+            <text x="-50" y="300" fill="black" stroke="none">Abs. units:</text>
+            <rect x="0" y="400" width="4in" height="2in" stroke-width=".4in"
+                  id="rect_abs_01"/>
+            <rect x="0" y="750" width="384" height="192" stroke-width="38.4"
+                  id="rect_abs_02"/>
+            <g transform="scale(2)">
+                <rect x="0" y="600" width="4in" height="2in"
+                      stroke-width=".4in" id="rect_abs_03"/>
+            </g>
+        </g>
+
+        <!-- Relative unit specifiers -->
+        <g transform="translate(1600,0)">
+            <text x="-50" y="300" fill="black" stroke="none">Rel. units:</text>
+            <rect x="0" y="400" width="2.5em" height="1.25em"
+                  stroke-width=".25em" id="rect_rel_01"/>
+            <rect x="0" y="750" width="375" height="187.5"
+                  stroke-width="37.5" id="rect_rel_02"/>
+            <g transform="scale(2)">
+                <rect x="0" y="600" width="2.5em" height="1.25em"
+                      stroke-width=".25em" id="rect_rel_03"/>
+            </g>
+        </g>
+
+        <!-- Percentages -->
+        <g transform="translate(2800,0)">
+            <text x="-50" y="300" fill="black" stroke="none">Percentages:
+            </text>
+            <rect x="0" y="400" width="10%" height="10%" stroke-width="1%"
+                  id="rect_per_01"/>
+            <rect x="0" y="750" width="400" height="200" stroke-width="31.62"
+                  id="rect_per_02"/>
+            <g transform="scale(2)">
+                <rect x="0" y="600" width="10%" height="10%"
+                      stroke-width="1%" id="rect_per_03"/>
+            </g>
+        </g>
+    </g>
+</svg>
+<br>
+<select id="rect">
+    <option disabled selected>----</option>
+    <option value="rect_abs_01">Abs. Top</option>
+    <option value="rect_abs_02">Abs. Mid</option>
+    <option value="rect_abs_03">Abs. Bottom</option>
+    <option value="rect_rel_01">Rel. Top</option>
+    <option value="rect_rel_02">Rel. Mid</option>
+    <option value="rect_rel_03">Rel. Bottom</option>
+    <option value="rect_per_01">Percentages Top</option>
+    <option value="rect_per_02">Percentages Mid</option>
+    <option value="rect_per_03">Percentages Bottom</option>
+</select>
+<div id="s1" style="white-space:pre;"></div>
+</body>
+</html>

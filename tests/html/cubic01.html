@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('SamplePath'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getAttribute('stroke');
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="5cm" height="4cm" viewBox="0 0 500 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <title>Example cubic01- cubic Bézier commands in path data</title>
+    <desc>Picture showing a simple example of path data
+        using both a "C" and an "S" command,
+        along with annotations showing the control points
+        and end points
+    </desc>
+    <style type="text/css"><![CDATA[
+    .Border { fill:none; stroke:blue; stroke-width:1 }
+    .Connect { fill:none; stroke:#888888; stroke-width:2 }
+    .SamplePath { fill:none; }
+    .EndPoint { fill:none; stroke:#888888; stroke-width:2 }
+    .CtlPoint { fill:#888888; stroke:none }
+    .AutoCtlPoint { fill:none; stroke:blue; stroke-width:4 }
+    .Label { font-size:22; font-family:Verdana }
+    ]]>
+    </style>
+
+    <rect class="Border" x="1" y="1" width="498" height="398"/>
+
+    <polyline class="Connect" points="100,200 100,100"/>
+    <polyline class="Connect" points="250,100 250,200"/>
+    <polyline class="Connect" points="250,200 250,300"/>
+    <polyline class="Connect" points="400,300 400,200"/>
+    <path d="M100,200 C100,100 250,100 250,200 S400,300 400,200"
+          id="path01" class="SamplePath"
+          stroke="red" stroke-width="5"/>
+    <path d="M100,200 C100,100 250,100 250,200 C250,300 400,300 400,200"
+          id="path02" class="SamplePath"
+          stroke="pink" stroke-width="3" stroke-dasharray="10 6"/>
+    <path d="M100,200 C100,100 250,100 250,200"
+          id="path03" class="SamplePath"
+          stroke="blue" stroke-width="3" stroke-dasharray="5"/>
+    <circle class="EndPoint" cx="100" cy="200" r="10"/>
+    <circle class="EndPoint" cx="250" cy="200" r="10"/>
+    <circle class="EndPoint" cx="400" cy="200" r="10"/>
+    <circle class="CtlPoint" cx="100" cy="100" r="10"/>
+    <circle class="CtlPoint" cx="250" cy="100" r="10"/>
+    <circle class="CtlPoint" cx="400" cy="300" r="10"/>
+    <circle class="AutoCtlPoint" cx="250" cy="300" r="9"/>
+    <text class="Label" x="25" y="70">M100,200 C100,100 250,100 250,200</text>
+    <text class="Label" x="325" y="350"
+          style="text-anchor:middle">S400,300 400,200
+    </text>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>stroke</th>
+        <th>length</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        function matrix_to_string(m) {
+            if (m === null) return 'null';
+            return '[' + m.a + ', ' + m.b + ', ' + m.c + ', ' + m.d + ', ' + m.e + ', ' + m.f + ']';
+        }
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('ctm'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var ctm = element.getCTM();
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                td = document.createElement('td');
+                ctm = element.getScreenCTM();
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="400px" height="120px" version="1.1"
+     xmlns="http://www.w3.org/2000/svg">
+    <desc>Example RotateScale - Rotate and scale transforms</desc>
+    <g fill="none" stroke="black" stroke-width="3">
+        <!-- Draw the axes of the original coordinate system -->
+        <line x1="0" y1="1.5" x2="400" y2="1.5"/>
+        <line x1="1.5" y1="0" x2="1.5" y2="120"/>
+    </g>
+    <!-- Establish a new coordinate system whose origin is at (50,30)
+         in the initial coord. system and which is rotated by 30 degrees. -->
+    <g transform="translate(50,30)" id="g11" class="ctm">
+        <g transform="rotate(30)" id="g12" class="ctm">
+            <g fill="none" stroke="red" stroke-width="3" id="g13" class="ctm">
+                <line x1="0" y1="0" x2="50" y2="0"/>
+                <line x1="0" y1="0" x2="0" y2="50"/>
+                <path id="path01" d="M0,50 L0,0 50,0" stroke="blue"
+                      stroke-dasharray="5"/>
+            </g>
+            <text x="0" y="0" font-size="20" font-family="Verdana" fill="blue">
+                ABC (rotate)
+            </text>
+        </g>
+    </g>
+    <!-- Establish a new coordinate system whose origin is at (200,40)
+         in the initial coord. system and which is scaled by 1.5. -->
+    <g transform="translate(200,40)" id="g21" class="ctm">
+        <g transform="scale(1.5)" id="g22" class="ctm">
+            <g fill="none" stroke="red" stroke-width="3" id="g23" class="ctm">
+                <line x1="0" y1="0" x2="50" y2="0"/>
+                <line x1="0" y1="0" x2="0" y2="50"/>
+                <path id="path02" d="M0,50 L0,0 50,0" stroke="blue"
+                      stroke-dasharray="5"/>
+            </g>
+            <text x="0" y="0" font-size="20" font-family="Verdana" fill="blue">
+                ABC (scale)
+            </text>
+        </g>
+    </g>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>CTM</th>
+        <th>ScreenCTM</th>
+    </tr>
+</table>
+</body>
+</html>

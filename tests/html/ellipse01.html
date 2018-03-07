@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        function matrix_to_string(m) {
+            if (m === null) return 'null';
+            return '[' + m.a + ', ' + m.b + ', ' + m.c + ', ' + m.d + ', ' + m.e + ', ' + m.f + ']';
+        }
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('path-length'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                var ctm = element.getCTM();
+                td = document.createElement('td');
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="12cm" height="4cm" viewBox="0 0 1200 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <desc>Example ellipse01 - examples of ellipses</desc>
+
+    <!-- Show outline of viewport using 'rect' element -->
+    <rect x="1" y="1" width="1198" height="398"
+          fill="none" stroke="blue" stroke-width="2"/>
+
+    <g transform="translate(300 200)">
+        <ellipse rx="250" ry="100"
+                 id="ellipse01"
+                 fill="none"/>
+        <path fill="none" stroke="red" stroke-width="5"
+              id="path01" class="path-length"
+              d="M250,0 A250 100 0 0 1 0,100 250 100 0 0 1 -250,0 250 100 0 0 1 0,-100 250 100 0 0 1 250,0 z"/>
+        <text x="260" y="0" font-size="large" stroke="black" stroke-width="1">
+            path01
+        </text>
+        <path d="M250,0 C250,55.228 138.071,100 0,100 -138.071,100 -250,55.228 -250,0 -250,-55.228 -138.071,-100 0,-100 138.071,-100 250,-55.228 250,0 Z"
+              id="path01norm"
+              fill="none" stroke="blue" stroke-width="3" stroke-dasharray="5"/>
+
+        <g transform="scale(0.75)"
+           style="fill:none; stroke:red; stroke-width:5">
+            <path fill="none" stroke="blue" stroke-width="3"
+                  stroke-dasharray="5"
+                  id="path02" class="path-length"
+                  d="M100,0 A100,250 0 0 1 0,250 100,250 0 0 1 -100,0 100,250 0 0 1 0,-250 100,250 0 0 1 100,0 z"/>
+            <line x1="0" y1="-250" x2="0" y2="250" stroke="blue"
+                  stroke-width="1"
+                  stroke-dasharray="5"/>
+            <line x1="100" y1="0" x2="-100" y2="0" stroke="blue"
+                  stroke-width="1"
+                  stroke-dasharray="5"/>
+
+            <polyline stroke="blue" stroke-width="1" stroke-dasharray="5"
+                      points="93.9693,-85.505 0,0 70.7107,176.777"/>
+            <circle r="10" cx="93.9693" cy="-85.505" stroke="blue"
+                    stroke-width="3" fill="white"/>
+            <circle r="10" cx="70.7107" cy="176.777" stroke="blue"
+                    stroke-width="3" fill="red"/>
+
+            <path id="path21" class="path-length"
+                  d="M93.969,-85.505 A100,250 0 0 1 70.711,176.777"/>
+            <path d="M93.969,-85.505 C96.024,-107.64 104.802,-23.844 97.457,56.022 90.111,135.889 67.575,201.684 70.711,176.777"
+                  fill="none" stroke="#900" stroke-dasharray="5 8"/>
+
+            <polyline stroke="blue" stroke-width="1" stroke-dasharray="5"
+                      points="50,216.506 0,0 86.6025,-125"/>
+            <circle r="10" cx="50" cy="216.506" stroke="blue" stroke-width="3"
+                    fill="white"/>
+            <circle r="10" cx="86.6025" cy="-125" stroke="blue"
+                    stroke-width="3" fill="red"/>
+
+            <path id="path22" class="path-length"
+                  d="M50,216.506 A100,250 0 1 1 86.603,-125"/>
+            <path d="M50,216.506 C-22.172,269.38 -68.138,215.917 -89.023,113.876 -109.908,11.834 -100.359,-112.642 -65.857,-188.13 -31.355,-263.618 19.262,-270.777 86.603,-125"
+                  fill="none" stroke="#900" stroke-dasharray="5 8"/>
+        </g>
+        <text x="80" y="0" font-size="large" stroke="black" stroke-width="1">
+            path02
+        </text>
+        <text x="70" y="-120" font-size="large" stroke="black"
+              stroke-width="1">path21
+        </text>
+    </g>
+
+    <ellipse transform="translate(900 200) rotate(-30)"
+             rx="250" ry="100"
+             fill="none" stroke="blue" stroke-width="7"/>
+    <g transform="translate(900 200) rotate(0)"
+       style="fill:none; stroke:red; stroke-width:5">
+        <ellipse rx="250" ry="100"
+                 fill="none" stroke="red" stroke-width="1"
+                 stroke-dasharray="5"/>
+        <line x1="0" y1="-100" x2="0" y2="100" stroke="red" stroke-width="1"
+              stroke-dasharray="5"/>
+        <line x1="250" y1="0" x2="-250" y2="0" stroke="red" stroke-width="1"
+              stroke-dasharray="5"/>
+
+        <polyline stroke="red" stroke-width="1" stroke-dasharray="5"
+                  points="85.505,-93.9693 0,0 -176.777,-70.7107"/>
+        <circle r="10" cx="85.505" cy="-93.9693" stroke="blue" stroke-width="3"
+                fill="white"/>
+        <circle r="10" cx="-176.777" cy="-70.7107" stroke="blue"
+                stroke-width="3" fill="red"/>
+        <path id="path31" class="path-length"
+              d="M85.505,-93.969 A250,100 0 0 0 -176.777,-70.711"/>
+        <path d="M85.505,-93.969 C107.64,-96.024 23.844,-104.802 -56.022,-97.457 -135.889,-90.111 -201.684,-67.575 -176.777,-70.711"
+              fill="none" stroke="#900" stroke-dasharray="5 4"/>
+        <text x="86" y="-110" font-size="large" stroke="black"
+              stroke-width="1">path31
+        </text>
+
+        <polyline stroke="red" stroke-width="1" stroke-dasharray="5"
+                  points="-234.923,-34.202 0,0 -176.777,70.7107"/>
+        <circle r="10" cx="-234.923" cy="-34.202" stroke="blue"
+                stroke-width="3" fill="white"/>
+        <circle r="10" cx="-176.777" cy="70.7107" stroke="blue"
+                stroke-width="3" fill="red"/>
+        <path id="path32" class="path-length"
+              d="M-234.923,-34.202 A250,100 0 0 0 -176.777,70.711"/>
+        <path d="M-234.923,-34.202 C-253.733,3.014 -248.464,20.795 -176.777,70.711"
+              fill="none" stroke="#900" stroke-dasharray="5 4"/>
+        <text x="-230" y="-10" font-size="large" stroke="black"
+              stroke-width="1">path32
+        </text>
+
+        <polyline stroke="red" stroke-width="1" stroke-dasharray="5"
+                  points="-85.505,93.9693 0,0 176.777,70.7107"/>
+        <circle r="10" cx="-85.505" cy="93.9693" stroke="blue" stroke-width="3"
+                fill="white"/>
+        <circle r="10" cx="176.777" cy="70.7107" stroke="blue" stroke-width="3"
+                fill="red"/>
+        <path id="path33" class="path-length"
+              d="M-85.505,93.969 A250,100 0 0 0 176.777,70.711"/>
+        <path d="M-85.505,93.969 C-107.64,96.024 -23.844,104.802 56.022,97.457 135.889,90.111 201.684,67.575 176.777,70.711"
+              fill="none" stroke="#900" stroke-dasharray="5 4"/>
+        <text x="-80" y="80" font-size="large" stroke="black" stroke-width="1">
+            path33
+        </text>
+
+        <polyline stroke="red" stroke-width="1" stroke-dasharray="5"
+                  points="234.923,34.202 0,0 176.777,-70.7107"/>
+        <circle r="10" cx="234.923" cy="34.202" stroke="blue" stroke-width="3"
+                fill="white"/>
+        <circle r="10" cx="176.777" cy="-70.7107" stroke="blue"
+                stroke-width="3" fill="red"/>
+        <path id="path34" class="path-length"
+              d="M234.923,34.202 A250,100 0 0 0 176.777,-70.711"/>
+        <path d="M234.923,34.202 C253.733,-3.014 248.464,-20.795 176.777,-70.711"
+              fill="none" stroke="#900" stroke-dasharray="5 4"/>
+        <text x="230" y="60" font-size="large" stroke="black" stroke-width="1">
+            path34
+        </text>
+    </g>
+
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>length</th>
+        <th>CTM</th>
+    </tr>
+</table>
+</body>
+</html>

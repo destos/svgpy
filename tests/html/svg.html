@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG</title>
+    <script type="text/javascript">
+        function matrix_to_string(m) {
+            if (m === null) return 'null';
+            return '[' + m.a + ', ' + m.b + ', ' + m.c + ', ' + m.d + ', ' + m.e + ', ' + m.f + ']';
+        }
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('test'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var length = 0
+                if (element.nodeName === 'path') {
+                    length = element.getTotalLength();
+                }
+                td.textContent = length;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var ctm = element.getCTM();
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100" viewBox="0 0 100 100" class="test">
+ <g id='gtop' stroke-width="12" stroke="#000" class="test">
+   <g id="svgstar" transform="translate(50,50)" class="test">
+     <path id="svgbar" d="M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z" class="test"/>
+     <use id='use1' xlink:href="#svgbar" transform="rotate(45)" class="test"/>
+     <use id='use2' xlink:href="#svgbar" transform="rotate(90)" class="test"/>
+     <use id='use3' xlink:href="#svgbar" transform="rotate(135)" class="test"/>
+   </g>
+ </g>
+ <use id="usetop" xlink:href="#svgstar" fill="#FB4" class="test"/>
+</svg>
+
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>length</th>
+        <th>CTM</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

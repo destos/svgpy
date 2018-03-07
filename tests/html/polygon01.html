@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('path-length'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getAttribute('stroke');
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="12cm" height="4cm" viewBox="0 0 1200 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <desc>Example polygon01 - star and hexagon</desc>
+
+    <!-- Show outline of viewport using 'rect' element -->
+    <rect x="1" y="1" width="1198" height="398"
+          fill="none" stroke="blue" stroke-width="2"/>
+
+    <polygon fill="red" stroke="blue" stroke-width="10"
+             id="polygon01" class="path-length"
+             points="350,75  379,161 469,161 397,215
+                    423,301 350,250 277,301 303,215
+                    231,161 321,161"/>
+    <path fill="none" stroke="red" stroke-width="3" stroke-dasharray="10 5"
+          id="path01" class="path-length"
+          d="M350,75 L379,161 469,161 397,215 423,301 350,250 277,301 303,215 231,161 321,161 Z"/>
+
+    <polygon fill="lime" stroke="blue" stroke-width="10"
+             id="polygon02" class="path-length"
+             points="850,75  958,137.5 958,262.5
+                    850,325 742,262.6 742,137.5"/>
+    <path fill="none" stroke="lime" stroke-width="3" stroke-dasharray="10 5"
+          id="path02" class="path-length"
+          d="M850,75 L958,137.5 958,262.5 850,325 742,262.6 742,137.5 Z"/>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>stroke</th>
+        <th>length</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

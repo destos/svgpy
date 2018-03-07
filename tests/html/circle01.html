@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<svg width="12cm" height="4cm" viewBox="0 0 1200 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <desc>Example circle01 - circle filled with red and stroked with blue</desc>
+
+    <!-- Show outline of viewport using 'rect' element -->
+    <rect x="1" y="1" width="1198" height="398"
+          fill="none" stroke="blue" stroke-width="2"/>
+
+    <g transform="translate(-300)">
+        <circle cx="600" cy="200" r="100"
+                fill="none" stroke="blue" stroke-width="15"/>
+
+        <path fill="none" stroke="red" stroke-width="10" stroke-dasharray="5 2"
+              d="M700,200 A100,100 0 0 1 600,300 100,100 0 0 1 500,200 100,100 0 0 1 600,100 100,100 0 0 1 700,200 z"/>
+
+        <path fill="none" stroke="#ffd800" stroke-width="5"
+              stroke-dasharray="3"
+              d="M700,200 C700,255.228 655.228,300 600,300 544.772,300 500,255.228 500,200 500,144.772 544.772,100 600,100 655.228,100 700,144.772 700,200 Z"/>
+    </g>
+
+    <g transform="translate(500)">
+        <circle cx="25%" cy="50%" r="10%"
+                fill="none" stroke="blue" stroke-width="10"/>
+
+        <circle cx="300" cy="200" r="89.442719"
+                fill="none" stroke="red" stroke-width="5"
+                stroke-dasharray="5"/>
+    </g>
+</svg>
+</body>
+</html>

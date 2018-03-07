@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text02 - relative-weight</title>
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('text-bbox'),
+                            function (element) {
+                var style = document.defaultView.getComputedStyle(element, null);
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = style.fontFamily + ': ' + style.fontWeight;
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="100%" height="100%" viewBox="0 0 1000 340"
+     id="root" class="text-bbox"
+     xmlns="http://www.w3.org/2000/svg">
+    <g id="g01" class="text-bbox" font-family="DejaVu Sans, sans-serif"
+       font-weight="100">
+        <g transform="translate(10 30)" font-weight="bolder">
+            <text id="text-bolder01" class="text-bbox" x="0" y="0">
+                bolder
+            </text>
+
+            <g transform="translate(0 50)" font-weight="bolder">
+                <text id="text-bolder02" class="text-bbox" x="0" y="0">
+                    bolder
+                </text>
+
+                <g transform="translate(0 50)" font-weight="bolder">
+                    <text id="text-bolder03" class="text-bbox" x="0" y="0">
+                        bolder
+                    </text>
+
+                    <g transform="translate(0 50)" font-weight="bolder">
+                        <text id="text-bolder04" class="text-bbox" x="0" y="0">
+                            bolder
+                        </text>
+
+                        <g transform="translate(0 50)" font-weight="bolder">
+                            <text id="text-bolder05" class="text-bbox" x="0"
+                                  y="0">
+                                bolder
+                            </text>
+
+                            <g transform="translate(0 50)"
+                               font-weight="bolder">
+                                <text id="text-bolder06" class="text-bbox"
+                                      x="0" y="0">
+                                    bolder
+                                </text>
+
+                                <g transform="translate(0 50)"
+                                   font-weight="bolder">
+                                    <text id="text-bolder07" class="text-bbox"
+                                          x="0" y="0">
+                                        bolder
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+
+    <g id="g02" class="text-bbox" font-family="DejaVu Sans, sans-serif"
+       font-weight="900"
+       transform="translate(150)">
+        <g transform="translate(10 30)" font-weight="lighter">
+            <text id="text-lighter01" class="text-bbox" x="0" y="0">
+                lighter
+            </text>
+
+            <g transform="translate(0 50)" font-weight="lighter">
+                <text id="text-lighter02" class="text-bbox" x="0" y="0">
+                    lighter
+                </text>
+
+                <g transform="translate(0 50)" font-weight="lighter">
+                    <text id="text-lighter03" class="text-bbox" x="0" y="0">
+                        lighter
+                    </text>
+
+                    <g transform="translate(0 50)" font-weight="lighter">
+                        <text id="text-lighter04" class="text-bbox" x="0"
+                              y="0">
+                            lighter
+                        </text>
+
+                        <g transform="translate(0 50)" font-weight="lighter">
+                            <text id="text-lighter05" class="text-bbox" x="0"
+                                  y="0">
+                                lighter
+                            </text>
+
+                            <g transform="translate(0 50)"
+                               font-weight="lighter">
+                                <text id="text-lighter06" class="text-bbox"
+                                      x="0" y="0">
+                                    lighter
+                                </text>
+
+                                <g transform="translate(0 50)"
+                                   font-weight="lighter">
+                                    <text id="text-lighter07" class="text-bbox"
+                                          x="0" y="0">
+                                        lighter
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>font-weight</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('path-length'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getAttribute('stroke');
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="12cm" height="4cm" viewBox="0 0 1200 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <desc>Example rect02 - rounded rectangles</desc>
+
+    <!-- Show outline of canvas using 'rect' element -->
+    <rect x="1" y="1" width="1198" height="398"
+          fill="none" stroke="blue" stroke-width="2"/>
+
+    <rect x="100" y="100" width="400" height="200" rx="50" id="rect1"
+          fill="none" stroke="skyblue" stroke-width="6"/>
+    <path stroke="blue" stroke-width="3" stroke-dasharray="10 3"
+          id="path01" class="path-length"
+          fill="none"
+          d="M150,100 H450 A50 50 0 0 1 500,150 V250 A50 50 0 0 1 450,300 H150 A50 50 0 0 1 100,250 V150 A50 50 0 0 1 150,100 z"/>
+    <path stroke="pink" stroke-width="2" stroke-dasharray="5 2"
+          id="path01norm"
+          fill="none"
+          d="M150,100
+          L450,100 C477.614,100 500,122.386 500,150
+          L500,250 C500,277.614 477.614,300 450,300
+          L150,300 C122.386,300 100,277.614 100,250
+          L100,150 C100,122.386 122.386,100 150,100 Z"/>
+
+    <g transform="translate(700 210) rotate(-30)">
+        <rect x="0" y="0" width="400" height="200" rx="50" ry="25" id="rect2"
+              fill="none" stroke="purple" stroke-width="6"/>
+        <path stroke="red" stroke-width="3" stroke-dasharray="10 5"
+              id="path02" class="path-length"
+              d="M50,0 H350 A50,25 0 0 1 400,25 V175 A50,25 0 0 1 350,200 H50 A50,25 0 0 1 0,175 V25 A50,25 0 0 1 50,0 Z"
+              fill="none"/>
+        <path d="M50,0 L350,0 C377.614,0 400,11.193 400,25 L400,175 C400,188.807 377.614,200 350,200 L50,200 C22.386,200 0,188.807 0,175 L0,25 C0,11.193 22.386,0 50,0 Z"
+              stroke="pink" stroke-width="2" stroke-dasharray="5 2"
+              id="path02norm"
+              fill="none"/>
+        <rect x="0" y="0" width="400" height="200"
+              id="rect2-bbox"
+              fill="none" stroke="gray" stroke-width="1" stroke-dasharray="3 2"/>
+    </g>
+
+    <rect x="150" y="150" width="400" height="200" rx="12.5%" ry="auto"
+          id="rect03"
+          fill="none" stroke="green" stroke-width="6"/>
+    <path stroke="lime" stroke-width="3" stroke-dasharray="10 2"
+          id="path03" class="path-length"
+          fill="none"
+          d="M200,150 H500 A50,50 0 0 1 550,200 V300 A50,50 0 0 1 500,350 H200 A50,50 0 0 1 150,300 V200 A50,50 0 0 1 200,150 Z"/>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>stroke</th>
+        <th>length</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

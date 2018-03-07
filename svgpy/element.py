@@ -1,0 +1,1140 @@
+# Copyright (C) 2018 Tetsuya Miura <miute.dev@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from lxml import etree
+
+from .base import CharacterData, HTMLElement, \
+    HTMLHyperlinkElementUtils, HTMLMediaElement, \
+    SVGAnimatedPoints, SVGElement, SVGFitToViewBox, \
+    SVGGeometryElement, SVGGraphicsElement, SVGGradientElement, \
+    SVGPathData, SVGPathDataSettings, \
+    SVGTextContentElement, SVGTextPositioningElement, \
+    SVGURIReference, SVGZoomAndPan
+from .core import CSSUtils, Element, Node, SVGLength
+from .path import PathParser, SVGPathSegment
+from .transform import SVGTransform, SVGTransformList
+
+
+# See https://dom.spec.whatwg.org/#interface-comment
+# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-comment
+# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-characterdata
+# Node > CharacterData > Comment
+class Comment(etree.CommentBase, CharacterData):
+    """Represents the DOM Comment."""
+
+    @property
+    def data(self):
+        return '' if self.text is None else self.text
+
+    @data.setter
+    def data(self, data):
+        self.text = data
+
+    @property
+    def node_name(self):
+        return '#comment'
+
+    @property
+    def node_type(self):
+        return Node.COMMENT_NODE
+
+    @property
+    def node_value(self):
+        return self.text
+
+    @node_value.setter
+    def node_value(self, text):
+        self.text = text
+
+    @property
+    def text_content(self):
+        return self.text
+
+    @text_content.setter
+    def text_content(self, text):
+        self.text = text
+
+    def tostring(self):
+        return '' if self.text is None else '<!--{}-->'.format(self.text)
+
+
+class HTMLAudioElement(HTMLMediaElement):
+    """Represents the HTML <audio> element."""
+    pass
+
+
+class HTMLCanvasElement(HTMLElement):
+    """Represents the HTML <canvas> element."""
+    pass
+
+
+class HTMLIFrameElement(HTMLElement):
+    """Represents the HTML <iframe> element."""
+    pass
+
+
+# See https://www.w3.org/TR/html51/semantics-embedded-content.html#the-video-element
+class HTMLVideoElement(HTMLMediaElement):
+    """Represents the HTML <video> element."""
+    pass
+
+
+# See https://svgwg.org/svg2-draft/linking.html#InterfaceSVGAElement
+class SVGAElement(SVGGraphicsElement,
+                  SVGURIReference, HTMLHyperlinkElementUtils):
+    # TODO: implement the SVGAElement.
+    """Represents the SVG <a> element."""
+
+    def get_path_data(self, settings=None):
+        return []
+
+
+class SVGCircleElement(SVGGeometryElement):
+    """Represents the SVG <circle> element."""
+
+    def get_computed_geometry(self):
+        geometry = dict()
+        attributes = self.attributes
+
+        # 'cx' property
+        # Value: <length> | <percentage>
+        # Initial: 0
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        cx = SVGLength(attributes.get('cx', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_HORIZONTAL).value()
+        geometry['cx'] = cx
+
+        # 'cy' property
+        # Value: <length> | <percentage>
+        # Initial: 0
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        cy = SVGLength(attributes.get('cy', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['cy'] = cy
+
+        # 'r' property
+        # Value: <length> | <percentage>
+        # Initial: 0
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        r = SVGLength(attributes.get('r', '0'),
+                      context=self,
+                      direction=SVGLength.DIRECTION_OTHER).value()
+        geometry['r'] = r
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        geometry = self.get_computed_geometry()
+        path_data = list()
+
+        # 'r' property
+        r = geometry['r']
+        if r <= 0:
+            return path_data
+
+        # 'cx', 'cy' properties
+        cx = geometry['cx']
+        cy = geometry['cy']
+
+        path_data.append(SVGPathSegment('M', cx + r, cy))
+        path_data.append(SVGPathSegment('A', r, r, 0, 0, 1, cx, cy + r))
+        path_data.append(SVGPathSegment('A', r, r, 0, 0, 1, cx - r, cy))
+        path_data.append(SVGPathSegment('A', r, r, 0, 0, 1, cx, cy - r))
+        path_data.append(SVGPathSegment('A', r, r, 0, 0, 1, cx + r, cy))
+        path_data.append(SVGPathSegment('Z'))
+        if settings is not None:
+            if not isinstance(settings, SVGPathDataSettings):
+                raise TypeError('Expected SVGPathDataSettings, got {}'.format(
+                    type(settings)))
+            if settings.normalize:
+                path_data = PathParser.normalize(path_data)
+        return path_data
+
+
+class SVGClipPathElement(SVGElement):
+    # TODO: implement the SVGClipPathElement.
+    """Represents the SVG <clipPath> element."""
+    pass
+
+
+class SVGDefsElement(SVGGraphicsElement):
+    """Represents the SVG <defs> element."""
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        return []
+
+
+class SVGDescElement(SVGElement):
+    """Represents the SVG <desc> element."""
+    pass
+
+
+class SVGEllipseElement(SVGGeometryElement):
+    """Represents the SVG <ellipse> element."""
+
+    def get_computed_geometry(self):
+        # See https://svgwg.org/svg2-draft/shapes.html#EllipseElement
+        geometry = dict()
+        attributes = self.attributes
+
+        # 'rx' property
+        # Value: <length> | <percentage> | auto
+        # Initial: auto
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        _rx = attributes.get('rx', 'auto')
+
+        # 'ry' property
+        # Value: <length> | <percentage> | auto
+        # Initial: auto
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        _ry = attributes.get('ry', 'auto')
+
+        if _rx != 'auto' and _ry == 'auto':
+            _ry = _rx
+        elif _rx == 'auto' and _ry != 'auto':
+            _rx = _ry
+
+        if _rx == 'auto' and _ry == 'auto':
+            rx = 0
+            ry = 0
+        else:
+            rx = SVGLength(_rx,
+                           context=self,
+                           direction=SVGLength.DIRECTION_HORIZONTAL).value()
+            ry = SVGLength(_ry,
+                           context=self,
+                           direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['rx'] = rx
+        geometry['ry'] = ry
+
+        # 'cx' property
+        # Value: <length> | <percentage>
+        # Initial: 0
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        cx = SVGLength(attributes.get('cx', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_HORIZONTAL).value()
+        geometry['cx'] = cx
+
+        # 'cy' property
+        # Value: <length> | <percentage>
+        # Initial: 0
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        cy = SVGLength(attributes.get('cy', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['cy'] = cy
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        style = self.get_computed_geometry()
+        path_data = list()
+
+        # 'rx', 'ry' properties
+        rx = style['rx']
+        ry = style['ry']
+        if rx <= 0 or ry <= 0:
+            return path_data
+
+        # 'cx', 'cy' properties
+        cx = style['cx']
+        cy = style['cy']
+
+        path_data.append(SVGPathSegment('M', cx + rx, cy))
+        path_data.append(SVGPathSegment('A', rx, ry, 0, 0, 1, cx, cy + ry))
+        path_data.append(SVGPathSegment('A', rx, ry, 0, 0, 1, cx - rx, cy))
+        path_data.append(SVGPathSegment('A', rx, ry, 0, 0, 1, cx, cy - ry))
+        path_data.append(SVGPathSegment('A', rx, ry, 0, 0, 1, cx + rx, cy))
+        path_data.append(SVGPathSegment('Z'))
+        if settings is not None:
+            if not isinstance(settings, SVGPathDataSettings):
+                raise TypeError('Expected SVGPathDataSettings, got {}'.format(
+                    type(settings)))
+            if settings.normalize:
+                path_data = PathParser.normalize(path_data)
+        return path_data
+
+
+class SVGForeignObjectElement(SVGGraphicsElement):
+    # TODO: implement the SVGForeignObjectElement.
+    """Represents the SVG <foreignObject> element."""
+    pass
+
+
+class SVGGElement(SVGGraphicsElement):
+    """Represents the SVG <g> element."""
+
+    def get_computed_geometry(self):
+        return {}
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list(SVGPathSegment): A list of path segments.
+        """
+        return self.get_descendant_path_data(settings)
+
+
+class SVGHatchElement(SVGElement):
+    """Represents the SVG <hatch> element."""
+    pass
+
+
+class SVGHatchpathElement(SVGElement):
+    """Represents the SVG <hatchpath> element."""
+    pass
+
+
+class SVGImageElement(SVGGraphicsElement, SVGURIReference):
+    # TODO: implement the SVGImageElement.
+    """Represents the SVG <image> element."""
+    pass
+
+
+class SVGLinearGradientElement(SVGGradientElement):
+    """Represents the SVG <linearGradient> element."""
+    pass
+
+
+class SVGLineElement(SVGGeometryElement):
+    """Represents the SVG <line> element."""
+
+    def get_computed_geometry(self):
+        # See https://svgwg.org/svg2-draft/shapes.html#LineElement
+        geometry = dict()
+        attributes = self.attributes
+
+        # 'x1', 'y1' properties
+        # Value: <length> | <percentage> | <number>
+        # Initial: 0
+        x1 = SVGLength(attributes.get('x1', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_HORIZONTAL).value()
+        geometry['x1'] = x1
+
+        y1 = SVGLength(attributes.get('y1', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['y1'] = y1
+
+        # 'x2', 'y2' properties
+        # Value: <length> | <percentage> | <number>
+        # Initial: 0
+        x2 = SVGLength(attributes.get('x2', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_HORIZONTAL).value()
+        geometry['x2'] = x2
+
+        y2 = SVGLength(attributes.get('y2', '0'),
+                       context=self,
+                       direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['y2'] = y2
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        geometry = self.get_computed_geometry()
+        path_data = list()
+
+        # 'x1', 'y1', 'x2', 'y2' properties
+        x1 = geometry['x1']
+        y1 = geometry['y1']
+        x2 = geometry['x2']
+        y2 = geometry['y2']
+        if (SVGLength(x2 - x1) == SVGLength(0)
+                and SVGLength(y2 - y1) == SVGLength(0)):
+            return path_data
+
+        path_data.append(SVGPathSegment('M', x1, y1))
+        path_data.append(SVGPathSegment('L', x2, y2))
+        return path_data
+
+
+# See https://svgwg.org/svg2-draft/painting.html#InterfaceSVGMarkerElement
+class SVGMarkerElement(SVGGraphicsElement):
+    # TODO: implement the SVGMarkerElement.
+    """Represents the SVG <marker> element."""
+    pass
+
+
+# See https://www.w3.org/TR/SVG2/shapes.html#MeshElement
+# See https://www.w3.org/TR/SVG2/pservers.html#MeshGradientElement
+# See https://svgwg.org/svg2-draft/shapes.html#MeshElement
+# See https://svgwg.org/svg2-draft/pservers.html#MeshGradients
+class SVGMeshElement(SVGGeometryElement):
+    # TODO: implement the SVGMeshElement.
+    """Represents the SVG <mesh> element."""
+
+    def get_path_data(self, settings=None):
+        return []
+
+
+class SVGMeshGradientElement(SVGGradientElement):
+    """Represents the SVG <mesh> element."""
+    pass
+
+
+class SVGMeshpatchElement(SVGElement):
+    """Represents the SVG <meshpatch> element."""
+    pass
+
+
+class SVGMeshrowElement(SVGElement):
+    """Represents the SVG <meshrow> element."""
+    pass
+
+
+class SVGMetadataElement(SVGElement):
+    """Represents the SVG <metadata> element."""
+    pass
+
+
+# See https://www.w3.org/TR/svg-paths/#InterfaceSVGPathElement
+# See https://svgwg.org/specs/paths/#InterfaceSVGPathElement
+class SVGPathElement(SVGGeometryElement, SVGPathData):
+    """Represents the SVG <path> element."""
+
+    def get_computed_geometry(self):
+        geometry = dict()
+
+        # 'd' property
+        # Value: none | <string>
+        # Initial: none
+        # Inherited: no
+        # Percentages: N/A
+        # See https://svgwg.org/svg2-draft/paths.html#DProperty
+        d = self.attributes.get('d', 'none')
+        if d == 'none' or len(d) == 0:
+            d = None
+        geometry['d'] = d
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        geometry = self.get_computed_geometry()
+        d = geometry['d']
+        if d is None:
+            return []
+        path_data = PathParser.parse(d)
+        if settings is not None:
+            if not isinstance(settings, SVGPathDataSettings):
+                raise TypeError('Expected SVGPathDataSettings, got {}'.format(
+                    type(settings)))
+            if settings.normalize:
+                path_data = PathParser.normalize(path_data)
+        return path_data
+
+
+# See https://svgwg.org/svg2-draft/pservers.html#InterfaceSVGPatternElement
+class SVGPatternElement(SVGGraphicsElement, SVGFitToViewBox, SVGURIReference):
+    # TODO: implement the SVGPatternElement.
+    """Represents the SVG <pattern> element."""
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        return []
+
+
+class SVGPolygonElement(SVGGeometryElement, SVGAnimatedPoints):
+    """Represents the SVG <polygon> element."""
+
+    def get_computed_geometry(self):
+        geometry = dict()
+
+        # 'points' property
+        geometry['points'] = self.points
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        geometry = self.get_computed_geometry()
+        path_data = list()
+
+        points = geometry['points']
+        if len(points) == 0:
+            return path_data
+
+        x, y = points.pop(0)
+        path_data.append(SVGPathSegment('M', x, y))
+        if len(points) > 0:
+            for x, y in iter(points):
+                path_data.append(SVGPathSegment('L', x, y))
+            path_data.append(SVGPathSegment('Z'))
+        return path_data
+
+
+class SVGPolylineElement(SVGGeometryElement, SVGAnimatedPoints):
+    """Represents the SVG <polyline> element."""
+
+    def get_computed_geometry(self):
+        geometry = dict()
+
+        # 'points' property
+        geometry['points'] = self.points
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        geometry = self.get_computed_geometry()
+        path_data = list()
+
+        points = geometry['points']
+        if len(points) == 0:
+            return path_data
+
+        x, y = points.pop(0)
+        path_data.append(SVGPathSegment('M', x, y))
+        if len(points) > 0:
+            for x, y in iter(points):
+                path_data.append(SVGPathSegment('L', x, y))
+        return path_data
+
+
+class SVGRadialGradientElement(SVGGradientElement):
+    """Represents the SVG <radialGradient> element."""
+    pass
+
+
+class SVGRectElement(SVGGeometryElement):
+    """Represents the SVG <rect> element."""
+
+    def get_computed_geometry(self):
+        # See https://svgwg.org/svg2-draft/shapes.html#RectElement
+        geometry = dict()
+        attributes = self.attributes
+
+        # 'width' property
+        # Value: <length> | <percentage> | auto | inherit
+        # Initial: auto => 0
+        # Inherited: no
+        # Percentages: refer to width of containing block
+        _width, context = CSSUtils.get_value(self, 'width', 'auto')
+        width = SVGLength(_width,
+                          context=context,
+                          direction=SVGLength.DIRECTION_HORIZONTAL).value()
+        geometry['width'] = width
+
+        # 'height' property
+        # Value: <length> | <percentage> | auto | inherit
+        # Initial: auto => 0
+        # Inherited: no
+        # Percentages: refer to height of containing block
+        _height, context = CSSUtils.get_value(self, 'height', 'auto')
+        height = SVGLength(_height,
+                           context=context,
+                           direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['height'] = height
+
+        # 'rx' property
+        # Value: <length> | <percentage> | auto
+        # Initial: auto
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        _rx = attributes.get('rx', 'auto')
+
+        # 'ry' property
+        # Value: <length> | <percentage> | auto
+        # Initial: auto
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        _ry = attributes.get('ry', 'auto')
+
+        if _rx == 'auto' and _ry == 'auto':
+            rx = 0
+            ry = 0
+        else:
+            if _rx == 'auto':
+                rx = 0
+            else:
+                rx = SVGLength(_rx,
+                               context=self,
+                               direction=SVGLength.DIRECTION_HORIZONTAL).value()
+
+            if _ry == 'auto':
+                ry = 0
+            else:
+                ry = SVGLength(_ry,
+                               context=self,
+                               direction=SVGLength.DIRECTION_VERTICAL).value()
+
+            if _rx != 'auto' and _ry == 'auto':
+                ry = rx
+            elif _rx == 'auto' and _ry != 'auto':
+                rx = ry
+
+            if rx > width / 2:
+                rx = width / 2
+            if ry > height / 2:
+                ry = height / 2
+
+        geometry['rx'] = rx
+        geometry['ry'] = ry
+
+        # 'x' property
+        # Value: <length> | <percentage>
+        # Initial: 0
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        x = SVGLength(attributes.get('x', '0'),
+                      context=self,
+                      direction=SVGLength.DIRECTION_HORIZONTAL).value()
+        geometry['x'] = x
+
+        # 'y' property
+        # Value: <length> | <percentage>
+        # Initial: 0
+        # Inherited: no
+        # Percentages: refer to the size of the current SVG viewport
+        y = SVGLength(attributes.get('y', '0'),
+                      context=self,
+                      direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['y'] = y
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        geometry = self.get_computed_geometry()
+        path_data = list()
+
+        w = geometry['width']
+        h = geometry['height']
+        if w <= 0 or h <= 0:
+            return path_data
+
+        x = geometry['x']
+        y = geometry['y']
+        square_corners = False
+        rx = geometry['rx']
+        ry = geometry['ry']
+        if rx <= 0 or ry <= 0:
+            square_corners = True
+            rx = 0
+            ry = 0
+
+        path_data.append(SVGPathSegment('M', x + rx, y))
+        path_data.append(SVGPathSegment('H', x + w - rx))
+        if not square_corners:
+            path_data.append(SVGPathSegment('A',
+                                            rx, ry, 0, 0, 1, x + w, y + ry))
+        path_data.append(SVGPathSegment('V', y + h - ry))
+        if not square_corners:
+            path_data.append(SVGPathSegment('A',
+                                            rx, ry, 0, 0, 1, x + w - rx, y + h))
+        path_data.append(SVGPathSegment('H', x + rx))
+        if not square_corners:
+            path_data.append(SVGPathSegment('A',
+                                            rx, ry, 0, 0, 1, x, y + h - ry))
+        path_data.append(SVGPathSegment('V', y + ry))
+        if not square_corners:
+            path_data.append(SVGPathSegment('A', rx, ry, 0, 0, 1, x + rx, y))
+        path_data.append(SVGPathSegment('Z'))
+        if settings is not None:
+            if not isinstance(settings, SVGPathDataSettings):
+                raise TypeError('Expected SVGPathDataSettings, got {}'.format(
+                    type(settings)))
+            if settings.normalize:
+                path_data = PathParser.normalize(path_data)
+        return path_data
+
+
+class SVGScriptElement(SVGElement, SVGURIReference):
+    """Represents the SVG <script> element."""
+    pass
+
+
+class SVGSolidcolorElement(SVGElement):
+    """Represents the SVG <solidcolor> element."""
+    pass
+
+
+class SVGStopElement(SVGElement):
+    """Represents the SVG <stop> element."""
+    pass
+
+
+class SVGStyleElement(SVGElement):
+    """Represents the SVG <style> element."""
+
+    def get_computed_geometry(self):
+        return {}
+
+
+class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
+    """Represents the SVG <svg> element."""
+
+    def get_computed_geometry(self):
+        geometry = dict()
+
+        vpx, vpy, vpw, vph = self.get_viewport_size()
+        geometry['x'] = vpx.value()
+        geometry['y'] = vpy.value()
+        geometry['width'] = vpw.value()
+        geometry['height'] = vph.value()
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        return self.get_descendant_path_data(settings)
+
+
+class SVGSwitchElement(SVGGraphicsElement):
+    # TODO: implement the SVGSwitchElement.
+    """Represents the SVG <switch> element."""
+    pass
+
+
+class SVGSymbolElement(SVGGraphicsElement, SVGFitToViewBox):
+    # TODO: implement the SVGSymbolElement.
+    """Represents the SVG <symbol> element."""
+
+    def get_computed_geometry(self):
+        geometry = dict()
+
+        vpx, vpy, vpw, vph = self.get_viewport_size()
+        geometry['x'] = vpx.value()
+        geometry['y'] = vpy.value()
+        geometry['width'] = vpw.value()
+        geometry['height'] = vph.value()
+
+        attributes = self.attributes
+        ref_x = attributes.get('refX')
+        if ref_x is not None and ref_x not in ['left', 'center', 'right']:
+            ref_x = SVGLength(ref_x,
+                              context=self,
+                              direction=SVGLength.DIRECTION_HORIZONTAL).value()
+        geometry['refX'] = ref_x
+
+        ref_y = attributes.get('refY')
+        if ref_y is not None and ref_y not in ['top', 'center', 'bottom']:
+            ref_y = SVGLength(ref_y,
+                              context=self,
+                              direction=SVGLength.DIRECTION_VERTICAL).value()
+        geometry['refY'] = ref_y
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        return []
+
+
+class SVGTextElement(SVGTextPositioningElement):
+    """Represents the SVG <text> element."""
+    pass
+
+
+# See https://svgwg.org/svg2-draft/text.html#InterfaceSVGTextPathElement
+class SVGTextPathElement(SVGTextContentElement):
+    # TODO: implement the SVGTextPathElement.
+    """Represents the SVG <textPath> element."""
+    pass
+
+
+class SVGTitleElement(SVGElement):
+    """Represents the SVG <title> element."""
+    pass
+
+
+class SVGTSpanElement(SVGTextPositioningElement):
+    """Represents the SVG <tspan> element."""
+    pass
+
+
+# See https://svgwg.org/svg2-draft/struct.html#InterfaceSVGUseElement
+class SVGUseElement(SVGGraphicsElement, SVGURIReference):
+    """Represents the SVG <use> element."""
+
+    @property
+    def instance_root(self):
+        href = self.href
+        if href is None or len(href) == 0:
+            return None
+        elif href[0] != '#':
+            # TODO: support external link.
+            raise NotImplementedError(href)
+        root = self.get_element_by_id(href[1:])
+        return root
+
+    def get_computed_geometry(self):
+        geometry = dict()
+        attributes = self.attributes
+
+        geometry['x'] = SVGLength(
+            attributes.get('x', '0'),
+            context=self,
+            direction=SVGLength.DIRECTION_HORIZONTAL).value()
+
+        geometry['y'] = SVGLength(
+            attributes.get('y', '0'),
+            context=self,
+            direction=SVGLength.DIRECTION_VERTICAL).value()
+
+        # 'width' property
+        # Value: <length> | <percentage> | auto | inherit
+        # Initial: auto => 0
+        # Inherited: no
+        # Percentages: refer to width of containing block
+        _width, context = CSSUtils.get_value(self, 'width', 'auto')
+        geometry['width'] = SVGLength(
+            _width,
+            context=context,
+            direction=SVGLength.DIRECTION_HORIZONTAL).value()
+
+        # 'height' property
+        # Value: <length> | <percentage> | auto | inherit
+        # Initial: auto => 0
+        # Inherited: no
+        # Percentages: refer to height of containing block
+        _height, context = CSSUtils.get_value(self, 'height', 'auto')
+        geometry['height'] = SVGLength(
+            _height,
+            context=context,
+            direction=SVGLength.DIRECTION_VERTICAL).value()
+
+        return geometry
+
+    def get_path_data(self, settings=None):
+        """Returns a list of path segments that corresponds to the path data.
+
+        Arguments:
+            settings (SVGPathDataSettings, optional): If normalize is set to
+                True then the returned list of path segments is converted to
+                the base set of absolute commands ('M', 'L', 'C' and 'Z').
+        Returns:
+            list[SVGPathSegment]: A list of path segments.
+        """
+        root = self.instance_root
+        if root is None or not isinstance(root, SVGGraphicsElement):
+            return []
+        path_data = root.get_path_data(settings)
+
+        transform_list = self.transform
+        if transform_list is None:
+            transform_list = SVGTransformList()
+
+        geometry = self.get_computed_geometry()
+        x = geometry['x']
+        y = geometry['y']
+        if x != 0 or y != 0:
+            transform = SVGTransform()
+            transform.set_translate(x, y)
+            transform_list.append(transform)
+        if root.local_name in ['svg', 'symbol']:
+            # TODO: test 'width' and 'height' properties on the 'use' element.
+            width = geometry['width']
+            height = geometry['height']
+            if width > 0 or height > 0:
+                bbox = PathParser.get_bbox(path_data)
+                sx = width / bbox.width
+                if sx == 0:
+                    sx = 1
+                sy = height / bbox.height
+                if sy == 0:
+                    sy = 1
+                transform = SVGTransform()
+                transform.set_scale(sx, sy)
+                transform_list.append(transform)
+        if len(transform_list) > 0:
+            matrix = transform_list.tomatrix()
+            path_data = PathParser.transform(path_data, matrix)
+        return path_data
+
+
+# See https://svgwg.org/svg2-draft/linking.html#InterfaceSVGViewElement
+class SVGViewElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
+    # TODO: implement the SVGViewElement.
+    """Represents the SVG <view> element."""
+    pass
+
+
+class SVGElementClassLookup(etree.CustomElementClassLookup):
+    # See https://svgwg.org/svg2-draft/eltindex.html
+    ELEMENT_CLASS_MAP = {
+        'a': SVGAElement,
+        'audio': HTMLAudioElement,
+        'canvas': HTMLCanvasElement,
+        'circle': SVGCircleElement,
+        # 'clipPath': SVGClipPathElement,
+        'defs': SVGDefsElement,
+        'desc': SVGDescElement,
+        'ellipse': SVGEllipseElement,
+        # 'foreignObject': SVGForeignObjectElement,
+        'g': SVGGElement,
+        'hatch': SVGHatchElement,
+        'hatchpath': SVGHatchpathElement,
+        'iframe': HTMLIFrameElement,
+        'line': SVGLineElement,
+        'linearGradient': SVGLinearGradientElement,
+        'marker': SVGMarkerElement,
+        # 'mesh': SVGMeshElement,
+        'meshgradient': SVGMeshGradientElement,
+        'meshpatch': SVGMeshpatchElement,
+        'meshrow': SVGMeshrowElement,
+        'metadata': SVGMetadataElement,
+        'path': SVGPathElement,
+        'pattern': SVGPatternElement,
+        'polygon': SVGPolygonElement,
+        'polyline': SVGPolylineElement,
+        'radialGradient': SVGRadialGradientElement,
+        'rect': SVGRectElement,
+        'script': SVGScriptElement,
+        'solidcolor': SVGSolidcolorElement,
+        'stop': SVGStopElement,
+        'style': SVGStyleElement,
+        'svg': SVGSVGElement,
+        # 'switch': SVGSwitchElement,
+        'symbol': SVGSymbolElement,
+        'text': SVGTextElement,
+        'textPath': SVGTextPathElement,
+        'title': SVGTitleElement,
+        'tspan': SVGTSpanElement,
+        'use': SVGUseElement,
+        'video': HTMLVideoElement,
+        'view': SVGViewElement,
+    }
+
+    def lookup(self, node_type, document, namespace, name):
+        _ = document
+        if node_type == 'element':
+            default = (HTMLElement if namespace == Element.XHTML_NAMESPACE_URI
+                       else SVGElement)
+            return SVGElementClassLookup.ELEMENT_CLASS_MAP.get(name, default)
+        elif node_type == 'comment':
+            return Comment
+        return None  # pass on to (default) fallback
+
+    @staticmethod
+    def update(other):
+        SVGElementClassLookup.ELEMENT_CLASS_MAP.update(other)
+
+
+class SVGParser(object):
+    def __init__(self, **kwargs):
+        """Constructs a SVGParser object.
+
+        Arguments:
+            **kwargs: See lxml.etree.XMLParser.__init__().
+        """
+        self._parser = etree.XMLParser(**kwargs)
+        self._parser.set_element_class_lookup(SVGElementClassLookup())
+        etree.set_default_parser(self._parser)
+
+    @property
+    def parser(self):
+        """lxml.etree.XMLParser: The XML parser."""
+        return self._parser
+
+    def fromstring(self, text):
+        """Parses an SVG document or fragment from a string, and returns the
+        root node.
+
+        Arguments:
+            text (str): An SVG document.
+        Returns:
+            Element: A root node of the ElementTree.
+        """
+        root = etree.fromstring(text, parser=self._parser)
+        return root
+
+    def make_comment(self, text):
+        """Creates a new comment instance, and returns it.
+
+        Arguments:
+            text (str): A string of the comment.
+        Returns:
+            Comment: A new comment.
+        """
+        _ = self
+        comment = etree.Comment(text)
+        return comment
+
+    def make_element(self, tag, attrib=None, nsmap=None, **_extra):
+        """Creates a new element instance, and returns it.
+        See also Element.make_sub_element() and Element.make_sub_element_ns().
+
+        Arguments:
+            tag (str): A tag of an element to be created.
+            attrib (dict, optional): A dictionary of an element's attributes.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **_extra: See lxml.etree._Element.makeelement() and
+                lxml.etree._BaseParser.makeelement().
+        Returns:
+            Element: A new element.
+        """
+        if tag == 'svg' or tag.endswith('}svg'):
+            if nsmap is None:
+                nsmap = dict()
+            if None not in nsmap:
+                nsmap[None] = Element.SVG_NAMESPACE_URI
+        element = self._parser.makeelement(tag, attrib, nsmap, **_extra)
+        return element
+
+    def make_element_ns(self,
+                        namespace_uri, local_name, attrib=None, nsmap=None,
+                        **_extra):
+        """Creates a new element instance with the specified namespace URI,
+        and returns it.
+        See also Element.make_sub_element() and Element.make_sub_element_ns().
+
+        Arguments:
+            namespace_uri (str): The namespace URI to associated with the
+                element.
+            local_name (str): A local name of an element to be created.
+            attrib (dict, optional): A dictionary of an element's attributes.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **_extra: See lxml.etree._Element.makeelement() and
+                lxml.etree._BaseParser.makeelement().
+        Returns:
+            Element: A new element.
+        Examples:
+            >>> from svgpy import SVGParser
+            >>> parser = SVGParser()
+            >>> element = parser.make_element_ns('http://www.w3.org/1999/xhtml', 'source')
+            >>> element.tag
+            '{http://www.w3.org/1999/xhtml}source'
+            >>> element.node_name
+            'html:source'
+            >>> element.local_name
+            'source'
+        """
+        if namespace_uri is None:
+            tag = local_name
+        else:
+            tag = '{{{0}}}{1}'.format(namespace_uri, local_name)
+        element = self.make_element(tag, attrib, nsmap, **_extra)
+        return element
+
+    def parse(self, source):
+        """Parses the source into an ElementTree object, and returns it.
+        To parse from a string, use the fromstring() method instead.
+
+        Arguments:
+            source (file, str): A filename or a file object of an SVG document.
+        Returns:
+            lxml.etree._ElementTree: An ElementTree object.
+        """
+        tree = etree.parse(source, parser=self._parser)
+        return tree

@@ -1,0 +1,134 @@
+= [WIP] svg.py
+:doctype: article
+:source-highlighter: coderay
+:icons: font
+
+SVG parser based on lxml.
+
+This project aims to implement an SVG 2 DOM API.
+
+== Usage
+. Parsing from files
++
+[source,python]
+----
+>>> from svgpy import SVGParser
+>>> parser = SVGParser(remove_comments=True)
+>>> tree = parser.parse('tests/svg/svg.svg')
+>>> for element in tree.iter():
+...     print((element.node_type, element.node_name, element.id))
+...
+(1, 'svg', None)
+(1, 'g', 'gtop')
+(1, 'g', 'svgstar')
+(1, 'path', 'svgbar')
+(1, 'use', 'use1')
+(1, 'use', 'use2')
+(1, 'use', 'use3')
+(1, 'use', 'usetop')
+>>> root = tree.getroot()
+>>> element = root.get_element_by_id('usetop')
+>>> element.attributes
+{'id': 'usetop', '{http://www.w3.org/1999/xlink}href': '#svgstar', 'fill': '#FB4'}
+>>> bbox = element.get_bbox()
+>>> bbox.x, bbox.y, bbox.width, bbox.height
+(11.101020514433644, 11.101020514433644, 77.79795897113272, 77.79795897113272)
+>>> element = root.get_element_by_id('svgbar')
+>>> element.attributes
+{'id': 'svgbar', 'd': 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'}
+>>> bbox = element.get_bbox()
+>>> bbox.x, bbox.y, bbox.width, bbox.height
+(-38.89897948556636, -7.0000009993777565, 77.79795897113272, 14.000001998755515)
+>>> element.get_total_length()
+173.68771160294722
+----
+
+. Serialization
++
+[source,python]
+----
+>>> from svgpy import SVGParser
+>>> parser = SVGParser()
+>>> root = parser.make_element('svg')
+>>> root.attributes.update({'width': '10cm', 'height': '3cm', 'viewBox': '0 0 1000 300'})
+>>> text = root.make_sub_element('text')
+>>> text.attributes.update({'font-family': 'Verdana', 'font-size': '55', 'fill': 'blue'})
+>>> tspan = text.make_sub_element('tspan')
+>>> tspan.attributes.update({'x': '250', 'y': '150', 'rotate': '-30,0,30'})
+>>> tspan.text = 'Hello, out there'
+>>> print(root.tostring(pretty_print=True).decode())
+<svg xmlns="http://www.w3.org/2000/svg" width="10cm" height="3cm" viewBox="0 0 1000 300">
+  <text font-family="Verdana" font-size="55" fill="blue">
+    <tspan x="250" y="150" rotate="-30,0,30">Hello, out there</tspan>
+  </text>
+</svg>
+
+>>> tree = root.getroottree()
+>>> tree.write('output.svg', encoding='utf-8', pretty_print=True)
+----
++
+----
+$ cat output.svg
+<svg xmlns="http://www.w3.org/2000/svg" width="10cm" height="3cm" viewBox="0 0 1000 300">
+  <text font-family="Verdana" font-size="55" fill="blue">
+    <tspan x="250" y="150" rotate="-30,0,30">Hello, out there</tspan>
+  </text>
+</svg>
+----
+
+. Path processing
++
+[source,python]
+----
+>>> from svgpy import PathParser, SVGParser, SVGPathSegment, formatter
+>>> parser = SVGParser()
+>>> path = parser.make_element('path')
+>>> path_data = list()
+>>> path_data.append(SVGPathSegment('M', 150, 10))
+>>> path_data.append(SVGPathSegment('B', 36))
+>>> path_data.append(SVGPathSegment('h', 47))
+>>> path_data.append(SVGPathSegment('b', 72))
+>>> path_data.append(SVGPathSegment('h', 47))
+>>> path_data.append(SVGPathSegment('b', 72))
+>>> path_data.append(SVGPathSegment('h', 47))
+>>> path_data.append(SVGPathSegment('b', 72))
+>>> path_data.append(SVGPathSegment('h', 47))
+>>> path_data.append(SVGPathSegment('z'))
+>>> path.set_path_data(path_data)
+>>> path.tostring()
+b'<path d="M150,10 B36 h47 b72 h47 b72 h47 b72 h47 z"/>'
+>>> bbox = path.get_bbox()
+>>> bbox.x, bbox.y, bbox.width, bbox.height
+(111.97620126437747, 10.0, 76.04759747124507, 72.32556312361845)
+>>> path.get_total_length()
+235.0
+>>> normalized = PathParser.normalize(path_data)  # convert to 'M', 'L', 'C' and 'Z' path command
+>>> path.set_path_data(normalized)
+>>> path.tostring()
+b'<path d="M150,10 L188.023799,37.625907 173.5,82.325563 126.5,82.325563 111.976201,37.625907 Z"/>'
+>>> formatter.precision
+6  # default precision for a floating point value
+>>> formatter.precision = 3
+>>> path.set_path_data(normalized)
+>>> path.tostring()
+b'<path d="M150,10 L188.024,37.626 173.5,82.326 126.5,82.326 111.976,37.626 Z"/>'
+>>> bbox = path.get_bbox()
+>>> bbox.x, bbox.y, bbox.width, bbox.height
+(111.976, 10.0, 76.048, 72.326)
+>>> path.get_total_length()
+235.00121335747357
+----
+
+== Dependencies
+* https://www.python.org/[Python 3.5+]
+* http://fontconfig.org/[Fontconfig]
+* https://www.freetype.org/[FreeType]
+* https://www.freedesktop.org/wiki/Software/HarfBuzz/[HarfBuzz]
+
+* http://cffi.readthedocs.org/[cffi]
+* http://lxml.de/[lxml]
+* http://www.numpy.org/[numpy]
+* https://www.scipy.org/[scipy]
+
+== License
+This software is licensed under the http://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0].

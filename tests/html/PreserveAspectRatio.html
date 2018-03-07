@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PreserveAspectRatio</title>
+    <script type="text/javascript">
+        function matrix_to_string(m) {
+            if (m === null) return 'null';
+            return '[' + m.a + ', ' + m.b + ', ' + m.c + ', ' + m.d + ', ' + m.e + ', ' + m.f + ']';
+        }
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('result'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var ctm = element.getCTM();
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg width="450px" height="300px" xmlns="http://www.w3.org/2000/svg">
+
+    <desc>Example PreserveAspectRatio - illustrates preserveAspectRatio
+        attribute
+    </desc>
+
+    <style type="text/css">
+    text { font-size: 9; }
+    rect { fill: none; stroke: blue; }
+    </style>
+
+    <defs>
+        <g id="smile">
+            <rect x='.5' y='.5' width='29' height='39'
+                  style="fill:black;stroke:red"/>
+            <circle cx='15' cy='20' r='10' fill='yellow'/>
+            <circle cx='12' cy='17' r='1.5' fill='black'/>
+            <circle cx='17' cy='17' r='1.5' fill='black'/>
+            <path d='M 10 24 A 8 8 0 0 0 20 24' stroke='black'
+                  stroke-width='2'/>
+        </g>
+    </defs>
+
+    <rect x="1" y="1" width="448" height="298"/>
+
+    <text x="10" y="30">SVG to fit</text>
+    <g transform="translate(20,40)">
+        <use href="#smile"/>
+    </g>
+
+    <text x="10" y="110">Viewport 1</text>
+    <g id="viewport1" transform="translate(10,120)">
+        <rect x='.5' y='.5' width='49' height='29'/>
+    </g>
+
+    <text x="10" y="180">Viewport 2</text>
+    <g id="viewport2" transform="translate(20,190)">
+        <rect x='.5' y='.5' width='29' height='59'/>
+    </g>
+
+    <g id="meet-group-1" transform="translate(100, 60)">
+        <text x="0" y="-30">--------------- meet ---------------</text>
+        <g>
+            <text y="-10">xMin*</text>
+            <rect x='.5' y='.5' width='49' height='29'/>
+            <svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 30 40"
+                 width="50" height="30" id="svg01">
+                <use id="xMinYMin_meet" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(70,0)">
+            <text y="-10">xMid*</text>
+            <rect x='.5' y='.5' width='49' height='29'/>
+            <svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 30 40"
+                 width="50" height="30">
+                <use id="xMidYMid_meet" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(0,70)">
+            <text y="-10">xMax*</text>
+            <rect x='.5' y='.5' width='49' height='29'/>
+            <svg preserveAspectRatio="xMaxYMax meet" viewBox="0 0 30 40"
+                 width="50" height="30">
+                <use id="xMaxYMax_meet" href="#smile" class="result"/>
+            </svg>
+        </g>
+    </g>
+
+    <g id="meet-group-2" transform="translate(250, 60)">
+        <text x="0" y="-30">---------- meet ----------</text>
+        <g>
+            <text y="-10">*YMin</text>
+            <rect x='.5' y='.5' width='29' height='59'/>
+            <svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 30 40"
+                 width="30" height="60">
+                <use id="xMinYMin_meet02" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(50, 0)">
+            <text y="-10">*YMid</text>
+            <rect x='.5' y='.5' width='29' height='59'/>
+            <svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 30 40"
+                 width="30" height="60">
+                <use id="xMidYMid_meet02" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(100, 0)">
+            <text y="-10">*YMax</text>
+            <rect x='.5' y='.5' width='29' height='59'/>
+            <svg preserveAspectRatio="xMaxYMax meet" viewBox="0 0 30 40"
+                 width="30" height="60">
+                <use id="xMaxYMax_meet02" href="#smile" class="result"/>
+            </svg>
+        </g>
+    </g>
+
+    <g id="slice-group-1" transform="translate(100, 220)">
+        <text x="0" y="-30">---------- slice ----------</text>
+        <g>
+            <text y="-10">xMin*</text>
+            <rect x='.5' y='.5' width='29' height='59'/>
+            <svg preserveAspectRatio="xMinYMin slice" viewBox="0 0 30 40"
+                 width="30" height="60">
+                <use id="xMinYMin_slice" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(50,0)">
+            <text y="-10">xMid*</text>
+            <rect x='.5' y='.5' width='29' height='59'/>
+            <svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 30 40"
+                 width="30" height="60">
+                <use id="xMidYMid_slice" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(100,0)">
+            <text y="-10">xMax*</text>
+            <rect x='.5' y='.5' width='29' height='59'/>
+            <svg preserveAspectRatio="xMaxYMax slice" viewBox="0 0 30 40"
+                 width="30" height="60">
+                <use id="xMaxYMax_slice" href="#smile" class="result"/>
+            </svg>
+        </g>
+    </g>
+
+    <g id="slice-group-2" transform="translate(250, 220)">
+        <text x="0" y="-30">--------------- slice ---------------</text>
+        <g>
+            <text y="-10">*YMin</text>
+            <rect x='.5' y='.5' width='49' height='29'/>
+            <svg preserveAspectRatio="xMinYMin slice" viewBox="0 0 30 40"
+                 width="50" height="30">
+                <use id="xMinYMin_slice02" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(70,0)">
+            <text y="-10">*YMid</text>
+            <rect x='.5' y='.5' width='49' height='29'/>
+            <svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 30 40"
+                 width="50" height="30">
+                <use id="xMidYMid_slice02" href="#smile" class="result"/>
+            </svg>
+        </g>
+        <g transform="translate(140,0)">
+            <text y="-10">*YMax</text>
+            <rect x='.5' y='.5' width='49' height='29'/>
+            <svg preserveAspectRatio="xMaxYMax slice" viewBox="0 0 30 40"
+                 width="50" height="30">
+                <use id="xMaxYMax_slice02" href="#smile" class="result"/>
+            </svg>
+        </g>
+    </g>
+</svg>
+
+<div id="v1"></div>
+<div id="v2"></div>
+<div id="v3"></div>
+<div id="v4"></div>
+<div id="v5"></div>
+<div id="v6"></div>
+<div id="v7"></div>
+<div id="v8"></div>
+<div id="v9"></div>
+<div id="v10"></div>
+<div id="v11"></div>
+<div id="v12"></div>
+<div id="s1"></div>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>CTM</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

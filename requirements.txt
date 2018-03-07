@@ -1,0 +1,5 @@
+cffi==1.11.4
+lxml==4.1.1
+numpy==1.14.0
+pycparser==2.18
+scipy==1.0.0

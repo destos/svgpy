@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('path-length'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getAttribute('stroke');
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.getTotalLength();
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="300" height="100" viewBox="0 0 300 100">
+
+    <path fill="#eee"
+          stroke="deeppink" stroke-width="8px" stroke-linejoin="round"
+          id="pathLineRel" class="path-length"
+          d="M 150,10
+           l 38.02379873562253,27.62590685774624
+           l -14.52379873562252,44.69965626587222
+           l -47,0
+           l -14.52379873562254,-44.69965626587221
+           z"/>
+
+    <path fill="none"
+          stroke="blue" stroke-width="4px" stroke-dasharray="10 2"
+          id="pathBearing" class="path-length"
+          d="M150,10 B36 h47 b72 h47 b72 h47 b72 h47 z"/>
+
+    <path fill="none"
+          stroke="white" stroke-width="2px" stroke-dasharray="3"
+          id="pathLineAbs" class="path-length"
+          d="M150,10 L188.023799,37.625907 173.5,82.325563 126.5,82.325563 111.976201,37.625907 Z"/>
+
+    <rect x="111.976" y="10" width="76.0476" height="72.3256"
+          fill="none" stroke="blue" stroke-dasharray="2"/>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>stroke</th>
+        <th>length</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

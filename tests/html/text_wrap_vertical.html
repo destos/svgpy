@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wrapping vertical text</title>
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('text-bbox'),
+                            function (element) {
+                var style = document.defaultView.getComputedStyle(element, null);
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = style.fontFamily + ': ' + style.fontSize;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var nchars = element.getNumberOfChars();
+                var advances = [];
+                for (i = 0; i < nchars; ++i) {
+                    distance = element.getSubStringLength(i, 1);
+                    advances.push(distance.toFixed(3));
+                }
+                td.textContent = '(' + nchars + ') ' + advances;
+                length = element.getComputedTextLength();
+                td.textContent = length.toFixed(3)
+                    + ' [' + advances.toString().replace(/,/g, ', ') + ']'
+                    + ' (' + nchars + ') ';
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="100" height="300" viewBox="0 0 100 300">
+    <text x="62.5" y="25" inline-size="200"
+          id="text01" class="text-bbox"
+          style="font: 25px IPAmjMincho; inline-size: 200px; writing-mode: vertical-rl;">
+        テキストは１０文字の後に折り返されます。
+    </text>
+    <line x1="0" y1="25" x2="100" y2="25" stroke="lightblue"/>
+    <line x1="0" y1="275" x2="100" y2="275" stroke="lightblue"/>
+    <circle cx="62.5" cy="25" r="3" fill="red"/>
+
+    <path stroke="red" fill="none"
+          d=""/>
+    <rect x="50" y="47" width="25" height="500"
+          fill="none" stroke="blue" stroke-dasharray="3"/>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>font-size</th>
+        <th>length</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>
