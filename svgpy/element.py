@@ -768,6 +768,42 @@ class SVGStyleElement(SVGElement):
 class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
     """Represents the SVG <svg> element."""
 
+    def _init(self):
+        super()._init()
+        self._current_scale = 1
+        self._current_translate = 0, 0
+
+    @property
+    def current_scale(self):
+        """float: The current scale for the 'svg' element."""
+        farthest = self.get_farthest_svg_element()
+        if farthest is not None and hash(farthest) != hash(self):
+            return 1
+        return self._current_scale
+
+    @current_scale.setter
+    def current_scale(self, scale):
+        farthest = self.get_farthest_svg_element()
+        if farthest is not None and hash(farthest) != hash(self):
+            return
+        self._current_scale = scale
+
+    @property
+    def current_translate(self):
+        """tuple[float, float]: The current translation for the 'svg' element.
+        """
+        farthest = self.get_farthest_svg_element()
+        if farthest is not None and hash(farthest) != hash(self):
+            return 0, 0
+        return self._current_translate
+
+    @current_translate.setter
+    def current_translate(self, translate):
+        farthest = self.get_farthest_svg_element()
+        if farthest is not None and hash(farthest) != hash(self):
+            return
+        self._current_translate = translate
+
     def get_computed_geometry(self):
         geometry = dict()
 

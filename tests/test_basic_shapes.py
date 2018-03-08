@@ -906,7 +906,8 @@ class BasicShapesTestCase(unittest.TestCase):
                                   'space')  # deprecated
         self.assertIsNone(space)
 
-        space = attributes.get_ns(Element.XML_NAMESPACE_URI, 'space', 'preserve')
+        space = attributes.get_ns(Element.XML_NAMESPACE_URI,
+                                  'space', 'preserve')
         expected = 'preserve'
         self.assertEqual(space, expected)
 
@@ -2604,6 +2605,70 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 400 * 0.5
         self.assertAlmostEqual(style['height'], expected)
 
+    def test_svg_current_scale(self):
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'id': 'root',
+        })
+
+        child = root.make_sub_element('svg')
+        child.attributes.update({
+            'id': 'svg01',
+        })
+
+        # outermost svg element
+        scale = root.current_scale
+        expected = 1
+        self.assertEqual(scale, expected)
+
+        root.current_scale = 1.5
+        scale = root.current_scale
+        expected = 1.5
+        self.assertEqual(scale, expected)
+
+        # child svg element
+        scale = child.current_scale
+        expected = 1
+        self.assertEqual(scale, expected)
+
+        child.current_scale = 1.5
+        scale = child.current_scale
+        expected = 1
+        self.assertEqual(scale, expected)
+
+    def test_svg_current_translate(self):
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'id': 'root',
+        })
+
+        child = root.make_sub_element('svg')
+        child.attributes.update({
+            'id': 'svg01',
+        })
+
+        # outermost svg element
+        translate = root.current_translate
+        expected = 0, 0
+        self.assertEqual(translate, expected)
+
+        root.current_translate = 100, -100
+        translate = root.current_translate
+        expected = 100, -100
+        self.assertEqual(translate, expected)
+
+        # child svg element
+        translate = child.current_translate
+        expected = 0, 0
+        self.assertEqual(translate, expected)
+
+        child.current_translate = 100, -100
+        translate = child.current_translate
+        expected = 0, 0
+        self.assertEqual(translate, expected)
+
     def test_viewbox(self):
         # See also: ViewBox.html
         # https://svgwg.org/svg2-draft/coords.html#ViewBoxAttribute
@@ -2625,7 +2690,8 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('svg01')
         viewbox = element.get_view_box()
         par = SVGPreserveAspectRatio('none')
-        expected = SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
+        expected = \
+            SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
         self.assertEqual(viewbox, expected)
 
         # CTM = [0.2, 0, 0, 0.2, 0, 0]
@@ -2645,7 +2711,8 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('svg02')
         viewbox = element.get_view_box()
         par = SVGPreserveAspectRatio('none')
-        expected = SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
+        expected = \
+            SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
         self.assertEqual(viewbox, expected)
 
         # CTM = [0.1, 0, 0, 0.2, 300, 0]
@@ -2978,7 +3045,8 @@ class BasicShapesTestCase(unittest.TestCase):
         vbx, vby, vbw, vbh, _ = root.get_view_box()
         self.assertEqual(vbx.value(direction=SVGLength.DIRECTION_HORIZONTAL), 0)
         self.assertEqual(vby.value(direction=SVGLength.DIRECTION_VERTICAL), 50)
-        self.assertEqual(vbw.value(direction=SVGLength.DIRECTION_HORIZONTAL), 500)
+        self.assertEqual(vbw.value(direction=SVGLength.DIRECTION_HORIZONTAL),
+                         500)
         self.assertEqual(vbh.value(direction=SVGLength.DIRECTION_VERTICAL), 200)
 
 
