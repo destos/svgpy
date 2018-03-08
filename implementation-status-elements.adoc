@@ -268,7 +268,7 @@
 .5+|[[SVGGraphicsElement]]SVGGraphicsElement .1+|link:#SVGElement[SVGElement] |- |||
 .4+|- |transform ^|✓ ||
 |getBBox() ^|In Progress ^|High |Support object bounding box only
-|getCTM() ^|In Progress ^|High |
+|getCTM() ^|Not Verified ^| |
 |getScreenCTM() ^|TBD ||
 
 .6+|[[SVGGeometryElement]]SVGGeometryElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] ||||
@@ -312,8 +312,8 @@
 |y ^|Not Planned ||Same as above
 |width ^|Not Planned ||Same as above
 |height ^|Not Planned ||Same as above
-|currentScale ^|TBD ||
-|currentTranslate ^|TBD ||
+|currentScale ^|✓ ||
+|currentTranslate ^|✓ ||
 |getIntersectionList() ^|TBD ||
 |getEnclosureList() ^|TBD ||
 |checkIntersection() ^|TBD ||

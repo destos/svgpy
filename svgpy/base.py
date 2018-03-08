@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import copy
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from .core import CSSUtils, Element, Font, Matrix, Node, SVGLength, Window
 from .formatter import format_coordinate_pair_sequence, \
@@ -142,6 +142,11 @@ class SVGElement(Element):
         return nearest
 
     def get_farthest_svg_element(self):
+        """Returns the outermost 'svg' element.
+
+        Returns:
+            SVGSVGElement: The outermost 'svg' element.
+        """
         root = None
         element = self
         while element is not None:
@@ -304,7 +309,7 @@ class SVGElement(Element):
 
 
 # See https://svgwg.org/svg2-draft/types.html#InterfaceSVGGraphicsElement
-class SVGGraphicsElement(SVGElement, ABC):
+class SVGGraphicsElement(SVGElement):
     @property
     def transform(self):
         """SVGTransformList: The computed value of the 'transform' property.
@@ -364,6 +369,17 @@ class SVGGraphicsElement(SVGElement, ABC):
         Returns:
             Matrix: The current transformation matrix (CTM).
         """
+        ctm = Matrix()
+        farthest = self.get_farthest_svg_element()
+        if farthest is not None and hash(farthest) == hash(self):
+            if farthest.zoom_and_pan == SVGZoomAndPan.ZOOMANDPAN_MAGNIFY:
+                scale = self.current_scale
+                tx, ty = self.current_translate
+                ctm *= Matrix(scale, 0, 0, scale, tx, ty)
+
+        vtm = self.get_viewport_transform_matrix()
+        ctm *= vtm
+
         transform_list = SVGTransformList()
         element = self
         while element is not None:
@@ -375,11 +391,9 @@ class SVGGraphicsElement(SVGElement, ABC):
                 break
             element = element.getparent()
         if len(transform_list) > 0:
-            ctm = transform_list.tomatrix()
-        else:
-            ctm = Matrix()
-        vptm = self.get_viewport_transform_matrix()
-        return vptm * ctm
+            matrix = transform_list.tomatrix()
+            ctm *= matrix
+        return ctm
 
     def get_descendant_path_data(self, settings=None):
         path_data = list()

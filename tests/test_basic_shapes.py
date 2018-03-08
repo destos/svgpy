@@ -13,7 +13,8 @@ from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
 from svgpy import Comment, Element, Font, \
     HTMLElement, \
     Matrix, Node, PathParser, Rect, SVGLength, SVGParser, SVGPathSegment, \
-    SVGPathDataSettings, SVGPreserveAspectRatio, Window, formatter
+    SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, Window, \
+    formatter
 
 SVG_ARCS02 = '''
 <svg width="12cm" height="5.25cm" viewBox="0 0 1200 525" version="1.1"
@@ -2669,7 +2670,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 0, 0
         self.assertEqual(translate, expected)
 
-    def test_viewbox(self):
+    def test_view_box01(self):
         # See also: ViewBox.html
         # https://svgwg.org/svg2-draft/coords.html#ViewBoxAttribute
         parser = SVGParser()
@@ -2678,8 +2679,8 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # id="root"
         element = root.get_element_by_id('root')
-        viewbox = element.get_view_box()
-        self.assertIsNone(viewbox)
+        view_box = element.get_view_box()
+        self.assertIsNone(view_box)
 
         # CTM = [1, 0, 0, 1, 0, 0]
         m = element.get_ctm()
@@ -2688,11 +2689,11 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # id="svg01"
         element = root.get_element_by_id('svg01')
-        viewbox = element.get_view_box()
+        view_box = element.get_view_box()
         par = SVGPreserveAspectRatio('none')
         expected = \
             SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
-        self.assertEqual(viewbox, expected)
+        self.assertEqual(view_box, expected)
 
         # CTM = [0.2, 0, 0, 0.2, 0, 0]
         m = element.get_ctm()
@@ -2709,11 +2710,11 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # id="svg02"
         element = root.get_element_by_id('svg02')
-        viewbox = element.get_view_box()
+        view_box = element.get_view_box()
         par = SVGPreserveAspectRatio('none')
         expected = \
             SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
-        self.assertEqual(viewbox, expected)
+        self.assertEqual(view_box, expected)
 
         # CTM = [0.1, 0, 0, 0.2, 300, 0]
         m = element.get_ctm()
@@ -2724,6 +2725,54 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('rect02')
 
         # CTM = [0.1, 0, 0, 0.2, 300, 0]
+        m = element.get_ctm()
+        expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
+        self.assertEqual(m, expected)
+
+    def test_view_box02(self):
+        # See also: ViewBox.html
+        # https://svgwg.org/svg2-draft/coords.html#ViewBoxAttribute
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_VIEW_BOX))
+        root = tree.getroot()
+
+        # outermost svg element
+        element = root.get_element_by_id('root')
+        element.attributes.update({
+            'transform': 'translate(50 25)',
+            'zoomAndPan': 'magnify',
+        })
+        element.current_scale = 1.2
+        element.current_translate = 100, 50
+
+        zap = element.zoom_and_pan
+        self.assertEqual(zap, SVGZoomAndPan.ZOOMANDPAN_MAGNIFY)
+
+        # CTM: [1, 0, 0, 1, 0, 0] ->
+        # [1.2, 0, 0, 1.2, 100, 50] * [1, 0, 0, 1, 50, 25]
+        # = [1.2, 0, 0, 1.2, 160, 80]
+        m = element.get_ctm()
+        expected = Matrix(1.2, 0, 0, 1.2, 160, 80)
+        self.assertEqual(m, expected)
+
+        element.attributes.update({
+            'zoomAndPan': 'disable',
+        })
+
+        # CTM: [1, 0, 0, 1, 0, 0] -> [1, 0, 0, 1, 50, 25]
+        m = element.get_ctm()
+        expected = Matrix(1, 0, 0, 1, 50, 25)
+        self.assertEqual(m, expected)
+
+        # child svg element
+        element = root.get_element_by_id('svg02')
+        element.attributes.update({
+            'zoomAndPan': 'magnify',
+        })
+        element.current_scale = 1.2
+        element.current_translate = 100, 50
+
+        # CTM: [0.1, 0, 0, 0.2, 300, 0]
         m = element.get_ctm()
         expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
         self.assertEqual(m, expected)
