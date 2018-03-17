@@ -17,12 +17,12 @@ from svgpy.base import \
     HTMLElement, SVGBoundingBoxOptions, \
     SVGElement, SVGGeometryElement, SVGGradientElement, SVGGraphicsElement, \
     SVGPathData, SVGPathDataSettings, SVGPreserveAspectRatio, \
-    SVGTextContentElement, SVGTextPositioningElement, \
     SVGURIReference, SVGZoomAndPan
 from svgpy.core import Element, Font, Matrix, Node, SVGLength, Window
 from svgpy.element import Comment, SVGElementClassLookup, SVGParser
 from svgpy.path import PathParser, SVGPathSegment
 from svgpy.rect import Rect
+from svgpy.text import SVGTextContentElement, SVGTextPositioningElement
 from svgpy.transform import SVGTransform, SVGTransformList
 import svgpy.formatter as formatter
 

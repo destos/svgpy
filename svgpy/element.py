@@ -18,11 +18,10 @@ from .base import CharacterData, HTMLElement, \
     HTMLHyperlinkElementUtils, HTMLMediaElement, \
     SVGAnimatedPoints, SVGElement, SVGFitToViewBox, \
     SVGGeometryElement, SVGGraphicsElement, SVGGradientElement, \
-    SVGPathData, SVGPathDataSettings, \
-    SVGTextContentElement, SVGTextPositioningElement, \
-    SVGURIReference, SVGZoomAndPan
+    SVGPathData, SVGPathDataSettings, SVGURIReference, SVGZoomAndPan
 from .core import CSSUtils, Element, Node, SVGLength
 from .path import PathParser, SVGPathSegment
+from .text import SVGTextContentElement, SVGTextPositioningElement
 from .transform import SVGTransform, SVGTransformList
 
 
