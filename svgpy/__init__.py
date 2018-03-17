@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+import svgpy.formatter as formatter
+from svgpy.__version__ import __version__
 from svgpy.base import \
     HTMLElement, SVGBoundingBoxOptions, \
     SVGElement, SVGGeometryElement, SVGGradientElement, SVGGraphicsElement, \
@@ -24,6 +26,3 @@ from svgpy.path import PathParser, SVGPathSegment
 from svgpy.rect import Rect
 from svgpy.text import SVGTextContentElement, SVGTextPositioningElement
 from svgpy.transform import SVGTransform, SVGTransformList
-import svgpy.formatter as formatter
-
-__version__ = '0.1.1'
