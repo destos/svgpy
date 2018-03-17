@@ -124,6 +124,7 @@ b'<path d="M150,10 L188.024,37.626 173.5,82.326 126.5,82.326 111.976,37.626 Z"/>
 * http://fontconfig.org/[Fontconfig]
 * https://www.freetype.org/[FreeType]
 * https://www.freedesktop.org/wiki/Software/HarfBuzz/[HarfBuzz]
+* http://site.icu-project.org/[ICU 4+]
 
 * http://cffi.readthedocs.org/[cffi]
 * http://lxml.de/[lxml]
