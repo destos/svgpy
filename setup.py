@@ -16,7 +16,7 @@ PACKAGES = [NAME]
 PACKAGE_DATA = {}
 PYTHON_REQUIRES = '>=3.5'
 INSTALL_REQUIRES = [
-    'cffi',
+    'cffi>=1.11',
     'lxml',
     'numpy',
     'scipy',
