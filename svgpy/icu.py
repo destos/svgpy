@@ -675,6 +675,13 @@ class UBreakIterator(object):
         segment = self._source[start:end]
         return ffi.string(segment)
 
+    def __reversed__(self):
+        items = list()
+        for x in self:
+            items.append(x)
+        items.reverse()
+        return items
+
     @property
     def status(self):
         return self._status[0]
