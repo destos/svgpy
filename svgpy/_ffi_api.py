@@ -889,6 +889,20 @@ hb_buffer_get_language (hb_buffer_t *buffer);
 void
 hb_buffer_guess_segment_properties (hb_buffer_t *buffer);
 
+typedef enum {
+  HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES	= 0,
+  HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS	= 1,
+  HB_BUFFER_CLUSTER_LEVEL_CHARACTERS		= 2,
+  HB_BUFFER_CLUSTER_LEVEL_DEFAULT = HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES
+} hb_buffer_cluster_level_t;
+
+void
+hb_buffer_set_cluster_level (hb_buffer_t               *buffer,
+                             hb_buffer_cluster_level_t  cluster_level);
+
+hb_buffer_cluster_level_t
+hb_buffer_get_cluster_level (hb_buffer_t *buffer);
+
 void
 hb_buffer_reset (hb_buffer_t *buffer);
 

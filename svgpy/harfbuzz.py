@@ -440,6 +440,11 @@ class HBBuffer(object):
     # CONTENT_TYPE_UNICODE = 1
     # CONTENT_TYPE_GLYPHS = 2
 
+    CLUSTER_LEVEL_MONOTONE_GRAPHEMES = 0
+    CLUSTER_LEVEL_MONOTONE_CHARACTERS = 1
+    CLUSTER_LEVEL_CHARACTERS = 2
+    CLUSTER_LEVEL_DEFAULT = CLUSTER_LEVEL_MONOTONE_GRAPHEMES
+
     def __init__(self, hb_buffer, reference=False):
         """Constructs a HBBuffer object.
 
@@ -479,6 +484,9 @@ class HBBuffer(object):
 
     def clear_contents(self):
         lib.hb_buffer_clear_contents(self._buffer)
+
+    def get_cluster_level(self):
+        return lib.hb_buffer_get_cluster_level(self._buffer)
 
     def get_direction(self):
         direction = lib.hb_buffer_get_direction(self._buffer)
@@ -530,6 +538,9 @@ class HBBuffer(object):
 
     def reverse_range(self, start, end):
         lib.hb_buffer_reverse_range(self._buffer, start, end)
+
+    def set_cluster_level(self, cluster_level):
+        lib.hb_buffer_set_cluster_level(self._buffer, cluster_level)
 
     def set_direction(self, direction):
         lib.hb_buffer_set_direction(self._buffer, direction.direction)
