@@ -14,7 +14,7 @@ KEYWORDS = 'svg parser'
 URL = 'https://github.com/miute/svgpy'
 PACKAGES = [NAME]
 PACKAGE_DATA = {}
-PYTHON_REQUIRES = '>=3.5'
+PYTHON_REQUIRES = '>=3.6'
 INSTALL_REQUIRES = [
     'cffi>=1.11',
     'lxml',
@@ -48,7 +48,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Software Development :: Libraries :: Python Modules',

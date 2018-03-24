@@ -120,7 +120,7 @@ b'<path d="M150,10 L188.024,37.626 173.5,82.326 126.5,82.326 111.976,37.626 Z"/>
 ----
 
 == Dependencies
-* https://www.python.org/[Python 3.5+]
+* https://www.python.org/[Python 3.6+]
 * http://fontconfig.org/[Fontconfig]
 * https://www.freetype.org/[FreeType]
 * https://www.freedesktop.org/wiki/Software/HarfBuzz/[HarfBuzz]
