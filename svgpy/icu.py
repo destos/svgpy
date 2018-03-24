@@ -15,6 +15,7 @@
 import os.path
 import re
 import subprocess
+from collections.abc import Iterator, Reversible
 from ctypes.util import find_library
 
 from cffi import FFI
@@ -636,7 +637,7 @@ class UBiDi(object):
         return output, length
 
 
-class UBreakIterator(object):
+class UBreakIterator(Iterator, Reversible):
     UBRK_CHARACTER = 0
     UBRK_WORD = 1
     UBRK_LINE = 2
