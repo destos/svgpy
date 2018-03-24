@@ -350,7 +350,7 @@ class SVGGraphicsElement(SVGElement):
                 transform_list = self.transform  # type: SVGTransformList
                 if transform_list is not None:
                     matrix = transform_list.tomatrix()
-                    bbox.transform(matrix)
+                    bbox.transform_self(matrix)
         else:
             settings = SVGPathDataSettings()
             settings.normalize = True

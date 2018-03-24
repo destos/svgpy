@@ -35,7 +35,7 @@ class Rect(object):
     def __and__(self, other):
         if not isinstance(other, Rect):
             return NotImplemented
-        return self.intersected(other)
+        return self.intersect(other)
 
     def __eq__(self, other):
         if not isinstance(other, Rect):
@@ -52,19 +52,19 @@ class Rect(object):
     def __iand__(self, other):
         if not isinstance(other, Rect):
             return NotImplemented
-        self.intersect(other)
+        self.intersect_self(other)
         return self
 
     def __ior__(self, other):
         if not isinstance(other, Rect):
             return NotImplemented
-        self.unite(other.x, other.y, other.width, other.height)
+        self.unite_self(other.x, other.y, other.width, other.height)
         return self
 
     def __or__(self, other):
         if not isinstance(other, Rect):
             return NotImplemented
-        return self.united(other.x, other.y, other.width, other.height)
+        return self.unite(other.x, other.y, other.width, other.height)
 
     def __repr__(self):
         return (
@@ -165,7 +165,7 @@ class Rect(object):
     def y(self, y):
         self.top = y
 
-    def adjust(self, dx1, dy1, dx2, dy2):
+    def adjust_self(self, dx1, dy1, dx2, dy2):
         """Adds dx1, dy1, dx2 and dy2 respectively to the existing coordinates 
         of the rectangle.
         """
@@ -179,9 +179,9 @@ class Rect(object):
         self.set_coords(x1, y1, x2, y2)
         return self
 
-    def adjusted(self, dx1, dy1, dx2, dy2):
+    def adjust(self, dx1, dy1, dx2, dy2):
         rect = copy.copy(self)
-        rect.adjust(dx1, dy1, dx2, dy2)
+        rect.adjust_self(dx1, dy1, dx2, dy2)
         return rect
 
     def contains(self, x, y, width=0, height=0):
@@ -225,7 +225,7 @@ class Rect(object):
         """Returns the size of the rectangle."""
         return self.width, self.height
 
-    def intersect(self, other):
+    def intersect_self(self, other):
         """Computes the intersection of this rectangle and the given rectangle.
         """
         if not isinstance(other, Rect):
@@ -268,11 +268,11 @@ class Rect(object):
         self.set_coords(x1, y1, x2, y2)
         return self
 
-    def intersected(self, other):
+    def intersect(self, other):
         """Returns the intersection of this rectangle and the given rectangle.
         """
         rect = copy.copy(self)
-        rect.intersect(other)
+        rect.intersect_self(other)
         return rect
 
     def isempty(self):
@@ -299,7 +299,7 @@ class Rect(object):
         self._y = y
         return self
 
-    def normalized(self):
+    def normalize(self):
         """Returns a normalized rectangle."""
         x1, y1, x2, y2 = self.get_coords()
         width, height = self.get_size()
@@ -343,7 +343,7 @@ class Rect(object):
         }
         return repr(fields)
 
-    def transform(self, matrix):
+    def transform_self(self, matrix):
         if not self.isvalid():
             return self
         # clockwise
@@ -363,12 +363,12 @@ class Rect(object):
         self.set_coords(x1, y1, x3, y3)
         return self
 
-    def transformed(self, matrix):
+    def transform(self, matrix):
         rect = copy.copy(self)
-        rect.transform(matrix)
+        rect.transform_self(matrix)
         return rect
 
-    def translate(self, dx, dy):
+    def translate_self(self, dx, dy):
         """Moves the rectangle dx along the x-axis and dy along the y-axis, 
         relative to the current position.
         """
@@ -376,28 +376,28 @@ class Rect(object):
         self._y += dy
         return self
 
-    def translated(self, dx, dy):
+    def translate(self, dx, dy):
         """Returns a copy of the rectangle that is translated dx along the 
         x-axis and dy along the y-axis, relative to the current position.
         """
         rect = copy.copy(self)
-        rect.translate(dx, dy)
+        rect.translate_self(dx, dy)
         return rect
 
-    def transpose(self):
+    def transpose_self(self):
         """Swaps width with height."""
         self._width, self._height = self._height, self._width
         return self
 
-    def transposed(self):
+    def transpose(self):
         """Returns a copy of the rectangle that has its width and height 
         exchanged.
         """
         rect = copy.copy(self)
-        rect.transpose()
+        rect.transpose_self()
         return rect
 
-    def unite(self, x, y, width=0, height=0):
+    def unite_self(self, x, y, width=0, height=0):
         """Computes the bounding rectangle of this rectangle and the given 
         rectangle.
         """
@@ -436,10 +436,10 @@ class Rect(object):
             self.y = y1
         return self
 
-    def united(self, x, y, width=0, height=0):
+    def unite(self, x, y, width=0, height=0):
         """Returns the bounding rectangle of this rectangle and the given 
         rectangle.
         """
         rect = copy.copy(self)
-        rect.unite(x, y, width, height)
+        rect.unite_self(x, y, width, height)
         return rect

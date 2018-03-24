@@ -454,14 +454,14 @@ class RectTestCase(unittest.TestCase):
     def test_intersected_invalid_invalid(self):
         a = Rect()
         b = Rect()
-        c = a.intersected(b)
+        c = a.intersect(b)
         self.assertTrue(c.isempty())
         self.assertTrue(not c.isvalid())
 
     def test_intersected_invalid_valid(self):
         a = Rect()
         b = Rect(30, 50, 100, 200)
-        c = a.intersected(b)
+        c = a.intersect(b)
         self.assertTrue(c.isempty())
         self.assertTrue(not c.isvalid())
         self.assertTrue(a.isempty())
@@ -471,7 +471,7 @@ class RectTestCase(unittest.TestCase):
     def test_intersected_valid_invalid(self):
         a = Rect(30, 50, 100, 200)
         b = Rect()
-        c = a.intersected(b)
+        c = a.intersect(b)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
         self.assertEqual((c.x, c.y, c.width, c.height), (30, 50, 100, 200))
@@ -488,7 +488,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa - w / 2
         yb = ya - h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xb
         expected_y = yb
         expected_w = w + w / 2
@@ -507,7 +507,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa
         yb = ya - h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xb
         expected_y = yb
         expected_w = w
@@ -526,7 +526,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa + w
         yb = ya - h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = yb
         expected_w = w
@@ -545,7 +545,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa + w + w / 2
         yb = ya - h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = yb
         expected_w = w + w / 2
@@ -564,7 +564,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa - w / 2
         yb = ya + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xb
         expected_y = ya
         expected_w = w + w / 2
@@ -583,7 +583,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa + w / 2
         yb = ya + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
         expected_w = w
@@ -602,7 +602,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa + w + w / 2
         yb = ya + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
         expected_w = w + w / 2
@@ -621,7 +621,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa - w / 2
         yb = ya + h + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xb
         expected_y = ya
         expected_w = w + w / 2
@@ -640,7 +640,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa
         yb = ya + h + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
         expected_w = w
@@ -659,7 +659,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa + w / 2
         yb = ya + h + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
         expected_w = w
@@ -678,7 +678,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa + w
         yb = ya + h + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
         expected_w = w
@@ -697,7 +697,7 @@ class RectTestCase(unittest.TestCase):
         xb = xa + w + w / 2
         yb = ya + h + h / 2
         a = Rect(xa, ya, w, h)
-        c = a.united(xb, yb)
+        c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
         expected_w = w + w / 2
@@ -1050,14 +1050,14 @@ class RectTestCase(unittest.TestCase):
     def test_united_invalid_invalid(self):
         a = Rect()
         b = Rect()
-        c = a.united(b.x, b.y, b.width, b.height)
+        c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(c.isempty())
         self.assertTrue(not c.isvalid())
 
     def test_united_invalid_valid(self):
         a = Rect()
         b = Rect(30, 50, 100, 200)
-        c = a.united(b.x, b.y, b.width, b.height)
+        c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
         self.assertEqual((c.x, c.y, c.width, c.height), (30, 50, 100, 200))
@@ -1068,7 +1068,7 @@ class RectTestCase(unittest.TestCase):
     def test_united_valid_invalid(self):
         a = Rect(30, 50, 100, 200)
         b = Rect()
-        c = a.united(b.x, b.y, b.width, b.height)
+        c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
         self.assertEqual((a.x, a.y, a.width, a.height), (30, 50, 100, 200))

@@ -606,7 +606,7 @@ class PathSegment(object):
                 if cpy is None:
                     cpy = 0
                 x, y = segment.values
-                bbox |= Rect(cpx, cpy, x - cpx, y - cpy).normalized()
+                bbox |= Rect(cpx, cpy, x - cpx, y - cpy).normalize()
                 cpx, cpy = x, y
             elif path_type == 'M':
                 # 'M'|'m' (x,y)+
@@ -617,7 +617,7 @@ class PathSegment(object):
                     else:
                         bbox = Rect(x, y)
                 else:
-                    bbox |= Rect(cpx, cpy, x - cpx, y - cpy).normalized()
+                    bbox |= Rect(cpx, cpy, x - cpx, y - cpy).normalize()
                 cpx, cpy = x, y
         return bbox
 

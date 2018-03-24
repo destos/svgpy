@@ -452,7 +452,7 @@ class SVGTextContentElement(SVGGraphicsElement):
                     if rotate:
                         matrix.clear()
                         matrix.rotate_self(rotate, x, y)
-                        glyph_bbox.transform(matrix)
+                        glyph_bbox.transform_self(matrix)
 
                     matrix.clear()
                     if rotate:
@@ -483,7 +483,7 @@ class SVGTextContentElement(SVGGraphicsElement):
                             or (ltr and para_level == UBiDi.UBIDI_RTL)):
                         k = -1 if not ltr else 1
                         width = line_bbox.width
-                        line_bbox.translate(k * width, 0)
+                        line_bbox.translate_self(k * width, 0)
                         matrix.clear()
                         matrix.translate_self(k * width, 0)
                         line_path_data = PathParser.transform(line_path_data,
