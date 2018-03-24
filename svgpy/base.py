@@ -14,9 +14,10 @@
 
 from abc import abstractmethod
 
-from .core import Element, Matrix, Node, SVGLength, Window
+from .core import Element, Node, SVGLength, Window
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
+from .matrix import Matrix
 from .path import PathParser
 from .rect import Rect
 from .transform import SVGTransformList

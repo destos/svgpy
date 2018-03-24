@@ -9,7 +9,7 @@ import numpy as np
 sys.path.extend(['.', '..'])
 
 from svgpy import Matrix, formatter
-from svgpy.core import matrix2d
+from svgpy.matrix import matrix2d
 
 
 class MatrixTestCase(unittest.TestCase):

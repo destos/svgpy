@@ -15,8 +15,8 @@
 import copy
 import re
 
-from .core import Matrix
 from .formatter import format_number_sequence
+from .matrix import Matrix
 
 
 class SVGTransform(object):

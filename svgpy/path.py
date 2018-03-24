@@ -21,9 +21,10 @@ import numpy as np
 from scipy.integrate import quad
 from scipy.special import ellipeinc
 
-from .core import Matrix, SVGLength
+from .core import SVGLength
 from .formatter import format_number_sequence, to_coordinate_pair_sequence
 from .freetype import FTMatrix
+from .matrix import Matrix
 from .rect import Rect
 
 

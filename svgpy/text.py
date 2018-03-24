@@ -16,11 +16,12 @@
 import copy
 
 from .base import SVGElement, SVGGraphicsElement, SVGPathDataSettings
-from .core import CSSUtils, Element, Font, Matrix, Node, SVGLength
+from .core import CSSUtils, Element, Font, Node, SVGLength
 from .freetype import FreeType
 from .harfbuzz import HBBuffer, HBDirection, HBFeature, HBFTFont, HBLanguage, \
     HBScript
 from .icu import UBiDi, UBreakIterator, ULocale
+from .matrix import Matrix
 from .opentype import features_from_style, iso639_codes_from_language_tag
 from .path import PathParser
 from .rect import Rect
