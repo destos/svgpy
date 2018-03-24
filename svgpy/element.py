@@ -14,58 +14,16 @@
 
 from lxml import etree
 
-from .base import CharacterData, HTMLElement, \
+from .base import HTMLElement, \
     HTMLHyperlinkElementUtils, HTMLMediaElement, \
     SVGAnimatedPoints, SVGElement, SVGFitToViewBox, \
     SVGGeometryElement, SVGGraphicsElement, SVGGradientElement, \
     SVGPathData, SVGPathDataSettings, SVGURIReference, SVGZoomAndPan
-from .core import CSSUtils, Element, Node, SVGLength
+from .core import CSSUtils, SVGLength
+from .dom import Comment, Element
 from .path import PathParser, SVGPathSegment
 from .text import SVGTextContentElement, SVGTextPositioningElement
 from .transform import SVGTransform, SVGTransformList
-
-
-# See https://dom.spec.whatwg.org/#interface-comment
-# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-comment
-# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-characterdata
-# Node > CharacterData > Comment
-class Comment(etree.CommentBase, CharacterData):
-    """Represents the DOM Comment."""
-
-    @property
-    def data(self):
-        return '' if self.text is None else self.text
-
-    @data.setter
-    def data(self, data):
-        self.text = data
-
-    @property
-    def node_name(self):
-        return '#comment'
-
-    @property
-    def node_type(self):
-        return Node.COMMENT_NODE
-
-    @property
-    def node_value(self):
-        return self.text
-
-    @node_value.setter
-    def node_value(self, text):
-        self.text = text
-
-    @property
-    def text_content(self):
-        return self.text
-
-    @text_content.setter
-    def text_content(self, text):
-        self.text = text
-
-    def tostring(self):
-        return '' if self.text is None else '<!--{}-->'.format(self.text)
 
 
 class HTMLAudioElement(HTMLMediaElement):

@@ -14,41 +14,14 @@
 
 from abc import abstractmethod
 
-from .core import Element, Node, SVGLength, Window
+from .core import SVGLength, Window
+from .dom import Element
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
 from .matrix import Matrix
 from .path import PathParser
 from .rect import Rect
 from .transform import SVGTransformList
-
-
-class CharacterData(Node):
-    @property
-    @abstractmethod
-    def data(self):
-        raise NotImplementedError
-
-    @data.setter
-    @abstractmethod
-    def data(self, data):
-        raise NotImplementedError
-
-    @property
-    def node_value(self):
-        raise NotImplementedError
-
-    @node_value.setter
-    def node_value(self, text):
-        raise NotImplementedError
-
-    @property
-    def text_content(self):
-        raise NotImplementedError
-
-    @text_content.setter
-    def text_content(self, text):
-        raise NotImplementedError
 
 
 # See https://www.w3.org/TR/html51/dom.html#htmlelement-htmlelement

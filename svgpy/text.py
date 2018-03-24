@@ -16,7 +16,8 @@
 import copy
 
 from .base import SVGElement, SVGGraphicsElement, SVGPathDataSettings
-from .core import CSSUtils, Element, Font, Node, SVGLength
+from .core import CSSUtils, Font, SVGLength
+from .dom import Element, Node
 from .freetype import FreeType
 from .harfbuzz import HBBuffer, HBDirection, HBFeature, HBFTFont, HBLanguage, \
     HBScript
