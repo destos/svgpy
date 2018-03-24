@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>rtl-text</title>
+    <script type="text/javascript">
+        window.onload = function() {
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('text-bbox'),
+                            function (element) {
+                var style = document.defaultView.getComputedStyle(element, null);
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = style.fontFamily + ': ' + style.fontSize;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var nchars = element.getNumberOfChars();
+                var advances = [];
+                for (i = 0; i < nchars; ++i) {
+                    distance = element.getSubStringLength(i, 1);
+                    advances.push(distance.toFixed(3));
+                }
+                td.textContent = '(' + nchars + ') ' + advances;
+                length = element.getComputedTextLength();
+                td.textContent = length.toFixed(3)
+                    + ' [' + advances.toString().replace(/,/g, ', ') + ']'
+                    + ' (' + nchars + ') ';
+                tr.appendChild(td);
+                var bbox = element.getBBox();
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.x).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.y).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.width).toFixed(3));
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = parseFloat((bbox.height).toFixed(3));
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg"
+    width="100%" height="100%" viewBox="0 0 1200 360"
+    direction="rtl" xml:lang="fa">
+
+    <title direction="ltr" xml:lang="en">Right-to-left Text</title>
+    <desc direction="ltr" xml:lang="en">
+    A simple example for using the 'direction' property in documents
+    that predominantly use right-to-left languages.
+    </desc>
+
+    <text x="600" y="50" text-anchor="start" font-size="36"
+        id="text01" font-family="Vazir"
+        class="text-bbox">داستان SVG 1.1 SE طولا ني است.</text>
+
+    <text x="600" y="50" text-anchor="middle" font-size="36"
+        id="text02" font-family="Vazir"
+        transform="translate(0 60)"
+        class="text-bbox">داستان SVG 1.1 SE طولا ني است.</text>
+
+    <text x="600" y="50" text-anchor="end" font-size="36"
+        id="text03" font-family="Vazir"
+        transform="translate(0 120)"
+        class="text-bbox">داستان SVG 1.1 SE طولا ني است.</text>
+
+    <circle cx="600" cy="50" r="2" fill="blue" stroke="blue"/>
+    <circle cx="600" cy="110" r="2" fill="blue" stroke="blue"/>
+    <circle cx="600" cy="170" r="2" fill="blue" stroke="blue"/>
+    <rect x="97" y="12.766" width="502.984" height="56.813" stroke="red"
+        fill="none" stroke-dasharray="2 3"/>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>font-size</th>
+        <th>length</th>
+        <th>bbox.x</th>
+        <th>bbox.y</th>
+        <th>bbox.width</th>
+        <th>bbox.height</th>
+    </tr>
+</table>
+</body>
+</html>

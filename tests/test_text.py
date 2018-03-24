@@ -63,7 +63,16 @@ SVG_RTL_TEXT = '''
     that predominantly use right-to-left languages.
   </desc>
 
-  <text x="300" y="50" text-anchor="middle" 
+  <text x="600" y="50" text-anchor="start" 
+        id="text01" font-family="Vazir"
+        font-size="36">داستان SVG 1.1 SE طولا ني است.</text>
+
+  <text x="600" y="50" text-anchor="middle" 
+        id="text02" font-family="Vazir" transform="translate(0 60)"
+        font-size="36">داستان SVG 1.1 SE طولا ني است.</text>
+
+  <text x="600" y="50" text-anchor="end" 
+        id="text03" font-family="Vazir" transform="translate(0 120)"
         font-size="36">داستان SVG 1.1 SE طولا ني است.</text>
 
 </svg>
@@ -2717,21 +2726,92 @@ class TextTestCase(unittest.TestCase):
         self.assertEqual(text.text_content, expected)
 
     def _test_rtl_text01(self):
+        # bi-directional text
         formatter.precision = 2
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_RTL_TEXT))
         root = tree.getroot()
 
-        # Persian
-        text = root.get_elements_by_local_name('text')[0]
-        text.attributes.update({
-            'font-family': 'Vazir',
-        })
+        # 'داستان SVG 1.1 SE طولا ني است.'
+        text = root.get_element_by_id('text01')
 
-        # incorrect!
         path_data = text.get_path_data()
         print([PathParser.tostring(path_data)])
-        print(root.tostring(encoding='unicode'))
+        # print(root.tostring(encoding='unicode'))
+
+    def _test_rtl_text02(self):
+        # bi-directional text
+        formatter.precision = 2
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'width': '300',
+            'height': '100',
+            'viewBox': '0 0 300 100',
+        })
+        text = root.make_sub_element('text')
+        text.attributes.update({
+            'x': '250',
+            'y': '30',
+        })
+        text.attributes.set_style({
+            'font': '20px Vazir, "DejaVu Sans"',
+            'inline-size': '200px',
+            'direction': 'rtl',
+        })
+        text.text = 'هذا النص يلتف في 200 بكسل.'
+
+        path_data = text.get_path_data()
+        print([PathParser.tostring(path_data)])
+        print(text.get_bbox())
+
+    def _test_rtl_text03(self):
+        # http://unicode.org/faq/bidi.html
+        formatter.precision = 2
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'width': '300',
+            'height': '100',
+            'viewBox': '0 0 300 100',
+        })
+        text = root.make_sub_element('text')
+        text.attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ar')
+        text.attributes.update({
+            'x': '200',
+            'y': '50',
+            'font-family': 'Vazir, DejaVu Serif, serif',
+            'font-size': '24',
+            'direction': 'rtl',
+        })
+        text.text = " ما هو الترميز الموحد يونيكود؟ in Arabic "
+
+        path_data = text.get_path_data()
+        print([PathParser.tostring(path_data)])
+
+    def _test_rtl_text04(self):
+        # http://unicode.org/faq/bidi.html
+        formatter.precision = 2
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'width': '300',
+            'height': '100',
+            'viewBox': '0 0 300 100',
+        })
+        text = root.make_sub_element('text')
+        text.attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ar')
+        text.attributes.update({
+            'x': '-150',
+            'y': '100',
+            'font-family': 'Vazir, DejaVu Serif, serif',
+            'font-size': '24',
+            'direction': 'ltr',
+        })
+        text.text = " ما هو الترميز الموحد يونيكود؟ in Arabic "
+
+        path_data = text.get_path_data()
+        print([PathParser.tostring(path_data)])
 
     def _test_text_repositioning_x01(self):
         formatter.precision = 2
@@ -2784,7 +2864,7 @@ class TextTestCase(unittest.TestCase):
         parser = SVGParser()
         root = parser.make_element('svg')
         root.attributes.update({
-            Element.XML_LANG: 'ja',
+            Element.XML_LANG: 'ja-Jpan',
             'width': '100',
             'height': '300',
             'viewBox': '0 0 100 300',

@@ -20,6 +20,7 @@ from .core import CSSUtils, Element, Font, Matrix, Node, SVGLength
 from .freetype import FreeType
 from .harfbuzz import HBBuffer, HBDirection, HBFeature, HBFTFont, HBLanguage, \
     HBScript
+from .icu import UBiDi, UBreakIterator, ULocale
 from .opentype import features_from_style, iso639_codes_from_language_tag
 from .path import PathParser
 from .rect import Rect
@@ -221,18 +222,32 @@ class SVGTextContentElement(SVGGraphicsElement):
             return _default
 
         # TODO: support line-breaking and word-breaking.
-        # TODO: support bidirectional text.
         x_list = _get_inherited_attribute(element, style_map, 'x', [])
         y_list = _get_inherited_attribute(element, style_map, 'y', [])
         dx_list = _get_inherited_attribute(element, style_map, 'dx', [])
         dy_list = _get_inherited_attribute(element, style_map, 'dy', [])
-        rotate_list = _get_inherited_attribute(element, style_map, 'rotate',
-                                               [])
+        rotate_list = _get_inherited_attribute(
+            element, style_map, 'rotate', [])
 
         style = style_map.get(hash(element))  # computed style
         assert style is not None
         font = Font(element)
         face = font.face
+        hb_font = HBFTFont.create(face)
+
+        # alignment_baseline = style['alignment-baseline']
+        # baseline_shift = style['baseline-shift']
+
+        direction = style['direction']
+        ltr = True if direction == 'ltr' else False
+
+        # dominant_baseline = style['dominant-baseline']
+
+        # font-feature-settings, font-kerning, font-variant-*
+        hb_features = list()
+        features = features_from_style(style)
+        for feature in features:
+            hb_features.append(HBFeature.fromstring(feature))
 
         font_synthesis = style['font-synthesis']
         force_embolden = True if (style['font-weight'] > Font.WEIGHT_NORMAL
@@ -246,117 +261,56 @@ class SVGTextContentElement(SVGGraphicsElement):
                                       & FreeType.FT_STYLE_FLAG_ITALIC) == 0
                                  ) else False
 
-        # 'inline-size' property
-        # See https://svgwg.org/svg2-draft/text.html#InlineSizeProperty
-        inline_size = style['inline-size']
+        # glyph_orientation_vertical = style['glyph-orientation-vertical']
+        # inline_size = style['inline-size']
+        # letter_spacing = style['letter-spacing']
+        # line_height = style['line-height']
 
-        # 'direction' property
-        # Value: ltr | rtl
-        # See https://drafts.csswg.org/css-writing-modes-4/#direction
-        direction = style['direction']
+        # text_anchor = style['text-anchor']
+        # vpx, vpy, vpw, vph = element.get_viewport_size()
 
-        # 'writing-mode' property
-        # Value: horizontal-tb | vertical-rl | vertical-lr | sideways-rl
-        #  | sideways-lr
-        # See https://drafts.csswg.org/css-writing-modes-3/#block-flow
+        # unicode_bidi = style['unicode-bidi']
+        # word_spacing = style['word-spacing']
+
         writing_mode = style['writing-mode']
         horizontal = True if writing_mode in [
             'horizontal-tb', 'lr', 'lr-tb', 'rl', 'rl-tb'] else False
         sideways = True if writing_mode.startswith('sideways') else False
 
         buf = HBBuffer.create()
+        buf.set_cluster_level(HBBuffer.CLUSTER_LEVEL_MONOTONE_CHARACTERS)
         if horizontal:
-            hb_dir_val = HBDirection.HB_DIRECTION_LTR if direction == 'ltr' \
-                else HBDirection.HB_DIRECTION_RTL
+            if ltr:
+                hb_direction = HBDirection(HBDirection.HB_DIRECTION_LTR)
+            else:
+                hb_direction = HBDirection(HBDirection.HB_DIRECTION_RTL)
         else:
-            hb_dir_val = HBDirection.HB_DIRECTION_TTB
-        buf.set_direction(HBDirection(hb_dir_val))
+            hb_direction = HBDirection(HBDirection.HB_DIRECTION_TTB)
+        buf.set_direction(hb_direction)
 
-        # See https://www.microsoft.com/typography/otspec/featurelist.htm
-        hb_features = list()
-        features = features_from_style(style)
-        for feature in features:
-            hb_features.append(HBFeature.fromstring(feature))
-
+        locale = None
         font_language_override = style['font-language-override']
         if font_language_override != 'normal':
             codes = iso639_codes_from_language_tag(font_language_override)
             if codes is not None:
                 # FIXME: use correct language code.
-                language = HBLanguage.fromstring(codes[0])
-                buf.set_language(language)
+                locale = ULocale(codes[0])
         else:
             xml_lang = style.get(Element.XML_LANG)
             if xml_lang is None:
                 xml_lang = style.get('lang')
-            if xml_lang is None:
-                xml_lang = HBLanguage.get_default().tostring()
-            tags = xml_lang.split('-')  # language-script-region-variant-...
-            if len(tags) >= 1:
-                # ISO 639 2-letter codes
-                language = HBLanguage.fromstring(tags[0])
-                buf.set_language(language)
-                if len(tags) >= 2 and len(tags[1]) == 4:
-                    # ISO 15924 4-letter codes
-                    script = HBScript.fromstring(tags[1])
-                    buf.set_script(script)
-
-        buf.add_utf8(out_text)
-        buf.guess_segment_properties()
-        hb_font = HBFTFont.create(face)
-        buf.shape(hb_font, hb_features)
-        infos = buf.get_glyph_infos()
-        positions = buf.get_glyph_positions()
-
-        # re-positioning
-        glyph_index_list = list()
-        for ch in out_text:
-            index = face.get_char_index(ch)
-            glyph_index_list.append(index)
-        if direction == 'rtl':
-            glyph_index_list.reverse()
-        render_glyph_index_list = list()
-        for info in infos:
-            render_glyph_index_list.append(info.codepoint)
-        if glyph_index_list != render_glyph_index_list:
-            j = 0
-            rotate = None if len(rotate_list) == 0 else rotate_list[-1]
-            for i in range(len(render_glyph_index_list)):
-                if render_glyph_index_list[i] == glyph_index_list[j]:
-                    j += 1
-                else:
-                    for n in range(j + 1, len(glyph_index_list)):
-                        if (len(render_glyph_index_list) > i + 1
-                                and render_glyph_index_list[i + 1]
-                                == glyph_index_list[n]):
-                            j = n
-                            break
-                        try:
-                            _ = x_list.pop(n)
-                        except IndexError:
-                            pass
-                        try:
-                            _ = y_list.pop(n)
-                        except IndexError:
-                            pass
-                        try:
-                            dx = dx_list.pop(n)
-                            dx_list[n] += dx
-                        except IndexError:
-                            pass
-                        try:
-                            dy = dy_list.pop(n)
-                            dy_list[n] += dy
-                        except IndexError:
-                            pass
-                        try:
-                            _ = rotate_list.pop(n)
-                        except IndexError:
-                            pass
-                    else:
-                        j = len(glyph_index_list) - 1
-            if len(rotate_list) == 0 and rotate is not None:
-                rotate_list.append(rotate)
+            if xml_lang is not None:
+                locale = ULocale(xml_lang)
+        if locale is None:
+            locale = ULocale.get_default()
+        hb_language = HBLanguage.fromstring(locale.get_language())
+        buf.set_language(hb_language)
+        script = locale.get_script()
+        if script is not None and len(script) == 4:
+            hb_script = HBScript.fromstring(script)
+            buf.set_script(hb_script)
+        else:
+            hb_script = buf.get_script()
 
         current_x = start_x
         current_y = start_y
@@ -366,100 +320,181 @@ class SVGTextContentElement(SVGGraphicsElement):
         advance_list = list()
         text_bbox = Rect()
         metrics = face.size.metrics
-        x_ppem = metrics.x_ppem
-        # y_ppem = metrics.y_ppem
-        y_ppem = metrics.height / 64
+        glyph_width = metrics.x_ppem
+        glyph_height = metrics.height / 64
         descender = metrics.descender / 64
 
-        for info, position in zip(infos, positions):
-            # 'x' attribute
-            try:
-                x = x_list.pop(0)
-            except IndexError:
-                x = current_x
-
-            # 'y' attribute
-            try:
-                y = y_list.pop(0)
-            except IndexError:
-                y = current_y
-
-            # 'dx' attribute
-            try:
-                dx = dx_list.pop(0)
-            except IndexError:
-                dx = 0
-
-            # 'dy' attribute
-            try:
-                dy = dy_list.pop(0)
-            except IndexError:
-                dy = 0
-
-            # 'rotate' attribute
-            try:
-                rotate = rotate_list.pop(0)
-            except IndexError:
-                pass
-
-            # print(info, position)
-            # print('index={} x={} y={} dx={} dy={} r={}'.format(
-            #     info.codepoint, x, y, dx, dy, rotate))
-            x_offset = position.x_offset / 64
-            y_offset = position.y_offset / 64
-            x += dx + x_offset
-            y += dy - y_offset
-            matrix.clear()
-            if rotate:
-                matrix.rotate_self(rotate)
-            matrix.translate_self(x, -y)
-
-            load_flags = FreeType.FT_LOAD_NO_BITMAP
-            if not horizontal:
-                load_flags |= FreeType.FT_LOAD_VERTICAL_LAYOUT
-            face.load_glyph(info.codepoint, load_flags)
-            glyph = face.glyph
-            if force_embolden:
-                glyph.embolden()
-            if force_oblique:
-                glyph.oblique()
-            path_data = PathParser.fromglyph(face, matrix)
-            if len(path_data) > 0:
-                path_data_list += path_data
-
-            if horizontal:
-                advance = position.x_advance / 64
-                glyph_bbox = Rect(x,
-                                  y - y_ppem - descender,
-                                  advance,
-                                  y_ppem)
-                x_advance = advance
-                y_advance = 0
+        para = UBiDi()
+        para.set_para(out_text,
+                      UBiDi.UBIDI_DEFAULT_LTR if ltr
+                      else UBiDi.UBIDI_DEFAULT_RTL)
+        max_limit = para.get_processed_length()
+        bi = UBreakIterator(UBreakIterator.UBRK_LINE, locale.locale)
+        logical_start = 0
+        while logical_start < max_limit:
+            limit, para_level = para.get_logical_run(logical_start)
+            para_level &= 1
+            paragraph = out_text[logical_start:limit]
+            bi.set_text(paragraph)
+            if ((not ltr and para_level == UBiDi.UBIDI_LTR)
+                    or (ltr and para_level == UBiDi.UBIDI_RTL)):
+                iterable = reversed(bi)
             else:
-                # TODO: fix bbox for vertical text.
-                advance = -position.y_advance / 64
-                if sideways:
-                    glyph_bbox = Rect(x, y, x_ppem, position.x_advance / 64)
-                else:
-                    glyph_bbox = Rect(x,
-                                      y - advance + advance + y_offset,
-                                      x_ppem,
-                                      advance)
-                x_advance = 0
-                y_advance = advance
-            advance_list.append(advance)
-            if rotate:
-                mtx = Matrix()
-                mtx.rotate_self(rotate, x, y)
-                glyph_bbox.transform(mtx)
-            x += x_advance - x_offset
-            y += y_advance + y_offset
-            text_bbox |= glyph_bbox
-            current_x = x
-            current_y = y
-        else:
-            if len(rotate_list) == 0 and rotate != 0:
-                rotate_list.append(rotate)
+                iterable = bi
+            for line in iterable:
+                buf.clear_contents()
+                buf.set_language(hb_language)
+                buf.set_script(hb_script)
+                buf.add_utf8(line)
+                buf.guess_segment_properties()
+                buf.shape(hb_font, hb_features)
+                infos = buf.get_glyph_infos()
+                positions = buf.get_glyph_positions()
+                if infos[0].cluster > infos[-1].cluster:
+                    infos = list(reversed(infos))
+                    positions = list(reversed(positions))
+
+                # re-positioning
+                if len(infos) != len(line):
+                    clusters = [x.cluster for x in infos]
+                    cluster_min = min(clusters)
+                    cluster_max = max(clusters)
+                    cluster_inc = max(
+                        (cluster_max - cluster_min) // len(clusters), 1)
+                    # try to find ligatures
+                    last_cluster = None
+                    for offset, cluster in enumerate(clusters):
+                        if last_cluster is None:
+                            pass
+                        elif last_cluster == cluster:
+                            pass  # decompose
+                        elif last_cluster + cluster_inc == cluster:
+                            pass  # do nothing
+                        else:
+                            # ligature
+                            index = logical_start + offset
+                            if index < len(x_list):
+                                _ = x_list.pop(index)
+                            if index < len(y_list):
+                                _ = y_list.pop(index)
+                            dx_length = len(dx_list)
+                            if index < dx_length:
+                                dx = dx_list.pop(index)
+                                if index < dx_length - 1:
+                                    dx_list[index] += dx
+                            dy_length = len(dy_list)
+                            if index < dy_length:
+                                dy = dy_list.pop(index)
+                                if index < dy_length - 1:
+                                    dy_list[index] += dy
+                            rotate_length = len(rotate_list)
+                            if rotate_length > 1 and index < rotate_length:
+                                _ = rotate_list.pop(index)
+                        last_cluster = cluster
+
+                # render line
+                line_path_data = list()
+                line_bbox = Rect()
+                for info, position in zip(infos, positions):
+                    if len(x_list) > 0:
+                        x = x_list.pop(0)
+                    else:
+                        x = current_x
+                    if len(y_list) > 0:
+                        y = y_list.pop(0)
+                    else:
+                        y = current_y
+                    if len(dx_list) > 0:
+                        dx = dx_list.pop(0)
+                    else:
+                        dx = 0
+                    if len(dy_list) > 0:
+                        dy = dy_list.pop(0)
+                    else:
+                        dy = 0
+                    rotate_length = len(rotate_list)
+                    if rotate_length == 1:
+                        rotate = rotate_list[0]
+                    elif rotate_length > 1:
+                        rotate = rotate_list.pop(0)
+
+                    x_offset = position.x_offset / 64
+                    y_offset = position.y_offset / 64
+                    x += dx + x_offset
+                    y += dy - y_offset
+                    if horizontal:
+                        advance = position.x_advance / 64
+                        if para_level == UBiDi.UBIDI_RTL:
+                            x -= advance
+                        glyph_bbox = Rect(x,
+                                          y - glyph_height - descender,
+                                          advance,
+                                          glyph_height)
+                        x_advance = advance
+                        y_advance = 0
+                    else:
+                        # TODO: fix bbox for vertical text.
+                        advance = -position.y_advance / 64
+                        if sideways:
+                            glyph_bbox = Rect(x,
+                                              y,
+                                              glyph_width,
+                                              position.x_advance / 64)
+                        else:
+                            glyph_bbox = Rect(x,
+                                              y - advance + advance + y_offset,
+                                              glyph_width,
+                                              advance)
+                        x_advance = 0
+                        y_advance = advance
+                    advance_list.append(advance)
+                    if rotate:
+                        matrix.clear()
+                        matrix.rotate_self(rotate, x, y)
+                        glyph_bbox.transform(matrix)
+
+                    matrix.clear()
+                    if rotate:
+                        matrix.rotate_self(rotate)
+                    matrix.translate_self(x, -y)
+
+                    load_flags = FreeType.FT_LOAD_NO_BITMAP
+                    if not horizontal:
+                        load_flags |= FreeType.FT_LOAD_VERTICAL_LAYOUT
+                    face.load_glyph(info.codepoint, load_flags)
+                    glyph = face.glyph
+                    if force_embolden:
+                        glyph.embolden()
+                    if force_oblique:
+                        glyph.oblique()
+                    path_data = PathParser.fromglyph(face, matrix)
+                    if len(path_data) > 0:
+                        line_path_data += path_data
+
+                    if para_level == UBiDi.UBIDI_LTR:
+                        x += x_advance - x_offset
+                    y += y_advance + y_offset
+                    line_bbox |= glyph_bbox
+                    current_x = x
+                    current_y = y
+                if horizontal:
+                    if ((not ltr and para_level == UBiDi.UBIDI_LTR)
+                            or (ltr and para_level == UBiDi.UBIDI_RTL)):
+                        k = -1 if not ltr else 1
+                        width = line_bbox.width
+                        line_bbox.translate(k * width, 0)
+                        matrix.clear()
+                        matrix.translate_self(k * width, 0)
+                        line_path_data = PathParser.transform(line_path_data,
+                                                              matrix)
+                        if not ltr:
+                            current_x = line_bbox.left
+                        else:
+                            current_x = line_bbox.right
+                path_data_list += line_path_data
+                text_bbox |= line_bbox
+
+            logical_start = limit
 
         return path_data_list, advance_list, text_bbox, (current_x, current_y)
 
