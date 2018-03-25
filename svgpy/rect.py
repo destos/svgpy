@@ -170,7 +170,7 @@ class Rect(object):
         of the rectangle.
         """
         if not self.isvalid():
-            return
+            return self
         x1, y1, x2, y2 = self.get_coords()
         x1 += dx1
         y1 += dy1
