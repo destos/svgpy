@@ -302,8 +302,9 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        m = self._matrix.getI()
-        return Matrix.frommatrix(m)
+        x = copy.deepcopy(self)
+        x.invert_self()
+        return x
 
     def invert_self(self):
         """Inverts the current matrix.
