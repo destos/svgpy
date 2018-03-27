@@ -50,7 +50,11 @@ class Attrib(MutableMapping):
         self._attrib = attrib  # type: dict
 
     def __delitem__(self, name):
-        """Removes an element attribute with the name."""
+        """Removes an element attribute with the specified name.
+
+        Arguments:
+            name (str): The name of the attribute.
+        """
         if name in self._attrib:
             del self._attrib[name]
             return
@@ -62,7 +66,14 @@ class Attrib(MutableMapping):
             del self._attrib['style']
 
     def __getitem__(self, name):
-        """Gets an element attribute."""
+        """Gets an element attribute with the specified name.
+
+        Arguments:
+            name (str): The name of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute.
+                Raises a KeyError if the attribute doesn't exist.
+        """
         value = self._attrib.get(name)
         if value is not None:
             return value.strip()
@@ -81,26 +92,56 @@ class Attrib(MutableMapping):
     def __repr__(self):
         return repr(self._attrib)
 
-    def __setitem__(self, key, value):
-        self.set(key, value)
+    def __setitem__(self, name, value):
+        """Sets an element attribute with the specified name.
+
+        Arguments:
+            name (str): The name of the attribute.
+            value (str): The value of the attribute.
+        """
+        self.set(name, value)
 
     def get_ns(self, namespace, local_name, default=None):
+        """Gets an element attribute with the specified namespace and name.
+
+        Arguments:
+            namespace (str): The namespace URI.
+            local_name (str): The local name of the attribute.
+            default (str, optional): The default value of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute if the attribute
+                exist, else default.
+        """
         if namespace is None:
             name = local_name
         else:
             name = '{{{0}}}{1}'.format(namespace, local_name)
-        return self._attrib.get(name, default)
+        return self.get(name, default)
 
     def get_style(self, default=None):
-        """Returns the 'style' attribute."""
+        """Returns the 'style' attribute.
+
+        Arguments:
+            default (dict, optional): The default value of the attribute.
+        Returns:
+            dict: Returns the value of the 'style' attribute if the attribute
+                exist, else default.
+        """
         style = self._attrib.get('style')
         if style is None:
             return default
         return style_to_dict(style)
 
     def pop(self, name, default=None):
-        """Removes an element attribute with the name and returns the value
-        associated with it.
+        """Removes an element attribute with the specified name and returns the
+        value associated with it.
+
+        Arguments:
+            name (str): The name of the attribute.
+            default (str, optional): The default value of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute if the attribute
+                exist, else default.
         """
         try:
             value = self.__getitem__(name)
@@ -110,14 +151,30 @@ class Attrib(MutableMapping):
             return default
 
     def pop_ns(self, namespace, local_name, default=None):
+        """Removes an element attribute with the specified namespace and name,
+        and returns the value associated with it.
+
+        Arguments:
+            namespace (str): The namespace URI.
+            local_name (str): The local name of the attribute.
+            default (str, optional): The default value of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute if the attribute
+                exist, else default.
+        """
         if namespace is None:
             name = local_name
         else:
             name = '{{{0}}}{1}'.format(namespace, local_name)
-        return self._attrib.pop(name, default)
+        return self.pop(name, default)
 
     def set(self, name, value):
-        """Sets an element attribute."""
+        """Sets an element attribute.
+
+        Arguments:
+            name (str): The name of the attribute.
+            value (str): The value of the attribute.
+        """
         if name in self._attrib:
             self._attrib[name] = value
             return
@@ -129,24 +186,61 @@ class Attrib(MutableMapping):
         self._attrib[name] = value
 
     def set_ns(self, namespace, local_name, value):
+        """Sets an element attribute with the specified namespace and name.
+
+        Arguments:
+            namespace (str): The namespace URI.
+            local_name (str): The local name of the attribute.
+            value (str): The value of the attribute.
+        """
         if namespace is None:
             name = local_name
         else:
             name = '{{{0}}}{1}'.format(namespace, local_name)
-        self._attrib[name] = value
+        self.set(name, value)
+
+    def setdefault(self, name, default=None):
+        """If the specified attribute exist, returns its value. If not, sets
+        an element attribute with a value of default and returns default.
+
+        Arguments:
+            name (str): The name of the attribute.
+            default (str, optional): The default value of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute if the attribute
+                exist, else default.
+        """
+        # override
+        value = self.get(name)
+        if value is not None:
+            return value
+        self._attrib[name] = default
+        return default
 
     def setdefault_ns(self, namespace, local_name, default):
+        """If the specified attribute exist, returns its value. If not, sets
+        an element attribute with a value of default and returns default.
+
+        Arguments:
+            namespace (str): The namespace URI.
+            local_name (str): The local name of the attribute.
+            default (str, optional): The default value of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute if the attribute
+                exist, else default.
+        """
         if namespace is None:
             name = local_name
         else:
             name = '{{{0}}}{1}'.format(namespace, local_name)
-        value = self._attrib.get(name, default)
-        if name not in self._attrib:
-            self._attrib[name] = value
-        return value
+        return self.setdefault(name, default)
 
     def set_style(self, d):
-        """Sets the 'style' attribute."""
+        """Sets the 'style' attribute.
+
+        Arguments:
+            d (dict): The value of the 'style' attribute.
+        """
         style = dict_to_style(d)
         self._attrib['style'] = style
 

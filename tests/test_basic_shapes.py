@@ -1058,6 +1058,37 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(circle.attributes.get('cy'), '800')
         self.assertTrue(style is None)
 
+    def test_element_style_attribute_ns(self):
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        circle = root.make_sub_element('circle')
+
+        value = circle.attributes.get_ns(None, 'fill')
+        self.assertIsNone(value)
+
+        circle.attributes.set('style', 'fill:red;stroke:blue')
+        value = circle.attributes.get_ns(None, 'fill')
+        expected = 'red'
+        self.assertEqual(value, expected)
+
+        circle.attributes.set_ns(None, 'fill', 'white')
+        value = circle.attributes.pop_ns(None, 'fill')
+        expected = 'white'
+        self.assertEqual(value, expected)
+
+        value = circle.attributes.pop_ns(None, 'fill', 'black')
+        expected = 'black'
+        self.assertEqual(value, expected)
+
+        value = circle.attributes.setdefault_ns(None, 'stroke', 'black')
+        expected = 'blue'
+        self.assertEqual(value, expected)
+
+        circle.attributes.update({'stroke': 'white'})
+        value = circle.attributes.get_ns(None, 'style')
+        expected = 'stroke: white;'
+        self.assertEqual(value, expected)
+
     def test_element_find_by_class_names01(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_CUBIC01))
