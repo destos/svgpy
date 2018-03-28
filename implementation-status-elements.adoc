@@ -129,7 +129,7 @@
 |tagName ^|✓ ||
 |id ^|✓ ||
 |className ^|✓ ||
-|classList ^|TBD ||
+|classList ^|✓ ||
 |attributes ^|✓ ||
 |getAttribute() ^|Not Planned ||Use attributes.get() instead.
 |getAttributeNS() ^|Not Planned ||Use attributes.get_ns() instead.

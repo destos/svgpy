@@ -455,10 +455,20 @@ class Element(etree.ElementBase, Node):
 
     @property
     def attributes(self):
+        """Attrib: A dictionary of an element attributes."""
         return self._attributes
 
     @property
+    def class_list(self):
+        """list[str]: A list of classes."""
+        classes = self.class_name
+        if classes is None:
+            return []
+        return classes.split()
+
+    @property
     def class_name(self):
+        """str: Reflects the 'class' attribute."""
         return self.attributes.get('class')
 
     @class_name.setter
@@ -467,6 +477,7 @@ class Element(etree.ElementBase, Node):
 
     @property
     def id(self):
+        """str: Reflects the 'id' attribute."""
         return self.attributes.get('id')
 
     @id.setter
@@ -514,6 +525,7 @@ class Element(etree.ElementBase, Node):
 
     @property
     def text_content(self):
+        """str: Implements Node#textContent."""
         # See https://dom.spec.whatwg.org/#dom-node-textcontent
         local_name = self.local_name
         if local_name in Element.DESCRIPTIVE_ELEMENTS:
@@ -525,8 +537,9 @@ class Element(etree.ElementBase, Node):
 
     @text_content.setter
     def text_content(self, text):
-        # TODO: implement Node.textContent.
-        raise NotImplementedError
+        for child in iter(self):
+            self.remove(child)
+        self.text = text
 
     @staticmethod
     def _get_text_content(element):

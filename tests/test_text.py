@@ -2725,6 +2725,23 @@ class TextTestCase(unittest.TestCase):
                 """
         self.assertEqual(text.text_content, expected)
 
+    def test_text_content08(self):
+        # Node#textContent
+        # See also: tspan01.html
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_TSPAN01))
+        root = tree.getroot()
+
+        text = root.get_element_by_id('text02')
+        self.assertEqual(len(text), 1)  # tspan
+        self.assertTrue(len(text.attributes) > 0)
+
+        expected = 'Hello World!'
+        text.text_content = expected
+        self.assertEqual(len(text), 0)
+        self.assertTrue(len(text.attributes) > 0)
+        self.assertEqual(text.text_content, expected)
+
     def _test_rtl_text01(self):
         # bi-directional text
         formatter.precision = 2

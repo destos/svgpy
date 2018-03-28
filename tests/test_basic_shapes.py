@@ -1178,6 +1178,41 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
         self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
+    def test_element_class_list01(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_CUBIC01))
+        root = tree.getroot()
+
+        class_name = root.class_name
+        self.assertIsNone(class_name)
+
+        class_list = root.class_list
+        self.assertEqual(class_list, [])
+
+    def test_element_class_list02(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_CUBIC01))
+        root = tree.getroot()
+
+        root.class_name = 'Border'
+        class_name = root.class_name
+        self.assertEqual(class_name, 'Border')
+
+        class_list = root.class_list
+        self.assertEqual(class_list, ['Border'])
+
+    def test_element_class_list03(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_CUBIC01))
+        root = tree.getroot()
+
+        root.class_name = 'Border Label'
+        class_name = root.class_name
+        self.assertEqual(class_name, 'Border Label')
+
+        class_list = root.class_list
+        self.assertEqual(class_list, ['Border', 'Label'])
+
     def test_element_find_by_class_names01(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_CUBIC01))
