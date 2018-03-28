@@ -72,7 +72,7 @@ class Attrib(MutableMapping):
             name (str): The name of the attribute.
         Returns:
             str: Returns the value of the specified attribute.
-                Raises a KeyError if the attribute doesn't exist.
+                Raises a KeyError if the attribute doesn't exists.
         """
         value = self._attrib.get(name)
         if value is not None:
@@ -110,7 +110,7 @@ class Attrib(MutableMapping):
             default (str, optional): The default value of the attribute.
         Returns:
             str: Returns the value of the specified attribute if the attribute
-                exist, else default.
+                exists, else default.
         """
         if namespace is None:
             name = local_name
@@ -125,12 +125,42 @@ class Attrib(MutableMapping):
             default (dict, optional): The default value of the attribute.
         Returns:
             dict: Returns the value of the 'style' attribute if the attribute
-                exist, else default.
+                exists, else default.
         """
         style = self._attrib.get('style')
         if style is None:
             return default
         return style_to_dict(style)
+
+    def has(self, name):
+        """Returns True if an element attribute with the specified name exists;
+        otherwise returns False.
+
+        Arguments:
+            name (str): The name of the attribute.
+        Returns:
+            bool: Returns True if the attribute exists, else False.
+        """
+        if name in self._attrib:
+            return True
+        style = self.get_style({})
+        return name in style
+
+    def has_ns(self, namespace, local_name):
+        """Returns True if an element attribute with the specified namespace
+        and name exists; otherwise returns False.
+
+        Arguments:
+            namespace (str): The namespace URI.
+            local_name (str): The local name of the attribute.
+        Returns:
+            bool: Returns True if the attribute exists, else False.
+        """
+        if namespace is None:
+            name = local_name
+        else:
+            name = '{{{0}}}{1}'.format(namespace, local_name)
+        return self.has(name)
 
     def pop(self, name, default=None):
         """Removes an element attribute with the specified name and returns the
@@ -141,7 +171,7 @@ class Attrib(MutableMapping):
             default (str, optional): The default value of the attribute.
         Returns:
             str: Returns the value of the specified attribute if the attribute
-                exist, else default.
+                exists, else default.
         """
         try:
             value = self.__getitem__(name)
@@ -160,7 +190,7 @@ class Attrib(MutableMapping):
             default (str, optional): The default value of the attribute.
         Returns:
             str: Returns the value of the specified attribute if the attribute
-                exist, else default.
+                exists, else default.
         """
         if namespace is None:
             name = local_name
@@ -200,7 +230,7 @@ class Attrib(MutableMapping):
         self.set(name, value)
 
     def setdefault(self, name, default=None):
-        """If the specified attribute exist, returns its value. If not, sets
+        """If the specified attribute exists, returns its value. If not, sets
         an element attribute with a value of default and returns default.
 
         Arguments:
@@ -208,7 +238,7 @@ class Attrib(MutableMapping):
             default (str, optional): The default value of the attribute.
         Returns:
             str: Returns the value of the specified attribute if the attribute
-                exist, else default.
+                exists, else default.
         """
         # override
         value = self.get(name)
@@ -218,7 +248,7 @@ class Attrib(MutableMapping):
         return default
 
     def setdefault_ns(self, namespace, local_name, default):
-        """If the specified attribute exist, returns its value. If not, sets
+        """If the specified attribute exists, returns its value. If not, sets
         an element attribute with a value of default and returns default.
 
         Arguments:
@@ -227,7 +257,7 @@ class Attrib(MutableMapping):
             default (str, optional): The default value of the attribute.
         Returns:
             str: Returns the value of the specified attribute if the attribute
-                exist, else default.
+                exists, else default.
         """
         if namespace is None:
             name = local_name
@@ -243,6 +273,17 @@ class Attrib(MutableMapping):
         """
         style = dict_to_style(d)
         self._attrib['style'] = style
+
+    def update_style(self, other):
+        """Updates the 'style' attribute with the key/value pairs from other.
+
+        Arguments:
+            other (dict): The key/value pairs of the 'style' attribute to be
+                updated.
+        """
+        style = self.get_style({})
+        style.update(other)
+        self.set_style(style)
 
 
 # See https://dom.spec.whatwg.org/#interface-node

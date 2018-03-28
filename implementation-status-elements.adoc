@@ -99,16 +99,16 @@
 
 .45+|[[Element]]Element .26+|Node |nodeType ^|✓ ||
 |nodeName ^|✓ ||
-|baseURI ^|Not Planned ||Use base property insted
-|ownerDocument ^|Not Planned ||Use getroottree() insted
-|parentNode ^|Not Planned ||Use getparent() insted
-|parentElement ^|Not Planned ||Use getparent() insted
-|hasChildNodes() ^|Not Planned ||Use len(self) insted
-|childNodes ^|Not Planned ||Use iterator insted
+|baseURI ^|Not Planned ||Use base property instead.
+|ownerDocument ^|Not Planned ||Use getroottree() instead.
+|parentNode ^|Not Planned ||Use getparent() instead.
+|parentElement ^|Not Planned ||Use getparent() instead.
+|hasChildNodes() ^|Not Planned ||Use len(self) instead.
+|childNodes ^|Not Planned ||Use iterator instead.
 |firstChild ^|Not Planned ||
 |lastChild ^|Not Planned ||
-|previousSibling ^|Not Planned ||Use getprevious() insted
-|nextSibling ^|Not Planned ||Use getnext() insted
+|previousSibling ^|Not Planned ||Use getprevious() instead.
+|nextSibling ^|Not Planned ||Use getnext() instead.
 |nodeValue ^|✓ ||
 |textContent ^|✓ ||
 |normalize() ^|Not Planned ||
@@ -119,10 +119,10 @@
 |lookupPrefix() ^|Not Planned ||
 |lookupNamespaceURI() ^|Not Planned ||
 |isDefaultNamespace() ^|Not Planned ||
-|insertBefore() ^|Not Planned ||Use insert() insted
-|appendChild() ^|Not Planned ||Use append() insted
-|replaceChild() ^|Not Planned ||Use replace() insted
-|removeChild() ^|Not Planned ||Use remove() insted
+|insertBefore() ^|Not Planned ||Use insert() instead.
+|appendChild() ^|Not Planned ||Use append() instead.
+|replaceChild() ^|Not Planned ||Use replace() instead.
+|removeChild() ^|Not Planned ||Use remove() instead.
 .19+|-|namespaceURI ^|✓ ||
 |prefix ^|✓ ||
 |localName ^|✓ ||
@@ -131,30 +131,30 @@
 |className ^|✓ ||
 |classList ^|TBD ||
 |attributes ^|✓ ||
-|getAttribute() ^|Not Planned ||Use attributes.get() insted
-|getAttributeNS() ^|Not Planned ||Use attributes.get_ns() insted
-|setAttribute() ^|Not Planned ||Use attributes.set() insted
-|setAttributeNS() ^|Not Planned ||Use attributes.set_ns() insted
-|removeAttribute() ^|Not Planned ||Use attributes.pop() insted
-|removeAttributeNS() ^|Not Planned ||Use attributes.pop_ns() insted
-|hasAttribute() ^|TBD ||
-|hasAttributeNS() ^|TBD ||
-|getElementsByTagName() ^|✓ ||Include itself
-|getElementsByTagNameNS() ^|✓ ||Include itself
-|getElementsByClassName() ^|✓ ||Include itself
+|getAttribute() ^|Not Planned ||Use attributes.get() instead.
+|getAttributeNS() ^|Not Planned ||Use attributes.get_ns() instead.
+|setAttribute() ^|Not Planned ||Use attributes.set() instead.
+|setAttributeNS() ^|Not Planned ||Use attributes.set_ns() instead.
+|removeAttribute() ^|Not Planned ||Use attributes.pop() instead.
+|removeAttributeNS() ^|Not Planned ||Use attributes.pop_ns() instead.
+|hasAttribute() ^|Not Planned ||Use attributes.has() instead.
+|hasAttributeNS() ^|Not Planned ||Use attributes.has_ns() instead.
+|getElementsByTagName() ^|✓ ||Include itself.
+|getElementsByTagNameNS() ^|✓ ||Include itself.
+|getElementsByClassName() ^|✓ ||Include itself.
 
 .33+|Comment .26+|Node |nodeType ^|✓ ||
 |nodeName ^|✓ ||
 |baseURI ^|Not Planned ||
-|ownerDocument ^|Not Planned ||Use getroottree() insted
-|parentNode ^|Not Planned ||Use getparent() insted
-|parentElement ^|Not Planned ||Use getparent() insted
+|ownerDocument ^|Not Planned ||Use getroottree() instead.
+|parentNode ^|Not Planned ||Use getparent() instead.
+|parentElement ^|Not Planned ||Use getparent() instead.
 |hasChildNodes() ^|Not Planned ||
 |childNodes ^|Not Planned ||
 |firstChild ^|Not Planned ||
 |lastChild ^|Not Planned ||
-|previousSibling ^|Not Planned ||Use getprevious() insted
-|nextSibling ^|Not Planned ||Use getnext() insted
+|previousSibling ^|Not Planned ||Use getprevious() instead.
+|nextSibling ^|Not Planned ||Use getnext() instead.
 |nodeValue ^|✓ ||
 |textContent ^|✓ ||
 |normalize() ^|Not Planned ||
@@ -165,12 +165,12 @@
 |lookupPrefix() ^|Not Planned ||
 |lookupNamespaceURI() ^|Not Planned ||
 |isDefaultNamespace() ^|Not Planned ||
-|insertBefore() ^|Not Planned ||Use insert() insted
-|appendChild() ^|Not Planned ||Use append() insted
-|replaceChild() ^|Not Planned ||Use replace() insted
-|removeChild() ^|Not Planned ||Use remove() insted
+|insertBefore() ^|Not Planned ||Use insert() instead.
+|appendChild() ^|Not Planned ||Use append() instead.
+|replaceChild() ^|Not Planned ||Use replace() instead.
+|removeChild() ^|Not Planned ||Use remove() instead.
 .7+|CharacterData |data ^|✓ ||
-|length ^|Not Planned ||Use len(data) insted
+|length ^|Not Planned ||Use len(data) instead.
 |substringData() ^|Not Planned ||
 |appendData() ^|Not Planned ||
 |insertData() ^|Not Planned ||
@@ -183,21 +183,30 @@
 |====
 ^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
 
-|DOMPoint |- | ^|Not Planned ||Use tuple class insted
+|DOMPoint |- | ^|Not Planned ||Use tuple class instead.
 
-|DOMRect |- | ^|Not Planned ||Use Rect class insted
+.10+|DOMRect (1) .6+|DOMRectReadOnly |fromRect() ^|Not Planned ||Use copy.deepcopy() instead.
+|toJSON() ^|✓ ||
+|top ^|✓ ||
+|right ^|✓ ||
+|bottom ^|✓ ||
+|left ^|✓ ||
+.4+|- |x ^|✓ ||
+|y ^|✓ ||
+|width ^|✓ ||
+|height ^|✓ ||
 
 |DOMQuad |- | ^|Not Planned ||
 
-.56+|DOMMatrix <1> .22+|DOMMatrixReadOnly |fromMatrix() ^|Not Planned ||Use copy.deepcopy() insted
+.56+|DOMMatrix (2) .22+|DOMMatrixReadOnly |fromMatrix() ^|Not Planned ||Use copy.deepcopy() instead.
 |fromFloat32Array() ^|Not Planned ||
 |fromFloat64Array() ^|Not Planned ||
 |is2D ^|Not Planned ||
 |isIdentity ^|Not Planned ||
-|translate() ^|✓ ||2D only
-|scale() ^|✓ ||2D only
+|translate() ^|✓ ||2D only.
+|scale() ^|✓ ||2D only.
 |scale3d() ^|Not Planned ||
-|rotate() ^|✓ ||2D only
+|rotate() ^|✓ ||2D only.
 |rotateFromVector() ^|TBD ||
 |rotateAxisAngle() ^|TBD ||
 |skewX() ^|✓ ||
@@ -206,10 +215,10 @@
 |flipX() ^|✓ ||
 |flipY() ^|✓ ||
 |inverse() ^|✓ ||
-|transformPoint() ^|✓ ||Rename to point()
-|toFloat32Array() ^|✓ ||Rename to toarray()
-|toFloat64Array() ^|✓ ||Use toarray() insted
-|stringifier ^|✓ ||Rename to tostring()
+|transformPoint() ^|✓ ||Rename to point().
+|toFloat32Array() ^|✓ ||Rename to toarray().
+|toFloat64Array() ^|✓ ||Use toarray() instead.
+|stringifier ^|✓ ||Rename to tostring().
 |toJSON() ^|✓ ||
 .34+|- |a ^|✓ ||
 |b ^|✓ ||
@@ -235,18 +244,19 @@
 |m44 ^|Not Planned ||
 |multiplySelf() ^|✓ ||
 |preMultiplySelf() ^|TBD ||
-|translateSelf() ^|✓ ||2D only
-|scaleSelf() ^|✓ ||2D only
+|translateSelf() ^|✓ ||2D only.
+|scaleSelf() ^|✓ ||2D only.
 |scale3dSelf() ^|Not Planned ||
-|rotateSelf() ^|✓ ||2D only
+|rotateSelf() ^|✓ ||2D only.
 |rotateFromVectorSelf() ^|TBD ||
 |rotateAxisAngleSelf() ^|TBD ||
 |skewXSelf() ^|✓ ||
 |skewYSelf() ^|✓ ||
 |invertSelf() ^|✓ ||
-|setMatrixValue() ^|✓ ||Rename to set_matrix()
+|setMatrixValue() ^|✓ ||Rename to set_matrix().
 |====
-<1> Rename to Matrix.
+(1) Rename to Rect. +
+(2) Rename to Matrix.
 
 === SVG
 ==== Basic Data Types and Interfaces
@@ -255,7 +265,7 @@
 ^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
 
 .8+|[[SVGElement]]SVGElement .1+|link:#Element[Element] ||||
-.7+|-|className ^|Not Planned ||Deprecated
+.7+|-|className ^|Not Planned ||Deprecated.
 |dataset ^|Not Planned ||
 |ownerSVGElement ^|✓ ||
 |viewportElement ^|✓ ||
@@ -267,7 +277,7 @@
 
 .5+|[[SVGGraphicsElement]]SVGGraphicsElement .1+|link:#SVGElement[SVGElement] |- |||
 .4+|- |transform ^|✓ ||
-|getBBox() ^|In Progress ^|High |Support object bounding box only
+|getBBox() ^|In Progress ^|High |Support object bounding box only.
 |getCTM() ^|Not Verified ^| |
 |getScreenCTM() ^|TBD ||
 
@@ -275,17 +285,17 @@
 .5+|- |pathLength ^|Planned ||
 |isPointInFill() ^|TBD ||
 |isPointInStroke() ^|TBD ||
-|getTotalLength() ^|In Progress ^|Medium |Exclude 'R'\|'r' path command
+|getTotalLength() ^|In Progress ^|Medium |Exclude 'R'\|'r' path command.
 |getPointAtLength() ^|TBD ||
 
 |SVGNumber |- | ^|Not Planned ||
 
-.6+|SVGLength .6+|- |unitType ^|✓ ||Rename to unit
+.6+|SVGLength .6+|- |unitType ^|✓ ||Rename to unit.
 |value ^|✓ ||Rename to value()
-|valueInSpecifiedUnits ^|✓ ||Use value() insted
-|valueAsString ^|✓ ||Rename to tostring()
-|newValueSpecifiedUnits() ^|✓ ||Rename to new_value()
-|convertToSpecifiedUnits() ^|✓ ||Rename to convert()
+|valueInSpecifiedUnits ^|✓ ||Use value() instead.
+|valueAsString ^|✓ ||Rename to tostring().
+|newValueSpecifiedUnits() ^|✓ ||Rename to new_value().
+|convertToSpecifiedUnits() ^|✓ ||Rename to convert().
 
 |SVGAngle |- | ^|TBD ||
 
@@ -299,7 +309,7 @@
 
 |[[SVGZoomAndPan]]SVGZoomAndPan |- |zoomAndPan ^|✓ ||
 
-|[[SVGURIReference]]SVGURIReference |- |href ^|✓ ||Support internal link only
+|[[SVGURIReference]]SVGURIReference |- |href ^|✓ ||Support internal link only.
 |====
 
 ==== Document Structure
@@ -307,11 +317,11 @@
 |====
 ^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
 
-.25+|[[SVGSVGElement]]SVGSVGElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only
-.24+|- |x ^|Not Planned ||Use get_computed_geometry() insted
-|y ^|Not Planned ||Same as above
-|width ^|Not Planned ||Same as above
-|height ^|Not Planned ||Same as above
+.25+|[[SVGSVGElement]]SVGSVGElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only.
+.24+|- |x ^|Not Planned ||Use get_computed_geometry() instead.
+|y ^|Not Planned ||Same as above.
+|width ^|Not Planned ||Same as above.
+|height ^|Not Planned ||Same as above.
 |currentScale ^|✓ ||
 |currentTranslate ^|✓ ||
 |getIntersectionList() ^|TBD ||
@@ -327,17 +337,17 @@
 |createSVGRect() ^|Not Planned ||
 |createSVGTransform() ^|Not Planned ||
 |createSVGTransformFromMatrix() ^|Not Planned ||
-|getElementById() ^|✓ ||Implement in Element class
+|getElementById() ^|✓ ||Implement in Element class.
 |suspendRedraw() ^|Not Planned ||
 |unsuspendRedraw() ^|Not Planned ||
 |unsuspendRedrawAll() ^|Not Planned ||
 |forceRedraw() ^|Not Planned ||
 
-|[[SVGGElement]]SVGGElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only
+|[[SVGGElement]]SVGGElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only.
 
 |[[SVGUnknownElement]]SVGUnknownElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|TBD ||
 
-|[[SVGDefsElement]]SVGDefsElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|✓ ||Returns empty bbox
+|[[SVGDefsElement]]SVGDefsElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|✓ ||Returns empty bbox.
 
 |[[SVGDescElement]]SVGDescElement |link:#SVGElement[SVGElement] |- ^|✓ ||
 
@@ -345,13 +355,13 @@
 
 |[[SVGTitleElement]]SVGTitleElement |link:#SVGElement[SVGElement] |- ^|✓ ||
 
-|[[SVGSymbolElement]]SVGSymbolElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only
+|[[SVGSymbolElement]]SVGSymbolElement |link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only.
 
-.7+|[[SVGUseElement]]SVGUseElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only. Support internal contents only
-.6+|- |x ^|Not Planned ||Use get_computed_geometry() insted
-|y ^|Not Planned ||Same as above
-|width ^|Not Planned ||Same as above
-|height ^|Not Planned ||Same as above
+.7+|[[SVGUseElement]]SVGUseElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ||Support object bounding box only. Support internal contents only.
+.6+|- |x ^|Not Planned ||Use get_computed_geometry() instead.
+|y ^|Not Planned ||Same as above.
+|width ^|Not Planned ||Same as above.
+|height ^|Not Planned ||Same as above.
 |instanceRoot ^|✓ ||
 |animatedInstanceRoot ^|Not Planned ||
 
@@ -392,16 +402,16 @@
 |setSkewX() ^|✓ ||
 |setSkewY() ^|✓ ||
 
-.12+|SVGTransformList .12+|- |length ^|✓ ||Use len(self) insted
-|numberOfItems ^|✓ ||Use len(self) insted
+.12+|SVGTransformList .12+|- |length ^|✓ ||Use len(self) instead.
+|numberOfItems ^|✓ ||Use len(self) instead.
 |clear() ^|✓ ||
 |initialize() ^|Not Planned ||
-|getItem() ^|✓ ||Use s[i] insted
-|insertItemBefore() ^|✓ ||Use insert() insted
-|replaceItem() ^|✓ ||Use s[i] = t insted
-|removeItem() ^|✓ ||Use remove() or pop() insted
-|appendItem() ^|✓ ||Use append() insted
-|setter() ^|✓ ||Same as replaceItem()
+|getItem() ^|✓ ||Use s[i] instead.
+|insertItemBefore() ^|✓ ||Use insert() instead.
+|replaceItem() ^|✓ ||Use s[i] = t instead.
+|removeItem() ^|✓ ||Use remove() or pop() instead.
+|appendItem() ^|✓ ||Use append() instead.
+|setter() ^|✓ ||Same as replaceItem().
 |createSVGTransformFromMatrix() ^|Not Planned ||
 |consolidate() ^|✓ ||
 
@@ -422,7 +432,7 @@
 
 |[[SVGPathDataSettings]]SVGPathDataSettings |- |normalize ^|✓ ||
 
-.2+|[[SVGPathData]]SVGPathData .2+|- |getPathData() ^|✓ ||Implement in SVGGeometryElement class
+.2+|[[SVGPathData]]SVGPathData .2+|- |getPathData() ^|✓ ||Implement in SVGGeometryElement class.
 |setPathData() ^|✓ ||
 
 .4+|[[SVGPathElement]]SVGPathElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
@@ -436,29 +446,29 @@
 ^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
 
 .7+|[[SVGRectElement]]SVGRectElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
-.6+|- |x ^|Not Planned | |Use get_computed_geometry() insted
-|y ^|Not Planned ||Same as above
-|width ^|Not Planned ||Same as above
-|height ^|Not Planned ||Same as above
-|rx ^|Not Planned ||Same as above
-|ry ^|Not Planned ||Same as above
+.6+|- |x ^|Not Planned | |Use get_computed_geometry() instead.
+|y ^|Not Planned ||Same as above.
+|width ^|Not Planned ||Same as above.
+|height ^|Not Planned ||Same as above.
+|rx ^|Not Planned ||Same as above.
+|ry ^|Not Planned ||Same as above.
 
 .4+|[[SVGCircleElement]]SVGCircleElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
-.3+|- |cx ^|Not Planned ||Use get_computed_geometry() insted
-|cy ^|Not Planned ||Same as above
-|r ^|Not Planned ||Same as above
+.3+|- |cx ^|Not Planned ||Use get_computed_geometry() instead.
+|cy ^|Not Planned ||Same as above.
+|r ^|Not Planned ||Same as above.
 
 .5+|[[SVGEllipseElement]]SVGEllipseElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
-.4+|- |cx ^|Not Planned ||Use get_computed_geometry() insted
-|cy ^|Not Planned ||Same as above
-|rx ^|Not Planned ||Same as above
-|ry ^|Not Planned ||Same as above
+.4+|- |cx ^|Not Planned ||Use get_computed_geometry() instead.
+|cy ^|Not Planned ||Same as above.
+|rx ^|Not Planned ||Same as above.
+|ry ^|Not Planned ||Same as above.
 
 .5+|[[SVGLineElement]]SVGLineElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
-.4+|- |x1 ^|Not Planned ||Use get_computed_geometry() insted
-|y1 ^|Not Planned ||Same as above
-|x2 ^|Not Planned ||Same as above
-|y2 ^|Not Planned ||Same as above
+.4+|- |x1 ^|Not Planned ||Use get_computed_geometry() instead.
+|y1 ^|Not Planned ||Same as above.
+|x2 ^|Not Planned ||Same as above.
+|y2 ^|Not Planned ||Same as above.
 
 .2+|[[SVGMeshElement]]SVGMeshElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
 .1+|link:#SVGURIReference[SVGURIReference] |- |||
@@ -466,7 +476,7 @@
 .2+|[[SVGAnimatedPoints]]SVGAnimatedPoints .2+|- |points ^|✓ ||
 |animatedPoints ^|Not Planned ||
 
-|SVGPointList |- | ^|Not Planned ||Use list class insted
+|SVGPointList |- | ^|Not Planned ||Use list class instead.
 
 .2+|[[SVGPolylineElement]]SVGPolylineElement .1+|link:#SVGGeometryElement[SVGGeometryElement] |- |||
 .1+|link:#SVGAnimatedPoints[SVGAnimatedPoints] |- |||
@@ -479,7 +489,7 @@
 |====
 ^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
 
-.12+|[[SVGTextContentElement]]SVGTextContentElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ^|High |Support object bounding box only. Word and line break does not support yet
+.12+|[[SVGTextContentElement]]SVGTextContentElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] |getBBox() ^|In Progress ^|High |Support object bounding box only. Word and line break does not support yet.
 .11+|- |textLength ^|TBD ||
 |lengthAdjust ^|TBD ||
 |getNumberOfChars() ^|✓ ||
@@ -493,11 +503,11 @@
 |selectSubString() ^|Not Planned ||
 
 .6+|[[SVGTextPositioningElement]]SVGTextPositioningElement .1+|link:#SVGTextContentElement[SVGTextContentElement] |- |||
-.5+|- |x ^|Not Planned ||Use get_computed_geometry() insted
-|y ^|Not Planned ||Same as above
-|dx ^|Not Planned ||Same as above
-|dy ^|Not Planned ||Same as above
-|rotate ^|Not Planned ||Same as above
+.5+|- |x ^|Not Planned ||Use get_computed_geometry() instead.
+|y ^|Not Planned ||Same as above.
+|dx ^|Not Planned ||Same as above.
+|dy ^|Not Planned ||Same as above.
+|rotate ^|Not Planned ||Same as above.
 
 |[[SVGTextElement]]SVGTextElement |link:#SVGTextPositioningElement[SVGTextPositioningElement] |- |||
 

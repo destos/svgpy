@@ -846,6 +846,9 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue('width' in root.attributes)
         self.assertTrue('height' in root.attributes)
         self.assertTrue('x' not in root.attributes)
+        self.assertTrue(root.attributes.has('width'))
+        self.assertTrue(root.attributes.has('height'))
+        self.assertTrue(not root.attributes.has('x'))
 
         width = root.attributes.pop('width')
         self.assertEqual(len(root.attributes), 1)
@@ -853,12 +856,16 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(width, '20cm')
         self.assertTrue('width' not in root.attributes)
         self.assertTrue('height' in root.attributes)
+        self.assertTrue(not root.attributes.has('width'))
+        self.assertTrue(root.attributes.has('height'))
 
         del root.attributes['height']
         self.assertEqual(len(root.attributes), 0)
         self.assertEqual(len(root.attrib), 0)
         self.assertTrue('width' not in root.attributes)
         self.assertTrue('height' not in root.attributes)
+        self.assertTrue(not root.attributes.has('width'))
+        self.assertTrue(not root.attributes.has('height'))
 
         root.attributes.set('width', '20cm')
         root.attributes.set('height', '10cm')
@@ -873,16 +880,20 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(width, '15cm')
         self.assertEqual(height, '10cm')
         self.assertTrue(x is None)
+        self.assertTrue(root.attributes.has('width'))
+        self.assertTrue(root.attributes.has('height'))
+        self.assertTrue(not root.attributes.has('x'))
 
         x = root.attributes.get('x', '100')
         self.assertEqual(x, '100')
 
         self.assertTrue('viewBox' not in root.attributes)
 
-        viewbox = root.attributes.setdefault('viewBox', '0 0 200 100')
-        self.assertEqual(viewbox, '0 0 200 100')
+        view_box = root.attributes.setdefault('viewBox', '0 0 200 100')
+        self.assertEqual(view_box, '0 0 200 100')
 
         self.assertTrue('viewBox' in root.attributes)
+        self.assertTrue(root.attributes.has('viewBox'))
 
     def test_element_attributes_ns(self):
         parser = SVGParser()
@@ -890,7 +901,11 @@ class BasicShapesTestCase(unittest.TestCase):
         text = root.make_sub_element('text')
 
         attributes = text.attributes
+
+        self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
+                                              'lang'))
         attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ja')
+        self.assertTrue(attributes.has_ns(Element.XML_NAMESPACE_URI, 'lang'))
 
         expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
                    "<text xml:lang=\"ja\"/></svg>"
@@ -898,6 +913,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         lang = attributes.get('lang')
         self.assertIsNone(lang)
+        self.assertTrue(not attributes.has_ns(None, 'lang'))
 
         lang = attributes.get_ns(Element.XML_NAMESPACE_URI, 'lang')
         expected = 'ja'
@@ -906,6 +922,8 @@ class BasicShapesTestCase(unittest.TestCase):
         space = attributes.get_ns(Element.XML_NAMESPACE_URI,
                                   'space')  # deprecated
         self.assertIsNone(space)
+        self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
+                                              'space'))
 
         space = attributes.get_ns(Element.XML_NAMESPACE_URI,
                                   'space', 'preserve')
@@ -915,6 +933,8 @@ class BasicShapesTestCase(unittest.TestCase):
         lang = attributes.pop_ns(Element.XML_NAMESPACE_URI, 'lang', 'en')
         expected = 'ja'
         self.assertEqual(lang, expected)
+        self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
+                                              'lang'))
 
         expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
                    "<text/></svg>"
@@ -923,6 +943,7 @@ class BasicShapesTestCase(unittest.TestCase):
         lang = attributes.setdefault_ns(Element.XML_NAMESPACE_URI, 'lang', 'en')
         expected = 'en'
         self.assertEqual(lang, expected)
+        self.assertTrue(attributes.has_ns(Element.XML_NAMESPACE_URI, 'lang'))
 
         expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
                    "<text xml:lang=\"en\"/></svg>"
@@ -956,6 +977,13 @@ class BasicShapesTestCase(unittest.TestCase):
         style = circle.attributes.get('style')
         expected = 'stroke-dasharray: 10 5; stroke-width: 5; stroke: red;'
         self.assertEqual(style, expected)
+        self.assertTrue(circle.attributes.has('r'))
+        self.assertTrue(circle.attributes.has('cx'))
+        self.assertTrue(circle.attributes.has('cy'))
+        self.assertTrue(circle.attributes.has('style'))
+        self.assertTrue(circle.attributes.has('stroke'))
+        self.assertTrue(circle.attributes.has('stroke-width'))
+        self.assertTrue(circle.attributes.has('stroke-dasharray'))
 
         d = circle.attributes.get_style()
         self.assertEqual(len(d), 3)
@@ -974,6 +1002,13 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(circle.attributes.get('stroke-width') is None)
         self.assertTrue('stroke-width' not in circle.attributes)
         self.assertTrue('stroke-width' not in circle.attrib)
+        self.assertTrue(circle.attributes.has('r'))
+        self.assertTrue(circle.attributes.has('cx'))
+        self.assertTrue(circle.attributes.has('cy'))
+        self.assertTrue(circle.attributes.has('style'))
+        self.assertTrue(circle.attributes.has('stroke'))
+        self.assertTrue(not circle.attributes.has('stroke-width'))
+        self.assertTrue(circle.attributes.has('stroke-dasharray'))
 
         style = circle.attributes.get('style')
         expected = 'stroke-dasharray: 10 5; stroke: red;'
@@ -997,6 +1032,13 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue('stroke' in circle.attributes)
         self.assertTrue('stroke' not in circle.attrib)
         self.assertTrue('stroke' not in circle.keys())
+        self.assertTrue(circle.attributes.has('r'))
+        self.assertTrue(circle.attributes.has('cx'))
+        self.assertTrue(circle.attributes.has('cy'))
+        self.assertTrue(circle.attributes.has('style'))
+        self.assertTrue(circle.attributes.has('stroke'))
+        self.assertTrue(not circle.attributes.has('stroke-width'))
+        self.assertTrue(circle.attributes.has('stroke-dasharray'))
 
         style = circle.attributes.get('style')
         expected = 'stroke-dasharray: 10 5; stroke: green;'
@@ -1024,6 +1066,14 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(circle.attributes.get('stroke'), 'green')
         self.assertEqual(circle.attributes.get('stroke-dasharray'), '10 5')
         self.assertTrue(circle.attributes.get('stroke-width') is None)
+        self.assertTrue(circle.attributes.has('r'))
+        self.assertTrue(circle.attributes.has('cx'))
+        self.assertTrue(circle.attributes.has('cy'))
+        self.assertTrue(circle.attributes.has('style'))
+        self.assertTrue(circle.attributes.has('stroke'))
+        self.assertTrue(not circle.attributes.has('stroke-width'))
+        self.assertTrue(circle.attributes.has('stroke-dasharray'))
+        self.assertTrue(circle.attributes.has('fill'))
 
         style = circle.attributes.get('style')
         expected = 'fill: none; stroke-dasharray: 10 5; stroke: green;'
@@ -1057,6 +1107,28 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(circle.attributes.get('cx'), '500')
         self.assertEqual(circle.attributes.get('cy'), '800')
         self.assertTrue(style is None)
+        self.assertTrue(circle.attributes.has('r'))
+        self.assertTrue(circle.attributes.has('cx'))
+        self.assertTrue(circle.attributes.has('cy'))
+        self.assertTrue(not circle.attributes.has('style'))
+        self.assertTrue(not circle.attributes.has('stroke'))
+        self.assertTrue(not circle.attributes.has('stroke-width'))
+        self.assertTrue(not circle.attributes.has('stroke-dasharray'))
+        self.assertTrue(not circle.attributes.has('fill'))
+
+        circle.attributes.update_style({'fill': 'none', 'stroke': 'red'})
+        circle.attributes.update_style({'stroke-width': '2'})
+        style = circle.attributes.get('style')
+        expected = 'fill: none; stroke-width: 2; stroke: red;'
+        self.assertEqual(style, expected)
+        self.assertTrue(circle.attributes.has('r'))
+        self.assertTrue(circle.attributes.has('cx'))
+        self.assertTrue(circle.attributes.has('cy'))
+        self.assertTrue(circle.attributes.has('style'))
+        self.assertTrue(circle.attributes.has('stroke'))
+        self.assertTrue(circle.attributes.has('stroke-width'))
+        self.assertTrue(not circle.attributes.has('stroke-dasharray'))
+        self.assertTrue(circle.attributes.has('fill'))
 
     def test_element_style_attribute_ns(self):
         parser = SVGParser()
@@ -1065,29 +1137,46 @@ class BasicShapesTestCase(unittest.TestCase):
 
         value = circle.attributes.get_ns(None, 'fill')
         self.assertIsNone(value)
+        self.assertTrue(not circle.attributes.has_ns(None, 'style'))
+        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
 
         circle.attributes.set('style', 'fill:red;stroke:blue')
         value = circle.attributes.get_ns(None, 'fill')
         expected = 'red'
         self.assertEqual(value, expected)
+        self.assertTrue(circle.attributes.has_ns(None, 'style'))
+        self.assertTrue(circle.attributes.has_ns(None, 'fill'))
+        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
         circle.attributes.set_ns(None, 'fill', 'white')
         value = circle.attributes.pop_ns(None, 'fill')
         expected = 'white'
         self.assertEqual(value, expected)
+        self.assertTrue(circle.attributes.has_ns(None, 'style'))
+        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
+        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
         value = circle.attributes.pop_ns(None, 'fill', 'black')
         expected = 'black'
         self.assertEqual(value, expected)
+        self.assertTrue(circle.attributes.has_ns(None, 'style'))
+        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
+        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
         value = circle.attributes.setdefault_ns(None, 'stroke', 'black')
         expected = 'blue'
         self.assertEqual(value, expected)
+        self.assertTrue(circle.attributes.has_ns(None, 'style'))
+        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
+        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
         circle.attributes.update({'stroke': 'white'})
         value = circle.attributes.get_ns(None, 'style')
         expected = 'stroke: white;'
         self.assertEqual(value, expected)
+        self.assertTrue(circle.attributes.has_ns(None, 'style'))
+        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
+        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
     def test_element_find_by_class_names01(self):
         parser = SVGParser()
