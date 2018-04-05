@@ -1588,6 +1588,21 @@ class SVGLength(object, metaclass=_LengthMeta):
         return float(px / k)
 
 
+class Screen(object):
+    def __init__(self):
+        self.width = 1280
+        self.height = 720
+        self.color_depth = 24
+        self.orientation = 'landscape'
+        self.horizontal_resolution = 96
+        self.vertical_resolution = 96
+        self.device_pixel_ratio = 1
+
+    @property
+    def pixel_depth(self):
+        return self.color_depth
+
+
 class Window(object):
     inner_width = 1280
     inner_height = 720
