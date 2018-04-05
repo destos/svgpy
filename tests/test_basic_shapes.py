@@ -13,7 +13,7 @@ from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
 from svgpy import Comment, Element, Font, \
     HTMLElement, \
     Matrix, Node, PathParser, Rect, SVGLength, SVGParser, SVGPathSegment, \
-    SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, Window, \
+    SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, window, \
     formatter
 
 SVG_ARCS02 = '''
@@ -3242,9 +3242,9 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(vpx.value(direction=SVGLength.DIRECTION_HORIZONTAL), 0)
         self.assertEqual(vpy.value(direction=SVGLength.DIRECTION_VERTICAL), 0)
         self.assertEqual(vpw.value(direction=SVGLength.DIRECTION_HORIZONTAL),
-                         Window.inner_width)
+                         window.inner_width)
         self.assertEqual(vph.value(direction=SVGLength.DIRECTION_VERTICAL),
-                         Window.inner_height)
+                         window.inner_height)
 
         vbx, vby, vbw, vbh, _ = root.get_view_box()
         self.assertEqual(vbx.value(direction=SVGLength.DIRECTION_HORIZONTAL), 0)

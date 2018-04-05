@@ -14,7 +14,7 @@
 
 from abc import abstractmethod
 
-from .core import SVGLength, Window
+from .core import SVGLength, window
 from .dom import Element
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
@@ -190,9 +190,9 @@ class SVGElement(Element):
             roots.insert(0, root)
             element = root.getparent()
 
-        parent_vpw = vpw = SVGLength(Window.inner_width,
+        parent_vpw = vpw = SVGLength(window.inner_width,
                                      direction=SVGLength.DIRECTION_HORIZONTAL)
-        parent_vph = vph = SVGLength(Window.inner_height,
+        parent_vph = vph = SVGLength(window.inner_height,
                                      direction=SVGLength.DIRECTION_VERTICAL)
         for root in roots:
             attributes = root.attributes

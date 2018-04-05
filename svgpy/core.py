@@ -1604,5 +1604,29 @@ class Screen(object):
 
 
 class Window(object):
-    inner_width = 1280
-    inner_height = 720
+    def __init__(self):
+        self._screen = Screen()
+        self.inner_width = self._screen.width
+        self.inner_height = self._screen.height
+        self.document = None
+        self.media = 'screen'
+        self.scale = 1
+
+    @property
+    def device_pixel_ratio(self):
+        return self._screen.device_pixel_ratio * self.scale
+
+    @property
+    def resolution(self):
+        return self._screen.vertical_resolution * self.scale
+
+    @property
+    def screen(self):
+        return self._screen
+
+    def match_media(self, query):
+        # TODO: implement Window#matchMedia().
+        pass
+
+
+window = Window()

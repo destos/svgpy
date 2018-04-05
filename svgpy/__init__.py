@@ -20,7 +20,7 @@ from svgpy.base import \
     SVGElement, SVGGeometryElement, SVGGradientElement, SVGGraphicsElement, \
     SVGPathData, SVGPathDataSettings, SVGPreserveAspectRatio, \
     SVGURIReference, SVGZoomAndPan
-from svgpy.core import Font, SVGLength, Window
+from svgpy.core import Font, SVGLength, window
 from svgpy.dom import Comment, Element, Node
 from svgpy.element import SVGElementClassLookup, SVGParser
 from svgpy.matrix import Matrix
