@@ -91,7 +91,7 @@ class SVGCircleElement(SVGGeometryElement):
         # Percentages: refer to the size of the current SVG viewport
         r = SVGLength(attributes.get('r', '0'),
                       context=self,
-                      direction=SVGLength.DIRECTION_OTHER).value()
+                      direction=SVGLength.DIRECTION_UNSPECIFIED).value()
         geometry['r'] = r
 
         return geometry

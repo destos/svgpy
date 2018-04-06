@@ -17,7 +17,6 @@ class LengthTestCase(unittest.TestCase):
         formatter.precision = 3
         SVGLength.rel_tol = 1e-9
         SVGLength.abs_tol = 1e-9
-        SVGLength.dpi = 96
         Font.default_font_size = 16
 
     def test_abs(self):
@@ -225,23 +224,6 @@ class LengthTestCase(unittest.TestCase):
         a.convert(SVGLength.TYPE_EMS)
         self.assertEqual(a.unit, 'em')
         self.assertEqual(a.tostring(), '0.5em')
-
-    def test_dpi(self):
-        SVGLength.dpi = 96
-        self.assertEqual(SVGLength.dpi, 96)
-
-        # 1(in) = 96(px)
-        a = SVGLength('1in')
-        self.assertEqual(a.tostring(SVGLength.TYPE_PX), '96px')
-
-        SVGLength.dpi = 300
-        self.assertEqual(SVGLength.dpi, 300)
-
-        # 1(in) = 300(px)
-        self.assertEqual(a.tostring(SVGLength.TYPE_PX), '300px')
-
-        # 1(in) = 2.54(cm)
-        self.assertEqual(a.tostring(SVGLength.TYPE_CM), '2.54cm')
 
     def test_eq_cm_mm(self):
         # 1(cm) == 10(mm)

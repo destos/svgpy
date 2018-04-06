@@ -502,7 +502,6 @@ delta = 1
 class BasicShapesTestCase(unittest.TestCase):
     def setUp(self):
         formatter.precision = 3
-        SVGLength.dpi = 96
 
     def test_bbox01_01(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes

@@ -614,7 +614,7 @@ class Element(etree.ElementBase, Node):
         stroke_width = style['stroke-width']
         style['stroke-width'] = SVGLength(
             stroke_width,
-            context=self).value(direction=SVGLength.DIRECTION_OTHER)
+            context=self).value(direction=SVGLength.DIRECTION_UNSPECIFIED)
 
         # 'tab-size' property
         # Value: <percentage> | <length>
@@ -623,7 +623,7 @@ class Element(etree.ElementBase, Node):
         tab_size = style['tab-size']
         style['tab-size'] = SVGLength(
             tab_size,
-            context=self).value(direction=SVGLength.DIRECTION_OTHER)
+            context=self).value(direction=SVGLength.DIRECTION_UNSPECIFIED)
 
         # geometry properties
         geometry = self.get_computed_geometry()

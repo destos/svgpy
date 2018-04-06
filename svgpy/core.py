@@ -19,7 +19,7 @@ import math
 import re
 import shlex
 import unicodedata
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 import numpy as np
 
@@ -937,9 +937,12 @@ class FontManager(object):
         face.select_charmap(FreeType.FT_ENCODING_UNICODE)
         pixel_size = style['font-size']
         point_size = int(SVGLength(pixel_size).value(SVGLength.TYPE_PT) * 64)
-        dpi = int(SVGLength.dpi)
+        screen = window.screen
         face.request_size(FreeType.FT_SIZE_REQUEST_TYPE_NOMINAL,
-                          0, point_size, dpi, dpi)
+                          0,
+                          point_size,
+                          int(screen.horizontal_resolution),
+                          int(screen.vertical_resolution))
         return face
 
     @staticmethod
@@ -975,23 +978,8 @@ class FontManager(object):
         return matched[0]
 
 
-class LengthProperty(property):
-    pass
-
-
-class _LengthMeta(type):
-    def __new__(mcs, *args, **kwargs):
-        attrib = args[2]
-        d = [(key, value) for key, value in iter(attrib.items()) if
-             type(value) == LengthProperty]
-        for key, value in iter(d):
-            setattr(mcs, key, value)
-            del attrib[key]
-        return super().__new__(mcs, *args, **kwargs)
-
-
 # See https://svgwg.org/svg2-draft/types.html#InterfaceSVGLength
-class SVGLength(object, metaclass=_LengthMeta):
+class SVGLength(object):
     # See https://drafts.csswg.org/css-values-3/#lengths
     TYPE_NUMBER = ''  # pixel
     TYPE_PERCENTAGE = '%'
@@ -1003,7 +991,7 @@ class SVGLength(object, metaclass=_LengthMeta):
     TYPE_IN = 'in'
     TYPE_PT = 'pt'
     TYPE_PC = 'pc'
-    TYPE_Q = 'Q'
+    TYPE_Q = 'q'
     TYPE_CAPS = 'cap'
     TYPE_CHS = 'ch'
     TYPE_ICS = 'ic'
@@ -1012,37 +1000,42 @@ class SVGLength(object, metaclass=_LengthMeta):
     TYPE_VH = 'vh'
     TYPE_VMIN = 'vmin'
     TYPE_VMAX = 'vmax'
+    TYPE_DPI = 'dpi'
+    TYPE_DPCM = 'dpcm'
+    TYPE_DPPX = 'dppx'
 
-    DIRECTION_HORIZONTAL = 0
-    DIRECTION_VERTICAL = 1
-    DIRECTION_OTHER = 2
+    DIRECTION_UNSPECIFIED = 0
+    DIRECTION_HORIZONTAL = 1
+    DIRECTION_VERTICAL = 2
 
     RE_LENGTH = re.compile(
         r"(?P<number>[+-]?"
         r"((\d+(\.\d*)?([Ee][+-]?\d+)?)|(\d*\.\d+([Ee][+-]?\d+)?)))"
-        r"(?P<unit>%|em|ex|px|cm|mm|in|pt|pc|Q|cap|ch|ic|rem|vw|vh|vmin|vmax)?"
+        r"(?P<unit>%|em|ex|cap|ch|ic|rem"
+        r"|vw|vh|vmin|vmax"
+        r"|cm|mm|Q|in|pt|pc|px"
+        r"|dpi|dpcm|dppx)?",
+        re.IGNORECASE
     )
 
     rel_tol = 1e-9
 
     abs_tol = 1e-9
 
-    _dpi = Decimal(96)
-
     # 1in = 2.54cm = 96px
     # 1cm = 1in/2.54 = 96px/2.54
     # 1mm = 1cm/10
-    # 1q = 1cm/40
+    # 1Q = 1cm/40
     # 1pt = 1in/72
     # 1pc = 1in/6
     _TO_PIXEL_SIZE_MAP = {
         TYPE_PX: 1.0,
-        TYPE_IN: _dpi,
-        TYPE_CM: _dpi / Decimal(2.54),
-        TYPE_MM: _dpi / Decimal(25.4),
-        TYPE_Q: _dpi / Decimal(2.54) / Decimal(40),
-        TYPE_PT: _dpi / Decimal(72),
-        TYPE_PC: _dpi / Decimal(6),
+        TYPE_IN: Decimal(96),
+        TYPE_CM: Decimal(96) / Decimal(2.54),
+        TYPE_MM: Decimal(96) / Decimal(25.4),
+        TYPE_Q: Decimal(96) / Decimal(2.54) / Decimal(40),
+        TYPE_PT: Decimal(96) / Decimal(72),
+        TYPE_PC: Decimal(96) / Decimal(6),
     }
 
     def __init__(self, value=None, unit=None, context=None, direction=None):
@@ -1060,8 +1053,6 @@ class SVGLength(object, metaclass=_LengthMeta):
             >>> n = SVGLength(math.pi)
             >>> n.tostring(), n.value(), n.unit
             ('3.141593', 3.141592653589793, None)
-            >>> SVGLength.dpi
-            Decimal('96')
             >>> n = SVGLength('1.0in')
             >>> n.tostring(), n.value(), n.unit
             ('1in', 96.0, 'in')
@@ -1240,48 +1231,19 @@ class SVGLength(object, metaclass=_LengthMeta):
     def context(self):
         return self._context
 
-    @LengthProperty
-    def dpi(cls):
-        """Decimal: The DPI value.
-
-        Examples:
-            >>> SVGLength.dpi
-            Decimal('96')
-            >>> n = SVGLength('1in')
-            >>> n.tostring(SVGLength.TYPE_PX)
-            '96px'
-            >>> SVGLength.dpi = 300
-            >>> SVGLength.dpi
-            Decimal('300')
-            >>> n.tostring(SVGLength.TYPE_PX)
-            '300px'
-            >>> n.tostring()
-            '1in'
-        """
-        return cls._dpi
-
-    @dpi.setter
-    def dpi(cls, dpi):
-        cls._dpi = Decimal(dpi)
-        # 1in = 2.54cm = <dpi>
-        # 1cm = 1in/2.54 = <dpi>/2.54
-        # 1mm = 1cm/10
-        # 1Q = 1cm/40
-        # 1pt = 1in/72 = 4/3px
-        # 1pc = 1in/6
-        cls._TO_PIXEL_SIZE_MAP.update({
-            cls.TYPE_IN: cls._dpi,
-            cls.TYPE_CM: cls._dpi / Decimal(2.54),
-            cls.TYPE_MM: cls._dpi / Decimal(25.4),
-            cls.TYPE_Q: cls._dpi / Decimal(2.54) / Decimal(40),
-            cls.TYPE_PT: cls._dpi / Decimal(72),
-            cls.TYPE_PC: cls._dpi / Decimal(6),
-        })
-
     @property
     def unit(self):
         """str: The unit string."""
         return self._unit if self._unit != SVGLength.TYPE_NUMBER else None
+
+    @staticmethod
+    def _normalize(number, unit):
+        if unit:
+            unit = unit.lower()
+        try:
+            return Decimal(number).normalize(), unit
+        except InvalidOperation:
+            return Decimal(0), unit
 
     def convert(self, unit):
         """Resets the stored unit.
@@ -1298,7 +1260,8 @@ class SVGLength(object, metaclass=_LengthMeta):
         return self._unit in [
             None, SVGLength.TYPE_CM, SVGLength.TYPE_MM, SVGLength.TYPE_Q,
             SVGLength.TYPE_IN, SVGLength.TYPE_PT, SVGLength.TYPE_PC,
-            SVGLength.TYPE_PX, SVGLength.TYPE_NUMBER]
+            SVGLength.TYPE_PX, SVGLength.TYPE_NUMBER,
+        ]
 
     def isrelative(self):
         return self._unit in [
@@ -1306,7 +1269,13 @@ class SVGLength(object, metaclass=_LengthMeta):
             SVGLength.TYPE_ICS, SVGLength.TYPE_REMS,
             SVGLength.TYPE_PERCENTAGE,
             SVGLength.TYPE_VW, SVGLength.TYPE_VH,
-            SVGLength.TYPE_VMIN, SVGLength.TYPE_VMAX]
+            SVGLength.TYPE_VMIN, SVGLength.TYPE_VMAX,
+        ]
+
+    def isresolution(self):
+        return self._unit in [
+            SVGLength.TYPE_DPI, SVGLength.TYPE_DPCM, SVGLength.TYPE_DPPX,
+        ]
 
     def new_value(self, number, unit):
         """Resets the value as a number with the unit.
@@ -1325,9 +1294,13 @@ class SVGLength(object, metaclass=_LengthMeta):
         elif isinstance(text, str):
             match = SVGLength.RE_LENGTH.match(text.strip())
             if match is None:
-                raise ValueError('Expected Number, got \'{}\''.format(text))
-            return Decimal(match.group('number')), match.group('unit')
-        return Decimal(text), None
+                raise ValueError('Expected number, got \'{}\''.format(text))
+            number = match.group('number')
+            unit = match.group('unit')
+        else:
+            number = text
+            unit = None
+        return SVGLength._normalize(number, unit)
 
     def tostring(self, unit=None, direction=None):
         """Returns a string with the unit, formatted according to the specified
@@ -1370,22 +1343,38 @@ class SVGLength(object, metaclass=_LengthMeta):
         Returns:
             float: The value in specified unit.
         Examples:
-            >>> SVGLength.dpi = 72
-            >>> SVGLength.dpi
-            Decimal('72')
             >>> n = SVGLength('1in')
             >>> n.value(SVGLength.TYPE_IN)
             1.0  # 1.0(in)
             >>> n.value(SVGLength.TYPE_CM)
             2.54  # 2.54(cm)
             >>> n.value(SVGLength.TYPE_PX)
-            72.0  # 72.0(px)
+            96.0  # 96.0(px)
         """
         # See https://drafts.csswg.org/css-values/#lengths
         if unit == self._unit:
             return float(self._number)
         if direction is None:
             direction = self._direction
+        if ((self._unit in [SVGLength.TYPE_DPI, SVGLength.TYPE_DPCM,
+                            SVGLength.TYPE_DPPX]
+             and unit not in [SVGLength.TYPE_DPI, SVGLength.TYPE_DPCM,
+                              SVGLength.TYPE_DPPX])
+                or (self._unit not in [SVGLength.TYPE_DPI, SVGLength.TYPE_DPCM,
+                                       SVGLength.TYPE_DPPX]
+                    and unit in [SVGLength.TYPE_DPI, SVGLength.TYPE_DPCM,
+                                 SVGLength.TYPE_DPPX])):
+            raise ValueError('Cannot convert: ' + repr(self._unit) + ' to '
+                             + repr(unit))
+        # dpi = Decimal(window.screen.vertical_resolution)
+        # SVGLength._TO_PIXEL_SIZE_MAP.update({
+        #     SVGLength.TYPE_IN: dpi,
+        #     SVGLength.TYPE_CM: dpi / Decimal(2.54),
+        #     SVGLength.TYPE_MM: dpi / Decimal(25.4),
+        #     SVGLength.TYPE_Q: dpi / Decimal(2.54) / Decimal(40),
+        #     SVGLength.TYPE_PT: dpi / Decimal(72),
+        #     SVGLength.TYPE_PC: dpi / Decimal(6),
+        # })
         element_font_size = None
         root_font_size = None
         vw = None
@@ -1469,7 +1458,7 @@ class SVGLength(object, metaclass=_LengthMeta):
                 px = self._number * Decimal(vw) / 100
             elif direction == SVGLength.DIRECTION_VERTICAL:
                 px = self._number * Decimal(vh) / 100
-            elif direction == SVGLength.DIRECTION_OTHER:
+            elif direction == SVGLength.DIRECTION_UNSPECIFIED:
                 k = math.sqrt(vw ** 2 + vh ** 2) / math.sqrt(2)
                 px = self._number * Decimal(k) / 100
             else:
@@ -1486,10 +1475,8 @@ class SVGLength(object, metaclass=_LengthMeta):
                     k = font.cap_height
                 elif self._unit == SVGLength.TYPE_CHS:
                     k = font.ch_advance
-                elif self._unit == SVGLength.TYPE_ICS:
+                else:  # self._unit == SVGLength.TYPE_ICS:
                     k = font.ic_advance
-                else:
-                    assert False
                 val = Decimal(k)
                 if val == 0:
                     val = element_font_size
@@ -1504,16 +1491,23 @@ class SVGLength(object, metaclass=_LengthMeta):
                 k = vh
             elif self._unit == SVGLength.TYPE_VMIN:
                 k = vmin
-            elif self._unit == SVGLength.TYPE_VMAX:
+            else:  # self._unit == SVGLength.TYPE_VMAX:
                 k = vmax
-            else:
-                assert False
             px = self._number * Decimal(k) / 100
+        elif self._unit in [SVGLength.TYPE_DPI, SVGLength.TYPE_DPCM,
+                            SVGLength.TYPE_DPPX]:
+            # <resolution lengths> units to 'dppx'
+            if self._unit == SVGLength.TYPE_DPI:
+                px = self._number / Decimal(96)
+            elif self._unit == SVGLength.TYPE_DPCM:
+                px = self._number / Decimal(96) * Decimal(2.54)
+            else:  # self._unit == SVGLength.TYPE_DPPX
+                px = self._number
         else:
             # <absolute lengths> units to pixels
             k = SVGLength._TO_PIXEL_SIZE_MAP.get(self._unit)
             if k is None:
-                raise NotImplementedError(self._unit)
+                raise NotImplementedError('Unknown unit: ' + repr(self._unit))
             px = self._number * k
 
         # convert to specified units
@@ -1534,7 +1528,7 @@ class SVGLength(object, metaclass=_LengthMeta):
                 px /= Decimal(vw)
             elif direction == SVGLength.DIRECTION_VERTICAL:
                 px /= Decimal(vh)
-            elif direction == SVGLength.DIRECTION_OTHER:
+            elif direction == SVGLength.DIRECTION_UNSPECIFIED:
                 k = math.sqrt(vw ** 2 + vh ** 2) / math.sqrt(2)
                 px /= Decimal(k)
             else:
@@ -1548,18 +1542,19 @@ class SVGLength(object, metaclass=_LengthMeta):
             else:
                 pt = int(px / SVGLength._TO_PIXEL_SIZE_MAP[SVGLength.TYPE_PT]
                          * 64)
-                dpi = int(SVGLength.dpi)
-                font.set_point_size(0, pt, dpi, dpi)
+                screen = window.screen
+                font.set_point_size(0,
+                                    pt,
+                                    int(screen.horizontal_resolution),
+                                    int(screen.vertical_resolution))
                 if unit == SVGLength.TYPE_EXS:
                     k = font.x_height
                 elif unit == SVGLength.TYPE_CAPS:
                     k = font.cap_height
                 elif unit == SVGLength.TYPE_CHS:
                     k = font.ch_advance
-                elif unit == SVGLength.TYPE_ICS:
+                else:  # unit == SVGLength.TYPE_ICS:
                     k = font.ic_advance
-                else:
-                    assert False
                 val = Decimal(k)
                 if val == 0:
                     val = element_font_size
@@ -1575,16 +1570,22 @@ class SVGLength(object, metaclass=_LengthMeta):
                 k = vh
             elif unit == SVGLength.TYPE_VMIN:
                 k = vmin
-            elif unit == SVGLength.TYPE_VMAX:
+            else:  # unit == SVGLength.TYPE_VMAX:
                 k = vmax
-            else:
-                assert False
             return float(px / Decimal(k) * 100)
+        elif unit in [SVGLength.TYPE_DPI, SVGLength.TYPE_DPCM,
+                      SVGLength.TYPE_DPPX]:
+            # 'dppx' to <resolution lengths> 'dpi' | 'dpcm'
+            if unit == SVGLength.TYPE_DPI:
+                px *= Decimal(96)
+            elif unit == SVGLength.TYPE_DPCM:
+                px *= Decimal(96) / Decimal(2.54)
+            return float(px)
 
         # to <absolute lengths> units
         k = SVGLength._TO_PIXEL_SIZE_MAP.get(unit)
         if k is None:
-            raise NotImplementedError(unit)
+            raise NotImplementedError('Unknown unit: ' + repr(unit))
         return float(px / k)
 
 
@@ -1598,6 +1599,16 @@ class Screen(object):
         self.vertical_resolution = 96
         self.device_pixel_ratio = 1
 
+    def __repr__(self):
+        return repr({'width': self.width,
+                     'height': self.height,
+                     'color_depth': self.color_depth,
+                     'orientation': self.orientation,
+                     'horizontal_resolution': self.horizontal_resolution,
+                     'vertical_resolution': self.vertical_resolution,
+                     'device_pixel_ratio': self.device_pixel_ratio,
+                     })
+
     @property
     def pixel_depth(self):
         return self.color_depth
@@ -1610,15 +1621,11 @@ class Window(object):
         self.inner_height = self._screen.height
         self.document = None
         self.media = 'screen'
-        self.scale = 1
+        self.page_zoom_scale = 1
 
     @property
     def device_pixel_ratio(self):
-        return self._screen.device_pixel_ratio * self.scale
-
-    @property
-    def resolution(self):
-        return self._screen.vertical_resolution * self.scale
+        return self._screen.device_pixel_ratio * self.page_zoom_scale
 
     @property
     def screen(self):
