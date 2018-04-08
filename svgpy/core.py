@@ -20,12 +20,14 @@ import re
 import shlex
 import unicodedata
 from decimal import Decimal, InvalidOperation
+from fractions import Fraction
 
 import numpy as np
 
 from .fontconfig import FontConfig
 from .formatter import format_number_sequence
 from .freetype import FreeType, FTFace
+from .mediaquery import parse as mql_parse, match as mql_match
 
 
 class CSSUtils(object):
@@ -978,6 +980,66 @@ class FontManager(object):
         return matched[0]
 
 
+def mql_compare(left, right, user_data):
+    left_value = SVGLength(left, context=user_data)
+    right_value = SVGLength(right, context=user_data)
+    if left_value == right_value:
+        return 0
+    cmp = 1 if left_value > right_value else -1
+    return cmp
+
+
+class MediaQueryList(object):
+    def __init__(self, query):
+        self._query = query
+        tree = mql_parse(query)
+        document = window.document
+        if document:
+            context = document.getroottree().getroot()
+            _, _, vpw, vph = context.get_viewport_size()
+            width = vpw.value()
+            height = vph.value()
+        else:
+            context = None
+            width = window.inner_width
+            height = window.inner_height
+        aspect_ratio = Fraction(int(width), int(height))
+        screen = window.screen
+        device_aspect_ratio = Fraction(int(screen.width), int(screen.height))
+        conditions = {
+            'media': window.media,
+            'width': str(width) + 'px',
+            'height': str(height) + 'px',
+            'aspect-ratio': str(aspect_ratio),
+            'orientation': screen.orientation,
+            'resolution': str(window.device_pixel_ratio) + 'dppx',
+            'scan': screen.scan,
+            'grid': 0,
+            'update': screen.update,
+            'overflow-block': 'none',
+            'overflow-inline': 'none',
+            'color': screen.color_depth,
+            'color-index': 1 << screen.color_depth,
+            'monochrome': screen.monochrome,
+            'color-gamut': screen.color_gamut,
+            # deprecated media features
+            'device-width': str(screen.width) + 'px',
+            'device-height': str(screen.height) + 'px',
+            'device-aspect-ratio': str(device_aspect_ratio),
+        }
+        self._matches, _ = mql_match(tree, conditions, mql_compare,
+                                     user_data=context)
+
+    @property
+    def matches(self):
+        return self._matches
+
+    @property
+    def media(self):
+        # TODO: serialize a media query list.
+        return self._query
+
+
 # See https://svgwg.org/svg2-draft/types.html#InterfaceSVGLength
 class SVGLength(object):
     # See https://drafts.csswg.org/css-values-3/#lengths
@@ -1004,6 +1066,14 @@ class SVGLength(object):
     TYPE_DPCM = 'dpcm'
     TYPE_DPPX = 'dppx'
 
+    SUPPORTED_UNITS = (
+        TYPE_PERCENTAGE,
+        TYPE_EMS, TYPE_EXS, TYPE_CAPS, TYPE_CHS, TYPE_ICS, TYPE_REMS,
+        TYPE_VW, TYPE_VH, TYPE_VMIN, TYPE_VMAX,
+        TYPE_CM, TYPE_MM, TYPE_Q, TYPE_IN, TYPE_PT, TYPE_PC, TYPE_PX,
+        TYPE_DPI, TYPE_DPCM, TYPE_DPPX,
+    )
+
     DIRECTION_UNSPECIFIED = 0
     DIRECTION_HORIZONTAL = 1
     DIRECTION_VERTICAL = 2
@@ -1011,10 +1081,7 @@ class SVGLength(object):
     RE_LENGTH = re.compile(
         r"(?P<number>[+-]?"
         r"((\d+(\.\d*)?([Ee][+-]?\d+)?)|(\d*\.\d+([Ee][+-]?\d+)?)))"
-        r"(?P<unit>%|em|ex|cap|ch|ic|rem"
-        r"|vw|vh|vmin|vmax"
-        r"|cm|mm|Q|in|pt|pc|px"
-        r"|dpi|dpcm|dppx)?",
+        r"(?P<unit>%|[a-z]+)?",
         re.IGNORECASE
     )
 
@@ -1297,6 +1364,8 @@ class SVGLength(object):
                 raise ValueError('Expected number, got \'{}\''.format(text))
             number = match.group('number')
             unit = match.group('unit')
+            if unit and unit not in SVGLength.SUPPORTED_UNITS:
+                raise ValueError('Unknown unit: ' + repr(unit))
         else:
             number = text
             unit = None
@@ -1598,6 +1667,10 @@ class Screen(object):
         self.horizontal_resolution = 96
         self.vertical_resolution = 96
         self.device_pixel_ratio = 1
+        self.scan = 'progressive'
+        self.update = 'none'
+        self.monochrome = 0
+        self.color_gamut = 'srgb'
 
     def __repr__(self):
         return repr({'width': self.width,
@@ -1632,8 +1705,9 @@ class Window(object):
         return self._screen
 
     def match_media(self, query):
-        # TODO: implement Window#matchMedia().
-        pass
+        _ = self
+        mql = MediaQueryList(query)
+        return mql
 
 
 window = Window()
