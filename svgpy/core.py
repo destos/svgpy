@@ -24,10 +24,10 @@ from fractions import Fraction
 
 import numpy as np
 
+from . import mediaquery as mq
 from .fontconfig import FontConfig
 from .formatter import format_number_sequence
 from .freetype import FreeType, FTFace
-from .mediaquery import parse as mql_parse, match as mql_match
 
 
 class CSSUtils(object):
@@ -980,7 +980,7 @@ class FontManager(object):
         return matched[0]
 
 
-def mql_compare(left, right, user_data):
+def _mql_compare(left, right, user_data):
     left_value = SVGLength(left, context=user_data)
     right_value = SVGLength(right, context=user_data)
     if left_value == right_value:
@@ -992,15 +992,16 @@ def mql_compare(left, right, user_data):
 class MediaQueryList(object):
     def __init__(self, query):
         self._query = query
-        tree = mql_parse(query)
-        document = window.document
-        if document:
-            context = document.getroottree().getroot()
+        self._tree = mq.parse(self._query)
+
+    @property
+    def matches(self):
+        context = window.document
+        if context:
             _, _, vpw, vph = context.get_viewport_size()
             width = vpw.value()
             height = vph.value()
         else:
-            context = None
             width = window.inner_width
             height = window.inner_height
         aspect_ratio = Fraction(int(width), int(height))
@@ -1027,12 +1028,9 @@ class MediaQueryList(object):
             'device-height': str(screen.height) + 'px',
             'device-aspect-ratio': str(device_aspect_ratio),
         }
-        self._matches, _ = mql_match(tree, conditions, mql_compare,
-                                     user_data=context)
-
-    @property
-    def matches(self):
-        return self._matches
+        matches, _ = mq.match(self._tree, conditions, _mql_compare,
+                              user_data=context)
+        return matches
 
     @property
     def media(self):
