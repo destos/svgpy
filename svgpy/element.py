@@ -22,6 +22,7 @@ from .base import HTMLElement, \
 from .core import CSSUtils, SVGLength
 from .dom import Comment, Element
 from .path import PathParser, SVGPathSegment
+from .style import LinkStyle
 from .text import SVGTextContentElement, SVGTextPositioningElement
 from .transform import SVGTransform, SVGTransformList
 
@@ -715,11 +716,32 @@ class SVGStopElement(SVGElement):
     pass
 
 
-class SVGStyleElement(SVGElement):
+class SVGStyleElement(SVGElement, LinkStyle):
     """Represents the SVG <style> element."""
 
-    def get_computed_geometry(self):
-        return {}
+    @property
+    def media(self):
+        return self.attributes.get('media', 'all')
+
+    @media.setter
+    def media(self, value):
+        self.attributes.set('media', value)
+
+    @property
+    def title(self):
+        return self.attributes.get('title')
+
+    @title.setter
+    def title(self, value):
+        self.attributes.set('title', value)
+
+    @property
+    def type(self):
+        return self.attributes.get('type', 'text/css')
+
+    @type.setter
+    def type(self, value):
+        self.attributes.set('type', value)
 
 
 class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):

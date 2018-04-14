@@ -76,7 +76,7 @@
 |set |SVGSetElement ^|TBD ^|Low |SVG Animations
 |solidcolor |SVGSolidcolorElement ^|✓ ||
 |stop |SVGStopElement ^|TBD ||
-|style |link:#SVGStyleElement[SVGStyleElement] ^|Planned ||
+|style |link:#SVGStyleElement[SVGStyleElement] ^|✓ ||
 |svg |link:#SVGSVGElement[SVGSVGElement] ^|In Progress ||
 |switch |link:#SVGSwitchElement[SVGSwitchElement] ^|Planned ||
 |symbol |link:#SVGSymbolElement[SVGSymbolElement] ^|In Progress ||
@@ -383,9 +383,9 @@
 
 .5+|[[SVGStyleElement]]SVGStyleElement .1+|link:#SVGElement[SVGElement] |- |||
 .1+|LinkStyle .1+|sheet ^|TBD ||
-.3+|- |type ^|TBD ||
-|media ^|TBD ||
-|title ^|TBD ||
+.3+|- |type ^|✓ ||
+|media ^|✓ ||
+|title ^|✓ ||
 |====
 
 ==== Coordinate Systems, Transformations
