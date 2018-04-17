@@ -997,7 +997,7 @@ class MediaQueryList(object):
     @property
     def matches(self):
         context = window.document
-        if context:
+        if context is not None:
             _, _, vpw, vph = context.get_viewport_size()
             width = vpw.value()
             height = vph.value()
