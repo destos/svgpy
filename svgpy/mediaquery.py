@@ -97,7 +97,8 @@ def dump(node_list, **kwargs):
 def match(node_list, conditions, compare_func, user_data=None):
     matched_media = None
     for node in node_list:
-        result, media = _match_node(node, conditions, compare_func, user_data)
+        result, media = _match_node(node, conditions, compare_func,
+                                    user_data=user_data)
         if result and media and matched_media is None:
             matched_media = media
         if result:
