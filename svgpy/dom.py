@@ -761,13 +761,15 @@ class Element(etree.ElementBase, Node):
         while element is not None:
             css_style, css_style_important = get_css_style(element, css_rules)
             css_style.update(element.attributes)
+            _style = css_style.pop('style', None)
+            if _style is not None:
+                css_style.update(style_to_dict(_style))
             css_style.update(css_style_important)
             for key in iter(list(inherited_props.keys())):
                 value = css_style.get(key)
                 if value is not None and value not in ['inherit']:
                     if key == 'font':
                         # 'font' shorthand property
-                        # See https://drafts.csswg.org/css-fonts-3/#font-prop
                         style[key] = value
                         _update_font_prop(value, style, inherited_props)
                     elif key == 'font-family':
