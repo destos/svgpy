@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-import os.path
+import os
 
 from setuptools import setup
 
@@ -17,6 +17,8 @@ PACKAGE_DATA = {}
 PYTHON_REQUIRES = '>=3.6'
 INSTALL_REQUIRES = [
     'cffi>=1.11',
+    'cssselect',
+    'cssutils',
     'lxml',
     'numpy',
     'scipy',
