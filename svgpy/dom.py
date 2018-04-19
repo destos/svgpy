@@ -21,6 +21,7 @@ import cssutils
 from lxml import etree
 
 from .core import CSSUtils, Font, SVGLength
+from .style import get_css_rules, get_css_style
 
 
 def dict_to_style(d):
@@ -666,7 +667,6 @@ class Element(etree.ElementBase, Node):
             _inherited_style.pop('font-variant-position', None)
             _inherited_style.pop('font-variant', None)
 
-        # TODO: see CSS style sheet.
         # See https://svgwg.org/svg2-draft/propidx.html
         style = dict()
         non_inherited_props = \
@@ -765,11 +765,14 @@ class Element(etree.ElementBase, Node):
         # 'text-overflow',
         # 'transform', 'transform-box', 'transform-origin',
         # 'vertical-align',
+        css_rules = get_css_rules(self)
         element = self
         while element is not None:
-            attributes = element.attributes
+            css_style, css_style_important = get_css_style(element, css_rules)
+            css_style.update(element.attributes)
+            css_style.update(css_style_important)
             for key in iter(list(inherited_props.keys())):
-                value = attributes.get(key)
+                value = css_style.get(key)
                 if value is not None and value not in ['inherit']:
                     if key == 'font':
                         # 'font' shorthand property
@@ -798,7 +801,7 @@ class Element(etree.ElementBase, Node):
                             style[key] = value
                         inherited_props.pop(key, None)
             # 'display' property
-            display = attributes.get('display')
+            display = css_style.get('display')
             if display is not None and display == 'none':
                 style['display'] = 'none'
             element = element.getparent()

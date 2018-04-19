@@ -7,7 +7,7 @@
 :icons: font
 
 == Elements
-// Not Planned | Draft | Planned / Scheduled | Canceled | In Progress | Verified | Completed 
+// Not Planned | Draft | Planned / Scheduled | Canceled | In Progress | Verified | Completed
 |====
 ^|Element ^|Class ^|Status ^|Priority ^|Notes
 
@@ -382,7 +382,7 @@
 ^|Class ^|Inherits ^|Method/Attribute ^|Status ^|Priority ^|Notes
 
 .5+|[[SVGStyleElement]]SVGStyleElement .1+|link:#SVGElement[SVGElement] |- |||
-.1+|LinkStyle .1+|sheet ^|TBD ||
+.1+|LinkStyle .1+|sheet ^|✓ ||
 .3+|- |type ^|✓ ||
 |media ^|✓ ||
 |title ^|✓ ||
