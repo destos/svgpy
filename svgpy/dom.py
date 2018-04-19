@@ -17,6 +17,7 @@ import re
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
 
+import cssutils
 from lxml import etree
 
 from .core import CSSUtils, Font, SVGLength
@@ -977,3 +978,16 @@ class Element(etree.ElementBase, Node):
             **kwargs: See lxml.etree.tostring().
         """
         return etree.tostring(self, **kwargs)
+
+
+class LinkStyle(Element):
+    """Represents the CSSOM LinkStyle."""
+
+    @property
+    def sheet(self):
+        """cssutils.css.CSSStyleSheet: The associated CSS style sheet or None.
+        """
+        if (self.attributes.get('type', 'text/css') != 'text/css'
+                or self.text is None):
+            return None
+        return cssutils.parseString(self.text)

@@ -20,9 +20,8 @@ from .base import HTMLElement, \
     SVGGeometryElement, SVGGraphicsElement, SVGGradientElement, \
     SVGPathData, SVGPathDataSettings, SVGURIReference, SVGZoomAndPan
 from .core import CSSUtils, SVGLength
-from .dom import Comment, Element
+from .dom import Comment, Element, LinkStyle
 from .path import PathParser, SVGPathSegment
-from .style import LinkStyle
 from .text import SVGTextContentElement, SVGTextPositioningElement
 from .transform import SVGTransform, SVGTransformList
 
@@ -40,6 +39,113 @@ class HTMLCanvasElement(HTMLElement):
 class HTMLIFrameElement(HTMLElement):
     """Represents the HTML <iframe> element."""
     pass
+
+
+class HTMLLinkElement(HTMLElement, LinkStyle):
+    # https://html.spec.whatwg.org/multipage/semantics.html#the-link-element
+    """Represents the HTML <link> element."""
+
+    @property
+    def as_(self):
+        return self.attributes.get('as', '')
+
+    @as_.setter
+    def as_(self, value):
+        self.attributes.set('as', value)
+
+    @property
+    def color(self):
+        return self.attributes.get('color')
+
+    @color.setter
+    def color(self, value):
+        self.attributes.set('color', value)
+
+    @property
+    def cross_origin(self):
+        return self.attributes.get('crossorigin')
+
+    @cross_origin.setter
+    def cross_origin(self, value):
+        self.attributes.set('crossorigin', value)
+
+    @property
+    def href(self):
+        return self.attributes.get('href')
+
+    @href.setter
+    def href(self, value):
+        self.attributes.set('href', value)
+
+    @property
+    def hreflang(self):
+        return self.attributes.get('hreflang')
+
+    @hreflang.setter
+    def hreflang(self, value):
+        self.attributes.set('hreflang', value)
+
+    @property
+    def integrity(self):
+        return self.attributes.get('integrity')
+
+    @integrity.setter
+    def integrity(self, value):
+        self.attributes.set('integrity', value)
+
+    @property
+    def media(self):
+        return self.attributes.get('media', 'all')
+
+    @media.setter
+    def media(self, value):
+        self.attributes.set('media', value)
+
+    @property
+    def referrer_policy(self):
+        return self.attributes.get('referrerpolicy')
+
+    @referrer_policy.setter
+    def referrer_policy(self, value):
+        self.attributes.set('referrerpolicy', value)
+
+    @property
+    def rel(self):
+        return self.attributes.get('rel')
+
+    @rel.setter
+    def rel(self, value):
+        self.attributes.set('rel', value)
+
+    @property
+    def rel_list(self):
+        rel = self.rel
+        if rel is None:
+            return []
+        return rel.split()
+
+    @property
+    def sizes(self):
+        sizes = self.attributes.get('sizes')
+        if sizes is None:
+            return []
+        return sizes.split()
+
+    @property
+    def title(self):
+        return self.attributes.get('title')
+
+    @title.setter
+    def title(self, value):
+        self.attributes.set('title', value)
+
+    @property
+    def type(self):
+        return self.attributes.get('type')
+
+    @type.setter
+    def type(self, value):
+        self.attributes.set('type', value)
 
 
 # See https://www.w3.org/TR/html51/semantics-embedded-content.html#the-video-element
@@ -1003,6 +1109,7 @@ class SVGElementClassLookup(etree.CustomElementClassLookup):
         'iframe': HTMLIFrameElement,
         'line': SVGLineElement,
         'linearGradient': SVGLinearGradientElement,
+        'link': HTMLLinkElement,
         'marker': SVGMarkerElement,
         # 'mesh': SVGMeshElement,
         'meshgradient': SVGMeshGradientElement,
