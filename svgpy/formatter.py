@@ -14,7 +14,7 @@
 
 precision = 6
 """int: The precision is a decimal number indicating how many digits should
-be displayed after the decimal point for a floating point value. 
+be displayed after the decimal point for a floating point value.
 The precision must be greater than zero.
 """
 

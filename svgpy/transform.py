@@ -292,7 +292,8 @@ class SVGTransformList(list):
             for it2 in SVGTransformList.RE_NUMBER_SEQUENCE.finditer(
                     it.group('values').strip()):
                 number_sequence.append(float(it2.group('number')))
-            transform_list.append(SVGTransform(function_name, *number_sequence))
+            transform_list.append(SVGTransform(function_name,
+                                               *number_sequence))
         return transform_list
 
     def tomatrix(self):

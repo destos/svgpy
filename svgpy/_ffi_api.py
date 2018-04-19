@@ -307,7 +307,7 @@ FT_Init_FreeType( FT_Library  *alibrary );
 FT_Error
 FT_Done_FreeType( FT_Library  library );
 
-FT_Error 
+FT_Error
 FT_New_Face( FT_Library   library,
              const char*  filepathname,
              FT_Long      face_index,
@@ -479,11 +479,6 @@ hb_tag_from_string (const char *str, int len);
 void
 hb_tag_to_string (hb_tag_t tag, char *buf);
 
-// #define HB_TAG(c1,c2,c3,c4)  ((hb_tag_t)((((uint8_t)(c1))<<24)|(((uint8_t)(c2))<<16)|(((uint8_t)(c3))<<8)|((uint8_t)(c4))))
-// hex(ord(c1) << 24 | ord(c2) << 16 | ord(c3) << 8 | ord(c4))
-// #define HB_UNTAG(tag)   ((uint8_t)((tag)>>24)),((uint8_t)((tag)>>16)),((uint8_t)((tag)>>8)),((uint8_t)(tag))
-// hex(ord(c1) >> 24 | ord(c2) >> 16 | ord(c3) >> 8 | ord(c4))
-// #define HB_TAG_NONE HB_TAG(0,0,0,0)
 #define HB_TAG_NONE  0
 // #define HB_TAG_MAX HB_TAG(0xff,0xff,0xff,0xff)
 #define HB_TAG_MAX  0xffffffff

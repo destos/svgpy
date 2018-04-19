@@ -262,7 +262,6 @@ class Ellipse(object):
         return p.item(0), p.item(1)
 
 
-# See https://svgwg.org/specs/paths/#InterfaceSVGPathSegment
 class SVGPathSegment(object):
     TYPE_UNKNOWN = None
     TYPE_BEARING_ABS = 'B'
@@ -795,7 +794,8 @@ class PathSegment(object):
             # 'A'|'a' (rx,ry x-axis-rotation large-arc-flag sweep-flag x,y)+
             _, _, x_axis_rotation, _, _, epx, epy = abs_path_segment.values
             (cx, cy), (rx, ry), (d1, d2, extent) = \
-                PathSegment.get_center_of_arc(abs_path_segment, cpx, cpy, bearing)
+                PathSegment.get_center_of_arc(abs_path_segment, cpx, cpy,
+                                              bearing)
             if cx is None or cy is None:
                 if rx == 0 or ry == 0:
                     # treat as a straight line from start point to end point
@@ -829,7 +829,8 @@ class PathSegment(object):
         if not path_segment.isvalid():
             return None, None
         elif path_segment.type not in 'CcQqSsTt':
-            raise ValueError('Unexpected path type: ' + repr(path_segment.type))
+            raise ValueError('Unexpected path type: '
+                             + repr(path_segment.type))
         elif path_segment.isabsolute():
             abs_path_segment = path_segment
         else:
@@ -910,7 +911,8 @@ class PathSegment(object):
             # 'A'|'a' (rx,ry x-axis-rotation large-arc-flag sweep-flag x,y)+
             rx, ry, x_axis_rotation, fa, fs, epx, epy = abs_path_segment.values
             (cx, cy), (rx, ry), (d1, d2, extent) = \
-                PathSegment.get_center_of_arc(abs_path_segment, cpx, cpy, bearing)
+                PathSegment.get_center_of_arc(abs_path_segment, cpx, cpy,
+                                              bearing)
             if cx is None or cy is None:
                 if rx == 0 or ry == 0:
                     return [SVGPathSegment('L', epx, epy)]
@@ -1398,8 +1400,8 @@ class PathParser(object):
 
     @staticmethod
     def normalize(path_data):
-        """Converts to the base set of absolute path segments ('M', 'L', 'C' and
-        'Z') and returns it.
+        """Converts to the base set of absolute path segments ('M', 'L', 'C'
+        and 'Z') and returns it.
 
         Arguments:
             path_data (list[SVGPathSegment]): A list of path segments.
@@ -1453,7 +1455,8 @@ class PathParser(object):
                 else:
                     cpx, cpy = normalized[-1].end
                     if ((command in 'Mm'
-                         and (last_command is None or last_command not in 'Mm'))
+                         and (last_command is None
+                              or last_command not in 'Mm'))
                             or (start_x is None or start_y is None)):
                         start_x = cpx
                         start_y = cpy
@@ -1543,7 +1546,8 @@ class PathParser(object):
                 transformed_path_data.append(transformed)
                 if command.islower():
                     abs_path_segment = PathSegment.toabsolute(path_segment,
-                                                              cpx, cpy, bearing)
+                                                              cpx, cpy,
+                                                              bearing)
                 else:
                     abs_path_segment = path_segment
                 cpx, cpy = abs_path_segment.end

@@ -288,8 +288,6 @@ class Attrib(MutableMapping):
         self.set_style(style)
 
 
-# See https://dom.spec.whatwg.org/#interface-node
-# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-node
 class Node(ABC):
     """Represents the DOM Node."""
 
@@ -355,10 +353,6 @@ class CharacterData(Node):
         raise NotImplementedError
 
 
-# See https://dom.spec.whatwg.org/#interface-comment
-# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-comment
-# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-characterdata
-# Node > CharacterData > Comment
 class Comment(etree.CommentBase, CharacterData):
     """Represents the DOM Comment."""
 
@@ -398,9 +392,6 @@ class Comment(etree.CommentBase, CharacterData):
         return '' if self.text is None else '<!--{}-->'.format(self.text)
 
 
-# See https://dom.spec.whatwg.org/#interface-element
-# See https://www.w3.org/TR/2015/REC-dom-20151119/#interface-element
-# Node > Element > SVGElement
 class Element(etree.ElementBase, Node):
     """Represents the DOM Element."""
 

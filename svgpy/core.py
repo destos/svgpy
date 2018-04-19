@@ -1433,15 +1433,6 @@ class SVGLength(object):
                                  SVGLength.TYPE_DPPX])):
             raise ValueError('Cannot convert: ' + repr(self._unit) + ' to '
                              + repr(unit))
-        # dpi = Decimal(window.screen.vertical_resolution)
-        # SVGLength._TO_PIXEL_SIZE_MAP.update({
-        #     SVGLength.TYPE_IN: dpi,
-        #     SVGLength.TYPE_CM: dpi / Decimal(2.54),
-        #     SVGLength.TYPE_MM: dpi / Decimal(25.4),
-        #     SVGLength.TYPE_Q: dpi / Decimal(2.54) / Decimal(40),
-        #     SVGLength.TYPE_PT: dpi / Decimal(72),
-        #     SVGLength.TYPE_PC: dpi / Decimal(6),
-        # })
         element_font_size = None
         root_font_size = None
         vw = None
@@ -1532,7 +1523,8 @@ class SVGLength(object):
                 px = self._number * element_font_size / 100
         elif self._unit in [SVGLength.TYPE_EXS, SVGLength.TYPE_CAPS,
                             SVGLength.TYPE_CHS, SVGLength.TYPE_ICS]:
-            # <font-relative lengths> 'ex' | 'cap' | 'ch' | 'ic' units to pixels
+            # <font-relative lengths> 'ex' | 'cap' | 'ch' | 'ic'
+            #  units to pixels
             if font is None:
                 px = self._number * element_font_size / 2
             else:

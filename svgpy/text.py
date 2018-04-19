@@ -596,7 +596,7 @@ class SVGTextContentElement(SVGGraphicsElement):
             rotate = None
         else:
             rotate = [
-                float(x) for x in
+                float(t) for t in
                 Element.RE_DIGIT_SEQUENCE_SPLITTER.split(_rotate)
             ]
         geometry['rotate'] = rotate
@@ -648,7 +648,6 @@ class SVGTextContentElement(SVGGraphicsElement):
         Returns:
             int: The total number of addressable characters.
         """
-        # See https://svgwg.org/svg2-draft/text.html#__svg__SVGTextContentElement__getNumberOfChars
         chars = self.get_chars()
         if chars is None:
             return 0
@@ -718,6 +717,5 @@ class SVGTextContentElement(SVGGraphicsElement):
         return 0
 
 
-# See https://svgwg.org/svg2-draft/text.html#InterfaceSVGTextPositioningElement
 class SVGTextPositioningElement(SVGTextContentElement):
     pass

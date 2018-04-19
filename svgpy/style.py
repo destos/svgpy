@@ -38,11 +38,11 @@ svg:not(:root), hatch, image, marker, pattern, symbol { overflow: hidden; }
   text-space-collapse: preserve-spaces;
 }
 
-defs, 
-clipPath, mask, marker, 
-desc, title, metadata, 
+defs,
+clipPath, mask, marker,
+desc, title, metadata,
 pattern, hatch,
-linearGradient, radialGradient, meshGradient, 
+linearGradient, radialGradient, meshGradient,
 script, style,
 symbol {
   display: none !important;

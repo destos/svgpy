@@ -307,12 +307,12 @@ ubidi_writeReverse${modifier}(
 int32_t
 u_strlen${modifier}(const UChar *s);
 
-char* 
+char*
 u_strToUTF8${modifier}(
-    char *dest,           
+    char *dest,
     int32_t destCapacity,
     int32_t *pDestLength,
-    const UChar *src, 
+    const UChar *src,
     int32_t srcLength,
     UErrorCode *pErrorCode);
 
@@ -804,5 +804,5 @@ class ULocale(object):
 
 version = get_version()
 if float(version) < _icu_min_required_version:
-    raise RuntimeError('Cannot find the ICU ' + str(_icu_min_required_version) +
-                       '+ (found ' + version + ')')
+    raise RuntimeError('Cannot find the ICU ' + str(_icu_min_required_version)
+                       + '+ (found ' + version + ')')

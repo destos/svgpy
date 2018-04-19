@@ -166,7 +166,7 @@ class Rect(object):
         self.top = y
 
     def adjust_self(self, dx1, dy1, dx2, dy2):
-        """Adds dx1, dy1, dx2 and dy2 respectively to the existing coordinates 
+        """Adds dx1, dy1, dx2 and dy2 respectively to the existing coordinates
         of the rectangle.
         """
         if not self.isvalid():
@@ -206,7 +206,8 @@ class Rect(object):
     @staticmethod
     def fromjson(text):
         fields = eval(text)
-        rect = Rect(fields['X'], fields['Y'], fields['Width'], fields['Height'])
+        rect = Rect(fields['X'], fields['Y'],
+                    fields['Width'], fields['Height'])
         return rect
 
     def get_coords(self):
@@ -285,14 +286,14 @@ class Rect(object):
 
     def isvalid(self):
         """Returns True if the rectangle is valid, otherwise returns False.
-        
+
         A valid rectangle has a width>0 and height>0.
         """
         return (self._x is not None and self._y is not None
                 and self._width > 0 and self._height > 0)
 
     def move_to(self, x, y):
-        """Sets the top-left corner of the rectangle to the given position 
+        """Sets the top-left corner of the rectangle to the given position
         (x, y). The rectangle's size is unchanged.
         """
         self._x = x
@@ -369,7 +370,7 @@ class Rect(object):
         return rect
 
     def translate_self(self, dx, dy):
-        """Moves the rectangle dx along the x-axis and dy along the y-axis, 
+        """Moves the rectangle dx along the x-axis and dy along the y-axis,
         relative to the current position.
         """
         self._x += dx
@@ -377,7 +378,7 @@ class Rect(object):
         return self
 
     def translate(self, dx, dy):
-        """Returns a copy of the rectangle that is translated dx along the 
+        """Returns a copy of the rectangle that is translated dx along the
         x-axis and dy along the y-axis, relative to the current position.
         """
         rect = copy.copy(self)
@@ -390,7 +391,7 @@ class Rect(object):
         return self
 
     def transpose(self):
-        """Returns a copy of the rectangle that has its width and height 
+        """Returns a copy of the rectangle that has its width and height
         exchanged.
         """
         rect = copy.copy(self)
@@ -398,7 +399,7 @@ class Rect(object):
         return rect
 
     def unite_self(self, x, y, width=0, height=0):
-        """Computes the bounding rectangle of this rectangle and the given 
+        """Computes the bounding rectangle of this rectangle and the given
         rectangle.
         """
         if x is None or y is None:
@@ -437,7 +438,7 @@ class Rect(object):
         return self
 
     def unite(self, x, y, width=0, height=0):
-        """Returns the bounding rectangle of this rectangle and the given 
+        """Returns the bounding rectangle of this rectangle and the given
         rectangle.
         """
         rect = copy.copy(self)

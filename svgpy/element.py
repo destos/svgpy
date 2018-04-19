@@ -42,7 +42,6 @@ class HTMLIFrameElement(HTMLElement):
 
 
 class HTMLLinkElement(HTMLElement, LinkStyle):
-    # https://html.spec.whatwg.org/multipage/semantics.html#the-link-element
     """Represents the HTML <link> element."""
 
     @property
@@ -271,7 +270,6 @@ class SVGEllipseElement(SVGGeometryElement):
     """Represents the SVG <ellipse> element."""
 
     def get_computed_geometry(self):
-        # See https://svgwg.org/svg2-draft/shapes.html#EllipseElement
         geometry = dict()
         attributes = self.attributes
 
@@ -417,7 +415,6 @@ class SVGLineElement(SVGGeometryElement):
     """Represents the SVG <line> element."""
 
     def get_computed_geometry(self):
-        # See https://svgwg.org/svg2-draft/shapes.html#LineElement
         geometry = dict()
         attributes = self.attributes
 
@@ -515,8 +512,6 @@ class SVGMetadataElement(SVGElement):
     pass
 
 
-# See https://www.w3.org/TR/svg-paths/#InterfaceSVGPathElement
-# See https://svgwg.org/specs/paths/#InterfaceSVGPathElement
 class SVGPathElement(SVGGeometryElement, SVGPathData):
     """Represents the SVG <path> element."""
 
@@ -660,7 +655,6 @@ class SVGRectElement(SVGGeometryElement):
     """Represents the SVG <rect> element."""
 
     def get_computed_geometry(self):
-        # See https://svgwg.org/svg2-draft/shapes.html#RectElement
         geometry = dict()
         attributes = self.attributes
 
@@ -707,16 +701,18 @@ class SVGRectElement(SVGGeometryElement):
             if _rx == 'auto':
                 rx = 0
             else:
-                rx = SVGLength(_rx,
-                               context=self,
-                               direction=SVGLength.DIRECTION_HORIZONTAL).value()
+                rx = SVGLength(
+                    _rx,
+                    context=self,
+                    direction=SVGLength.DIRECTION_HORIZONTAL).value()
 
             if _ry == 'auto':
                 ry = 0
             else:
-                ry = SVGLength(_ry,
-                               context=self,
-                               direction=SVGLength.DIRECTION_VERTICAL).value()
+                ry = SVGLength(
+                    _ry,
+                    context=self,
+                    direction=SVGLength.DIRECTION_VERTICAL).value()
 
             if _rx != 'auto' and _ry == 'auto':
                 ry = rx
@@ -788,8 +784,9 @@ class SVGRectElement(SVGGeometryElement):
                                             rx, ry, 0, 0, 1, x + w, y + ry))
         path_data.append(SVGPathSegment('V', y + h - ry))
         if not square_corners:
-            path_data.append(SVGPathSegment('A',
-                                            rx, ry, 0, 0, 1, x + w - rx, y + h))
+            path_data.append(SVGPathSegment(
+                'A',
+                rx, ry, 0, 0, 1, x + w - rx, y + h))
         path_data.append(SVGPathSegment('H', x + rx))
         if not square_corners:
             path_data.append(SVGPathSegment('A',
@@ -984,7 +981,6 @@ class SVGTSpanElement(SVGTextPositioningElement):
     pass
 
 
-# See https://svgwg.org/svg2-draft/struct.html#InterfaceSVGUseElement
 class SVGUseElement(SVGGraphicsElement, SVGURIReference):
     """Represents the SVG <use> element."""
 
