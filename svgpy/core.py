@@ -1303,8 +1303,10 @@ class SVGLength(object):
 
     @staticmethod
     def _normalize(number, unit):
-        if unit:
+        if unit is not None:
             unit = unit.lower()
+            if unit not in SVGLength.SUPPORTED_UNITS:
+                raise ValueError('Unknown unit: ' + repr(unit))
         try:
             return Decimal(number).normalize(), unit
         except InvalidOperation:
@@ -1362,8 +1364,6 @@ class SVGLength(object):
                 raise ValueError('Expected number, got \'{}\''.format(text))
             number = match.group('number')
             unit = match.group('unit')
-            if unit and unit not in SVGLength.SUPPORTED_UNITS:
-                raise ValueError('Unknown unit: ' + repr(unit))
         else:
             number = text
             unit = None
