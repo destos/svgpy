@@ -865,6 +865,67 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual('blue', css_style.get('stroke'))
         self.assertEqual(5, css_style.get('stroke-width'))
 
+    def test_computed_style05(self):
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        group = root.make_sub_element('g')
+        group.attributes.update({
+            'fill': 'white',
+            'stroke-width': '5',
+        })
+        rect = group.make_sub_element('rect')
+        rect.attributes.set_style({
+            'fill': 'red',
+            'stroke': 'blue',
+            'stroke-width': '1',
+        })
+
+        self.assertEqual(
+            {
+                'fill': 'white',
+                'stroke-width': '5',
+            },
+            group.attributes)
+        self.assertEqual(
+            {
+                'style': 'fill: red; stroke-width: 1; stroke: blue;',
+            },
+            rect.attributes)
+        css_style = rect.get_computed_style()
+        self.assertEqual('red', css_style.get('fill'))
+        self.assertEqual('blue', css_style.get('stroke'))
+        self.assertEqual(1, css_style.get('stroke-width'))
+
+    def test_computed_style06(self):
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        group = root.make_sub_element('g')
+        group.attributes.set_style({
+            'fill': 'red',
+            'stroke': 'blue',
+            'stroke-width': '1',
+        })
+        rect = group.make_sub_element('rect')
+        rect.attributes.set_style({
+            'fill': 'white',
+            'stroke-width': '5',
+        })
+
+        self.assertEqual(
+            {
+                'style': 'fill: red; stroke-width: 1; stroke: blue;',
+            },
+            group.attributes)
+        self.assertEqual(
+            {
+                'style': 'fill: white; stroke-width: 5;',
+            },
+            rect.attributes)
+        css_style = rect.get_computed_style()
+        self.assertEqual('white', css_style.get('fill'))
+        self.assertEqual('blue', css_style.get('stroke'))
+        self.assertEqual(5, css_style.get('stroke-width'))
+
     def test_element_attributes(self):
         parser = SVGParser()
         root = parser.make_element('svg')
