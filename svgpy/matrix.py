@@ -390,7 +390,7 @@ class Matrix(object):
             self.translate_self(-cx, -cy)
         return self
 
-    def scale(self, sx, sy=None):
+    def scale(self, sx, sy=None, ox=0, oy=0):
         """Post-multiplies a non-uniform scale transformation on the current
         matrix and returns the resulting matrix.
         The current matrix is not modified.
@@ -398,27 +398,35 @@ class Matrix(object):
         Arguments:
             sx (float): The scale amount in X.
             sy (float, optional): The scale amount in Y.
+            ox (float, optional): The translation amount in X.
+            oy (float, optional): The translation amount in Y.
         Returns:
             Matrix: The resulting matrix.
         """
         x = copy.deepcopy(self)
-        x.scale_self(sx, sy)
+        x.scale_self(sx, sy, ox, oy)
         return x
 
-    def scale_self(self, sx, sy=None):
+    def scale_self(self, sx, sy=None, ox=0, oy=0):
         """Post-multiplies a non-uniform scale transformation on the current
         matrix.
 
         Arguments:
             sx (float): The scale amount in X.
             sy (float, optional): The scale amount in Y.
+            ox (float, optional): The translation amount in X.
+            oy (float, optional): The translation amount in Y.
         Returns:
             Matrix: Returns itself.
         """
         if sy is None:
             sy = sx
+        if ox != 0 or oy != 0:
+            self.translate_self(ox, oy)
         m = matrix2d(sx, 0, 0, sy, 0, 0)
         self._matrix *= m
+        if ox != 0 or oy != 0:
+            self.translate_self(-ox, -oy)
         return self
 
     def set_matrix(self, a, b, c, d, e, f):
