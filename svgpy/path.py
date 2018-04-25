@@ -931,7 +931,7 @@ class PathSegment(object):
 
             matrix = Matrix()
             matrix.translate_self(cx, -cy)
-            matrix.rotate_self(-x_axis_rotation)
+            matrix.rotate_self(rot_z=-x_axis_rotation)
             matrix.scale_self(rx, ry)
 
             path_data = list()
@@ -1033,9 +1033,9 @@ class PathSegment(object):
         if path_type == 'A':
             # 'A'|'a' (rx,ry x-axis-rotation large-arc-flag sweep-flag x,y)+
             rx, ry, x_axis_rotation, fa, fs, x, y = values
-            if bearing:
+            if bearing != 0:
                 matrix = Matrix()
-                matrix.rotate_self(bearing)
+                matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
                 x_axis_rotation += bearing
             x += cpx
@@ -1048,9 +1048,9 @@ class PathSegment(object):
         elif path_type == 'C':
             # 'C'|'c' (x1,y1 x2,y2 x,y)+
             x1, y1, x2, y2, x, y = values
-            if bearing:
+            if bearing != 0:
                 matrix = Matrix()
-                matrix.rotate_self(bearing)
+                matrix.rotate_self(rot_z=bearing)
                 x1, y1 = matrix.point(x1, y1)
                 x2, y2 = matrix.point(x2, y2)
                 x, y = matrix.point(x, y)
@@ -1064,9 +1064,9 @@ class PathSegment(object):
         elif path_type == 'H':
             # 'H'|'h' x+
             x, y = values[0], 0
-            if bearing:
+            if bearing != 0:
                 matrix = Matrix()
-                matrix.rotate_self(bearing)
+                matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
             x += cpx
             y += cpy
@@ -1076,9 +1076,9 @@ class PathSegment(object):
             # 'M'|'m' (x,y)+
             # 'T'|'t' (x,y)+
             x, y = values
-            if bearing:
+            if bearing != 0:
                 matrix = Matrix()
-                matrix.rotate_self(bearing)
+                matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
             x += cpx
             y += cpy
@@ -1087,9 +1087,9 @@ class PathSegment(object):
             # 'Q'|'q' (x1,y1 x,y)+
             # 'S'|'s' (x2,y2 x,y)+
             x2, y2, x, y = values
-            if bearing:
+            if bearing != 0:
                 matrix = Matrix()
-                matrix.rotate_self(bearing)
+                matrix.rotate_self(rot_z=bearing)
                 x2, y2 = matrix.point(x2, y2)
                 x, y = matrix.point(x, y)
             x2 += cpx
@@ -1100,9 +1100,9 @@ class PathSegment(object):
         elif path_type == 'V':
             # 'V'|'v' y+
             x, y = 0, values[0]
-            if bearing:
+            if bearing != 0:
                 matrix = Matrix()
-                matrix.rotate_self(bearing)
+                matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
             x += cpx
             y += cpy

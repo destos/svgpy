@@ -450,14 +450,16 @@ class SVGTextContentElement(SVGGraphicsElement):
                         x_advance = 0
                         y_advance = advance
                     advance_list.append(advance)
-                    if rotate:
+                    if rotate != 0:
                         matrix.clear()
-                        matrix.rotate_self(rotate, x, y)
+                        matrix.translate_self(x, y)
+                        matrix.rotate_self(rot_z=rotate)
+                        matrix.translate_self(-x, -y)
                         glyph_bbox.transform_self(matrix)
 
                     matrix.clear()
-                    if rotate:
-                        matrix.rotate_self(rotate)
+                    if rotate != 0:
+                        matrix.rotate_self(rot_z=rotate)
                     matrix.translate_self(x, -y)
 
                     load_flags = FreeType.FT_LOAD_NO_BITMAP

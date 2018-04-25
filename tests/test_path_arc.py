@@ -731,7 +731,7 @@ class PathArcTestCase(unittest.TestCase):
         d = 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'
         path_data = PathParser.parse(d)
         matrix = Matrix()
-        matrix.rotate_self(45)
+        matrix.rotate_self(rot_z=45)
         transformed = PathParser.transform(path_data, matrix)
         exp = PathParser.tostring(transformed)
         expected = "M-15.556,-22.627 A7,7 0 1 0 -22.627,-15.556" \
@@ -744,7 +744,7 @@ class PathArcTestCase(unittest.TestCase):
         d = 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'
         path_data = PathParser.parse(d)
         matrix = Matrix()
-        matrix.rotate_self(90)
+        matrix.rotate_self(rot_z=90)
         transformed = PathParser.transform(path_data, matrix)
         exp = PathParser.tostring(transformed)
         expected = 'M5,-27 A7,7 0 1 0 -5,-27 L-5,27 A7,7 0 1 0 5,27 Z'
@@ -756,7 +756,7 @@ class PathArcTestCase(unittest.TestCase):
         d = 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'
         path_data = PathParser.parse(d)
         matrix = Matrix()
-        matrix.rotate_self(135)
+        matrix.rotate_self(rot_z=135)
         transformed = PathParser.transform(path_data, matrix)
         exp = PathParser.tostring(transformed)
         expected = "M22.627,-15.556 A7,7 0 1 0 15.556,-22.627 L-22.627,15.556" \

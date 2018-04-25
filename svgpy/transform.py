@@ -71,7 +71,12 @@ class SVGTransform(object):
         if self._transform_type == SVGTransform.TRANSFORM_MATRIX:
             matrix.set_matrix(*self._values)
         elif self._transform_type == SVGTransform.TRANSFORM_ROTATE:
-            matrix.rotate_self(*self._values)
+            angle, cx, cy = self._values
+            if cx != 0 or cy != 0:
+                matrix.translate_self(cx, cy)
+            matrix.rotate_self(rot_z=angle)
+            if cx != 0 or cy != 0:
+                matrix.translate_self(-cx, -cy)
         elif self._transform_type == SVGTransform.TRANSFORM_SCALE:
             matrix.scale_self(*self._values)
         elif self._transform_type == SVGTransform.TRANSFORM_SKEWX:
@@ -106,10 +111,11 @@ class SVGTransform(object):
         """
         if matrix is None or (not isinstance(matrix, Matrix)):
             raise TypeError('Expected Matrix, got {}'.format(type(matrix)))
-        m = matrix.matrix
+        elif not matrix.is2d:
+            raise ValueError('Expected 2d Matrix')
         transform = SVGTransform()
-        transform.set_matrix(m[0, 0], m[1, 0], m[0, 1],
-                             m[1, 1], m[0, 2], m[1, 2])
+        transform.set_matrix(matrix.a, matrix.b, matrix.c,
+                             matrix.d, matrix.e, matrix.f)
         return transform
 
     def set(self, function_name, *values):

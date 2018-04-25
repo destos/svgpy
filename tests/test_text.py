@@ -435,7 +435,7 @@ class TextTestCase(unittest.TestCase):
         self.assertTrue(bbox.isvalid(), msg=repr(bbox))
 
         matrix = Matrix()
-        matrix.rotate_self(45)
+        matrix.rotate_self(rot_z=45)
         matrix.translate_self(10)
         path_data = PathParser.fromglyph(face, matrix)
         self.assertTrue(len(path_data) > 0)

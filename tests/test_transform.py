@@ -33,7 +33,10 @@ class TransformListTestCase(unittest.TestCase):
         self.assertEqual(t.tostring(), 'matrix(1 2 3 4 5 6)')
         self.assertTrue(t.matrix == Matrix(1, 2, 3, 4, 5, 6))
         self.assertTrue((t.matrix.matrix == np.matrix(
-            [[1, 3, 5], [2, 4, 6], [0, 0, 1]]
+            [[1, 3, 0, 5],
+             [2, 4, 0, 6],
+             [0, 0, 1, 0],
+             [0, 0, 0, 1]]
         )).all())
 
         t = SVGTransform()
@@ -47,7 +50,9 @@ class TransformListTestCase(unittest.TestCase):
         cx = 24
         cy = 16
         m = Matrix()
-        m.rotate_self(r, cx, cy)
+        m.translate_self(cx, cy)
+        m.rotate_self(rot_z=r)
+        m.translate_self(-cx, -cy)
 
         t = SVGTransform('rotate', r, cx, cy)
         self.assertEqual(t.type, SVGTransform.TRANSFORM_ROTATE)
@@ -57,7 +62,9 @@ class TransformListTestCase(unittest.TestCase):
         cx = 12.3456
         cy = -0
         m = Matrix()
-        m.rotate_self(r, cx, cy)
+        m.translate_self(cx, cy)
+        m.rotate_self(rot_z=r)
+        m.translate_self(-cx, -cy)
 
         t = SVGTransform()
         t.set_rotate(r, cx, cy)
@@ -68,7 +75,7 @@ class TransformListTestCase(unittest.TestCase):
         cx = -0
         cy = -0
         m = Matrix()
-        m.rotate_self(r, cx, cy)
+        m.rotate_self(rot_z=r)
 
         t = SVGTransform()
         t.set_rotate(r, cx, cy)
