@@ -201,14 +201,14 @@
 .56+|DOMMatrix (2) .22+|DOMMatrixReadOnly |fromMatrix() ^|Not Planned ||Use copy.deepcopy() instead.
 |fromFloat32Array() ^|Not Planned ||
 |fromFloat64Array() ^|Not Planned ||
-|is2D ^|Not Planned ||
+|is2D ^|✓ ||
 |isIdentity ^|Not Planned ||
-|translate() ^|✓ ||2D only.
-|scale() ^|✓ ||2D only.
-|scale3d() ^|Not Planned ||
-|rotate() ^|✓ ||2D only.
+|translate() ^|✓ ||
+|scale() ^|✓ ||
+|scale3d() ^|✓ ||
+|rotate() ^|✓ ||
 |rotateFromVector() ^|TBD ||
-|rotateAxisAngle() ^|TBD ||
+|rotateAxisAngle() ^|✓ ||
 |skewX() ^|✓ ||
 |skewY() ^|✓ ||
 |multiply() ^|✓ ||
@@ -228,28 +228,28 @@
 |f ^|✓ ||
 |m11 ^|✓ ||
 |m12 ^|✓ ||
-|m13 ^|Not Planned ||
-|m14 ^|Not Planned ||
+|m13 ^|✓ ||
+|m14 ^|✓ ||
 |m21 ^|✓ ||
 |m22 ^|✓ ||
-|m23 ^|Not Planned ||
-|m24 ^|Not Planned ||
+|m23 ^|✓ ||
+|m24 ^|✓ ||
 |m31 ^|✓ ||
 |m32 ^|✓ ||
-|m33 ^|Not Planned ||
-|m34 ^|Not Planned ||
+|m33 ^|✓ ||
+|m34 ^|✓ ||
 |m41 ^|✓ ||
 |m42 ^|✓ ||
-|m43 ^|Not Planned ||
-|m44 ^|Not Planned ||
+|m43 ^|✓ ||
+|m44 ^|✓ ||
 |multiplySelf() ^|✓ ||
 |preMultiplySelf() ^|TBD ||
-|translateSelf() ^|✓ ||2D only.
-|scaleSelf() ^|✓ ||2D only.
-|scale3dSelf() ^|Not Planned ||
-|rotateSelf() ^|✓ ||2D only.
+|translateSelf() ^|✓ ||
+|scaleSelf() ^|✓ ||
+|scale3dSelf() ^|✓ ||
+|rotateSelf() ^|✓ ||
 |rotateFromVectorSelf() ^|TBD ||
-|rotateAxisAngleSelf() ^|TBD ||
+|rotateAxisAngleSelf() ^|✓ ||
 |skewXSelf() ^|✓ ||
 |skewYSelf() ^|✓ ||
 |invertSelf() ^|✓ ||
