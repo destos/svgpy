@@ -22,10 +22,10 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 111.976, places=places)
-        self.assertAlmostEqual(bbox.y, 10, places=places)
-        self.assertAlmostEqual(bbox.width, 76.048, places=places)
-        self.assertAlmostEqual(bbox.height, 72.326, places=places)
+        self.assertAlmostEqual(111.976, bbox.x, places=places)
+        self.assertAlmostEqual(10, bbox.y, places=places)
+        self.assertAlmostEqual(76.048, bbox.width, places=places)
+        self.assertAlmostEqual(72.326, bbox.height, places=places)
 
     def test_bearing01_length(self):
         # See also: bearing01.html
@@ -33,7 +33,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         n = PathParser.get_total_length(path_data)
         expected = 235
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_bearing01_normalize(self):
         # See also: bearing01.html
@@ -44,7 +44,7 @@ class PathLinetoTestCase(unittest.TestCase):
         expected = \
             "M150,10 L188.023799,37.625907 173.5,82.325563 126.5,82.325563" \
             " 111.976201,37.625907 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_bearing01_transform01(self):
         # See also: bearing01.html
@@ -58,7 +58,7 @@ class PathLinetoTestCase(unittest.TestCase):
         expected = \
             "M160,20 L198.023799,47.625907 183.5,92.325563 136.5,92.325563" \
             " 121.976201,47.625907 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_bearing01_transform02(self):
         # See also: bearing01.html
@@ -72,7 +72,7 @@ class PathLinetoTestCase(unittest.TestCase):
         expected = \
             "M150,-10 L188.023799,-37.625907 173.5,-82.325563" \
             " 126.5,-82.325563 111.976201,-37.625907 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_lineto_abs_length(self):
         path_data = list()
@@ -82,7 +82,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('z'))
         d = PathParser.tostring(path_data)
         expected = 'M100,100 L300,100 200,300 z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = PathParser.get_total_length(path_data)
         # sqrt((300 - 100) ** 2 + (100 - 100) ** 2)
@@ -90,7 +90,7 @@ class PathLinetoTestCase(unittest.TestCase):
         # + sqrt((100 - 200) ** 2 + (100 - 300) ** 2)
         # = 647.2135954999579
         expected = 647.2135954999579
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_lineto_abs_normalize(self):
         path_data = list()
@@ -102,7 +102,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M100,100 L300,100 200,300 Z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_lineto_rel_length(self):
         # See also: bearing01.html
@@ -124,11 +124,11 @@ class PathLinetoTestCase(unittest.TestCase):
                    " -47,0" \
                    " -14.523799,-44.699656" \
                    " z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = PathParser.get_total_length(path_data)
         expected = 235
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_lineto_rel_normalize(self):
         # See also: bearing01.html
@@ -148,7 +148,7 @@ class PathLinetoTestCase(unittest.TestCase):
         expected = \
             "M150,10 L188.023799,37.625907 173.5,82.325563 126.5,82.325563" \
             " 111.976201,37.625907 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_moveto_abs_length(self):
         # implicit lineto
@@ -159,7 +159,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('z'))
         d = PathParser.tostring(path_data)
         expected = 'M100,100 50,0 0,50 z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = PathParser.get_total_length(path_data)
         # (100, 100) - (50, 0) - (0, 50) - (100, 100)
@@ -168,7 +168,7 @@ class PathLinetoTestCase(unittest.TestCase):
         # + sqrt((100 - 0) ** 2 + (100 - 50) ** 2)
         # = 294.3174758686337
         expected = 294.3174758686337
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_moveto_abs_normalize(self):
         path_data = list()
@@ -179,7 +179,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         exp = PathParser.tostring(normalized)
         expected = 'M100,100 50,0 0,50 Z'
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_moveto_rel_bbox(self):
         # implicit "lineto" command
@@ -191,10 +191,10 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('z'))
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertEqual(bbox.x, 100)
-        self.assertEqual(bbox.y, 100)
-        self.assertEqual(bbox.width, 50)
-        self.assertEqual(bbox.height, 50)
+        self.assertEqual(100, bbox.x)
+        self.assertEqual(100, bbox.y)
+        self.assertEqual(50, bbox.width)
+        self.assertEqual(50, bbox.height)
 
     def test_moveto_rel_length(self):
         # implicit "lineto" command
@@ -206,7 +206,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('z'))
         n = PathParser.get_total_length(path_data)
         expected = 200
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_moveto_rel_normalize(self):
         path_data = list()
@@ -217,7 +217,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M100,100 150,100 150,150 Z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_horizontal_lineto_abs_length(self):
         path_data = list()
@@ -225,11 +225,11 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('H', 100))
         d = PathParser.tostring(path_data)
         expected = 'M0,50 H100'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = PathParser.get_total_length(path_data)
         expected = 100
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_horizontal_lineto_abs_normalize(self):
         path_data = list()
@@ -238,7 +238,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalize = PathParser.normalize(path_data)
         d = PathParser.tostring(normalize)
         expected = 'M0,50 L100,50'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_horizontal_lineto_rel_bbox(self):
         path_data = list()
@@ -247,10 +247,10 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         # "M100,50 L0,50"
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 0, places=places)
-        self.assertAlmostEqual(bbox.y, 50, places=places)
-        self.assertAlmostEqual(bbox.width, 100, places=places)
-        self.assertAlmostEqual(bbox.height, 0, places=places)
+        self.assertAlmostEqual(0, bbox.x, places=places)
+        self.assertAlmostEqual(50, bbox.y, places=places)
+        self.assertAlmostEqual(100, bbox.width, places=places)
+        self.assertAlmostEqual(0, bbox.height, places=places)
 
     def test_horizontal_lineto_rel_length(self):
         path_data = list()
@@ -258,11 +258,11 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('h', -100))
         d = PathParser.tostring(path_data)
         expected = 'm100,50 h-100'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = PathParser.get_total_length(path_data)
         expected = 100
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_horizontal_lineto_rel_normalize(self):
         path_data = list()
@@ -271,30 +271,30 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M100,50 L0,50'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_path_parse01(self):
         # "M0.1,0.2 0.3,4.5 -6.7,-0.8 8.8,0.1 999e-3,0.5 1e+3,0.4 z"
         # skip invalid segment ("777")
         d = 'M0.1.2.3,4.5,-6.7-.8 8.8,.10 999e-3.5 1e+3.4 777z'
         path_data = PathParser.parse(d)
-        self.assertEqual(len(path_data), 7)
+        self.assertEqual(7, len(path_data))
 
-        self.assertEqual(path_data[0].type, 'M')
-        self.assertEqual(path_data[1].type, 'M')
-        self.assertEqual(path_data[2].type, 'M')
-        self.assertEqual(path_data[3].type, 'M')
-        self.assertEqual(path_data[4].type, 'M')
-        self.assertEqual(path_data[5].type, 'M')
-        self.assertEqual(path_data[6].type, 'z')
+        self.assertEqual('M', path_data[0].type)
+        self.assertEqual('M', path_data[1].type)
+        self.assertEqual('M', path_data[2].type)
+        self.assertEqual('M', path_data[3].type)
+        self.assertEqual('M', path_data[4].type)
+        self.assertEqual('M', path_data[5].type)
+        self.assertEqual('z', path_data[6].type)
 
-        self.assertEqual(path_data[0].values, (0.1, 0.2))
-        self.assertEqual(path_data[1].values, (0.3, 4.5))
-        self.assertEqual(path_data[2].values, (-6.7, -0.8))
-        self.assertEqual(path_data[3].values, (8.8, 0.1))
-        self.assertEqual(path_data[4].values, (999e-3, 0.5))
-        self.assertEqual(path_data[5].values, (1e+3, 0.4))
-        self.assertEqual(path_data[6].values, ())
+        self.assertEqual((0.1, 0.2), path_data[0].values)
+        self.assertEqual((0.3, 4.5), path_data[1].values)
+        self.assertEqual((-6.7, -0.8), path_data[2].values)
+        self.assertEqual((8.8, 0.1), path_data[3].values)
+        self.assertEqual((999e-3, 0.5), path_data[4].values)
+        self.assertEqual((1e+3, 0.4), path_data[5].values)
+        self.assertEqual((), path_data[6].values)
 
     def test_path_parse02(self):
         # skip invalid segments ("L", "L" and "l")
@@ -304,11 +304,11 @@ class PathLinetoTestCase(unittest.TestCase):
 
         d = PathParser.tostring(path_data)
         expected = 'M100,100 L200,100 l0,100'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = PathParser.get_total_length(path_data)
         expected = 200
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_path_tostring_null(self):
         # skip invalid segments
@@ -320,7 +320,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('z'))
         d = PathParser.tostring(path_data)
         expected = 'z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_segment_null(self):
         segment = SVGPathSegment()
@@ -328,175 +328,175 @@ class PathLinetoTestCase(unittest.TestCase):
         self.assertIsNone(segment.type)
         self.assertIsNone(segment.isabsolute())
         self.assertIsNone(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
 
     def test_segment_bearing_abs(self):
         segment = SVGPathSegment('B')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, '')
+        self.assertEqual('', exp)
 
         segment = SVGPathSegment('B')
         bearing = segment.get_bearing(-90)
-        self.assertEqual(bearing, -90)
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual(-90, bearing)
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
 
         segment = SVGPathSegment()
         segment.set_bearing_abs(-45)
         bearing = segment.get_bearing(-90)
-        self.assertEqual(bearing, -45)
+        self.assertEqual(-45, bearing)
         self.assertEqual(segment.values, (-45,))
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((None, None), segment.end)
 
         segment = SVGPathSegment('B', 45)
-        self.assertEqual(segment.values, (45,))
+        self.assertEqual((45,), segment.values)
         bearing = segment.get_bearing(-90)
-        self.assertEqual(bearing, 45)
+        self.assertEqual(45, bearing)
 
         segment = SVGPathSegment('B', -45)
         exp = segment.tostring()
-        self.assertEqual(exp, 'B-45')
+        self.assertEqual('B-45', exp)
 
     def test_segment_bearing_rel(self):
         segment = SVGPathSegment('b')
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, '')
+        self.assertEqual('', exp)
 
         segment = SVGPathSegment()
         bearing = segment.get_bearing(-90)
-        self.assertEqual(bearing, -90)
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual(-90, bearing)
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
 
         segment = SVGPathSegment()
         segment.set_bearing_rel(-45)
         bearing = segment.get_bearing(-90)
-        self.assertEqual(bearing, -135)
-        self.assertEqual(segment.values, (-45,))
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual(-135, bearing)
+        self.assertEqual((-45,), segment.values)
+        self.assertEqual((None, None), segment.end)
 
         segment = SVGPathSegment('b', 45)
-        self.assertEqual(segment.values, (45,))
+        self.assertEqual((45,), segment.values)
         bearing = segment.get_bearing(-90)
-        self.assertEqual(bearing, -45)
+        self.assertEqual(-45, bearing)
 
         segment = SVGPathSegment('b', -45)
         exp = segment.tostring()
-        self.assertEqual(exp, 'b-45')
+        self.assertEqual('b-45', exp)
 
     def test_segment_horizontal_lineto_abs(self):
         segment = SVGPathSegment('H')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         segment = SVGPathSegment('H', 100)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (100,))
-        self.assertEqual(segment.end, (100, None))
+        self.assertEqual((100,), segment.values)
+        self.assertEqual((100, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'H100')
+        self.assertEqual('H100', d)
 
         segment = SVGPathSegment()
         segment.set_horizontal_lineto_abs(50)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (50,))
-        self.assertEqual(segment.end, (50, None))
+        self.assertEqual((50,), segment.values)
+        self.assertEqual((50, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'H50')
+        self.assertEqual('H50', d)
 
     def test_segment_horizontal_lineto_rel(self):
         segment = SVGPathSegment('h')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         segment = SVGPathSegment('h', 100)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (100,))
-        self.assertEqual(segment.end, (100, 0))
+        self.assertEqual((100,), segment.values)
+        self.assertEqual((100, 0), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'h100')
+        self.assertEqual('h100', d)
 
         segment = SVGPathSegment()
         segment.set_horizontal_lineto_rel(50)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (50,))
-        self.assertEqual(segment.end, (50, 0))
+        self.assertEqual((50,), segment.values)
+        self.assertEqual((50, 0), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'h50')
+        self.assertEqual('h50', d)
 
     def test_segment_lineto_abs(self):
         segment = SVGPathSegment('L')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         segment = SVGPathSegment()
         segment.set_lineto_abs(100, 50)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (100, 50))
-        self.assertEqual(segment.end, (100, 50))
+        self.assertEqual((100, 50), segment.values)
+        self.assertEqual((100, 50), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'L100,50')
+        self.assertEqual('L100,50', d)
 
         segment = SVGPathSegment('L', -50, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (-50, 0))
-        self.assertEqual(segment.end, (-50, 0))
+        self.assertEqual((-50, 0), segment.values)
+        self.assertEqual((-50, 0), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'L-50,0')
+        self.assertEqual('L-50,0', d)
 
     def test_segment_moveto_abs(self):
         segment = SVGPathSegment('M')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, '')
+        self.assertEqual('', exp)
 
         segment = SVGPathSegment('M', 100, 50)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (100, 50))
-        self.assertEqual(segment.end, (100, 50))
+        self.assertEqual((100, 50), segment.values)
+        self.assertEqual((100, 50), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, 'M100,50')
+        self.assertEqual('M100,50', exp)
 
         segment = SVGPathSegment()
         segment.set_moveto_abs(100, 100)
@@ -504,29 +504,29 @@ class PathLinetoTestCase(unittest.TestCase):
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (50, 0))
-        self.assertEqual(segment.end, (50, 0))
+        self.assertEqual((50, 0), segment.values)
+        self.assertEqual((50, 0), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, 'M50,0')
+        self.assertEqual('M50,0', exp)
 
     def test_segment_moveto_rel(self):
         segment = SVGPathSegment('m')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, '')
+        self.assertEqual('', exp)
 
         segment = SVGPathSegment('m', 100, 50)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (100, 50))
-        self.assertEqual(segment.end, (100, 50))
+        self.assertEqual((100, 50), segment.values)
+        self.assertEqual((100, 50), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, 'm100,50')
+        self.assertEqual('m100,50', exp)
 
         segment = SVGPathSegment()
         segment.set_moveto_rel(100, 100)
@@ -534,68 +534,68 @@ class PathLinetoTestCase(unittest.TestCase):
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (50, 0))
-        self.assertEqual(segment.end, (50, 0))
+        self.assertEqual((50, 0), segment.values)
+        self.assertEqual((50, 0), segment.end)
         exp = segment.tostring()
-        self.assertEqual(exp, 'm50,0')
+        self.assertEqual('m50,0', exp)
 
     def test_segment_vertical_lineto_abs(self):
         segment = SVGPathSegment('V')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         segment = SVGPathSegment('V', -50)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (-50,))
-        self.assertEqual(segment.end, (None, -50))
+        self.assertEqual((-50,), segment.values)
+        self.assertEqual((None, -50), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'V-50')
+        self.assertEqual('V-50', d)
 
         segment = SVGPathSegment()
         segment.set_vertical_lineto_abs(150)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (150,))
-        self.assertEqual(segment.end, (None, 150))
+        self.assertEqual((150,), segment.values)
+        self.assertEqual((None, 150), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'V150')
+        self.assertEqual('V150', d)
 
     def test_segment_vertical_lineto_rel(self):
         segment = SVGPathSegment('v')
         self.assertTrue(not segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         segment = SVGPathSegment('v', -50)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (-50,))
-        self.assertEqual(segment.end, (0, -50))
+        self.assertEqual((-50,), segment.values)
+        self.assertEqual((0, -50), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'v-50')
+        self.assertEqual('v-50', d)
 
         segment = SVGPathSegment()
         segment.set_vertical_lineto_rel(150)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (150,))
-        self.assertEqual(segment.end, (0, 150))
+        self.assertEqual((150,), segment.values)
+        self.assertEqual((0, 150), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'v150')
+        self.assertEqual('v150', d)
 
     def test_vertical_lineto_abs_length(self):
         path_data = list()
@@ -603,7 +603,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('V', 150))
         n = PathParser.get_total_length(path_data)
         expected = 100
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_vertical_lineto_abs_normalize(self):
         path_data = list()
@@ -612,7 +612,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M50,50 L50,150'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_vertical_lineto_rel_length(self):
         path_data = list()
@@ -620,7 +620,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('v', -50))
         n = PathParser.get_total_length(path_data)
         expected = 50
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_vertical_lineto_rel_normalize(self):
         path_data = list()
@@ -629,7 +629,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M50,50 L50,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_triangle01_bbox(self):
         # See also: triangle01.html
@@ -637,10 +637,10 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 100, places=places)
-        self.assertAlmostEqual(bbox.y, 100, places=places)
-        self.assertAlmostEqual(bbox.width, 200, places=places)
-        self.assertAlmostEqual(bbox.height, 200, places=places)
+        self.assertAlmostEqual(100, bbox.x, places=places)
+        self.assertAlmostEqual(100, bbox.y, places=places)
+        self.assertAlmostEqual(200, bbox.width, places=places)
+        self.assertAlmostEqual(200, bbox.height, places=places)
 
     def test_triangle01_abs_length(self):
         # See also: triangle01.html
@@ -648,7 +648,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         n = PathParser.get_total_length(path_data)
         expected = 647.213623046875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_triangle01_abs_normalize(self):
         # See also: triangle01.html
@@ -657,7 +657,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M100,100 L300,100 200,300 Z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_triangle01_rel_length(self):
         # See also: triangle01.html
@@ -665,7 +665,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         n = PathParser.get_total_length(path_data)
         expected = 647.213623046875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_triangle01_rel_normalize(self):
         # See also: triangle01.html
@@ -674,7 +674,7 @@ class PathLinetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M100,100 L300,100 200,300 Z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
 
 if __name__ == '__main__':

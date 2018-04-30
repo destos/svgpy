@@ -22,10 +22,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         d = 'M100,200 C100,100 250,100 250,200 C250,300 400,300 400,200'
         path_data = PathParser.parse(d)
         bbox = PathParser.get_bbox(path_data)
-        self.assertAlmostEqual(bbox.x, 100, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 150, places=places)
+        self.assertAlmostEqual(100, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(150, bbox.height, places=places)
 
     def test_cubic01_path01_length(self):
         # See also: cubic01.html
@@ -34,14 +34,14 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 475.7469787597656  # firefox
         expected = 475.74774169921875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
         d = 'M100,200 C100,100 250,100 250,200 S400,300 400,200'
         path_data = PathParser.parse(d)
         n = PathParser.get_total_length(path_data)
         # expected = 475.7469787597656  # firefox
         expected = 475.74774169921875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic01_path01_normalize(self):
         # See also: cubic01.html
@@ -50,7 +50,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M100,200 C100,100 250,100 250,200 250,300 400,300 400,200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_cubic01_path01_transform(self):
         # See also: cubic01.html
@@ -61,7 +61,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M50,250 C50,150 200,150 200,250 S350,350 350,250'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic01_path02_length(self):
         # See also: cubic01.html
@@ -70,17 +70,17 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 237.87351989746094  # firefox
         expected = 237.87376403808594
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_path01_bbox(self):
         # See also: cubic02.html
         d = 'M100,200 C100,100 400,100 400,200'
         path_data = PathParser.parse(d)
         bbox = PathParser.get_bbox(path_data)
-        self.assertAlmostEqual(bbox.x, 100, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(100, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_path01_length(self):
         # See also: cubic02.html
@@ -89,7 +89,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 366.38275146484375  # firefox
         expected = 366.3829650878906
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_path01_transform(self):
         # See also: cubic02.html
@@ -100,17 +100,17 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M50,250 C50,150 350,150 350,250'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic02_path02_bbox(self):
         # See also: cubic02.html
         d = 'M100,500 C25,400 475,400 400,500'
         path_data = PathParser.parse(d)
         bbox = PathParser.get_bbox(path_data)
-        self.assertAlmostEqual(bbox.x, 91.533577, places=places)
-        self.assertAlmostEqual(bbox.y, 425, places=places)
-        self.assertAlmostEqual(bbox.width, 316.932831, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(91.533577, bbox.x, places=places)
+        self.assertAlmostEqual(425, bbox.y, places=places)
+        self.assertAlmostEqual(316.932831, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_path02_length(self):
         # See also: cubic02.html
@@ -119,7 +119,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 403.0122985839844  # firefox
         expected = 403.01336669921875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_path02_transform(self):
         # See also: cubic02.html
@@ -130,17 +130,17 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M50,550 C-25,450 425,450 350,550'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic02_path03_bbox(self):
         # See also: cubic02.html
         d = 'M100,800 C175,700 325,700 400,800'
         path_data = PathParser.parse(d)
         bbox = PathParser.get_bbox(path_data)
-        self.assertAlmostEqual(bbox.x, 100, places=places)
-        self.assertAlmostEqual(bbox.y, 725, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(100, bbox.x, places=places)
+        self.assertAlmostEqual(725, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_path03_length(self):
         # See also: cubic02.html
@@ -149,7 +149,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 347.868408203125  # firefox
         expected = 347.8686828613281
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_path03_transform(self):
         # See also: cubic02.html
@@ -160,17 +160,17 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M50,850 C125,750 275,750 350,850'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic02_path04_bbox(self):
         # See also: cubic02.html
         d = 'M600,200 C675,100 975,100 900,200'
         path_data = PathParser.parse(d)
         bbox = PathParser.get_bbox(path_data)
-        self.assertAlmostEqual(bbox.x, 600, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 311.936218, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(600, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(311.936218, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_path04_length(self):
         # See also: cubic02.html
@@ -179,7 +179,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 383.4436340332031  # firefox
         expected = 383.4443664550781
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_path04_transform(self):
         # See also: cubic02.html
@@ -190,17 +190,17 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M550,250 C625,150 925,150 850,250'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic02_path05_bbox(self):
         # See also: cubic02.html
         d = 'M600,500 C600,350 900,650 900,500'
         path_data = PathParser.parse(d)
         bbox = PathParser.get_bbox(path_data)
-        self.assertAlmostEqual(bbox.x, 600, places=places)
-        self.assertAlmostEqual(bbox.y, 456.69873, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 86.602539, places=places)
+        self.assertAlmostEqual(600, bbox.x, places=places)
+        self.assertAlmostEqual(456.69873, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(86.602539, bbox.height, places=places)
 
     def test_cubic02_path05_length(self):
         # See also: cubic02.html
@@ -209,7 +209,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 375.2682189941406  # firefox
         expected = 375.26849365234375
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_path05_transform(self):
         # See also: cubic02.html
@@ -220,7 +220,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M550,550 C550,400 850,700 850,550'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic02_path06_bbox(self):
         # See also: cubic02.html
@@ -228,10 +228,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 600, places=places)
-        self.assertAlmostEqual(bbox.y, 725, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 150, places=places)
+        self.assertAlmostEqual(600, bbox.x, places=places)
+        self.assertAlmostEqual(725, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(150, bbox.height, places=places)
 
     def test_cubic02_path06_length(self):
         # See also: cubic02.html
@@ -240,7 +240,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 457.373046875  # firefox
         expected = 457.37384033203125
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_path06_normalize(self):
         # See also: cubic02.html
@@ -249,7 +249,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M600,800 C625,700 725,700 750,800 775,900 875,900 900,800'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_cubic02_path06_transform(self):
         # See also: cubic02.html
@@ -260,7 +260,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M550,850 C575,750 675,750 700,850 S825,950 850,850'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic02_01_path01_bbox(self):
         # See also: cubic02_01.html
@@ -268,10 +268,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 100, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(100, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_01_path01_length(self):
         # See also: cubic02_01.html
@@ -280,7 +280,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 366.38275146484375  # firefox
         expected = 366.3829650878906
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_01_path02_bbox(self):
         # See also: cubic02_01.html
@@ -288,10 +288,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 91.534, places=places)
-        self.assertAlmostEqual(bbox.y, 425, places=places)
-        self.assertAlmostEqual(bbox.width, 316.933, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(91.534, bbox.x, places=places)
+        self.assertAlmostEqual(425, bbox.y, places=places)
+        self.assertAlmostEqual(316.933, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_01_path02_length(self):
         # See also: cubic02_01.html
@@ -300,7 +300,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 403.0122985839844  # firefox
         expected = 403.01336669921875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_01_path03_bbox(self):
         # See also: cubic02_01.html
@@ -308,10 +308,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 100, places=places)
-        self.assertAlmostEqual(bbox.y, 725, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(100, bbox.x, places=places)
+        self.assertAlmostEqual(725, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_01_path03_length(self):
         # See also: cubic02_01.html
@@ -320,7 +320,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 347.868408203125  # firefox
         expected = 347.8686828613281
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_01_path04_bbox(self):
         # See also: cubic02_01.html
@@ -328,10 +328,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 600, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 311.936, places=places)
-        self.assertAlmostEqual(bbox.height, 75, places=places)
+        self.assertAlmostEqual(600, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(311.936, bbox.width, places=places)
+        self.assertAlmostEqual(75, bbox.height, places=places)
 
     def test_cubic02_01_path04_length(self):
         # See also: cubic02_01.html
@@ -340,7 +340,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 383.4436340332031  # firefox
         expected = 383.4443664550781
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_01_path05_bbox(self):
         # See also: cubic02_01.html
@@ -348,10 +348,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 600, places=places)
-        self.assertAlmostEqual(bbox.y, 456.699, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 86.603, places=places)
+        self.assertAlmostEqual(600, bbox.x, places=places)
+        self.assertAlmostEqual(456.699, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(86.603, bbox.height, places=places)
 
     def test_cubic02_01_path05_length(self):
         # See also: cubic02_01.html
@@ -360,7 +360,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 375.2682189941406  # firefox
         expected = 375.26849365234375
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_01_path06_bbox(self):
         # See also: cubic02_01.html
@@ -368,10 +368,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 600, places=places)
-        self.assertAlmostEqual(bbox.y, 725, places=places)
-        self.assertAlmostEqual(bbox.width, 300, places=places)
-        self.assertAlmostEqual(bbox.height, 150, places=places)
+        self.assertAlmostEqual(600, bbox.x, places=places)
+        self.assertAlmostEqual(725, bbox.y, places=places)
+        self.assertAlmostEqual(300, bbox.width, places=places)
+        self.assertAlmostEqual(150, bbox.height, places=places)
 
     def test_cubic02_01_path06_length(self):
         # See also: cubic02_01.html
@@ -384,7 +384,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 457.373046875  # firefox
         expected = 457.37384033203125
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_01_path06_normalize(self):
         # See also: cubic02_01.html
@@ -394,11 +394,11 @@ class PathCurvetoTestCase(unittest.TestCase):
         normalized = PathParser.normalize(path_data)
         d = PathParser.tostring(normalized)
         expected = 'M600,800 C625,700 725,700 750,800 775,900 875,900 900,800'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = PathParser.get_total_length(normalized)
         expected = 457.37384033203125
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic02_01_path06_transform(self):
         # See also: cubic02_01.html
@@ -411,7 +411,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M550,850 C575,750 675,750 700,850 S825,950 850,850'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic03_path01_bbox(self):
         # See also: cubic03.html
@@ -420,10 +420,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         path_data = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(path_data)
-        self.assertAlmostEqual(bbox.x, 100, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 220, places=places)
-        self.assertAlmostEqual(bbox.height, 150, places=places)
+        self.assertAlmostEqual(100, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(220, bbox.width, places=places)
+        self.assertAlmostEqual(150, bbox.height, places=places)
 
     def test_cubic03_path01_length(self):
         # See also: cubic03.html
@@ -441,7 +441,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 524.0918579101562  # firefox
         expected = 524.09228515625
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic03_path01_normalize(self):
         # See also: cubic03.html
@@ -461,7 +461,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         expected = "M100,200" \
                    " C120,100 155,100 175,200 195,300 225,300 245,200" \
                    " 265,100 300,100 320,200"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_cubic03_path01_transform(self):
         # See also: cubic03.html
@@ -474,7 +474,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         d2 = PathParser.tostring(transformed)
         expected = \
             "M50,250 C70,150 105,150 125,250 S175,350 195,250 250,150 270,250"
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_cubic03_path02_bbox(self):
         # See also: cubic03.html
@@ -482,10 +482,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 175, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 145, places=places)
-        self.assertAlmostEqual(bbox.height, 150, places=places)
+        self.assertAlmostEqual(175, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(145, bbox.width, places=places)
+        self.assertAlmostEqual(150, bbox.height, places=places)
 
     def test_cubic03_path02_length(self):
         # See also: cubic03.html
@@ -495,7 +495,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 348.3697814941406  # firefox
         expected = 348.3702392578125
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic03_path03_bbox(self):
         # See also: cubic03.html
@@ -503,10 +503,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 500, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 220, places=places)
-        self.assertAlmostEqual(bbox.height, 150, places=places)
+        self.assertAlmostEqual(500, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(220, bbox.width, places=places)
+        self.assertAlmostEqual(150, bbox.height, places=places)
 
     def test_cubic03_path03_length(self):
         # See also: cubic03.html
@@ -530,7 +530,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 524.092041015625  # firefox
         expected = 524.0925903320312
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_cubic03_path03_normalize(self):
         # See also: cubic03.html
@@ -555,7 +555,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         d = PathParser.tostring(normalized)
         expected = "M500,200 C520,100 555,100 575,200" \
                    " 595,300 625,300 645,200 665,100 700,100 720,200"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_cubic03_path04_bbox(self):
         # See also: cubic03.html
@@ -563,10 +563,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 575, places=places)
-        self.assertAlmostEqual(bbox.y, 125, places=places)
-        self.assertAlmostEqual(bbox.width, 145, places=places)
-        self.assertAlmostEqual(bbox.height, 150, places=places)
+        self.assertAlmostEqual(575, bbox.x, places=places)
+        self.assertAlmostEqual(125, bbox.y, places=places)
+        self.assertAlmostEqual(145, bbox.width, places=places)
+        self.assertAlmostEqual(150, bbox.height, places=places)
 
     def test_cubic03_path04_length(self):
         # See also: cubic03.html
@@ -576,7 +576,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 348.3697204589844  # firefox
         expected = 348.37030029296875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_path_curveto_abs(self):
         path_data = list()
@@ -585,7 +585,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('S', 400, 300, 400, 200))
         d = PathParser.tostring(path_data)
         expected = 'M100,200 C100,100 250,100 250,200 S400,300 400,200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_path_curveto_rel(self):
         path_data = list()
@@ -594,7 +594,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data.append(SVGPathSegment('s', 125, 100, 150, 0))
         d = PathParser.tostring(path_data)
         expected = 'm600,800 c25,-100 125,-100 150,0 s125,100 150,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_quad01_path01_bbox(self):
         # See also: quad01.html
@@ -602,10 +602,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 200, places=places)
-        self.assertAlmostEqual(bbox.y, 175, places=places)
-        self.assertAlmostEqual(bbox.width, 800, places=places)
-        self.assertAlmostEqual(bbox.height, 250, places=places)
+        self.assertAlmostEqual(200, bbox.x, places=places)
+        self.assertAlmostEqual(175, bbox.y, places=places)
+        self.assertAlmostEqual(800, bbox.width, places=places)
+        self.assertAlmostEqual(250, bbox.height, places=places)
 
     def test_quad01_path01_length(self):
         # See also: quad01.html
@@ -614,7 +614,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 975.5421142578125  # firefox
         expected = 975.542724609375
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_quad01_path01_normalize(self):
         # See also: quad01.html
@@ -625,7 +625,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         expected = "M200,300" \
                    " C333.333,133.333 466.667,133.333 600,300" \
                    " 733.333,466.667 866.667,466.667 1000,300"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_quad01_path01_transform(self):
         # See also: quad01.html
@@ -636,7 +636,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M150,350 Q350,100 550,350 T950,350'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_quad01_path02_bbox(self):
         # See also: quad01.html
@@ -644,10 +644,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 200, places=places)
-        self.assertAlmostEqual(bbox.y, 175, places=places)
-        self.assertAlmostEqual(bbox.width, 400, places=places)
-        self.assertAlmostEqual(bbox.height, 125, places=places)
+        self.assertAlmostEqual(200, bbox.x, places=places)
+        self.assertAlmostEqual(175, bbox.y, places=places)
+        self.assertAlmostEqual(400, bbox.width, places=places)
+        self.assertAlmostEqual(125, bbox.height, places=places)
 
     def test_quad01_path02_length(self):
         # See also: quad01.html
@@ -656,7 +656,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 487.7709655761719  # firefox
         expected = 487.77130126953125
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_quad02_path01_bbox(self):
         # See also: quad02.html
@@ -664,10 +664,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 200, places=places)
-        self.assertAlmostEqual(bbox.y, 175, places=places)
-        self.assertAlmostEqual(bbox.width, 1200, places=places)
-        self.assertAlmostEqual(bbox.height, 250, places=places)
+        self.assertAlmostEqual(200, bbox.x, places=places)
+        self.assertAlmostEqual(175, bbox.y, places=places)
+        self.assertAlmostEqual(1200, bbox.width, places=places)
+        self.assertAlmostEqual(250, bbox.height, places=places)
 
     def test_quad02_path01_length(self):
         # See also: quad02.html
@@ -687,7 +687,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 1463.3150634765625  # firefox
         expected = 1463.3143310546875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_quad02_path01_normalize(self):
         # See also: quad02.html
@@ -710,7 +710,7 @@ class PathCurvetoTestCase(unittest.TestCase):
                    " C333.333,133.333 466.667,133.333 600,300" \
                    " 733.333,466.667 866.667,466.667 1000,300" \
                    " 1133.333,133.333 1266.667,133.333 1400,300"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_quad02_path01_transform(self):
         # See also: quad01.html
@@ -721,7 +721,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M150,350 Q350,100 550,350 T950,350 1350,350'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_quad02_path02_bbox(self):
         # See also: quad02.html
@@ -729,10 +729,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 200, places=places)
-        self.assertAlmostEqual(bbox.y, 175, places=places)
-        self.assertAlmostEqual(bbox.width, 1200, places=places)
-        self.assertAlmostEqual(bbox.height, 250, places=places)
+        self.assertAlmostEqual(200, bbox.x, places=places)
+        self.assertAlmostEqual(175, bbox.y, places=places)
+        self.assertAlmostEqual(1200, bbox.width, places=places)
+        self.assertAlmostEqual(250, bbox.height, places=places)
 
     def test_quad02_path02_length(self):
         # See also: quad02.html
@@ -741,7 +741,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 1463.3150634765625  # firefox
         expected = 1463.3143310546875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_quad02_path03_bbox(self):
         # See also: quad02.html
@@ -749,10 +749,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
         normalized = PathParser.normalize(path_data)
         bbox = PathParser.get_bbox(normalized)
-        self.assertAlmostEqual(bbox.x, 200, places=places)
-        self.assertAlmostEqual(bbox.y, 175, places=places)
-        self.assertAlmostEqual(bbox.width, 1200, places=places)
-        self.assertAlmostEqual(bbox.height, 250, places=places)
+        self.assertAlmostEqual(200, bbox.x, places=places)
+        self.assertAlmostEqual(175, bbox.y, places=places)
+        self.assertAlmostEqual(1200, bbox.width, places=places)
+        self.assertAlmostEqual(250, bbox.height, places=places)
 
     def test_quad02_path03_length(self):
         # See also: quad02.html
@@ -761,7 +761,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         n = PathParser.get_total_length(path_data)
         # expected = 1463.3150634765625  # firefox
         expected = 1463.3143310546875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_quad02_path03_normalize(self):
         # See also: quad02.html
@@ -773,7 +773,7 @@ class PathCurvetoTestCase(unittest.TestCase):
                    " C333.333,133.333 466.667,133.333 600,300" \
                    " 733.333,466.667 866.667,466.667 1000,300" \
                    " 1133.333,133.333 1266.667,133.333 1400,300"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_quad02_path03_transform(self):
         # See also: quad01.html
@@ -784,7 +784,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
         expected = 'M150,350 Q350,100 550,350 T950,350 1350,350'
-        self.assertEqual(d2, expected)
+        self.assertEqual(expected, d2)
 
     def test_segment_curveto_abs(self):
         # See also: cubic01.html
@@ -792,10 +792,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         # "M100,200 C100,100 250,100 250,200 S400,300 400,200"
         # "C100,100 250,100 250,200"
@@ -803,26 +803,26 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (100, 100, 250, 100, 250, 200))
-        self.assertEqual(segment.end, (250, 200))
+        self.assertEqual((100, 100, 250, 100, 250, 200), segment.values)
+        self.assertEqual((250, 200), segment.end)
         d = segment.tostring()
         expected = 'C100,100 250,100 250,200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment = SVGPathSegment()
         segment.set_curveto_abs(100, 100, 250, 100, 250, 200)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (100, 100, 250, 100, 250, 200))
-        self.assertEqual(segment.end, (250, 200))
+        self.assertEqual((100, 100, 250, 100, 250, 200), segment.values)
+        self.assertEqual((250, 200), segment.end)
         d = segment.tostring()
         expected = 'C100,100 250,100 250,200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment2 = PathSegment.normalize(segment, 100, 200, 0)[0]
         d = segment2.tostring()
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
     def test_segment_curveto_rel(self):
@@ -831,43 +831,43 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         # "m600,800 c25,-100 125,-100 150,0 s125,100 150,0"
         segment = SVGPathSegment('c', 25, -100, 125, -100, 150, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (25, -100, 125, -100, 150, 0))
-        self.assertEqual(segment.end, (150, 0))
+        self.assertEqual((25, -100, 125, -100, 150, 0), segment.values)
+        self.assertEqual((150, 0), segment.end)
         d = segment.tostring()
         expected = 'c25,-100 125,-100 150,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment = SVGPathSegment()
         segment.set_curveto_rel(25, -100, 125, -100, 150, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (25, -100, 125, -100, 150, 0))
-        self.assertEqual(segment.end, (150, 0))
+        self.assertEqual((25, -100, 125, -100, 150, 0), segment.values)
+        self.assertEqual((150, 0), segment.end)
         d = segment.tostring()
         expected = 'c25,-100 125,-100 150,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment2 = PathSegment.toabsolute(segment, 600, 800, 0)
         d = segment2.tostring()
         expected = 'C625,700 725,700 750,800'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
         segment2 = PathSegment.normalize(segment, 600, 800, 0)[0]
         d = segment2.tostring()
         expected = 'C625,700 725,700 750,800'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
     def test_segment_smooth_curveto_abs(self):
@@ -875,37 +875,37 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         # "S400,300 400,200"
         segment = SVGPathSegment('S', 400, 300, 400, 200)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (400, 300, 400, 200))
-        self.assertEqual(segment.end, (400, 200))
+        self.assertEqual((400, 300, 400, 200), segment.values)
+        self.assertEqual((400, 200), segment.end)
         d = segment.tostring()
         expected = 'S400,300 400,200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment = SVGPathSegment()
         segment.set_smooth_curveto_abs(400, 300, 400, 200)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (400, 300, 400, 200))
-        self.assertEqual(segment.end, (400, 200))
+        self.assertEqual((400, 300, 400, 200), segment.values)
+        self.assertEqual((400, 200), segment.end)
         d = segment.tostring()
         expected = 'S400,300 400,200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment2 = PathSegment.normalize(segment, 250, 200, 0)[0]
         d = segment2.tostring()
         expected = 'C250,200 400,300 400,200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
     def test_segment_smooth_curveto_rel(self):
@@ -913,42 +913,42 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         # "s125,100 150,0"
         segment = SVGPathSegment('s', 125, 100, 150, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (125, 100, 150, 0))
-        self.assertEqual(segment.end, (150, 0))
+        self.assertEqual((125, 100, 150, 0), segment.values)
+        self.assertEqual((150, 0), segment.end)
         d = segment.tostring()
         expected = 's125,100 150,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment = SVGPathSegment()
         segment.set_smooth_curveto_rel(125, 100, 150, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (125, 100, 150, 0))
-        self.assertEqual(segment.end, (150, 0))
+        self.assertEqual((125, 100, 150, 0), segment.values)
+        self.assertEqual((150, 0), segment.end)
         d = segment.tostring()
         expected = 's125,100 150,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment2 = PathSegment.toabsolute(segment, 750, 800, 0)
         d = segment2.tostring()
         expected = 'S875,900 900,800'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment2 = PathSegment.normalize(segment, 750, 800, 0)[0]
         d = segment2.tostring()
         expected = 'C750,800 875,900 900,800'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
         # x1=750+750-725=775
@@ -957,7 +957,7 @@ class PathCurvetoTestCase(unittest.TestCase):
                                          x1=775, y1=900)[0]
         d = segment2.tostring()
         expected = 'C775,900 875,900 900,800'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
     def test_segment_quadratic_curveto_abs(self):
@@ -966,10 +966,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         # "M200,300 Q400,50 600,300 T1000,300"
         # "Q400,50 600,300"
@@ -977,20 +977,20 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (400, 50, 600, 300))
-        self.assertEqual(segment.end, (600, 300))
+        self.assertEqual((400, 50, 600, 300), segment.values)
+        self.assertEqual((600, 300), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'Q400,50 600,300')
+        self.assertEqual('Q400,50 600,300', d)
 
         segment = SVGPathSegment()
         segment.set_quadratic_curveto_abs(400, 50, 600, 300)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (400, 50, 600, 300))
-        self.assertEqual(segment.end, (600, 300))
+        self.assertEqual((400, 50, 600, 300), segment.values)
+        self.assertEqual((600, 300), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'Q400,50 600,300')
+        self.assertEqual('Q400,50 600,300', d)
 
     def test_segment_quadratic_curveto_rel(self):
         # See also: quad01.html
@@ -998,10 +998,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         # "M200,300 Q400,50 600,300 T1000,300 1400,300"
         # "m200,300 q200,-250 400,0 t400,0 400,0"
@@ -1009,33 +1009,33 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (200, -250, 400, 0))
-        self.assertEqual(segment.end, (400, 0))
+        self.assertEqual((200, -250, 400, 0), segment.values)
+        self.assertEqual((400, 0), segment.end)
         d = segment.tostring()
         expected = 'q200,-250 400,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment = SVGPathSegment()
         segment.set_quadratic_curveto_rel(200, -250, 400, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (200, -250, 400, 0))
-        self.assertEqual(segment.end, (400, 0))
+        self.assertEqual((200, -250, 400, 0), segment.values)
+        self.assertEqual((400, 0), segment.end)
         d = segment.tostring()
         expected = 'q200,-250 400,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment2 = PathSegment.toabsolute(segment, 200, 300, 0)
         d = segment2.tostring()
         expected = 'Q400,50 600,300'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
         segment2 = PathSegment.normalize(segment, 200, 300, 0)[0]
         d = segment2.tostring()
         expected = 'C333.333,133.333 466.667,133.333 600,300'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
     def test_segment_smooth_quadratic_curveto_abs(self):
@@ -1043,10 +1043,10 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         # "M200,300 Q400,50 600,300 T1000,300"
         # "T1000,300"
@@ -1054,20 +1054,20 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (1000, 300))
-        self.assertEqual(segment.end, (1000, 300))
+        self.assertEqual((1000, 300), segment.values)
+        self.assertEqual((1000, 300), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'T1000,300')
+        self.assertEqual('T1000,300', d)
 
         segment = SVGPathSegment()
         segment.set_smooth_quadratic_curveto_abs(1000, 300)
         self.assertTrue(segment.isvalid())
         self.assertTrue(segment.isabsolute())
         self.assertTrue(not segment.isrelative())
-        self.assertEqual(segment.values, (1000, 300))
-        self.assertEqual(segment.end, (1000, 300))
+        self.assertEqual((1000, 300), segment.values)
+        self.assertEqual((1000, 300), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, 'T1000,300')
+        self.assertEqual('T1000,300', d)
 
         # "M200,300"
         # "C333.333,133.333 466.667,133.333 600,300"
@@ -1076,14 +1076,14 @@ class PathCurvetoTestCase(unittest.TestCase):
         segment2 = PathSegment.normalize(segment, 600, 300, 0)[0]
         d = segment2.tostring()
         expected = 'C600,300 733.333,300 1000,300'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
         segment2 = PathSegment.normalize(segment, 600, 300, 0,
                                          x1=800, y1=550)[0]
         d = segment2.tostring()
         expected = 'C733.333,466.667 866.667,466.667 1000,300'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
     def test_segment_smooth_quadratic_curveto_rel(self):
@@ -1092,36 +1092,36 @@ class PathCurvetoTestCase(unittest.TestCase):
         self.assertTrue(not segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, ())
-        self.assertEqual(segment.end, (None, None))
+        self.assertEqual((), segment.values)
+        self.assertEqual((None, None), segment.end)
         d = segment.tostring()
-        self.assertEqual(d, '')
+        self.assertEqual('', d)
 
         segment = SVGPathSegment('t', 400, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (400, 0))
-        self.assertEqual(segment.end, (400, 0))
+        self.assertEqual((400, 0), segment.values)
+        self.assertEqual((400, 0), segment.end)
         d = segment.tostring()
         expected = 't400,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment = SVGPathSegment()
         segment.set_smooth_quadratic_curveto_rel(400, 0)
         self.assertTrue(segment.isvalid())
         self.assertTrue(not segment.isabsolute())
         self.assertTrue(segment.isrelative())
-        self.assertEqual(segment.values, (400, 0))
-        self.assertEqual(segment.end, (400, 0))
+        self.assertEqual((400, 0), segment.values)
+        self.assertEqual((400, 0), segment.end)
         d = segment.tostring()
         expected = 't400,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         segment2 = PathSegment.toabsolute(segment, 600, 300, 0)
         d = segment2.tostring()
         expected = 'T1000,300'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
         # "m200,300 q200,-250 400,0 t400,0 400,0"
@@ -1131,14 +1131,14 @@ class PathCurvetoTestCase(unittest.TestCase):
         segment2 = PathSegment.normalize(segment, 600, 300, 0)[0]
         d = segment2.tostring()
         expected = 'C600,300 733.333,300 1000,300'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
         segment2 = PathSegment.normalize(segment, 600, 300, 0,
                                          x1=800, y1=550)[0]
         d = segment2.tostring()
         expected = 'C733.333,466.667 866.667,466.667 1000,300'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
         self.assertTrue(id(segment) != id(segment2))
 
 

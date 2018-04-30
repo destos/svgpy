@@ -468,24 +468,24 @@ class TextTestCase(unittest.TestCase):
         style = text.get_computed_style()
 
         expected = ['sans-serif']
-        self.assertEqual(style['font-family'], expected)
+        self.assertEqual(expected, style['font-family'])
 
-        self.assertEqual(style['font-style'], 'normal')
-        self.assertEqual(style['font-variant'], 'normal')
-        self.assertEqual(style['font-weight'], 400)
-        self.assertEqual(style['font-stretch'], 'normal')
+        self.assertEqual('normal', style['font-style'])
+        self.assertEqual('normal', style['font-variant'])
+        self.assertEqual(400, style['font-weight'])
+        self.assertEqual('normal', style['font-stretch'])
 
         # font-size: 12(pt) = 12(pt) * 4 / 3 = 16(px)
         expected = 12 * 4 / 3
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # line-height: 14(pt) = 14(pt) * 4 / 3 = 18.6666...(px)
         expected = 14 * 4 / 3
-        self.assertEqual(style['line-height'], expected)
+        self.assertEqual(expected, style['line-height'])
 
-        self.assertEqual(style['font-size-adjust'], 'none')
-        self.assertEqual(style['font-kerning'], 'auto')
-        self.assertEqual(style['font-language-override'], 'normal')
+        self.assertEqual('none', style['font-size-adjust'])
+        self.assertEqual('auto', style['font-kerning'])
+        self.assertEqual('normal', style['font-language-override'])
 
     def test_font_prop02(self):
         # 'font' property
@@ -511,24 +511,24 @@ class TextTestCase(unittest.TestCase):
         style = text.get_computed_style()
 
         expected = ['sans-serif']
-        self.assertEqual(style['font-family'], expected)
+        self.assertEqual(expected, style['font-family'])
 
-        self.assertEqual(style['font-style'], 'normal')
-        self.assertEqual(style['font-variant'], 'normal')
-        self.assertEqual(style['font-weight'], 400)
-        self.assertEqual(style['font-stretch'], 'normal')
+        self.assertEqual('normal', style['font-style'])
+        self.assertEqual('normal', style['font-variant'], )
+        self.assertEqual(400, style['font-weight'])
+        self.assertEqual('normal', style['font-stretch'])
 
         # font-size: 20(px) * 0.8 = 16(px)
         expected = 20 * 0.8
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # line-height: 16(px) * 1.2 = 19.2
         expected = 16 * 1.2
-        self.assertEqual(style['line-height'], expected)
+        self.assertEqual(expected, style['line-height'])
 
-        self.assertEqual(style['font-size-adjust'], 'none')
-        self.assertEqual(style['font-kerning'], 'auto')
-        self.assertEqual(style['font-language-override'], 'normal')
+        self.assertEqual('none', style['font-size-adjust'])
+        self.assertEqual('auto', style['font-kerning'])
+        self.assertEqual('normal', style['font-language-override'])
 
     def test_font_prop03(self):
         # 'font' property
@@ -555,25 +555,25 @@ class TextTestCase(unittest.TestCase):
         style = text.get_computed_style()
 
         expected = ['new century schoolbook', 'serif']
-        self.assertEqual(style['font-family'], expected)
+        self.assertEqual(expected, style['font-family'])
 
-        self.assertEqual(style['font-style'], 'normal')
-        self.assertEqual(style['font-variant'], 'normal')
-        self.assertEqual(style['font-weight'], 400)
-        self.assertEqual(style['font-stretch'], 'normal')
+        self.assertEqual('normal', style['font-style'])
+        self.assertEqual('normal', style['font-variant'])
+        self.assertEqual(400, style['font-weight'])
+        self.assertEqual('normal', style['font-stretch'])
 
         # default font size: 16(px)
         # font-size: x-large = 24(px)
         expected = 24
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # line-height: 24(px) * 1.10 = 26.4(px)
         expected = 24 * 1.1
-        self.assertEqual(style['line-height'], expected)
+        self.assertEqual(expected, style['line-height'])
 
-        self.assertEqual(style['font-size-adjust'], 'none')
-        self.assertEqual(style['font-kerning'], 'auto')
-        self.assertEqual(style['font-language-override'], 'normal')
+        self.assertEqual('none', style['font-size-adjust'])
+        self.assertEqual('auto', style['font-kerning'])
+        self.assertEqual('normal', style['font-language-override'])
 
     def test_font_prop04(self):
         # 'font' property
@@ -599,30 +599,30 @@ class TextTestCase(unittest.TestCase):
         style = text.get_computed_style()
 
         expected = ['Palatino', 'serif']
-        self.assertEqual(style['font-family'], expected)
+        self.assertEqual(expected, style['font-family'])
 
         # font-style: italic
-        self.assertEqual(style['font-style'], 'italic')
+        self.assertEqual('italic', style['font-style'])
 
-        self.assertEqual(style['font-variant'], 'normal')
+        self.assertEqual('normal', style['font-variant'])
 
         # font-weight: bold = 700
-        self.assertEqual(style['font-weight'], 700)
+        self.assertEqual(700, style['font-weight'])
 
-        self.assertEqual(style['font-stretch'], 'normal')
+        self.assertEqual('normal', style['font-stretch'])
 
         # default font size: 16(px)
         # font-size: large = 18(px)
         expected = 18
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # line-height: 18(px) * 1.2 = 21.6(px)
         expected = 18 * 1.2
-        self.assertEqual(style['line-height'], expected)
+        self.assertEqual(expected, style['line-height'])
 
-        self.assertEqual(style['font-size-adjust'], 'none')
-        self.assertEqual(style['font-kerning'], 'auto')
-        self.assertEqual(style['font-language-override'], 'normal')
+        self.assertEqual('none', style['font-size-adjust'])
+        self.assertEqual('auto', style['font-kerning'])
+        self.assertEqual('normal', style['font-language-override'])
 
     def test_font_prop05(self):
         # 'font' property
@@ -648,24 +648,24 @@ class TextTestCase(unittest.TestCase):
         style = text.get_computed_style()
 
         expected = ['fantasy']
-        self.assertEqual(style['font-family'], expected)
+        self.assertEqual(expected, style['font-family'])
 
-        self.assertEqual(style['font-style'], 'normal')
-        self.assertEqual(style['font-variant'], 'small-caps')
-        self.assertEqual(style['font-weight'], 400)
-        self.assertEqual(style['font-stretch'], 'normal')
+        self.assertEqual('normal', style['font-style'])
+        self.assertEqual('small-caps', style['font-variant'])
+        self.assertEqual(400, style['font-weight'])
+        self.assertEqual('normal', style['font-stretch'])
 
         # font-size: 20(px) * 1.2 = 24(px)
         expected = 20 * 1.2
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # line-height: 24(px) * 1.2 = 28.8(px)
         expected = 24 * 1.2
-        self.assertEqual(style['line-height'], expected)
+        self.assertEqual(expected, style['line-height'])
 
-        self.assertEqual(style['font-size-adjust'], 'none')
-        self.assertEqual(style['font-kerning'], 'auto')
-        self.assertEqual(style['font-language-override'], 'normal')
+        self.assertEqual('none', style['font-size-adjust'])
+        self.assertEqual('auto', style['font-kerning'])
+        self.assertEqual('normal', style['font-language-override'])
 
     def test_font_prop06(self):
         # 'font' property
@@ -692,24 +692,24 @@ class TextTestCase(unittest.TestCase):
         style = text.get_computed_style()
 
         expected = ['Helvetica Neue', 'serif']
-        self.assertEqual(style['font-family'], expected)
+        self.assertEqual(expected, style['font-family'])
 
-        self.assertEqual(style['font-style'], 'oblique')
-        self.assertEqual(style['font-variant'], 'normal')
-        self.assertEqual(style['font-weight'], 400)
-        self.assertEqual(style['font-stretch'], 'condensed')
+        self.assertEqual('oblique', style['font-style'])
+        self.assertEqual('normal', style['font-variant'])
+        self.assertEqual(400, style['font-weight'])
+        self.assertEqual('condensed', style['font-stretch'])
 
         # font-size: 12(pt) = 12 * 4 / 3 = 16(px)
         expected = 12 * 4 / 3
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # line-height: 16(px) * 1.2 = 19.2(px)
         expected = 16 * 1.2
-        self.assertEqual(style['line-height'], expected)
+        self.assertEqual(expected, style['line-height'])
 
-        self.assertEqual(style['font-size-adjust'], 'none')
-        self.assertEqual(style['font-kerning'], 'auto')
-        self.assertEqual(style['font-language-override'], 'normal')
+        self.assertEqual('none', style['font-size-adjust'])
+        self.assertEqual('auto', style['font-kerning'])
+        self.assertEqual('normal', style['font-language-override'])
         # text = '100 "new century schoolbook", serif'
         # text = '100 "new century schoolbook",serif'
         # text = '"new century schoolbook", serif'
@@ -732,31 +732,31 @@ class TextTestCase(unittest.TestCase):
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'x-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 13)
+        self.assertEqual(13, style['font-size'])
 
         text.attributes.set('font-size', 'medium')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 16)
+        self.assertEqual(16, style['font-size'])
 
         text.attributes.set('font-size', 'large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 18)
+        self.assertEqual(18, style['font-size'])
 
         text.attributes.set('font-size', 'x-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 24)
+        self.assertEqual(24, style['font-size'])
 
         text.attributes.set('font-size', 'xx-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 32)
+        self.assertEqual(32, style['font-size'])
 
     def test_font_size_prop02(self):
         # 'font-size' property: absolute-size
@@ -769,31 +769,31 @@ class TextTestCase(unittest.TestCase):
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'x-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'medium')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 11)
+        self.assertEqual(11, style['font-size'])
 
         text.attributes.set('font-size', 'x-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 14)
+        self.assertEqual(14, style['font-size'])
 
         text.attributes.set('font-size', 'xx-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 18)
+        self.assertEqual(18, style['font-size'])
 
     def test_font_size_prop03(self):
         # 'font-size' property: absolute-size
@@ -806,31 +806,31 @@ class TextTestCase(unittest.TestCase):
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'x-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 10)
+        self.assertEqual(10, style['font-size'])
 
         text.attributes.set('font-size', 'medium')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 12)
+        self.assertEqual(12, style['font-size'])
 
         text.attributes.set('font-size', 'large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 14)
+        self.assertEqual(14, style['font-size'])
 
         text.attributes.set('font-size', 'x-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 18)
+        self.assertEqual(18, style['font-size'])
 
         text.attributes.set('font-size', 'xx-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 24)
+        self.assertEqual(24, style['font-size'])
 
     def test_font_size_prop04(self):
         # 'font-size' property: absolute-size
@@ -843,31 +843,31 @@ class TextTestCase(unittest.TestCase):
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 12)
+        self.assertEqual(12, style['font-size'])
 
         text.attributes.set('font-size', 'x-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 15)
+        self.assertEqual(15, style['font-size'])
 
         text.attributes.set('font-size', 'small')
         style = text.get_computed_style()  # 17.7777...
-        self.assertAlmostEqual(style['font-size'], 17.8, places=places)
+        self.assertAlmostEqual(17.8, style['font-size'], places=places)
 
         text.attributes.set('font-size', 'medium')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 20)
+        self.assertEqual(20, style['font-size'])
 
         text.attributes.set('font-size', 'large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 24)
+        self.assertEqual(24, style['font-size'])
 
         text.attributes.set('font-size', 'x-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 30)
+        self.assertEqual(30, style['font-size'])
 
         text.attributes.set('font-size', 'xx-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 40)
+        self.assertEqual(40, style['font-size'])
 
     def test_font_size_prop05(self):
         # 'font-size' property: absolute-size
@@ -880,31 +880,31 @@ class TextTestCase(unittest.TestCase):
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-size'], 14.4)
+        self.assertAlmostEqual(14.4, style['font-size'])
 
         text.attributes.set('font-size', 'x-small')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 18)
+        self.assertEqual(18, style['font-size'])
 
         text.attributes.set('font-size', 'small')
         style = text.get_computed_style()  # 21.3333...
-        self.assertAlmostEqual(style['font-size'], 21.36, places=places)
+        self.assertAlmostEqual(21.36, style['font-size'], places=places)
 
         text.attributes.set('font-size', 'medium')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 24)
+        self.assertEqual(24, style['font-size'])
 
         text.attributes.set('font-size', 'large')
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-size'], 28.8)
+        self.assertAlmostEqual(28.8, style['font-size'])
 
         text.attributes.set('font-size', 'x-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 36)
+        self.assertEqual(36, style['font-size'])
 
         text.attributes.set('font-size', 'xx-large')
         style = text.get_computed_style()
-        self.assertEqual(style['font-size'], 48)
+        self.assertEqual(48, style['font-size'])
 
     def test_font_size_prop06(self):
         # 'font-size' property: relative-size
@@ -917,14 +917,14 @@ class TextTestCase(unittest.TestCase):
         group = root.get_element_by_id('g01')
         style = group.get_computed_style()
         expected = 10
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # <g font-size="10">
         # <g font-size="larger">
         text = root.get_element_by_id('text-larger01')
         style = text.get_computed_style()
         expected *= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="10">
         # <g font-size="larger">
@@ -932,7 +932,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-larger02')
         style = text.get_computed_style()
         expected *= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="10">
         # <g font-size="larger">
@@ -941,7 +941,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-larger03')
         style = text.get_computed_style()
         expected *= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="10">
         # <g font-size="larger">
@@ -951,7 +951,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-larger04')
         style = text.get_computed_style()
         expected *= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="10">
         # <g font-size="larger">
@@ -962,7 +962,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-larger05')
         style = text.get_computed_style()
         expected *= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="10">
         # <g font-size="larger">
@@ -974,7 +974,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-larger06')
         style = text.get_computed_style()
         expected *= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="10">
         # <g font-size="larger">
@@ -987,7 +987,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-larger07')
         style = text.get_computed_style()
         expected *= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
     def test_font_size_prop07(self):
         # 'font-size' property: relative-size
@@ -1000,14 +1000,14 @@ class TextTestCase(unittest.TestCase):
         group = root.get_element_by_id('g02')
         style = group.get_computed_style()
         expected = 36
-        self.assertEqual(style['font-size'], expected)
+        self.assertEqual(expected, style['font-size'])
 
         # <g font-size="36">
         # <g font-size="smaller">
         text = root.get_element_by_id('text-smaller01')
         style = text.get_computed_style()
         expected /= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="36">
         # <g font-size="smaller">
@@ -1015,7 +1015,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-smaller02')
         style = text.get_computed_style()
         expected /= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="36">
         # <g font-size="smaller">
@@ -1024,7 +1024,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-smaller03')
         style = text.get_computed_style()
         expected /= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="36">
         # <g font-size="smaller">
@@ -1034,7 +1034,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-smaller04')
         style = text.get_computed_style()
         expected /= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="36">
         # <g font-size="smaller">
@@ -1045,7 +1045,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-smaller05')
         style = text.get_computed_style()
         expected /= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="36">
         # <g font-size="smaller">
@@ -1057,7 +1057,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-smaller06')
         style = text.get_computed_style()
         expected /= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
         # <g font-size="36">
         # <g font-size="smaller">
@@ -1070,7 +1070,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-smaller07')
         style = text.get_computed_style()
         expected /= 1.2
-        self.assertAlmostEqual(style['font-size'], expected)
+        self.assertAlmostEqual(expected, style['font-size'])
 
     def test_font_variant_prop00(self):
         # font-variant: normal
@@ -1080,13 +1080,13 @@ class TextTestCase(unittest.TestCase):
         text = group.make_sub_element('text')
 
         style = text.get_computed_style()
-        self.assertEqual(style['font-variant'], 'normal')
-        self.assertEqual(style['font-variant-alternates'], ['normal'])
-        self.assertEqual(style['font-variant-caps'], 'normal')
-        self.assertEqual(style['font-variant-east-asian'], ['normal'])
-        self.assertEqual(style['font-variant-ligatures'], ['normal'])
-        self.assertEqual(style['font-variant-numeric'], ['normal'])
-        self.assertEqual(style['font-variant-position'], 'normal')
+        self.assertEqual('normal', style['font-variant'])
+        self.assertEqual(['normal'], style['font-variant-alternates'])
+        self.assertEqual('normal', style['font-variant-caps'])
+        self.assertEqual(['normal'], style['font-variant-east-asian'])
+        self.assertEqual(['normal'], style['font-variant-ligatures'])
+        self.assertEqual(['normal'], style['font-variant-numeric'])
+        self.assertEqual('normal', style['font-variant-position'])
 
     def test_font_variant_prop01(self):
         # font-variant: normal
@@ -1099,13 +1099,13 @@ class TextTestCase(unittest.TestCase):
         })
 
         style = text.get_computed_style()
-        self.assertEqual(style['font-variant'], 'normal')
-        self.assertEqual(style['font-variant-alternates'], ['normal'])
-        self.assertEqual(style['font-variant-caps'], 'normal')
-        self.assertEqual(style['font-variant-east-asian'], ['normal'])
-        self.assertEqual(style['font-variant-ligatures'], ['normal'])
-        self.assertEqual(style['font-variant-numeric'], ['normal'])
-        self.assertEqual(style['font-variant-position'], 'normal')
+        self.assertEqual('normal', style['font-variant'])
+        self.assertEqual(['normal'], style['font-variant-alternates'])
+        self.assertEqual('normal', style['font-variant-caps'])
+        self.assertEqual(['normal'], style['font-variant-east-asian'])
+        self.assertEqual(['normal'], style['font-variant-ligatures'])
+        self.assertEqual(['normal'], style['font-variant-numeric'])
+        self.assertEqual('normal', style['font-variant-position'])
 
     def test_font_variant_prop02(self):
         # font-variant: none
@@ -1118,13 +1118,13 @@ class TextTestCase(unittest.TestCase):
         })
 
         style = text.get_computed_style()
-        self.assertEqual(style['font-variant'], 'none')
-        self.assertEqual(style['font-variant-alternates'], ['normal'])
-        self.assertEqual(style['font-variant-caps'], 'normal')
-        self.assertEqual(style['font-variant-east-asian'], ['normal'])
-        self.assertEqual(style['font-variant-ligatures'], ['none'])
-        self.assertEqual(style['font-variant-numeric'], ['normal'])
-        self.assertEqual(style['font-variant-position'], 'normal')
+        self.assertEqual('none', style['font-variant'])
+        self.assertEqual(['normal'], style['font-variant-alternates'])
+        self.assertEqual('normal', style['font-variant-caps'])
+        self.assertEqual(['normal'], style['font-variant-east-asian'])
+        self.assertEqual(['none'], style['font-variant-ligatures'])
+        self.assertEqual(['normal'], style['font-variant-numeric'])
+        self.assertEqual('normal', style['font-variant-position'])
 
     def test_font_variant_prop03(self):
         # font-variant: ...
@@ -1143,23 +1143,25 @@ class TextTestCase(unittest.TestCase):
 
         style = text.get_computed_style()
         # self.assertEqual(style['font-variant'], 'none')
-        self.assertEqual(style['font-variant-alternates'],
-                         ['historical-forms'],
+        self.assertEqual(['historical-forms'],
+                         style['font-variant-alternates'],
                          msg='font-variant-alternates')
-        self.assertEqual(style['font-variant-caps'], 'all-small-caps',
+        self.assertEqual('all-small-caps',
+                         style['font-variant-caps'],
                          msg='font-variant-caps')
-        self.assertEqual(style['font-variant-east-asian'],
-                         ['traditional', 'proportional-width', 'ruby'],
+        self.assertEqual(['traditional', 'proportional-width', 'ruby'],
+                         style['font-variant-east-asian'],
                          msg='font-variant-east-asian')
-        self.assertEqual(style['font-variant-ligatures'],
-                         ['common-ligatures', 'discretionary-ligatures',
+        self.assertEqual(['common-ligatures', 'discretionary-ligatures',
                           'historical-ligatures', 'contextual'],
+                         style['font-variant-ligatures'],
                          msg='font-variant-ligatures')
-        self.assertEqual(style['font-variant-numeric'],
-                         ['lining-nums', 'proportional-nums',
+        self.assertEqual(['lining-nums', 'proportional-nums',
                           'diagonal-fractions', 'ordinal', 'slashed-zero'],
+                         style['font-variant-numeric'],
                          msg='font-variant-numeric')
-        self.assertEqual(style['font-variant-position'], 'super',
+        self.assertEqual('super',
+                         style['font-variant-position'],
                          msg='font-variant-position')
 
     def test_font_variant_prop04(self):
@@ -1177,13 +1179,13 @@ class TextTestCase(unittest.TestCase):
         })
 
         style = text.get_computed_style()
-        self.assertEqual(style['font-variant'], 'small-caps')
-        self.assertEqual(style['font-variant-alternates'], ['normal'])
-        self.assertEqual(style['font-variant-caps'], 'small-caps')
-        self.assertEqual(style['font-variant-east-asian'], ['normal'])
-        self.assertEqual(style['font-variant-ligatures'], ['normal'])
-        self.assertEqual(style['font-variant-numeric'], ['normal'])
-        self.assertEqual(style['font-variant-position'], 'normal')
+        self.assertEqual('small-caps', style['font-variant'])
+        self.assertEqual(['normal'], style['font-variant-alternates'])
+        self.assertEqual('small-caps', style['font-variant-caps'])
+        self.assertEqual(['normal'], style['font-variant-east-asian'])
+        self.assertEqual(['normal'], style['font-variant-ligatures'])
+        self.assertEqual(['normal'], style['font-variant-numeric'])
+        self.assertEqual('normal', style['font-variant-position'])
 
     def test_font_variant_prop05(self):
         # font: small-caps 16px serif
@@ -1200,14 +1202,14 @@ class TextTestCase(unittest.TestCase):
         })
 
         style = text.get_computed_style()
-        self.assertEqual(style['font-variant'], 'small-caps')
-        self.assertEqual(style['font-variant-alternates'], ['normal'])
-        self.assertEqual(style['font-variant-caps'], 'small-caps')
-        self.assertEqual(style['font-variant-east-asian'],
-                         ['jis78', 'proportional-width'])
-        self.assertEqual(style['font-variant-ligatures'], ['normal'])
-        self.assertEqual(style['font-variant-numeric'], ['normal'])
-        self.assertEqual(style['font-variant-position'], 'normal')
+        self.assertEqual('small-caps', style['font-variant'])
+        self.assertEqual(['normal'], style['font-variant-alternates'])
+        self.assertEqual('small-caps', style['font-variant-caps'])
+        self.assertEqual(['jis78', 'proportional-width'],
+                         style['font-variant-east-asian'])
+        self.assertEqual(['normal'], style['font-variant-ligatures'])
+        self.assertEqual(['normal'], style['font-variant-numeric'])
+        self.assertEqual('normal', style['font-variant-position'])
 
     def test_font_weight_prop01(self):
         # 'font-weight' property
@@ -1220,14 +1222,14 @@ class TextTestCase(unittest.TestCase):
         # <g font-weight="100">
         group = root.get_element_by_id('g01')
         style = group.get_computed_style()
-        self.assertEqual(style['font-weight'], 100)
+        self.assertEqual(100, style['font-weight'])
 
         # <g font-weight="100">
         # <g font-weight="bolder">
         text = root.get_element_by_id('text-bolder01')
         # 100 -> 400
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 400)
+        self.assertAlmostEqual(400, style['font-weight'])
 
         # <g font-weight="100">
         # <g font-weight="bolder">
@@ -1235,7 +1237,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-bolder02')
         # 100 -> 400 -> 700
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 700)
+        self.assertAlmostEqual(700, style['font-weight'])
 
         # <g font-weight="100">
         # <g font-weight="bolder">
@@ -1244,7 +1246,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-bolder03')
         # 100 -> 400 -> 700 -> 900
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 900)
+        self.assertAlmostEqual(900, style['font-weight'])
 
         # <g font-weight="100">
         # <g font-weight="bolder">
@@ -1254,7 +1256,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-bolder04')
         # 100 -> 400 -> 700 -> 900 -> 900
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 900)
+        self.assertAlmostEqual(900, style['font-weight'])
 
     def test_font_weight_prop02(self):
         # 'font-weight' property
@@ -1267,14 +1269,14 @@ class TextTestCase(unittest.TestCase):
         # <g font-weight="900">
         group = root.get_element_by_id('g02')
         style = group.get_computed_style()
-        self.assertEqual(style['font-weight'], 900)
+        self.assertEqual(900, style['font-weight'])
 
         # <g font-weight="900">
         # <g font-weight="lighter">
         text = root.get_element_by_id('text-lighter01')
         # 900 -> 700
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 700)
+        self.assertAlmostEqual(700, style['font-weight'])
 
         # <g font-weight="900">
         # <g font-weight="lighter">
@@ -1282,7 +1284,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-lighter02')
         # 900 -> 700 -> 400
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 400)
+        self.assertAlmostEqual(400, style['font-weight'])
 
         # <g font-weight="900">
         # <g font-weight="lighter">
@@ -1291,7 +1293,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-lighter03')
         # 900 -> 700 -> 400 > 100
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 100)
+        self.assertAlmostEqual(100, style['font-weight'])
 
         # <g font-weight="900">
         # <g font-weight="lighter">
@@ -1301,7 +1303,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('text-lighter04')
         # 900 -> 700 -> 400 > 100 > 100
         style = text.get_computed_style()
-        self.assertAlmostEqual(style['font-weight'], 100)
+        self.assertAlmostEqual(100, style['font-weight'])
 
     def test_get_bbox_tspan01(self):
         # See also: tspan01.html
@@ -1315,10 +1317,10 @@ class TextTestCase(unittest.TestCase):
         y = 119.813
         width = 538.531
         height = 75.219
-        self.assertAlmostEqual(bbox.x, x, delta=delta)
-        self.assertAlmostEqual(bbox.y, y, delta=delta)
-        self.assertAlmostEqual(bbox.width, width, delta=delta)
-        self.assertAlmostEqual(bbox.height, height, delta=delta)
+        self.assertAlmostEqual(x, bbox.x, delta=delta)
+        self.assertAlmostEqual(y, bbox.y, delta=delta)
+        self.assertAlmostEqual(width, bbox.width, delta=delta)
+        self.assertAlmostEqual(height, bbox.height, delta=delta)
 
     def test_get_bbox_tspan04(self):
         # See also: tspan04.html
@@ -1332,10 +1334,10 @@ class TextTestCase(unittest.TestCase):
         y = 85.781
         width = 473.547
         height = 93.094
-        self.assertAlmostEqual(bbox.x, x, delta=delta)
-        self.assertAlmostEqual(bbox.y, y, delta=delta)  # 86 vs. 85
-        self.assertAlmostEqual(bbox.width, width, delta=delta)
-        self.assertAlmostEqual(bbox.height, height, delta=delta)
+        self.assertAlmostEqual(x, bbox.x, delta=delta)
+        self.assertAlmostEqual(y, bbox.y, delta=delta)  # 86 vs. 85
+        self.assertAlmostEqual(width, bbox.width, delta=delta)
+        self.assertAlmostEqual(height, bbox.height, delta=delta)
 
     def test_get_bbox_tspan05(self):
         # See also: tspan05.html
@@ -1349,10 +1351,10 @@ class TextTestCase(unittest.TestCase):
         y = 4.188
         width = 505.563
         height = 106.594
-        self.assertAlmostEqual(bbox.x, x, delta=delta)
-        self.assertAlmostEqual(bbox.y, y, delta=delta)
-        self.assertAlmostEqual(bbox.width, width, delta=delta)
-        self.assertAlmostEqual(bbox.height, height, delta=delta)
+        self.assertAlmostEqual(x, bbox.x, delta=delta)
+        self.assertAlmostEqual(y, bbox.y, delta=delta)
+        self.assertAlmostEqual(width, bbox.width, delta=delta)
+        self.assertAlmostEqual(height, bbox.height, delta=delta)
 
     def test_get_computed_text_length_tspan04(self):
         # See also: tspan04.html
@@ -1363,7 +1365,7 @@ class TextTestCase(unittest.TestCase):
 
         length = text.get_computed_text_length()  # 427.46875
         expected = 428.52801513671875
-        self.assertAlmostEqual(length, expected, delta=delta)
+        self.assertAlmostEqual(expected, length, delta=delta)
 
     def test_get_computed_text_length_tspan05(self):
         # See also: tspan05.html
@@ -1374,7 +1376,7 @@ class TextTestCase(unittest.TestCase):
 
         length = text.get_computed_text_length()  # 866.671875
         expected = 867.9374389648438
-        self.assertAlmostEqual(length, expected, delta=delta)
+        self.assertAlmostEqual(expected, length, delta=delta)
 
     def test_get_number_of_chars_tspan01(self):
         # SVGTextContentElement#getNumberOfChars()
@@ -1387,11 +1389,11 @@ class TextTestCase(unittest.TestCase):
 
         # chars = text.get_chars()
         # expected = 'Hello, out there!'
-        # self.assertEqual(chars, expected)
+        # self.assertEqual(expected, chars)
 
         n = text.get_number_of_chars()
         expected = 17
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_get_number_of_chars_tspan01_02(self):
         # SVGTextContentElement#getNumberOfChars()
@@ -1404,11 +1406,11 @@ class TextTestCase(unittest.TestCase):
 
         # chars = text.get_chars()
         # expected = 'You are not a banana.'
-        # self.assertEqual(chars, expected)
+        # self.assertEqual(expected, chars)
 
         n = text.get_number_of_chars()
         expected = 21
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_get_number_of_chars_tspan01_02_01(self):
         # SVGTextContentElement#getNumberOfChars()
@@ -1421,11 +1423,11 @@ class TextTestCase(unittest.TestCase):
 
         # chars = text.get_chars()
         # expected = 'not '
-        # self.assertEqual(chars, expected)
+        # self.assertEqual(expected, chars)
 
         n = text.get_number_of_chars()
         expected = 4
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_get_number_of_chars_tspan01_03(self):
         # SVGTextContentElement#getNumberOfChars()
@@ -1438,11 +1440,11 @@ class TextTestCase(unittest.TestCase):
 
         # chars = text.get_chars()
         # expected = 'But you are a peach!'
-        # self.assertEqual(chars, expected)
+        # self.assertEqual(expected, chars)
 
         n = text.get_number_of_chars()
         expected = 20
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_get_number_of_chars_tspan01_03_01(self):
         # SVGTextContentElement#getNumberOfChars()
@@ -1455,11 +1457,11 @@ class TextTestCase(unittest.TestCase):
 
         # chars = text.get_chars()
         # expected = 'are '
-        # self.assertEqual(chars, expected)
+        # self.assertEqual(expected, chars)
 
         n = text.get_number_of_chars()
         expected = 4
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_get_number_of_chars_tspan01_03_02(self):
         # SVGTextContentElement#getNumberOfChars()
@@ -1472,11 +1474,11 @@ class TextTestCase(unittest.TestCase):
 
         # chars = text.get_chars()
         # expected = 'a peach!'
-        # self.assertEqual(chars, expected)
+        # self.assertEqual(expected, chars)
 
         n = text.get_number_of_chars()
         expected = 8
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_get_number_of_chars_tspan05(self):
         # See also: tspan05.html
@@ -1488,11 +1490,11 @@ class TextTestCase(unittest.TestCase):
 
         # chars = text.get_chars()
         # expected = 'a peach!'
-        # self.assertEqual(chars, expected)
+        # self.assertEqual(expected, chars)
 
         n = text.get_number_of_chars()
         expected = 56
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def _test_get_path_data00(self):
         parser = SVGParser()
@@ -1637,7 +1639,7 @@ class TextTestCase(unittest.TestCase):
             " 777.53,181 775.81,181 774.03,181 772.84,179.84 771.66,178.69" \
             " 771.66,177.02 M771.78,133 L779.84,133 777.72,159.02" \
             " 777.72,167 773.88,167 773.88,159.02 771.78,133"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     # @unittest.expectedFailure
     def test_get_path_data_tspan01_02(self):
@@ -1798,7 +1800,7 @@ class TextTestCase(unittest.TestCase):
             " 873.09,173 874.31,174.17 875.53,175.34 875.53,177.02" \
             " 875.53,178.66 874.31,179.83 873.09,181 871.38,181 869.59,181" \
             " 868.41,179.84 867.22,178.69 867.22,177.02"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     # @unittest.expectedFailure
     def test_get_path_data_tspan01_03(self):
@@ -1953,7 +1955,7 @@ class TextTestCase(unittest.TestCase):
             " 902.19,231 900.41,231 899.22,229.84 898.03,228.69" \
             " 898.03,227.02 M898.16,183 L906.22,183 904.09,209.02" \
             " 904.09,217 900.25,217 900.25,209.02 898.16,183"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     # @unittest.expectedFailure
     def test_get_path_data_tspan04(self):
@@ -2051,7 +2053,7 @@ class TextTestCase(unittest.TestCase):
             " Q677.11,143.8 676.41,140.56 675.72,137.34 672.55,135.52" \
             " 668.98,133.45 665.64,134.27 662.3,135.08 659.83,138.59" \
             " L675.09,147.39"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     # @unittest.expectedFailure
     def test_get_path_data_tspan05(self):
@@ -2400,7 +2402,7 @@ class TextTestCase(unittest.TestCase):
             " 508.55,84.42 506.08,86.14 Q507.91,86.12 509.31,86.84" \
             " 510.73,87.56 511.78,89.06 513.52,91.53 512.89,93.84" \
             " 512.27,96.17 509.33,98.23"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_get_sub_string_length_tspan01_01(self):
         # See also: tspan01.html
@@ -2419,8 +2421,8 @@ class TextTestCase(unittest.TestCase):
         expected = [55.805, 37.870, 20.466, 20.466, 38.526, 20.341, 20.341,
                     38.526, 41.214, 25.716, 20.341, 25.716, 41.214, 37.870,
                     30.590, 37.870, 25.715]
-        for i, (a, e) in enumerate(zip(advances, expected)):
-            self.assertAlmostEqual(a, e, places=places, msg=i)
+        for i, (e, a) in enumerate(zip(expected, advances)):
+            self.assertAlmostEqual(e, a, places=places, msg=i)
 
     def test_get_sub_string_length_tspan01_02(self):
         # See also: tspan01.html
@@ -2439,8 +2441,8 @@ class TextTestCase(unittest.TestCase):
         expected = [36.682, 38.526, 41.214, 20.341, 38.151, 30.590, 37.870,
                     20.341, 46.525, 42.682, 29.559, 22.278, 38.151, 20.341,
                     40.964, 38.151, 41.214, 38.151, 41.214, 38.151, 20.341]
-        for i, (a, e) in enumerate(zip(advances, expected)):
-            self.assertAlmostEqual(a, e, places=places, msg=i)
+        for i, (e, a) in enumerate(zip(expected, advances)):
+            self.assertAlmostEqual(e, a, places=places, msg=i)
 
     def test_get_sub_string_length_tspan01_03(self):
         # See also: tspan01.html
@@ -2459,8 +2461,8 @@ class TextTestCase(unittest.TestCase):
         expected = [47.025, 41.214, 25.716, 20.341, 36.152, 38.526, 41.214,
                     20.341, 41.464, 33.715, 40.714, 22.278, 38.151, 20.341,
                     40.964, 37.870, 38.151, 35.839, 41.214, 25.716]
-        for i, (a, e) in enumerate(zip(advances, expected)):
-            self.assertAlmostEqual(a, e, places=places, msg=i)
+        for i, (e, a) in enumerate(zip(expected, advances)):
+            self.assertAlmostEqual(e, a, places=places, msg=i)
 
     def test_get_sub_string_length_tspan04(self):
         # See also: tspan04.html
@@ -2478,8 +2480,8 @@ class TextTestCase(unittest.TestCase):
         expected = [41.318, 33.806, 15.266, 15.266, 33.618, 17.466, 17.466,
                     33.618, 34.825, 21.544, 17.466, 21.544, 34.825, 33.806,
                     21.383, 33.806]
-        for i, (a, e) in enumerate(zip(advances, expected)):
-            self.assertAlmostEqual(a, e, places=places, msg=i)
+        for i, (e, a) in enumerate(zip(expected, advances)):
+            self.assertAlmostEqual(e, a, places=places, msg=i)
 
     def test_text_content01(self):
         # Node#nodeName
@@ -2496,148 +2498,148 @@ class TextTestCase(unittest.TestCase):
             elements.append(node)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'svg')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('svg', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'desc')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
+        self.assertEqual('desc', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
         expected = 'Example RotateScale - Rotate and scale transforms'
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, expected)
+        self.assertIsNone(node.node_value)
+        self.assertEqual(expected, node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'g')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('g', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, '#comment')
-        self.assertEqual(node.node_type, Node.COMMENT_NODE)
+        self.assertEqual('#comment', node.node_name)
+        self.assertEqual(Node.COMMENT_NODE, node.node_type)
         expected = " Draw the axes of the original coordinate system "
-        self.assertEqual(node.node_value, expected)
-        self.assertEqual(node.text_content, expected)
+        self.assertEqual(expected, node.node_value)
+        self.assertEqual(expected, node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'line')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('line', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'line')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('line', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, '#comment')
-        self.assertEqual(node.node_type, Node.COMMENT_NODE)
+        self.assertEqual('#comment', node.node_name)
+        self.assertEqual(Node.COMMENT_NODE, node.node_type)
         expected = """ Establish a new coordinate system whose origin is at (50,30)
          in the initial coord. system and which is rotated by 30 degrees. """
-        self.assertEqual(node.node_value, expected)
-        self.assertEqual(node.text_content, expected)
+        self.assertEqual(expected, node.node_value)
+        self.assertEqual(expected, node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'g')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('g', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'g')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('g', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'g')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('g', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'line')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('line', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'line')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('line', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'path')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('path', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'text')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
+        self.assertEqual('text', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
         expected = """
                 ABC (rotate)
             """
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, expected)
+        self.assertIsNone(node.node_value)
+        self.assertEqual(expected, node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, '#comment')
-        self.assertEqual(node.node_type, Node.COMMENT_NODE)
+        self.assertEqual('#comment', node.node_name)
+        self.assertEqual(Node.COMMENT_NODE, node.node_type)
         expected = """ Establish a new coordinate system whose origin is at (200,40)
          in the initial coord. system and which is scaled by 1.5. """
-        self.assertEqual(node.node_value, expected)
-        self.assertEqual(node.text_content, expected)
+        self.assertEqual(expected, node.node_value)
+        self.assertEqual(expected, node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'g')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('g', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'g')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('g', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'g')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('g', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'line')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('line', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'line')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('line', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'path')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, None)
+        self.assertEqual('path', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
+        self.assertIsNone(node.node_value)
+        self.assertIsNone(node.text_content)
 
         node = elements.pop(0)
-        self.assertEqual(node.node_name, 'text')
-        self.assertEqual(node.node_type, Node.ELEMENT_NODE)
+        self.assertEqual('text', node.node_name)
+        self.assertEqual(Node.ELEMENT_NODE, node.node_type)
         expected = """
                 ABC (scale)
             """
-        self.assertEqual(node.node_value, None)
-        self.assertEqual(node.text_content, expected)
+        self.assertIsNone(node.node_value)
+        self.assertEqual(expected, node.text_content)
 
     def test_text_content02(self):
         # Node#textContent
@@ -2650,7 +2652,7 @@ class TextTestCase(unittest.TestCase):
         expected = """
                 Hello, out there!
             """
-        self.assertEqual(text.text_content, expected)
+        self.assertEqual(expected, text.text_content)
 
     def test_text_content03(self):
         # Node#textContent
@@ -2666,7 +2668,7 @@ class TextTestCase(unittest.TestCase):
                 
                 a banana.
             """
-        self.assertEqual(text.text_content, expected)
+        self.assertEqual(expected, text.text_content)
 
     def test_text_content04(self):
         # Node#textContent
@@ -2678,7 +2680,7 @@ class TextTestCase(unittest.TestCase):
         text = root.get_element_by_id('tspan0201')
         expected = """not
                 """
-        self.assertEqual(text.text_content, expected)
+        self.assertEqual(expected, text.text_content)
 
     def test_text_content05(self):
         # Node#textContent
@@ -2697,7 +2699,7 @@ class TextTestCase(unittest.TestCase):
                     a peach!
                 
             """
-        self.assertEqual(text.text_content, expected)
+        self.assertEqual(expected, text.text_content)
 
     def test_text_content06(self):
         # Node#textContent
@@ -2710,7 +2712,7 @@ class TextTestCase(unittest.TestCase):
         expected = """
                     are
                 """
-        self.assertEqual(text.text_content, expected)
+        self.assertEqual(expected, text.text_content)
 
     def test_text_content07(self):
         # Node#textContent
@@ -2723,7 +2725,7 @@ class TextTestCase(unittest.TestCase):
         expected = """
                     a peach!
                 """
-        self.assertEqual(text.text_content, expected)
+        self.assertEqual(expected, text.text_content)
 
     def test_text_content08(self):
         # Node#textContent
@@ -2733,14 +2735,14 @@ class TextTestCase(unittest.TestCase):
         root = tree.getroot()
 
         text = root.get_element_by_id('text02')
-        self.assertEqual(len(text), 1)  # tspan
+        self.assertEqual(1, len(text))  # tspan
         self.assertTrue(len(text.attributes) > 0)
 
         expected = 'Hello World!'
         text.text_content = expected
-        self.assertEqual(len(text), 0)
+        self.assertEqual(0, len(text))
         self.assertTrue(len(text.attributes) > 0)
-        self.assertEqual(text.text_content, expected)
+        self.assertEqual(expected, text.text_content)
 
     def _test_rtl_text01(self):
         # bi-directional text
@@ -2951,7 +2953,7 @@ class TextTestCase(unittest.TestCase):
         out = CSSUtils.normalize_text_content(
             text, text.text, style, first=True, tail=True)
         expected = 'Hello there ＦＵＬＬ ＷＩＤＴＨﾊﾝ ｶｸ'
-        self.assertEqual(out, expected)
+        self.assertEqual(expected, out)
 
     def test_white_space_prop02(self):
         # See also: white-space.html
@@ -2967,7 +2969,7 @@ class TextTestCase(unittest.TestCase):
         out = CSSUtils.normalize_text_content(
             text, text.text, style, first=True, tail=True)
         expected = 'Hello there ＦＵＬＬ ＷＩＤＴＨﾊﾝ ｶｸ'
-        self.assertEqual(out, expected)
+        self.assertEqual(expected, out)
 
     def test_white_space_prop03(self):
         # See also: white-space.html
@@ -2983,7 +2985,7 @@ class TextTestCase(unittest.TestCase):
         out = CSSUtils.normalize_text_content(
             text, text.text, style, first=True, tail=True)
         expected = '\nHello there\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n    ﾊﾝ  ｶｸ\n'
-        self.assertEqual(out, expected)
+        self.assertEqual(expected, out)
 
     def test_white_space_prop04(self):
         # See also: white-space.html
@@ -2999,7 +3001,7 @@ class TextTestCase(unittest.TestCase):
         out = CSSUtils.normalize_text_content(
             text, text.text, style, first=True, tail=True)
         expected = '\nHello there\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n    ﾊﾝ  ｶｸ\n'
-        self.assertEqual(out, expected)
+        self.assertEqual(expected, out)
 
     def test_white_space_prop05(self):
         # See also: white-space.html
@@ -3015,7 +3017,7 @@ class TextTestCase(unittest.TestCase):
         out = CSSUtils.normalize_text_content(
             text, text.text, style, first=True, tail=True)
         expected = '\nHello there\nＦＵＬＬ ＷＩＤＴＨ\nﾊﾝ ｶｸ\n'
-        self.assertEqual(out, expected)
+        self.assertEqual(expected, out)
 
     def test_white_space_prop06(self):
         # See also: white-space.html
@@ -3031,7 +3033,7 @@ class TextTestCase(unittest.TestCase):
         out = CSSUtils.normalize_text_content(
             text, text.text, style, first=True, tail=True)
         expected = 'Hello there ＦＵＬＬ ＷＩＤＴＨﾊﾝ ｶｸ'
-        self.assertEqual(out, expected)
+        self.assertEqual(expected, out)
 
 
 if __name__ == '__main__':

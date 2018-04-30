@@ -88,10 +88,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect01(self):
         # invalid rectangle AND valid rectangle
@@ -106,10 +106,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = None
         expected_w = 0
         expected_h = 0
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect02(self):
         # left-upper
@@ -126,10 +126,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect03(self):
         # left-upper overlapped
@@ -146,10 +146,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w / 2
         expected_h = h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect04(self):
         # upper
@@ -166,10 +166,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect05(self):
         # upper overlapped
@@ -186,10 +186,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect06(self):
         # right-upper overlapped
@@ -206,10 +206,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w / 2
         expected_h = h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect07(self):
         # right-upper
@@ -226,10 +226,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect08(self):
         # left
@@ -246,10 +246,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect09(self):
         # left overlapped
@@ -266,10 +266,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w / 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect10(self):
         # same position
@@ -286,10 +286,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect11(self):
         # right overlapped
@@ -306,10 +306,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w / 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect12(self):
         # right
@@ -326,10 +326,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect13(self):
         # left-lower
@@ -346,10 +346,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect14(self):
         # left-lower overlapped
@@ -366,10 +366,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya + h / 2
         expected_w = w / 2
         expected_h = h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect15(self):
         # lower
@@ -386,10 +386,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect16(self):
         # lower overlapped
@@ -406,10 +406,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya + h / 2
         expected_w = w
         expected_h = h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect17(self):
         # right-lower overlapped
@@ -426,10 +426,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya + h / 2
         expected_w = w / 2
         expected_h = h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersect18(self):
         # right-lower
@@ -446,10 +446,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersected_invalid_invalid(self):
         a = Rect()
@@ -466,7 +466,7 @@ class RectTestCase(unittest.TestCase):
         self.assertTrue(not c.isvalid())
         self.assertTrue(a.isempty())
         self.assertTrue(not a.isvalid())
-        self.assertEqual((b.x, b.y, b.width, b.height), (30, 50, 100, 200))
+        self.assertEqual((30, 50, 100, 200), (b.x, b.y, b.width, b.height))
 
     def test_intersected_valid_invalid(self):
         a = Rect(30, 50, 100, 200)
@@ -474,8 +474,8 @@ class RectTestCase(unittest.TestCase):
         c = a.intersect(b)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
-        self.assertEqual((c.x, c.y, c.width, c.height), (30, 50, 100, 200))
-        self.assertEqual((a.x, a.y, a.width, a.height), (30, 50, 100, 200))
+        self.assertEqual((30, 50, 100, 200), (c.x, c.y, c.width, c.height))
+        self.assertEqual((30, 50, 100, 200), (a.x, a.y, a.width, a.height))
         self.assertTrue(b.isempty())
         self.assertTrue(not b.isvalid())
 
@@ -493,10 +493,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point02(self):
         # upper-left
@@ -512,10 +512,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point03(self):
         # upper-right
@@ -531,10 +531,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point04(self):
         # right-upper
@@ -550,10 +550,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point05(self):
         # left
@@ -569,10 +569,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point06(self):
         # center
@@ -588,10 +588,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point07(self):
         # right
@@ -607,10 +607,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point08(self):
         # left-lower
@@ -626,10 +626,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point09(self):
         # lower-left
@@ -645,10 +645,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point10(self):
         # lower
@@ -664,10 +664,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point11(self):
         # lower-right
@@ -683,10 +683,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_point12(self):
         # right-lower
@@ -702,10 +702,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, c))
-        self.assertEqual(c.y, expected_y, msg=(a, c))
-        self.assertEqual(c.width, expected_w, msg=(a, c))
-        self.assertEqual(c.height, expected_h, msg=(a, c))
+        self.assertEqual(expected_x, c.x, msg=(a, c))
+        self.assertEqual(expected_y, c.y, msg=(a, c))
+        self.assertEqual(expected_w, c.width, msg=(a, c))
+        self.assertEqual(expected_h, c.height, msg=(a, c))
 
     def test_unite_rect01(self):
         # left-upper
@@ -722,10 +722,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w * 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect02(self):
         # left-upper overlapped
@@ -742,10 +742,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect03(self):
         # upper
@@ -762,10 +762,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w
         expected_h = h * 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect04(self):
         # upper overlapped
@@ -782,10 +782,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect05(self):
         # right-upper overlapped
@@ -802,10 +802,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect06(self):
         # right-upper
@@ -822,10 +822,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = yb
         expected_w = w * 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect07(self):
         # left
@@ -842,10 +842,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w * 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect08(self):
         # left overlapped
@@ -862,10 +862,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect09(self):
         # same position
@@ -882,10 +882,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect10(self):
         # right overlapped
@@ -902,10 +902,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect11(self):
         # right
@@ -922,10 +922,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w * 2
         expected_h = h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect12(self):
         # left-lower
@@ -942,10 +942,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w * 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect13(self):
         # left-lower overlapped
@@ -962,10 +962,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect14(self):
         # lower overlapped
@@ -982,10 +982,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect15(self):
         # lower
@@ -1002,10 +1002,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w
         expected_h = h + h
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect16(self):
         # right-lower overlapped
@@ -1022,10 +1022,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w + w / 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_unite_rect17(self):
         # right-lower
@@ -1042,10 +1042,10 @@ class RectTestCase(unittest.TestCase):
         expected_y = ya
         expected_w = w * 2
         expected_h = h + h / 2
-        self.assertEqual(c.x, expected_x, msg=(a, b, c))
-        self.assertEqual(c.y, expected_y, msg=(a, b, c))
-        self.assertEqual(c.width, expected_w, msg=(a, b, c))
-        self.assertEqual(c.height, expected_h, msg=(a, b, c))
+        self.assertEqual(expected_x, c.x, msg=(a, b, c))
+        self.assertEqual(expected_y, c.y, msg=(a, b, c))
+        self.assertEqual(expected_w, c.width, msg=(a, b, c))
+        self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_united_invalid_invalid(self):
         a = Rect()
@@ -1060,10 +1060,10 @@ class RectTestCase(unittest.TestCase):
         c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
-        self.assertEqual((c.x, c.y, c.width, c.height), (30, 50, 100, 200))
+        self.assertEqual((30, 50, 100, 200), (c.x, c.y, c.width, c.height))
         self.assertTrue(a.isempty())
         self.assertTrue(not a.isvalid())
-        self.assertEqual((b.x, b.y, b.width, b.height), (30, 50, 100, 200))
+        self.assertEqual((30, 50, 100, 200), (b.x, b.y, b.width, b.height))
 
     def test_united_valid_invalid(self):
         a = Rect(30, 50, 100, 200)
@@ -1071,7 +1071,7 @@ class RectTestCase(unittest.TestCase):
         c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
-        self.assertEqual((a.x, a.y, a.width, a.height), (30, 50, 100, 200))
+        self.assertEqual((30, 50, 100, 200), (a.x, a.y, a.width, a.height))
         self.assertTrue(b.isempty())
         self.assertTrue(not b.isvalid())
 

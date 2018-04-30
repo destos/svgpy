@@ -511,7 +511,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('defs-1')
         bbox = element.get_bbox()
-        self.assertEqual(bbox, Rect(), msg=element)
+        self.assertEqual(Rect(), bbox, msg=element)
 
     def test_bbox01_02(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -521,7 +521,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('rect-1')
         bbox = element.get_bbox()
-        self.assertEqual(bbox, Rect(20, 20, 40, 40), msg=element.id)
+        self.assertEqual(Rect(20, 20, 40, 40), bbox, msg=element.id)
 
     def test_bbox01_03(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -531,7 +531,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('group-1')
         bbox = element.get_bbox()
-        self.assertEqual(bbox, Rect(30, 30, 40, 40), msg=element.id)
+        self.assertEqual(Rect(30, 30, 40, 40), bbox, msg=element.id)
 
     def test_bbox01_04(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -541,7 +541,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('use-1')
         bbox = element.get_bbox()
-        self.assertEqual(bbox, Rect(30, 30, 40, 40), msg=element.id)
+        self.assertEqual(Rect(30, 30, 40, 40), bbox, msg=element.id)
 
     def test_bbox01_05(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -551,7 +551,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('group-2')
         bbox = element.get_bbox()
-        self.assertEqual(bbox, Rect(10, 10, 100, 100), msg=element.id)
+        self.assertEqual(Rect(10, 10, 100, 100), bbox, msg=element.id)
 
     def test_bbox01_06(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -561,7 +561,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('rect-2')
         bbox = element.get_bbox()
-        self.assertEqual(bbox, Rect(10, 10, 100, 100), msg=element.id)
+        self.assertEqual(Rect(10, 10, 100, 100), bbox, msg=element.id)
 
     def test_bbox02_01(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -572,10 +572,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root
         bbox = element.get_bbox()
-        self.assertAlmostEqual(bbox.x, 11.101, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.y, 11.101, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.width, 77.798, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.height, 77.798, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
 
     def test_bbox02_02(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -586,10 +586,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('gtop')
         bbox = element.get_bbox()
-        self.assertAlmostEqual(bbox.x, 11.101, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.y, 11.101, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.width, 77.798, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.height, 77.798, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
 
     def test_bbox02_03(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -600,10 +600,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('svgstar')
         bbox = element.get_bbox()
-        self.assertAlmostEqual(bbox.x, -38.899, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.y, -38.899, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.width, 77.798, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.height, 77.798, msg=element.id, delta=delta)
+        self.assertAlmostEqual(-38.899, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(-38.899, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
 
     def test_bbox02_04(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -614,10 +614,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('svgbar')
         bbox = element.get_bbox()
-        self.assertAlmostEqual(bbox.x, -38.899, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.y, -7, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.width, 77.798, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.height, 14, msg=element.id, delta=delta)
+        self.assertAlmostEqual(-38.899, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(-7, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(14, bbox.height, msg=element.id, delta=delta)
 
     def test_bbox02_08(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -628,10 +628,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('usetop')
         bbox = element.get_bbox()
-        self.assertAlmostEqual(bbox.x, 11.101, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.y, 11.101, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.width, 77.798, msg=element.id, delta=delta)
-        self.assertAlmostEqual(bbox.height, 77.798, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
 
     def test_circle00_length(self):
         # circle: initial value
@@ -639,16 +639,16 @@ class BasicShapesTestCase(unittest.TestCase):
         circle = parser.make_element('circle')
 
         style = circle.get_computed_style()
-        self.assertEqual(style['cx'], 0)
-        self.assertEqual(style['cy'], 0)
-        self.assertEqual(style['r'], 0)
+        self.assertEqual(0, style['cx'])
+        self.assertEqual(0, style['cy'])
+        self.assertEqual(0, style['r'])
 
         path_data = circle.get_path_data()
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         n = circle.get_total_length()
         expected = 0
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_circle01_bbox(self):
         parser = SVGParser()
@@ -660,10 +660,10 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         bbox = circle.get_bbox()
-        self.assertEqual(bbox.x, 200 - 100)
-        self.assertEqual(bbox.y, 300 - 100)
-        self.assertEqual(bbox.width, 100 * 2)
-        self.assertEqual(bbox.height, 100 * 2)
+        self.assertEqual(200 - 100, bbox.x)
+        self.assertEqual(300 - 100, bbox.y)
+        self.assertEqual(100 * 2, bbox.width)
+        self.assertEqual(100 * 2, bbox.height)
 
     def test_circle02_length(self):
         # See also: circle01.html
@@ -681,9 +681,9 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         style = circle.get_computed_style()
-        self.assertEqual(style['cx'], cx)
-        self.assertEqual(style['cy'], cy)
-        self.assertEqual(style['r'], r)
+        self.assertEqual(cx, style['cx'])
+        self.assertEqual(cy, style['cy'])
+        self.assertEqual(r, style['r'])
 
         path_data = circle.get_path_data()
         d = PathParser.tostring(path_data)
@@ -693,11 +693,11 @@ class BasicShapesTestCase(unittest.TestCase):
             " 100,100 0 0 1 500,200" \
             " 100,100 0 0 1 600,100" \
             " 100,100 0 0 1 700,200 Z"
-        self.assertEqual(d, expected, msg=d)
+        self.assertEqual(expected, d, msg=d)
 
         n = circle.get_total_length()
         expected = 2 * math.pi * r
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_circle02_normalize(self):
         # See also: circle01.html
@@ -720,7 +720,7 @@ class BasicShapesTestCase(unittest.TestCase):
             " C700,255.228 655.228,300 600,300 544.772,300" \
             " 500,255.228 500,200 500,144.772 544.772,100" \
             " 600,100 655.228,100 700,144.772 700,200 Z"
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_circle03_length(self):
         # circle: viewport-relative length
@@ -744,22 +744,22 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # cx = 1200 * 25% = 300
         expected = 300
-        self.assertAlmostEqual(style['cx'], expected)
+        self.assertAlmostEqual(expected, style['cx'])
 
         # cy = 400 * 50% = 200
         expected = 200
-        self.assertAlmostEqual(style['cy'], expected)
+        self.assertAlmostEqual(expected, style['cy'])
 
         # r = sqrt((width) ** 2 + (height) ** 2) / sqrt(2) * 10%
         #  = sqrt(1200 ** 2 + 400 ** 2) / sqrt(2) * 10%
         #  = 89.44271909999159
         expected = 89.44271909999159
-        self.assertAlmostEqual(style['r'], expected, places=places)
+        self.assertAlmostEqual(expected, style['r'], places=places)
 
         n = circle.get_total_length()
         # 2 * pi * r = 561.9851784832581
         expected = 561.9851784832581
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_computed_style02(self):
         # See also: Units.html
@@ -771,30 +771,30 @@ class BasicShapesTestCase(unittest.TestCase):
 
         rect = root.get_element_by_id('rect_rel_01')
         style = rect.get_computed_style()
-        self.assertEqual(style['font-family'], ['Verdana'], msg=style)
-        self.assertEqual(style['font-size'], 150, msg=style)
-        self.assertEqual(style['font-weight'], Font.WEIGHT_NORMAL, msg=style)
-        self.assertEqual(style['x'], 0, msg=style)
-        self.assertEqual(style['y'], 400, msg=style)
-        self.assertEqual(style['width'], 375, msg=style)
-        self.assertEqual(style['height'], 187.5, msg=style)
-        self.assertEqual(style['rx'], 0, msg=style)
-        self.assertEqual(style['ry'], 0, msg=style)
-        self.assertAlmostEqual(style['stroke-width'], 37.5, msg=style,
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(400, style['y'], msg=style)
+        self.assertEqual(375, style['width'], msg=style)
+        self.assertEqual(187.5, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(37.5, style['stroke-width'], msg=style,
                                places=places)
 
         rect = root.get_element_by_id('rect_rel_03')
         style = rect.get_computed_style()
-        self.assertEqual(style['font-family'], ['Verdana'], msg=style)
-        self.assertEqual(style['font-size'], 150, msg=style)
-        self.assertEqual(style['font-weight'], Font.WEIGHT_NORMAL, msg=style)
-        self.assertEqual(style['x'], 0, msg=style)
-        self.assertEqual(style['y'], 600, msg=style)
-        self.assertEqual(style['width'], 375, msg=style)
-        self.assertEqual(style['height'], 187.5, msg=style)
-        self.assertEqual(style['rx'], 0, msg=style)
-        self.assertEqual(style['ry'], 0, msg=style)
-        self.assertAlmostEqual(style['stroke-width'], 37.5, msg=style,
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(600, style['y'], msg=style)
+        self.assertEqual(375, style['width'], msg=style)
+        self.assertEqual(187.5, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(37.5, style['stroke-width'], msg=style,
                                places=places)
 
     def test_computed_style03(self):
@@ -807,31 +807,31 @@ class BasicShapesTestCase(unittest.TestCase):
 
         rect = root.get_element_by_id('rect_per_01')
         style = rect.get_computed_style()
-        self.assertEqual(style['font-family'], ['Verdana'], msg=style)
-        self.assertEqual(style['font-size'], 150, msg=style)
-        self.assertEqual(style['font-weight'], Font.WEIGHT_NORMAL, msg=style)
-        self.assertEqual(style['x'], 0, msg=style)
-        self.assertEqual(style['y'], 400, msg=style)
-        self.assertEqual(style['width'], 400, msg=style)
-        self.assertEqual(style['height'], 200, msg=style)
-        self.assertEqual(style['rx'], 0, msg=style)
-        self.assertEqual(style['ry'], 0, msg=style)
-        self.assertAlmostEqual(style['stroke-width'], 31.62, msg=style,
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(400, style['y'], msg=style)
+        self.assertEqual(400, style['width'], msg=style)
+        self.assertEqual(200, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(31.62, style['stroke-width'], msg=style,
                                places=places)
 
         rect = root.get_element_by_id('rect_per_03')
         style = rect.get_computed_style()
         # print(sorted(style.items()))
-        self.assertEqual(style['font-family'], ['Verdana'], msg=style)
-        self.assertEqual(style['font-size'], 150, msg=style)
-        self.assertEqual(style['font-weight'], Font.WEIGHT_NORMAL, msg=style)
-        self.assertEqual(style['x'], 0, msg=style)
-        self.assertEqual(style['y'], 600, msg=style)
-        self.assertEqual(style['width'], 400, msg=style)
-        self.assertEqual(style['height'], 200, msg=style)
-        self.assertEqual(style['rx'], 0, msg=style)
-        self.assertEqual(style['ry'], 0, msg=style)
-        self.assertAlmostEqual(style['stroke-width'], 31.62, msg=style,
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(600, style['y'], msg=style)
+        self.assertEqual(400, style['width'], msg=style)
+        self.assertEqual(200, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(31.62, style['stroke-width'], msg=style,
                                places=places)
 
     def test_computed_style04(self):
@@ -932,8 +932,8 @@ class BasicShapesTestCase(unittest.TestCase):
 
         root.attributes.set('width', '20cm')
         root.attributes.set('height', '10cm')
-        self.assertEqual(len(root.attributes), 2)
-        self.assertEqual(len(root.attrib), 2)
+        self.assertEqual(2, len(root.attributes))
+        self.assertEqual(2, len(root.attrib))
         self.assertTrue('width' in root.attributes)
         self.assertTrue('height' in root.attributes)
         self.assertTrue('x' not in root.attributes)
@@ -942,17 +942,17 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(not root.attributes.has('x'))
 
         width = root.attributes.pop('width')
-        self.assertEqual(len(root.attributes), 1)
-        self.assertEqual(len(root.attrib), 1)
-        self.assertEqual(width, '20cm')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual(1, len(root.attrib))
+        self.assertEqual('20cm', width)
         self.assertTrue('width' not in root.attributes)
         self.assertTrue('height' in root.attributes)
         self.assertTrue(not root.attributes.has('width'))
         self.assertTrue(root.attributes.has('height'))
 
         del root.attributes['height']
-        self.assertEqual(len(root.attributes), 0)
-        self.assertEqual(len(root.attrib), 0)
+        self.assertEqual(0, len(root.attributes))
+        self.assertEqual(0, len(root.attrib))
         self.assertTrue('width' not in root.attributes)
         self.assertTrue('height' not in root.attributes)
         self.assertTrue(not root.attributes.has('width'))
@@ -966,22 +966,22 @@ class BasicShapesTestCase(unittest.TestCase):
         width = root.attributes.get('width')
         height = root.attributes.get('height')
         x = root.attributes.get('x')
-        self.assertEqual(len(root.attributes), 2)
-        self.assertEqual(len(root.attrib), 2)
-        self.assertEqual(width, '15cm')
-        self.assertEqual(height, '10cm')
+        self.assertEqual(2, len(root.attributes))
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual('15cm', width)
+        self.assertEqual('10cm', height)
         self.assertTrue(x is None)
         self.assertTrue(root.attributes.has('width'))
         self.assertTrue(root.attributes.has('height'))
         self.assertTrue(not root.attributes.has('x'))
 
         x = root.attributes.get('x', '100')
-        self.assertEqual(x, '100')
+        self.assertEqual('100', x)
 
         self.assertTrue('viewBox' not in root.attributes)
 
         view_box = root.attributes.setdefault('viewBox', '0 0 200 100')
-        self.assertEqual(view_box, '0 0 200 100')
+        self.assertEqual('0 0 200 100', view_box)
 
         self.assertTrue('viewBox' in root.attributes)
         self.assertTrue(root.attributes.has('viewBox'))
@@ -1000,7 +1000,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
                    "<text xml:lang=\"ja\"/></svg>"
-        self.assertEqual(root.tostring().decode(), expected)
+        self.assertEqual(expected, root.tostring().decode())
 
         lang = attributes.get('lang')
         self.assertIsNone(lang)
@@ -1008,7 +1008,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         lang = attributes.get_ns(Element.XML_NAMESPACE_URI, 'lang')
         expected = 'ja'
-        self.assertEqual(lang, expected)
+        self.assertEqual(expected, lang)
 
         space = attributes.get_ns(Element.XML_NAMESPACE_URI,
                                   'space')  # deprecated
@@ -1019,26 +1019,26 @@ class BasicShapesTestCase(unittest.TestCase):
         space = attributes.get_ns(Element.XML_NAMESPACE_URI,
                                   'space', 'preserve')
         expected = 'preserve'
-        self.assertEqual(space, expected)
+        self.assertEqual(expected, space)
 
         lang = attributes.pop_ns(Element.XML_NAMESPACE_URI, 'lang', 'en')
         expected = 'ja'
-        self.assertEqual(lang, expected)
+        self.assertEqual(expected, lang)
         self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
                                               'lang'))
 
         expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
                    "<text/></svg>"
-        self.assertEqual(root.tostring().decode(), expected)
+        self.assertEqual(expected, root.tostring().decode())
 
         lang = attributes.setdefault_ns(Element.XML_NAMESPACE_URI, 'lang', 'en')
         expected = 'en'
-        self.assertEqual(lang, expected)
+        self.assertEqual(expected, lang)
         self.assertTrue(attributes.has_ns(Element.XML_NAMESPACE_URI, 'lang'))
 
         expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
                    "<text xml:lang=\"en\"/></svg>"
-        self.assertEqual(root.tostring().decode(), expected)
+        self.assertEqual(expected, root.tostring().decode())
 
     def test_element_style_attribute(self):
         parser = SVGParser()
@@ -1055,19 +1055,19 @@ class BasicShapesTestCase(unittest.TestCase):
             'stroke-width': '5',
             'stroke-dasharray': '10 5',
         })
-        self.assertEqual(len(circle.keys()), 4)
-        self.assertEqual(len(circle.attributes), 4)
-        self.assertEqual(len(circle.attrib), 4)
-        self.assertEqual(circle.attributes.get('r'), '120')
-        self.assertEqual(circle.attributes.get('cx'), '100')
-        self.assertEqual(circle.attributes.get('cy'), '200')
-        self.assertEqual(circle.attributes.get('stroke'), 'red')
-        self.assertEqual(circle.attributes.get('stroke-width'), '5')
-        self.assertEqual(circle.attributes.get('stroke-dasharray'), '10 5')
+        self.assertEqual(4, len(circle.keys()))
+        self.assertEqual(4, len(circle.attributes))
+        self.assertEqual(4, len(circle.attrib))
+        self.assertEqual('120', circle.attributes.get('r'))
+        self.assertEqual('100', circle.attributes.get('cx'))
+        self.assertEqual('200', circle.attributes.get('cy'))
+        self.assertEqual('red', circle.attributes.get('stroke'))
+        self.assertEqual('5', circle.attributes.get('stroke-width'))
+        self.assertEqual('10 5', circle.attributes.get('stroke-dasharray'))
 
         style = circle.attributes.get('style')
         expected = 'stroke-dasharray: 10 5; stroke-width: 5; stroke: red;'
-        self.assertEqual(style, expected)
+        self.assertEqual(expected, style)
         self.assertTrue(circle.attributes.has('r'))
         self.assertTrue(circle.attributes.has('cx'))
         self.assertTrue(circle.attributes.has('cy'))
@@ -1077,19 +1077,19 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(circle.attributes.has('stroke-dasharray'))
 
         d = circle.attributes.get_style()
-        self.assertEqual(len(d), 3)
-        self.assertEqual(d['stroke'], 'red')
-        self.assertEqual(d['stroke-width'], '5')
-        self.assertEqual(d['stroke-dasharray'], '10 5')
+        self.assertEqual(3, len(d))
+        self.assertEqual('red', d['stroke'])
+        self.assertEqual('5', d['stroke-width'])
+        self.assertEqual('10 5', d['stroke-dasharray'])
 
         sw = circle.attributes.pop('stroke-width')
-        self.assertEqual(len(circle.keys()), 4)
-        self.assertEqual(sw, '5')
-        self.assertEqual(circle.attributes.get('r'), '120')
-        self.assertEqual(circle.attributes.get('cx'), '100')
-        self.assertEqual(circle.attributes.get('cy'), '200')
-        self.assertEqual(circle.attributes.get('stroke'), 'red')
-        self.assertEqual(circle.attributes.get('stroke-dasharray'), '10 5')
+        self.assertEqual(4, len(circle.keys()))
+        self.assertEqual('5', sw)
+        self.assertEqual('120', circle.attributes.get('r'))
+        self.assertEqual('100', circle.attributes.get('cx'))
+        self.assertEqual('200', circle.attributes.get('cy'))
+        self.assertEqual('red', circle.attributes.get('stroke'))
+        self.assertEqual('10 5', circle.attributes.get('stroke-dasharray'))
         self.assertTrue(circle.attributes.get('stroke-width') is None)
         self.assertTrue('stroke-width' not in circle.attributes)
         self.assertTrue('stroke-width' not in circle.attrib)
@@ -1103,23 +1103,23 @@ class BasicShapesTestCase(unittest.TestCase):
 
         style = circle.attributes.get('style')
         expected = 'stroke-dasharray: 10 5; stroke: red;'
-        self.assertEqual(style, expected)
+        self.assertEqual(expected, style)
 
         d = circle.attributes.get_style()
-        self.assertEqual(len(d), 2)
-        self.assertEqual(d['stroke'], 'red')
-        self.assertEqual(d['stroke-dasharray'], '10 5')
+        self.assertEqual(2, len(d))
+        self.assertEqual('red', d['stroke'])
+        self.assertEqual('10 5', d['stroke-dasharray'])
 
         circle.attributes.update({
             'cx': '500',
             'cy': '800',
             'stroke': 'green',
         })
-        self.assertEqual(len(circle.keys()), 4)
-        self.assertEqual(circle.attributes.get('r'), '120')
-        self.assertEqual(circle.attributes.get('cx'), '500')
-        self.assertEqual(circle.attributes.get('cy'), '800')
-        self.assertEqual(circle.attributes.get('stroke'), 'green')
+        self.assertEqual(4, len(circle.keys()))
+        self.assertEqual('120', circle.attributes.get('r'))
+        self.assertEqual('500', circle.attributes.get('cx'))
+        self.assertEqual('800', circle.attributes.get('cy'))
+        self.assertEqual('green', circle.attributes.get('stroke'))
         self.assertTrue('stroke' in circle.attributes)
         self.assertTrue('stroke' not in circle.attrib)
         self.assertTrue('stroke' not in circle.keys())
@@ -1133,12 +1133,12 @@ class BasicShapesTestCase(unittest.TestCase):
 
         style = circle.attributes.get('style')
         expected = 'stroke-dasharray: 10 5; stroke: green;'
-        self.assertEqual(style, expected)
+        self.assertEqual(expected, style)
 
         d = circle.attributes.get_style()
-        self.assertEqual(len(d), 2)
-        self.assertEqual(d['stroke'], 'green')
-        self.assertEqual(d['stroke-dasharray'], '10 5')
+        self.assertEqual(2, len(d))
+        self.assertEqual('green', d['stroke'])
+        self.assertEqual('10 5', d['stroke-dasharray'])
 
         self.assertTrue('fill' not in circle.attributes)
         self.assertTrue('fill' not in circle.attrib)
@@ -1149,13 +1149,13 @@ class BasicShapesTestCase(unittest.TestCase):
         circle.attributes.set_style(d)
         self.assertTrue('fill' in circle.attributes)
         self.assertTrue('fill' not in circle.attrib)
-        self.assertEqual(len(circle.keys()), 4)
-        self.assertEqual(circle.attributes.get('r'), '120')
-        self.assertEqual(circle.attributes.get('cx'), '500')
-        self.assertEqual(circle.attributes.get('cy'), '800')
-        self.assertEqual(circle.attributes.get('fill'), 'none')
-        self.assertEqual(circle.attributes.get('stroke'), 'green')
-        self.assertEqual(circle.attributes.get('stroke-dasharray'), '10 5')
+        self.assertEqual(4, len(circle.keys()))
+        self.assertEqual('120', circle.attributes.get('r'))
+        self.assertEqual('500', circle.attributes.get('cx'))
+        self.assertEqual('800', circle.attributes.get('cy'))
+        self.assertEqual('none', circle.attributes.get('fill'))
+        self.assertEqual('green', circle.attributes.get('stroke'))
+        self.assertEqual('10 5', circle.attributes.get('stroke-dasharray'))
         self.assertTrue(circle.attributes.get('stroke-width') is None)
         self.assertTrue(circle.attributes.has('r'))
         self.assertTrue(circle.attributes.has('cx'))
@@ -1168,35 +1168,35 @@ class BasicShapesTestCase(unittest.TestCase):
 
         style = circle.attributes.get('style')
         expected = 'fill: none; stroke-dasharray: 10 5; stroke: green;'
-        self.assertEqual(style, expected)
+        self.assertEqual(expected, style)
 
         circle.attributes.pop('stroke')
-        self.assertEqual(len(circle.keys()), 4)
+        self.assertEqual(4, len(circle.keys()))
 
         circle.attributes.pop('stroke')  # remove twice
-        self.assertEqual(len(circle.keys()), 4)
+        self.assertEqual(4, len(circle.keys()))
 
         circle.attributes.pop('stroke-width')
-        self.assertEqual(len(circle.keys()), 4)
+        self.assertEqual(4, len(circle.keys()))
 
         circle.attributes.pop('stroke-dasharray')
-        self.assertEqual(len(circle.keys()), 4)
+        self.assertEqual(4, len(circle.keys()))
 
         style = circle.attributes.get('style')
         expected = 'fill: none;'
-        self.assertEqual(style, expected)
+        self.assertEqual(expected, style)
 
         fill = circle.attributes.pop('fill', 'red')
-        self.assertEqual(fill, 'none')
+        self.assertEqual('none', fill)
 
         fill = circle.attributes.pop('fill', 'red')  # remove twice
-        self.assertEqual(fill, 'red')
+        self.assertEqual('red', fill)
 
         style = circle.attributes.get('style')
-        self.assertEqual(len(circle.keys()), 3)
-        self.assertEqual(circle.attributes.get('r'), '120')
-        self.assertEqual(circle.attributes.get('cx'), '500')
-        self.assertEqual(circle.attributes.get('cy'), '800')
+        self.assertEqual(3, len(circle.keys()))
+        self.assertEqual('120', circle.attributes.get('r'))
+        self.assertEqual('500', circle.attributes.get('cx'))
+        self.assertEqual('800', circle.attributes.get('cy'))
         self.assertTrue(style is None)
         self.assertTrue(circle.attributes.has('r'))
         self.assertTrue(circle.attributes.has('cx'))
@@ -1211,7 +1211,7 @@ class BasicShapesTestCase(unittest.TestCase):
         circle.attributes.update_style({'stroke-width': '2'})
         style = circle.attributes.get('style')
         expected = 'fill: none; stroke-width: 2; stroke: red;'
-        self.assertEqual(style, expected)
+        self.assertEqual(expected, style)
         self.assertTrue(circle.attributes.has('r'))
         self.assertTrue(circle.attributes.has('cx'))
         self.assertTrue(circle.attributes.has('cy'))
@@ -1234,7 +1234,7 @@ class BasicShapesTestCase(unittest.TestCase):
         circle.attributes.set('style', 'fill:red;stroke:blue')
         value = circle.attributes.get_ns(None, 'fill')
         expected = 'red'
-        self.assertEqual(value, expected)
+        self.assertEqual(expected, value)
         self.assertTrue(circle.attributes.has_ns(None, 'style'))
         self.assertTrue(circle.attributes.has_ns(None, 'fill'))
         self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
@@ -1242,21 +1242,21 @@ class BasicShapesTestCase(unittest.TestCase):
         circle.attributes.set_ns(None, 'fill', 'white')
         value = circle.attributes.pop_ns(None, 'fill')
         expected = 'white'
-        self.assertEqual(value, expected)
+        self.assertEqual(expected, value)
         self.assertTrue(circle.attributes.has_ns(None, 'style'))
         self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
         self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
         value = circle.attributes.pop_ns(None, 'fill', 'black')
         expected = 'black'
-        self.assertEqual(value, expected)
+        self.assertEqual(expected, value)
         self.assertTrue(circle.attributes.has_ns(None, 'style'))
         self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
         self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
         value = circle.attributes.setdefault_ns(None, 'stroke', 'black')
         expected = 'blue'
-        self.assertEqual(value, expected)
+        self.assertEqual(expected, value)
         self.assertTrue(circle.attributes.has_ns(None, 'style'))
         self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
         self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
@@ -1264,7 +1264,7 @@ class BasicShapesTestCase(unittest.TestCase):
         circle.attributes.update({'stroke': 'white'})
         value = circle.attributes.get_ns(None, 'style')
         expected = 'stroke: white;'
-        self.assertEqual(value, expected)
+        self.assertEqual(expected, value)
         self.assertTrue(circle.attributes.has_ns(None, 'style'))
         self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
         self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
@@ -1278,7 +1278,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertIsNone(class_name)
 
         class_list = root.class_list
-        self.assertEqual(class_list, [])
+        self.assertEqual([], class_list)
 
     def test_element_class_list02(self):
         parser = SVGParser()
@@ -1287,10 +1287,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         root.class_name = 'Border'
         class_name = root.class_name
-        self.assertEqual(class_name, 'Border')
+        self.assertEqual('Border', class_name)
 
         class_list = root.class_list
-        self.assertEqual(class_list, ['Border'])
+        self.assertEqual(['Border'], class_list)
 
     def test_element_class_list03(self):
         parser = SVGParser()
@@ -1299,10 +1299,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         root.class_name = 'Border Label'
         class_name = root.class_name
-        self.assertEqual(class_name, 'Border Label')
+        self.assertEqual('Border Label', class_name)
 
         class_list = root.class_list
-        self.assertEqual(class_list, ['Border', 'Label'])
+        self.assertEqual(['Border', 'Label'], class_list)
 
     def test_element_find_by_class_names01(self):
         parser = SVGParser()
@@ -1311,11 +1311,11 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # not match
         elements = root.get_elements_by_class_name('NotExistClass')
-        self.assertEqual(len(elements), 0)
+        self.assertEqual(0, len(elements))
 
         # match
         elements = root.get_elements_by_class_name('Connect')
-        self.assertEqual(len(elements), 4)
+        self.assertEqual(4, len(elements))
         self.assertTrue(isinstance(elements[0], SVGPolylineElement))
         self.assertTrue(isinstance(elements[1], SVGPolylineElement))
         self.assertTrue(isinstance(elements[2], SVGPolylineElement))
@@ -1323,12 +1323,12 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # match
         elements = root.get_elements_by_class_name('SamplePath')
-        self.assertEqual(len(elements), 1)
+        self.assertEqual(1, len(elements))
         self.assertTrue(isinstance(elements[0], SVGPathElement))
 
         # not match
         elements = root.get_elements_by_class_name('Connect SamplePath')
-        self.assertEqual(len(elements), 0)
+        self.assertEqual(0, len(elements))
 
     def test_element_find_by_class_names02(self):
         parser = SVGParser()
@@ -1359,7 +1359,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         elements = root.get_elements_by_class_name('red test')
-        self.assertEqual(len(elements), 3)
+        self.assertEqual(3, len(elements))
         node_names = [x.node_name for x in elements]
         self.assertTrue('ellipse' in node_names)
         self.assertTrue('polygon' in node_names)
@@ -1372,21 +1372,21 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # tag 'path' -> not found
         elements = root.findall('path')
-        self.assertEqual(len(elements), 0)
+        self.assertEqual(0, len(elements))
 
         # tag '{http://www.w3.org/2000/svg}path' -> found
         name = '{{{}}}{}'.format(Element.SVG_NAMESPACE_URI, 'path')
         elements = root.findall(name)
-        self.assertEqual(len(elements), 3)
+        self.assertEqual(3, len(elements))
 
         # local-name 'path' -> found
         elements = root.get_elements_by_local_name('path')
-        self.assertEqual(len(elements), 3)
+        self.assertEqual(3, len(elements))
 
         elements = root.get_elements_by_local_name(
             'path',
             namespaces={'svg': Element.SVG_NAMESPACE_URI})
-        self.assertEqual(len(elements), 3)
+        self.assertEqual(3, len(elements))
 
     def test_element_find_by_id(self):
         parser = SVGParser()
@@ -1400,7 +1400,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # found
         element = root.get_element_by_id('path01')
         self.assertTrue(element is not None)
-        self.assertEqual(element.local_name, 'path')
+        self.assertEqual('path', element.local_name)
 
     def test_element_isdisplay(self):
         parser = SVGParser()
@@ -1415,13 +1415,13 @@ class BasicShapesTestCase(unittest.TestCase):
         )
 
         display = root.isdisplay()  # inline
-        self.assertEqual(display, True)
+        self.assertTrue(display)
 
         display = group.isdisplay()  # inline > none
-        self.assertEqual(display, False)
+        self.assertTrue(not display)
 
         display = text.isdisplay()  # inline > none > none
-        self.assertEqual(display, False)
+        self.assertTrue(not display)
 
     def test_element_iter(self):
         parser = SVGParser()
@@ -1431,10 +1431,10 @@ class BasicShapesTestCase(unittest.TestCase):
         for element in root:
             if element.node_type == Node.COMMENT_NODE:
                 self.assertIsInstance(element, Comment)
-                self.assertEqual(element.node_name, '#comment')
+                self.assertEqual('#comment', element.node_name)
                 self.assertIsNotNone(element.data)
             else:
-                self.assertEqual(element.node_type, Node.ELEMENT_NODE)
+                self.assertEqual(Node.ELEMENT_NODE, element.node_type)
 
     def test_element_make_sub_element(self):
         parser = SVGParser()
@@ -1447,7 +1447,7 @@ class BasicShapesTestCase(unittest.TestCase):
             "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
             "<rect/><circle/><ellipse/>" \
             "</svg>"
-        self.assertEqual(root.tostring().decode(), expected)
+        self.assertEqual(expected, root.tostring().decode())
 
     def test_element_make_sub_element_html(self):
         parser = SVGParser()
@@ -1457,41 +1457,41 @@ class BasicShapesTestCase(unittest.TestCase):
         }
         root = parser.make_element('svg', nsmap=nsmap)
         self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual(root.tag_name, 'svg')
-        self.assertEqual(root.local_name, 'svg')
-        self.assertEqual(root.namespace_uri, 'http://www.w3.org/2000/svg')
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
         video = root.make_sub_element('video')
         self.assertTrue(isinstance(video, HTMLVideoElement))
-        self.assertEqual(video.tag_name, 'video')
-        self.assertEqual(video.local_name, 'video')
-        self.assertEqual(video.namespace_uri, 'http://www.w3.org/2000/svg')
+        self.assertEqual('video', video.tag_name)
+        self.assertEqual('video', video.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', video.namespace_uri)
 
         tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'audio')
         audio = root.make_sub_element(tag)
         self.assertTrue(isinstance(audio, HTMLAudioElement))
-        self.assertEqual(audio.tag, tag)
-        self.assertEqual(audio.tag_name, 'html:audio')
-        self.assertEqual(audio.local_name, 'audio')
-        self.assertEqual(audio.namespace_uri, 'http://www.w3.org/1999/xhtml')
+        self.assertEqual(tag, audio.tag)
+        self.assertEqual('html:audio', audio.tag_name)
+        self.assertEqual('audio', audio.local_name)
+        self.assertEqual('http://www.w3.org/1999/xhtml', audio.namespace_uri)
 
         tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'source')
         source = audio.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'source')
         self.assertTrue(isinstance(source, HTMLElement))
-        self.assertEqual(source.tag, tag)
-        self.assertEqual(source.tag_name, 'html:source')
-        self.assertEqual(source.local_name, 'source')
-        self.assertEqual(source.namespace_uri, 'http://www.w3.org/1999/xhtml')
+        self.assertEqual(tag, source.tag)
+        self.assertEqual('html:source', source.tag_name)
+        self.assertEqual('source', source.local_name)
+        self.assertEqual('http://www.w3.org/1999/xhtml', source.namespace_uri)
 
     def test_element_make_sub_element_svg01(self):
         parser = SVGParser()
         root = parser.make_element('svg')
         self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual(root.tag, 'svg')
-        self.assertEqual(root.tag_name, 'svg')
-        self.assertEqual(root.local_name, 'svg')
-        self.assertEqual(root.namespace_uri, 'http://www.w3.org/2000/svg')
+        self.assertEqual('svg', root.tag)
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
         g = root.make_sub_element('g')
         self.assertTrue(isinstance(g, SVGGElement))
@@ -1507,37 +1507,37 @@ class BasicShapesTestCase(unittest.TestCase):
             "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
             "<g><rect/><path/></g>" \
             "</svg>"
-        self.assertEqual(root.tostring(), expected.encode())
+        self.assertEqual(expected, root.tostring().decode())
 
     def test_element_make_sub_element_svg02(self):
         parser = SVGParser()
         root = parser.make_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual(root.tag, '{http://www.w3.org/2000/svg}svg')
-        self.assertEqual(root.tag_name, 'svg')
-        self.assertEqual(root.local_name, 'svg')
-        self.assertEqual(root.namespace_uri, 'http://www.w3.org/2000/svg')
+        self.assertEqual('{http://www.w3.org/2000/svg}svg', root.tag)
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
         g = root.make_sub_element('g')
         self.assertTrue(isinstance(g, SVGGElement))
-        self.assertEqual(g.tag, 'g')
-        self.assertEqual(g.tag_name, 'g')
-        self.assertEqual(g.local_name, 'g')
-        self.assertEqual(g.namespace_uri, 'http://www.w3.org/2000/svg')
+        self.assertEqual('g', g.tag)
+        self.assertEqual('g', g.tag_name)
+        self.assertEqual('g', g.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', g.namespace_uri)
 
         path = g.make_sub_element_ns('http://www.w3.org/2000/svg', 'path')
         self.assertTrue(isinstance(path, SVGPathElement))
-        self.assertEqual(path.tag, '{http://www.w3.org/2000/svg}path')
-        self.assertEqual(path.tag_name, 'path')
-        self.assertEqual(path.local_name, 'path')
-        self.assertEqual(path.namespace_uri, 'http://www.w3.org/2000/svg')
+        self.assertEqual('{http://www.w3.org/2000/svg}path', path.tag)
+        self.assertEqual('path', path.tag_name)
+        self.assertEqual('path', path.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', path.namespace_uri)
 
         rect = g.make_sub_element_ns(None, 'rect', index=0)
         self.assertTrue(isinstance(rect, SVGRectElement))
-        self.assertEqual(rect.tag, 'rect')
-        self.assertEqual(rect.tag_name, 'rect')
-        self.assertEqual(rect.local_name, 'rect')
-        self.assertEqual(rect.namespace_uri, 'http://www.w3.org/2000/svg')
+        self.assertEqual('rect', rect.tag)
+        self.assertEqual('rect', rect.tag_name)
+        self.assertEqual('rect', rect.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', rect.namespace_uri)
 
     def test_ellipse01_length(self):
         # ellipse: initial value
@@ -1545,10 +1545,10 @@ class BasicShapesTestCase(unittest.TestCase):
         ellipse = parser.make_element('ellipse')
 
         path_data = ellipse.get_path_data()
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         n = ellipse.get_total_length()
-        self.assertEqual(n, 0)
+        self.assertEqual(0, n)
 
     def test_ellipse02_length(self):
         # ellipse: rx = 0
@@ -1563,15 +1563,15 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = ellipse.get_path_data()
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         settings = SVGPathDataSettings()
         settings.normalize = True
         path_data = ellipse.get_path_data(settings)
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         n = ellipse.get_total_length()
-        self.assertEqual(n, 0)
+        self.assertEqual(0, n)
 
     def test_ellipse03_length(self):
         # ellipse: ry = 0
@@ -1586,15 +1586,15 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = ellipse.get_path_data()
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         settings = SVGPathDataSettings()
         settings.normalize = True
         path_data = ellipse.get_path_data(settings)
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         n = ellipse.get_total_length()
-        self.assertEqual(n, 0)
+        self.assertEqual(0, n)
 
     def test_ellipse04_length(self):
         # ellipse: rx = ry
@@ -1616,12 +1616,12 @@ class BasicShapesTestCase(unittest.TestCase):
                    " 100,100 0 0 1 500,200" \
                    " 100,100 0 0 1 600,100" \
                    " 100,100 0 0 1 700,200 Z"
-        self.assertEqual(len(path_data), 6)
-        self.assertEqual(d, expected, msg=d)
+        self.assertEqual(6, len(path_data))
+        self.assertEqual(expected, d, msg=d)
 
         n = ellipse.get_total_length()
         expected = 2 * math.pi * 100
-        self.assertAlmostEqual(n, expected)
+        self.assertAlmostEqual(expected, n)
 
     def test_ellipse04_normalize(self):
         # ellipse: rx = ry
@@ -1645,7 +1645,7 @@ class BasicShapesTestCase(unittest.TestCase):
                    " 544.772,300 500,255.228 500,200" \
                    " 500,144.772 544.772,100 600,100" \
                    " 655.228,100 700,144.772 700,200 Z"
-        self.assertEqual(d, expected, msg=d)
+        self.assertEqual(expected, d, msg=d)
 
     def test_ellipse05_length(self):
         # ellipse: rx > ry
@@ -1669,8 +1669,8 @@ class BasicShapesTestCase(unittest.TestCase):
                    " 250,100 0 0 1 -250,0" \
                    " 250,100 0 0 1 0,-100" \
                    " 250,100 0 0 1 250,0 Z"
-        self.assertEqual(len(path_data), 6)
-        self.assertEqual(d, expected, msg=d)
+        self.assertEqual(6, len(path_data))
+        self.assertEqual(expected, d, msg=d)
 
     def test_ellipse05_normalize(self):
         # ellipse: rx > ry
@@ -1696,12 +1696,12 @@ class BasicShapesTestCase(unittest.TestCase):
                    " -138.071,100 -250,55.228 -250,0" \
                    " -250,-55.228 -138.071,-100 0,-100" \
                    " 138.071,-100 250,-55.228 250,0 Z"
-        self.assertEqual(d, expected, msg=d)
+        self.assertEqual(expected, d, msg=d)
 
         n = ellipse.get_total_length()
         # expected = 1150.816162109375  # firefox
         expected = 1150.81787109375
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_ellipse06_length(self):
         # ellipse: ry > rx
@@ -1724,13 +1724,13 @@ class BasicShapesTestCase(unittest.TestCase):
                    " 100,250 0 0 1 -100,0" \
                    " 100,250 0 0 1 0,-250" \
                    " 100,250 0 0 1 100,0 Z"
-        self.assertEqual(len(path_data), 6)
-        self.assertEqual(d, expected, msg=d)
+        self.assertEqual(6, len(path_data))
+        self.assertEqual(expected, d, msg=d)
 
         n = ellipse.get_total_length()
         # expected = 1150.8154296875  # firefox
         expected = 1150.818115234375
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_ellipse07_length(self):
         # ellipse: viewport-percentage length
@@ -1750,10 +1750,10 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         style = ellipse.get_computed_style()
-        self.assertEqual(style['cx'], 0)
-        self.assertEqual(style['cy'], 0)
-        self.assertEqual(style['rx'], 250)
-        self.assertEqual(style['ry'], 100)
+        self.assertEqual(0, style['cx'])
+        self.assertEqual(0, style['cy'])
+        self.assertEqual(250, style['rx'])
+        self.assertEqual(100, style['ry'])
 
         path_data = ellipse.get_path_data()
         d = PathParser.tostring(path_data)
@@ -1762,12 +1762,12 @@ class BasicShapesTestCase(unittest.TestCase):
                    " 250,100 0 0 1 -250,0" \
                    " 250,100 0 0 1 0,-100" \
                    " 250,100 0 0 1 250,0 Z"
-        self.assertEqual(d, expected, msg=d)
+        self.assertEqual(expected, d, msg=d)
 
         n = ellipse.get_total_length()
         # expected = 1150.816162109375  # firefox
         expected = 1150.81787109375
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_ellipse08_bbox(self):
         parser = SVGParser()
@@ -1780,10 +1780,10 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         bbox = ellipse.get_bbox()
-        self.assertEqual(bbox.x, 200 - 100)
-        self.assertEqual(bbox.y, 300 - 200)
-        self.assertEqual(bbox.width, 100 * 2)
-        self.assertEqual(bbox.height, 200 * 2)
+        self.assertEqual(200 - 100, bbox.x)
+        self.assertEqual(300 - 200, bbox.y)
+        self.assertEqual(100 * 2, bbox.width)
+        self.assertEqual(200 * 2, bbox.height)
 
     def test_group_ctm(self):
         # See also: RotateScale.html
@@ -1797,7 +1797,7 @@ class BasicShapesTestCase(unittest.TestCase):
         matrix = g.get_ctm()
         exp = matrix.tostring()
         expected = 'matrix(1 0 0 1 50 30)'
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
         # no viewBox
         # transform="translate(50,30)"
@@ -1806,22 +1806,22 @@ class BasicShapesTestCase(unittest.TestCase):
         matrix = g.get_ctm()
         exp = matrix.tostring()
         expected = 'matrix(0.866 0.5 -0.5 0.866 50 30)'
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_line01_length(self):
         parser = SVGParser()
         line = parser.make_element('line')
 
         path_data = line.get_path_data()
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         settings = SVGPathDataSettings()
         settings.normalize = True
         path_data = line.get_path_data(settings)
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         n = line.get_total_length()
-        self.assertEqual(n, 0)
+        self.assertEqual(0, n)
 
     def test_line02_length(self):
         # horizontal line
@@ -1835,15 +1835,15 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = line.get_path_data()
-        self.assertEqual(len(path_data), 2)
+        self.assertEqual(2, len(path_data))
 
         d = PathParser.tostring(path_data)
         expected = 'M0,0 L100,0'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = line.get_total_length()
         expected = 100
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_line03_length(self):
         # vertical line
@@ -1857,15 +1857,15 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = line.get_path_data()
-        self.assertEqual(len(path_data), 2)
+        self.assertEqual(2, len(path_data))
 
         d = PathParser.tostring(path_data)
         expected = 'M0,100 L0,-100'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = line.get_total_length()
         expected = 200
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_line04_length(self):
         parser = SVGParser()
@@ -1878,15 +1878,15 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = line.get_path_data()
-        self.assertEqual(len(path_data), 2)
+        self.assertEqual(2, len(path_data))
 
         d = PathParser.tostring(path_data)
         expected = 'M-100,-100 L100,100'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = line.get_total_length()
         expected = math.sqrt((100 - -100) ** 2 + (100 - -100) ** 2)
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_line05_length(self):
         parser = SVGParser()
@@ -1899,15 +1899,15 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = line.get_path_data()
-        self.assertEqual(len(path_data), 2)
+        self.assertEqual(2, len(path_data))
 
         d = PathParser.tostring(path_data)
         expected = 'M100,200 L-100,-200'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = line.get_total_length()
         expected = math.sqrt((-100 - 100) ** 2 + (-200 - 200) ** 2)
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_line06_bbox(self):
         parser = SVGParser()
@@ -1920,10 +1920,10 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         bbox = line.get_bbox()
-        self.assertEqual(bbox.x, 100)
-        self.assertEqual(bbox.y, 200)
-        self.assertEqual(bbox.width, 300 - 100)
-        self.assertEqual(bbox.height, 400 - 200)
+        self.assertEqual(100, bbox.x)
+        self.assertEqual(200, bbox.y)
+        self.assertEqual(300 - 100, bbox.width)
+        self.assertEqual(400 - 200, bbox.height)
 
     def test_parser_from_string(self):
         parser = SVGParser()
@@ -1937,23 +1937,23 @@ class BasicShapesTestCase(unittest.TestCase):
         #  <path> * 3
         #  <circle> * 7
         #  <text> * 2
-        self.assertEqual(len(root), 20)
-        self.assertEqual(root.local_name, 'svg')
+        self.assertEqual(20, len(root))
+        self.assertEqual('svg', root.local_name)
         self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual(root[0].local_name, 'title')
-        self.assertEqual(root[1].local_name, 'desc')
-        self.assertEqual(root[2].local_name, 'style')
-        self.assertEqual(root[3].local_name, 'rect')
+        self.assertEqual('title', root[0].local_name)
+        self.assertEqual('desc', root[1].local_name)
+        self.assertEqual('style', root[2].local_name)
+        self.assertEqual('rect', root[3].local_name)
         self.assertTrue(isinstance(root[3], SVGRectElement))
-        self.assertEqual(root[4].local_name, 'polyline')
+        self.assertEqual('polyline', root[4].local_name)
         self.assertTrue(isinstance(root[4], SVGPolylineElement))
-        self.assertEqual(root[5].local_name, 'polyline')
+        self.assertEqual('polyline', root[5].local_name)
         self.assertTrue(isinstance(root[5], SVGPolylineElement))
-        self.assertEqual(root[6].local_name, 'polyline')
+        self.assertEqual('polyline', root[6].local_name)
         self.assertTrue(isinstance(root[6], SVGPolylineElement))
-        self.assertEqual(root[7].local_name, 'polyline')
+        self.assertEqual('polyline', root[7].local_name)
         self.assertTrue(isinstance(root[7], SVGPolylineElement))
-        self.assertEqual(root[8].local_name, 'path')
+        self.assertEqual('path', root[8].local_name)
         self.assertTrue(isinstance(root[8], SVGPathElement))
         # ...
         self.assertTrue(isinstance(root[9], SVGPathElement))
@@ -1981,23 +1981,23 @@ class BasicShapesTestCase(unittest.TestCase):
         #  <path> * 3
         #  <circle> * 7
         #  <text> * 2
-        self.assertEqual(len(root), 20)
-        self.assertEqual(root.local_name, 'svg')
+        self.assertEqual(20, len(root))
+        self.assertEqual('svg', root.local_name)
         self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual(root[0].local_name, 'title')
-        self.assertEqual(root[1].local_name, 'desc')
-        self.assertEqual(root[2].local_name, 'style')
-        self.assertEqual(root[3].local_name, 'rect')
+        self.assertEqual('title', root[0].local_name)
+        self.assertEqual('desc', root[1].local_name)
+        self.assertEqual('style', root[2].local_name)
+        self.assertEqual('rect', root[3].local_name)
         self.assertTrue(isinstance(root[3], SVGRectElement))
-        self.assertEqual(root[4].local_name, 'polyline')
+        self.assertEqual('polyline', root[4].local_name)
         self.assertTrue(isinstance(root[4], SVGPolylineElement))
-        self.assertEqual(root[5].local_name, 'polyline')
+        self.assertEqual('polyline', root[5].local_name)
         self.assertTrue(isinstance(root[5], SVGPolylineElement))
-        self.assertEqual(root[6].local_name, 'polyline')
+        self.assertEqual('polyline', root[6].local_name)
         self.assertTrue(isinstance(root[6], SVGPolylineElement))
-        self.assertEqual(root[7].local_name, 'polyline')
+        self.assertEqual('polyline', root[7].local_name)
         self.assertTrue(isinstance(root[7], SVGPolylineElement))
-        self.assertEqual(root[8].local_name, 'path')
+        self.assertEqual('path', root[8].local_name)
         self.assertTrue(isinstance(root[8], SVGPathElement))
         # ...
         self.assertTrue(isinstance(root[9], SVGPathElement))
@@ -2012,7 +2012,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(isinstance(root[18], SVGTextElement))
         self.assertTrue(isinstance(root[19], SVGTextElement))
 
-    @unittest.expectedFailure
+    # @unittest.expectedFailure
     def test_path01_ctm(self):
         # See also: arcs02.html
         parser = SVGParser()
@@ -2022,13 +2022,21 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path01')
         # [0.378 0 0 0.378 151.181 0]
         ctm = path.get_ctm()
-        exp = ctm.tostring()
+        # exp = ctm.tostring()
         # [0.3779427083333333, 0, 0, 0.3779427083333333, 151.17708333333331,
         #  0.0009765624999955354]
-        expected = 'matrix(0.378 0 0 0.378 151.177 0)'
-        self.assertEqual(exp, expected, msg=ctm)
+        # expected = 'matrix(0.378 0 0 0.378 151.177 0)'
+        # self.assertEqual(expected, exp, msg=ctm)
+        a, b, c, d, e, f = [0.3779427083333333, 0, 0, 0.3779427083333333,
+                            151.17708333333331, 0.0009765624999955354]
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
 
-    @unittest.expectedFailure
+    # @unittest.expectedFailure
     def test_path02_ctm(self):
         # See also: arcs02.html
         parser = SVGParser()
@@ -2038,13 +2046,21 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path02')
         # [0.378 0 0 0.378 302.362 0]
         ctm = path.get_ctm()
-        exp = ctm.tostring()
+        # exp = ctm.tostring()
         # [0.3779427083333333, 0, 0, 0.3779427083333333, 302.35416666666663,
         #  0.0009765624999955354]
-        expected = 'matrix(0.378 0 0 0.378 302.354 0)'
-        self.assertEqual(exp, expected, msg=ctm)
+        # expected = 'matrix(0.378 0 0 0.378 302.354 0)'
+        # self.assertEqual(expected, exp, msg=ctm)
+        a, b, c, d, e, f = [0.3779427083333333, 0, 0, 0.3779427083333333,
+                            302.35416666666663, 0.0009765624999955354]
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
 
-    @unittest.expectedFailure
+    # @unittest.expectedFailure
     def test_path03_ctm(self):
         # See also: arcs02.html
         parser = SVGParser()
@@ -2054,13 +2070,21 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path03')
         # [0.378 0 0 0.378 151.181 94.488]
         ctm = path.get_ctm()
-        exp = ctm.tostring()
+        # exp = ctm.tostring()
         # [0.3779427083333333, 0, 0, 0.3779427083333333, 151.17708333333331,
         #  94.48665364583333]
-        expected = 'matrix(0.378 0 0 0.378 151.177 94.487)'
-        self.assertEqual(exp, expected, msg=ctm)
+        # expected = 'matrix(0.378 0 0 0.378 151.177 94.487)'
+        # self.assertEqual(expected, exp, msg=ctm)
+        a, b, c, d, e, f = [0.3779427083333333, 0, 0, 0.3779427083333333,
+                            151.17708333333331, 94.48665364583333]
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
 
-    @unittest.expectedFailure
+    # @unittest.expectedFailure
     def test_path04_ctm(self):
         # See also: arcs02.html
         parser = SVGParser()
@@ -2070,11 +2094,19 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path04')
         # [0.378 0 0 0.378 302.362 94.488]
         ctm = path.get_ctm()
-        exp = ctm.tostring()
+        # exp = ctm.tostring()
         # [0.3779427083333333, 0, 0, 0.3779427083333333, 302.35416666666663,
         #  94.48665364583333]
-        expected = 'matrix(0.378 0 0 0.378 302.354 94.487)'
-        self.assertEqual(exp, expected, msg=ctm)
+        # expected = 'matrix(0.378 0 0 0.378 302.354 94.487)'
+        # self.assertEqual(expected, exp, msg=ctm)
+        a, b, c, d, e, f = [0.3779427083333333, 0, 0, 0.3779427083333333,
+                            302.35416666666663, 94.48665364583333]
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
 
     def test_path01_length(self):
         # See also: arcs02.html
@@ -2085,7 +2117,7 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path01')
         n = path.get_total_length()
         expected = 121.12298583984375
-        self.assertAlmostEqual(n, expected, delta=delta)
+        self.assertAlmostEqual(expected, n, delta=delta)
 
     def test_path02_length(self):
         # See also: arcs02.html
@@ -2096,7 +2128,7 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path02')
         n = path.get_total_length()
         expected = 121.12297821044922
-        self.assertAlmostEqual(n, expected, delta=delta)
+        self.assertAlmostEqual(expected, n, delta=delta)
 
     def test_path03_length(self):
         # See also: arcs02.html
@@ -2107,7 +2139,7 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path03')
         n = path.get_total_length()
         expected = 363.36895751953125
-        self.assertAlmostEqual(n, expected, delta=delta)
+        self.assertAlmostEqual(expected, n, delta=delta)
 
     def test_path04_length(self):
         # See also: arcs02.html
@@ -2118,7 +2150,7 @@ class BasicShapesTestCase(unittest.TestCase):
         path = root.get_element_by_id('path04')
         n = path.get_total_length()
         expected = 363.3689880371094
-        self.assertAlmostEqual(n, expected, delta=delta)
+        self.assertAlmostEqual(expected, n, delta=delta)
 
     def test_polygon01_bbox(self):
         parser = SVGParser()
@@ -2129,10 +2161,10 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         bbox = polygon.get_bbox()
-        self.assertEqual(bbox.x, 231)
-        self.assertEqual(bbox.y, 75)
-        self.assertEqual(bbox.width, 469 - 231)
-        self.assertEqual(bbox.height, 301 - 75)
+        self.assertEqual(231, bbox.x)
+        self.assertEqual(75, bbox.y)
+        self.assertEqual(469 - 231, bbox.width)
+        self.assertEqual(301 - 75, bbox.height)
 
     def test_polygon02_length(self):
         # See also: polygon01.html
@@ -2143,46 +2175,46 @@ class BasicShapesTestCase(unittest.TestCase):
             " 277,301 303,215 231,161 321,161"
         polygon.attributes.set('points', points)
         pts = polygon.points
-        self.assertEqual(len(pts), 10)
-        self.assertEqual(pts[0], (350, 75))
-        self.assertEqual(pts[1], (379, 161))
-        self.assertEqual(pts[2], (469, 161))
-        self.assertEqual(pts[3], (397, 215))
-        self.assertEqual(pts[4], (423, 301))
-        self.assertEqual(pts[5], (350, 250))
-        self.assertEqual(pts[6], (277, 301))
-        self.assertEqual(pts[7], (303, 215))
-        self.assertEqual(pts[8], (231, 161))
-        self.assertEqual(pts[9], (321, 161))
+        self.assertEqual(10, len(pts))
+        self.assertEqual((350, 75), pts[0])
+        self.assertEqual((379, 161), pts[1])
+        self.assertEqual((469, 161), pts[2])
+        self.assertEqual((397, 215), pts[3])
+        self.assertEqual((423, 301), pts[4])
+        self.assertEqual((350, 250), pts[5])
+        self.assertEqual((277, 301), pts[6])
+        self.assertEqual((303, 215), pts[7])
+        self.assertEqual((231, 161), pts[8])
+        self.assertEqual((321, 161), pts[9])
 
         path_data = polygon.get_path_data()
-        self.assertEqual(len(path_data), 11)
-        self.assertEqual(path_data[0].type, 'M')
-        self.assertEqual(path_data[1].type, 'L')
-        self.assertEqual(path_data[2].type, 'L')
-        self.assertEqual(path_data[3].type, 'L')
-        self.assertEqual(path_data[4].type, 'L')
-        self.assertEqual(path_data[5].type, 'L')
-        self.assertEqual(path_data[6].type, 'L')
-        self.assertEqual(path_data[7].type, 'L')
-        self.assertEqual(path_data[8].type, 'L')
-        self.assertEqual(path_data[9].type, 'L')
-        self.assertEqual(path_data[10].type, 'Z')
-        self.assertEqual(path_data[0].values, (350, 75))
-        self.assertEqual(path_data[1].values, (379, 161))
-        self.assertEqual(path_data[2].values, (469, 161))
-        self.assertEqual(path_data[3].values, (397, 215))
-        self.assertEqual(path_data[4].values, (423, 301))
-        self.assertEqual(path_data[5].values, (350, 250))
-        self.assertEqual(path_data[6].values, (277, 301))
-        self.assertEqual(path_data[7].values, (303, 215))
-        self.assertEqual(path_data[8].values, (231, 161))
-        self.assertEqual(path_data[9].values, (321, 161))
-        self.assertEqual(path_data[10].values, ())
+        self.assertEqual(11, len(path_data))
+        self.assertEqual('M', path_data[0].type)
+        self.assertEqual('L', path_data[1].type)
+        self.assertEqual('L', path_data[2].type)
+        self.assertEqual('L', path_data[3].type)
+        self.assertEqual('L', path_data[4].type)
+        self.assertEqual('L', path_data[5].type)
+        self.assertEqual('L', path_data[6].type)
+        self.assertEqual('L', path_data[7].type)
+        self.assertEqual('L', path_data[8].type)
+        self.assertEqual('L', path_data[9].type)
+        self.assertEqual('Z', path_data[10].type)
+        self.assertEqual((350, 75), path_data[0].values)
+        self.assertEqual((379, 161), path_data[1].values)
+        self.assertEqual((469, 161), path_data[2].values)
+        self.assertEqual((397, 215), path_data[3].values)
+        self.assertEqual((423, 301), path_data[4].values)
+        self.assertEqual((350, 250), path_data[5].values)
+        self.assertEqual((277, 301), path_data[6].values)
+        self.assertEqual((303, 215), path_data[7].values)
+        self.assertEqual((231, 161), path_data[8].values)
+        self.assertEqual((321, 161), path_data[9].values)
+        self.assertEqual((), path_data[10].values)
 
         n = polygon.get_total_length()
         expected = 899.3055419921875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_polygon02_normalize(self):
         # See also: polygon01.html
@@ -2200,7 +2232,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = \
             "M350,75 L379,161 469,161 397,215 423,301 350,250 277,301" \
             " 303,215 231,161 321,161 Z"
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_polygon03_length(self):
         # See also: polygon01.html
@@ -2211,39 +2243,39 @@ class BasicShapesTestCase(unittest.TestCase):
             " 850,325 742,262.6 742,137.5"
         polygon.attributes.set('points', points)
         pts = polygon.points
-        self.assertEqual(len(pts), 6)
-        self.assertEqual(pts[0], (850, 75))
-        self.assertEqual(pts[1], (958, 137.5))
-        self.assertEqual(pts[2], (958, 262.5))
-        self.assertEqual(pts[3], (850, 325))
-        self.assertEqual(pts[4], (742, 262.6))
-        self.assertEqual(pts[5], (742, 137.5))
+        self.assertEqual(6, len(pts))
+        self.assertEqual((850, 75), pts[0])
+        self.assertEqual((958, 137.5), pts[1])
+        self.assertEqual((958, 262.5), pts[2])
+        self.assertEqual((850, 325), pts[3])
+        self.assertEqual((742, 262.6), pts[4])
+        self.assertEqual((742, 137.5), pts[5])
 
         path_data = polygon.get_path_data()
-        self.assertEqual(len(path_data), 7)
-        self.assertEqual(path_data[0].type, 'M')
-        self.assertEqual(path_data[1].type, 'L')
-        self.assertEqual(path_data[2].type, 'L')
-        self.assertEqual(path_data[3].type, 'L')
-        self.assertEqual(path_data[4].type, 'L')
-        self.assertEqual(path_data[5].type, 'L')
-        self.assertEqual(path_data[6].type, 'Z')
-        self.assertEqual(path_data[0].values, (850, 75))
-        self.assertEqual(path_data[1].values, (958, 137.5))
-        self.assertEqual(path_data[2].values, (958, 262.5))
-        self.assertEqual(path_data[3].values, (850, 325))
-        self.assertEqual(path_data[4].values, (742, 262.6))
-        self.assertEqual(path_data[5].values, (742, 137.5))
-        self.assertEqual(path_data[6].values, ())
+        self.assertEqual(7, len(path_data))
+        self.assertEqual('M', path_data[0].type)
+        self.assertEqual('L', path_data[1].type)
+        self.assertEqual('L', path_data[2].type)
+        self.assertEqual('L', path_data[3].type)
+        self.assertEqual('L', path_data[4].type)
+        self.assertEqual('L', path_data[5].type)
+        self.assertEqual('Z', path_data[6].type)
+        self.assertEqual((850, 75), path_data[0].values)
+        self.assertEqual((958, 137.5), path_data[1].values)
+        self.assertEqual((958, 262.5), path_data[2].values)
+        self.assertEqual((850, 325), path_data[3].values)
+        self.assertEqual((742, 262.6), path_data[4].values)
+        self.assertEqual((742, 137.5), path_data[5].values)
+        self.assertEqual((), path_data[6].values)
 
         d = PathParser.tostring(path_data)
         expected = \
             "M850,75 L958,137.5 958,262.5 850,325 742,262.6 742,137.5 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = polygon.get_total_length()
         expected = 749.1731567382812
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_polyline01_length(self):
         parser = SVGParser()
@@ -2251,11 +2283,11 @@ class BasicShapesTestCase(unittest.TestCase):
 
         style = polyline.get_computed_geometry()
         points = style['points']
-        self.assertEqual(len(points), 0)
+        self.assertEqual(0, len(points))
 
         n = polyline.get_total_length()
         expected = 0
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_polyline02_length(self):
         # See also: polyline01.html
@@ -2273,25 +2305,25 @@ class BasicShapesTestCase(unittest.TestCase):
         polyline.attributes.set('points', pts)
 
         points = polyline.points
-        self.assertEqual(len(points), 22)
-        self.assertEqual(points[0], (50, 375))
-        self.assertEqual(points[1], (150, 375))
-        self.assertEqual(points[2], (150, 325))
+        self.assertEqual(22, len(points))
+        self.assertEqual((50, 375), points[0])
+        self.assertEqual((150, 375), points[1])
+        self.assertEqual((150, 325), points[2])
         # ...
-        self.assertEqual(points[19], (1050, 25))
-        self.assertEqual(points[20], (1050, 375))
-        self.assertEqual(points[21], (1150, 375))
+        self.assertEqual((1050, 25), points[19])
+        self.assertEqual((1050, 375), points[20])
+        self.assertEqual((1150, 375), points[21])
 
         path_data = polyline.get_path_data()
-        self.assertEqual(len(path_data), 22)
-        self.assertEqual(path_data[0].type, 'M')
-        self.assertEqual(path_data[1].type, 'L')
+        self.assertEqual(22, len(path_data))
+        self.assertEqual('M', path_data[0].type)
+        self.assertEqual('L', path_data[1].type)
         # ...
-        self.assertEqual(path_data[21].type, 'L')
+        self.assertEqual('L', path_data[21].type)
 
         n = polyline.get_total_length()
         expected = 3100
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_polyline02_normalize(self):
         # See also: polyline01.html
@@ -2315,7 +2347,7 @@ class BasicShapesTestCase(unittest.TestCase):
             "M50,375 L150,375 150,325 250,325 250,375 350,375 350,250" \
             " 450,250 450,375 550,375 550,175 650,175 650,375 750,375" \
             " 750,100 850,100 850,375 950,375 950,25 1050,25 1050,375 1150,375"
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_polyline03_length(self):
         # See also: triangle01.html
@@ -2330,7 +2362,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         n = polyline.get_total_length()
         expected = 647.213623046875
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_polyline04_bbox(self):
         parser = SVGParser()
@@ -2341,76 +2373,76 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         bbox = polyline.get_bbox()
-        self.assertEqual(bbox.x, 231)
-        self.assertEqual(bbox.y, 75)
-        self.assertEqual(bbox.width, 469 - 231)
-        self.assertEqual(bbox.height, 301 - 75)
+        self.assertEqual(231, bbox.x)
+        self.assertEqual(75, bbox.y)
+        self.assertEqual(469 - 231, bbox.width)
+        self.assertEqual(301 - 75, bbox.height)
 
     def test_preserve_aspect_ratio01(self):
         par = SVGPreserveAspectRatio()  # -> xMidYMid meet
-        self.assertEqual(par.align, 'xMidYMid')
-        self.assertEqual(par.meet_or_slice, 'meet')
-        self.assertEqual(par.tostring(), 'xMidYMid meet')
+        self.assertEqual('xMidYMid', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual('xMidYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio02(self):
         par = SVGPreserveAspectRatio('slice')  # -> xMidYMid meet
-        self.assertEqual(par.align, 'xMidYMid')
-        self.assertEqual(par.meet_or_slice, 'meet')
-        self.assertEqual(par.tostring(), 'xMidYMid meet')
+        self.assertEqual('xMidYMid', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual('xMidYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio03(self):
         par = SVGPreserveAspectRatio('xMidYMin')  # -> xMidYMin meet
-        self.assertEqual(par.align, 'xMidYMin')
-        self.assertEqual(par.meet_or_slice, 'meet')
-        self.assertEqual(par.tostring(), 'xMidYMin meet')
+        self.assertEqual('xMidYMin', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual('xMidYMin meet', par.tostring())
 
     def test_preserve_aspect_ratio04(self):
         par = SVGPreserveAspectRatio('xMaxYMin slice')
-        self.assertEqual(par.align, 'xMaxYMin')
-        self.assertEqual(par.meet_or_slice, 'slice')
-        self.assertEqual(par.tostring(), 'xMaxYMin slice')
+        self.assertEqual('xMaxYMin', par.align)
+        self.assertEqual('slice', par.meet_or_slice)
+        self.assertEqual('xMaxYMin slice', par.tostring())
 
     def test_preserve_aspect_ratio05(self):
         par = SVGPreserveAspectRatio('XMinYMid slice')
-        self.assertEqual(par.align, 'XMinYMid')
-        self.assertEqual(par.meet_or_slice, 'slice')
-        self.assertEqual(par.tostring(), 'XMinYMid slice')
+        self.assertEqual('XMinYMid', par.align)
+        self.assertEqual('slice', par.meet_or_slice)
+        self.assertEqual('XMinYMid slice', par.tostring())
 
     def test_preserve_aspect_ratio06(self):
         par = SVGPreserveAspectRatio('xMidYMid')  # -> xMidYMid meet
-        self.assertEqual(par.align, 'xMidYMid')
-        self.assertEqual(par.meet_or_slice, 'meet')
-        self.assertEqual(par.tostring(), 'xMidYMid meet')
+        self.assertEqual('xMidYMid', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual('xMidYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio07(self):
         par = SVGPreserveAspectRatio('xMaxYMid')  # -> xMaxYMid meet
-        self.assertEqual(par.align, 'xMaxYMid')
-        self.assertEqual(par.meet_or_slice, 'meet')
-        self.assertEqual(par.tostring(), 'xMaxYMid meet')
+        self.assertEqual('xMaxYMid', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual('xMaxYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio08(self):
         par = SVGPreserveAspectRatio('xMinYMax slice')
-        self.assertEqual(par.align, 'xMinYMax')
-        self.assertEqual(par.meet_or_slice, 'slice')
-        self.assertEqual(par.tostring(), 'xMinYMax slice')
+        self.assertEqual('xMinYMax', par.align)
+        self.assertEqual('slice', par.meet_or_slice)
+        self.assertEqual('xMinYMax slice', par.tostring())
 
     def test_preserve_aspect_ratio09(self):
         par = SVGPreserveAspectRatio('xMidYMax meet')
-        self.assertEqual(par.align, 'xMidYMax')
-        self.assertEqual(par.meet_or_slice, 'meet')
-        self.assertEqual(par.tostring(), 'xMidYMax meet')
+        self.assertEqual('xMidYMax', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual('xMidYMax meet', par.tostring())
 
     def test_preserve_aspect_ratio10(self):
         par = SVGPreserveAspectRatio('xMaxYMax meet')
-        self.assertEqual(par.align, 'xMaxYMax')
-        self.assertEqual(par.meet_or_slice, 'meet')
-        self.assertEqual(par.tostring(), 'xMaxYMax meet')
+        self.assertEqual('xMaxYMax', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual('xMaxYMax meet', par.tostring())
 
     def test_preserve_aspect_ratio11(self):
         par = SVGPreserveAspectRatio('none')
-        self.assertEqual(par.align, 'none')
-        self.assertEqual(par.meet_or_slice, None)
-        self.assertEqual(par.tostring(), 'none')
+        self.assertEqual('none', par.align)
+        self.assertIsNone(par.meet_or_slice)
+        self.assertEqual('none', par.tostring())
 
     def test_rect01_bbox(self):
         parser = SVGParser()
@@ -2425,10 +2457,10 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         bbox = rect.get_bbox()
-        self.assertEqual(bbox.x, 0)
-        self.assertEqual(bbox.y, 0)
-        self.assertEqual(bbox.width, 400)
-        self.assertEqual(bbox.height, 200)
+        self.assertEqual(0, bbox.x)
+        self.assertEqual(0, bbox.y)
+        self.assertEqual(400, bbox.width)
+        self.assertEqual(200, bbox.height)
 
     def test_rect02_bbox(self):
         parser = SVGParser()
@@ -2441,10 +2473,10 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         bbox = rect.get_bbox()
-        self.assertEqual(bbox.x, 0.5)
-        self.assertEqual(bbox.y, 0.5)
-        self.assertEqual(bbox.width, 29)
-        self.assertEqual(bbox.height, 39)
+        self.assertEqual(0.5, bbox.x)
+        self.assertEqual(0.5, bbox.y)
+        self.assertEqual(29, bbox.width)
+        self.assertEqual(39, bbox.height)
 
     def test_rect03_length(self):
         # initial value
@@ -2458,15 +2490,15 @@ class BasicShapesTestCase(unittest.TestCase):
         rect = parser.make_element('rect')
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 0)
+        self.assertEqual(0, len(path_data))
 
         settings = SVGPathDataSettings()
         settings.normalize = True
         normalized = rect.get_path_data(settings)
-        self.assertEqual(len(normalized), 0)
+        self.assertEqual(0, len(normalized))
 
         n = rect.get_total_length()
-        self.assertEqual(n, 0)
+        self.assertEqual(0, n)
 
     def test_rect04_length(self):
         # square rectangle
@@ -2486,14 +2518,14 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 6)
+        self.assertEqual(6, len(path_data))
         d = PathParser.tostring(path_data)
         expected = "M20,10 H120 V130 H20 V10 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = rect.get_total_length()
         # (100 + 120) * 2 = 440
-        self.assertEqual(n, 440)
+        self.assertEqual(440, n)
 
     def test_rect04_normalize(self):
         # square rectangle
@@ -2517,7 +2549,7 @@ class BasicShapesTestCase(unittest.TestCase):
         normalized = rect.get_path_data(settings)
         exp = PathParser.tostring(normalized)
         expected = 'M20,10 L120,10 120,130 20,130 20,10 Z'
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_rect05_length(self):
         # See also: rect02.html
@@ -2539,7 +2571,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 10)
+        self.assertEqual(10, len(path_data))
         d = PathParser.tostring(path_data)
         expected = \
             "M150,100" \
@@ -2547,13 +2579,13 @@ class BasicShapesTestCase(unittest.TestCase):
             " V250 A50,50 0 0 1 450,300" \
             " H150 A50,50 0 0 1 100,250" \
             " V150 A50,50 0 0 1 150,100 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = rect.get_total_length()
         # (400 - 50 * 2) * 2 + (200 - 50 * 2) * 2 + 2 * pi * 50
         # -> 1114.1592653589794
         expected = 1114.2037353515625  # chrome
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_rect05_normalize(self):
         # See also: rect02.html
@@ -2584,7 +2616,7 @@ class BasicShapesTestCase(unittest.TestCase):
             " L500,250 C500,277.614 477.614,300 450,300" \
             " L150,300 C122.386,300 100,277.614 100,250" \
             " L100,150 C100,122.386 122.386,100 150,100 Z"
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_rect06_length(self):
         # See also: rect02.html
@@ -2607,19 +2639,19 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 10)
+        self.assertEqual(10, len(path_data))
         d = PathParser.tostring(path_data)
         expected = \
             "M50,0 H350 A50,25 0 0 1 400,25" \
             " V175 A50,25 0 0 1 350,200" \
             " H50 A50,25 0 0 1 0,175" \
             " V25 A50,25 0 0 1 50,0 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = rect.get_total_length()
         # expected = 1142.2462158203125  # firefox
         expected = 1142.2459716796875  # chrome
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_rect06_normalize(self):
         # See also: rect02.html
@@ -2651,7 +2683,7 @@ class BasicShapesTestCase(unittest.TestCase):
             " L400,175 C400,188.807 377.614,200 350,200" \
             " L50,200 C22.386,200 0,188.807 0,175" \
             " L0,25 C0,11.193 22.386,0 50,0 Z"
-        self.assertEqual(exp, expected)
+        self.assertEqual(expected, exp)
 
     def test_rect07_length(self):
         # See also: rect02.html
@@ -2674,15 +2706,15 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 6)
+        self.assertEqual(6, len(path_data))
         d = PathParser.tostring(path_data)
         expected = 'M150,150 H550 V350 H150 V150 Z'
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = rect.get_total_length()
         # (400 + 200) * 2 = 1200
         expected = 1200
-        self.assertEqual(n, expected)
+        self.assertEqual(expected, n)
 
     def test_rect08_length(self):
         # rx = length value, ry = 'auto' => ry = rx
@@ -2704,7 +2736,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 10)
+        self.assertEqual(10, len(path_data))
         d = PathParser.tostring(path_data)
         expected = \
             "M200,150" \
@@ -2712,13 +2744,13 @@ class BasicShapesTestCase(unittest.TestCase):
             " V300 A50,50 0 0 1 500,350" \
             " H200 A50,50 0 0 1 150,300" \
             " V200 A50,50 0 0 1 200,150 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = rect.get_total_length()
         # (400 - 50 * 2) * 2 + (200 - 50 * 2) * 2 + 2 * pi * 50
         # -> 1114.1592653589794
         expected = 1114.2037353515625  # chrome
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_rect09_length(self):
         # rx = 'auto', ry = length value => rx = ry
@@ -2740,7 +2772,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 10)
+        self.assertEqual(10, len(path_data))
         d = PathParser.tostring(path_data)
         expected = \
             "M200,150" \
@@ -2748,13 +2780,13 @@ class BasicShapesTestCase(unittest.TestCase):
             " V300 A50,50 0 0 1 500,350" \
             " H200 A50,50 0 0 1 150,300" \
             " V200 A50,50 0 0 1 200,150 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
         n = rect.get_total_length()
         # (400 - 50 * 2) * 2 + (200 - 50 * 2) * 2 + 2 * pi * 50
         # -> 1114.1592653589794
         expected = 1114.2037353515625  # chrome
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_rect10_length(self):
         # rx = percentage value, ry = 'auto' => ry = rx
@@ -2783,10 +2815,10 @@ class BasicShapesTestCase(unittest.TestCase):
         # (400 - 50 * 2) * 2 + (200 - 50 * 2) * 2 + 2 * pi * 50
         # -> 1114.1592653589794
         expected = 1114.2037353515625
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
         path_data = rect.get_path_data()
-        self.assertEqual(len(path_data), 10)
+        self.assertEqual(10, len(path_data))
         d = PathParser.tostring(path_data)
         expected = \
             "M200,150" \
@@ -2794,7 +2826,7 @@ class BasicShapesTestCase(unittest.TestCase):
             " V300 A50,50 0 0 1 500,350" \
             " H200 A50,50 0 0 1 150,300" \
             " V200 A50,50 0 0 1 200,150 Z"
-        self.assertEqual(d, expected)
+        self.assertEqual(expected, d)
 
     def test_rect11_length(self):
         # x: 150
@@ -2825,7 +2857,7 @@ class BasicShapesTestCase(unittest.TestCase):
         n = rect.get_total_length()
         # arc length: 968.8438541327044183204(px)
         expected = 968.8438541327044183204
-        self.assertAlmostEqual(n, expected, places=places)
+        self.assertAlmostEqual(expected, n, places=places)
 
     def test_svg(self):
         # nested svg
@@ -2847,10 +2879,10 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # FIXME: correct?
         expected = 1200 * 0.4
-        self.assertAlmostEqual(style['width'], expected)
+        self.assertAlmostEqual(expected, style['width'])
 
         expected = 400 * 0.5
-        self.assertAlmostEqual(style['height'], expected)
+        self.assertAlmostEqual(expected, style['height'])
 
     def test_svg_current_scale(self):
         parser = SVGParser()
@@ -2867,22 +2899,22 @@ class BasicShapesTestCase(unittest.TestCase):
         # outermost svg element
         scale = root.current_scale
         expected = 1
-        self.assertEqual(scale, expected)
+        self.assertEqual(expected, scale)
 
         root.current_scale = 1.5
         scale = root.current_scale
         expected = 1.5
-        self.assertEqual(scale, expected)
+        self.assertEqual(expected, scale)
 
         # child svg element
         scale = child.current_scale
         expected = 1
-        self.assertEqual(scale, expected)
+        self.assertEqual(expected, scale)
 
         child.current_scale = 1.5
         scale = child.current_scale
         expected = 1
-        self.assertEqual(scale, expected)
+        self.assertEqual(expected, scale)
 
     def test_svg_current_translate(self):
         parser = SVGParser()
@@ -2899,22 +2931,22 @@ class BasicShapesTestCase(unittest.TestCase):
         # outermost svg element
         translate = root.current_translate
         expected = 0, 0
-        self.assertEqual(translate, expected)
+        self.assertEqual(expected, translate)
 
         root.current_translate = 100, -100
         translate = root.current_translate
         expected = 100, -100
-        self.assertEqual(translate, expected)
+        self.assertEqual(expected, translate)
 
         # child svg element
         translate = child.current_translate
         expected = 0, 0
-        self.assertEqual(translate, expected)
+        self.assertEqual(expected, translate)
 
         child.current_translate = 100, -100
         translate = child.current_translate
         expected = 0, 0
-        self.assertEqual(translate, expected)
+        self.assertEqual(expected, translate)
 
     def test_view_box01(self):
         # See also: ViewBox.html
@@ -2931,7 +2963,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1, 0, 0, 1, 0, 0]
         m = element.get_ctm()
         expected = Matrix()
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
         # id="svg01"
         element = root.get_element_by_id('svg01')
@@ -2939,12 +2971,12 @@ class BasicShapesTestCase(unittest.TestCase):
         par = SVGPreserveAspectRatio('none')
         expected = \
             SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
-        self.assertEqual(view_box, expected)
+        self.assertEqual(expected, view_box)
 
         # CTM = [0.2, 0, 0, 0.2, 0, 0]
         m = element.get_ctm()
         expected = Matrix(0.2, 0, 0, 0.2, 0, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
         # id="rect01"
         element = root.get_element_by_id('rect01')
@@ -2952,7 +2984,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [0.2, 0, 0, 0.2, 0, 0]
         m = element.get_ctm()
         expected = Matrix(0.2, 0, 0, 0.2, 0, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
         # id="svg02"
         element = root.get_element_by_id('svg02')
@@ -2960,12 +2992,12 @@ class BasicShapesTestCase(unittest.TestCase):
         par = SVGPreserveAspectRatio('none')
         expected = \
             SVGLength(0), SVGLength(0), SVGLength(1500), SVGLength(1000), par
-        self.assertEqual(view_box, expected)
+        self.assertEqual(expected, view_box)
 
         # CTM = [0.1, 0, 0, 0.2, 300, 0]
         m = element.get_ctm()
         expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
         # id="rect02"
         element = root.get_element_by_id('rect02')
@@ -2973,7 +3005,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [0.1, 0, 0, 0.2, 300, 0]
         m = element.get_ctm()
         expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_view_box02(self):
         # See also: ViewBox.html
@@ -2992,14 +3024,14 @@ class BasicShapesTestCase(unittest.TestCase):
         element.current_translate = 100, 50
 
         zap = element.zoom_and_pan
-        self.assertEqual(zap, SVGZoomAndPan.ZOOMANDPAN_MAGNIFY)
+        self.assertEqual(SVGZoomAndPan.ZOOMANDPAN_MAGNIFY, zap)
 
         # CTM: [1, 0, 0, 1, 0, 0] ->
         # [1.2, 0, 0, 1.2, 100, 50] * [1, 0, 0, 1, 50, 25]
         # = [1.2, 0, 0, 1.2, 160, 80]
         m = element.get_ctm()
         expected = Matrix(1.2, 0, 0, 1.2, 160, 80)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
         element.attributes.update({
             'zoomAndPan': 'disable',
@@ -3008,7 +3040,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM: [1, 0, 0, 1, 0, 0] -> [1, 0, 0, 1, 50, 25]
         m = element.get_ctm()
         expected = Matrix(1, 0, 0, 1, 50, 25)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
         # child svg element
         element = root.get_element_by_id('svg02')
@@ -3021,7 +3053,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM: [0.1, 0, 0, 0.2, 300, 0]
         m = element.get_ctm()
         expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_01(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3039,18 +3071,18 @@ class BasicShapesTestCase(unittest.TestCase):
 
         vpx, vpy, vpw, vph = element.get_viewport_size()
         expected = SVGLength(0), SVGLength(0), SVGLength(50), SVGLength(30)
-        self.assertEqual((vpx, vpy, vpw, vph), expected)
+        self.assertEqual(expected, (vpx, vpy, vpw, vph))
 
         vbx, vby, vbw, vbh, par = element.get_view_box()
         expected = SVGLength(0), SVGLength(0), SVGLength(30), SVGLength(40)
-        self.assertEqual((vbx, vby, vbw, vbh), expected)
-        self.assertEqual(par.align, 'xMinYMin')
-        self.assertEqual(par.meet_or_slice, 'meet')
+        self.assertEqual(expected, (vbx, vby, vbw, vbh))
+        self.assertEqual('xMinYMin', par.align)
+        self.assertEqual('meet', par.meet_or_slice)
 
         # CTM = [0.75, 0, 0, 0.75, 0, 0]
         m = element.get_ctm()
         expected = Matrix(0.75, 0, 0, 0.75, 0, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_02(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3068,7 +3100,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMidYMid_meet')
         m = element.get_ctm()
         expected = Matrix(0.75, 0, 0, 0.75, 13.75, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_03(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3086,7 +3118,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMaxYMax_meet')
         m = element.get_ctm()
         expected = Matrix(0.75, 0, 0, 0.75, 27.5, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_04(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3104,7 +3136,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMinYMin_meet02')
         m = element.get_ctm()
         expected = Matrix(1, 0, 0, 1, 0, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_05(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3122,7 +3154,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMidYMid_meet02')
         m = element.get_ctm()
         expected = Matrix(1, 0, 0, 1, 0, 10)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_06(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3140,7 +3172,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMaxYMax_meet02')
         m = element.get_ctm()
         expected = Matrix(1, 0, 0, 1, 0, 20)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_07(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3158,7 +3190,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMinYMin_slice')
         m = element.get_ctm()
         expected = Matrix(1.5, 0, 0, 1.5, 0, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_08(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3176,7 +3208,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMidYMid_slice')
         m = element.get_ctm()
         expected = Matrix(1.5, 0, 0, 1.5, -7.5, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_09(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3194,7 +3226,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMaxYMax_slice')
         m = element.get_ctm()
         expected = Matrix(1.5, 0, 0, 1.5, -15, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_10(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3212,7 +3244,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('xMinYMin_slice02')
         m = element.get_ctm()
         expected = Matrix(1.6666666666666667, 0, 0, 1.6666666666666667, 0, 0)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_11(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3232,7 +3264,7 @@ class BasicShapesTestCase(unittest.TestCase):
         m = element.get_ctm()
         expected = Matrix(1.6666666666666667, 0, 0,
                           1.6666666666666667, 0, -18.333333333333336)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport01_12(self):
         # See also: SVGPreserveAspectRatio.html
@@ -3252,7 +3284,7 @@ class BasicShapesTestCase(unittest.TestCase):
         m = element.get_ctm()
         expected = Matrix(1.6666666666666667, 0, 0,
                           1.6666666666666667, 0, -36.66666666666667)
-        self.assertEqual(m, expected)
+        self.assertEqual(expected, m)
 
     def test_viewport02(self):
         # nested svg
@@ -3283,44 +3315,44 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         vpx, vpy, vpw, vph = root.get_viewport_size()
-        self.assertEqual(vpx.tostring(), '0')
-        self.assertEqual(vpy.tostring(), '0')
-        self.assertEqual(vpw.tostring(), '10cm')
-        self.assertEqual(vph.tostring(), '4cm')
+        self.assertEqual('0', vpx.tostring())
+        self.assertEqual('0', vpy.tostring())
+        self.assertEqual('10cm', vpw.tostring())
+        self.assertEqual('4cm', vph.tostring())
 
         style = root.get_computed_geometry()
-        self.assertAlmostEqual(style['x'], 0)
-        self.assertAlmostEqual(style['y'], 0)
+        self.assertAlmostEqual(0, style['x'])
+        self.assertAlmostEqual(0, style['y'])
         # width = 10(cm) = 10 / 2.54 * 96
-        self.assertAlmostEqual(style['width'], 377.952756, delta=delta)
+        self.assertAlmostEqual(377.952756, style['width'], delta=delta)
         # height = 4(cm) = 4 / 2.54 * 96
-        self.assertAlmostEqual(style['height'], 151.181102, delta=delta)
+        self.assertAlmostEqual(151.181102, style['height'], delta=delta)
 
         vpx, vpy, vpw, vph = svg02.get_viewport_size()
-        self.assertEqual(vpx.tostring(), '1cm')
-        self.assertEqual(vpy.tostring(), '1cm')
-        self.assertEqual(vpw.tostring(), '10cm')
-        self.assertEqual(vph.tostring(), '4cm')
+        self.assertEqual('1cm', vpx.tostring())
+        self.assertEqual('1cm', vpy.tostring())
+        self.assertEqual('10cm', vpw.tostring())
+        self.assertEqual('4cm', vph.tostring())
 
         style = svg02.get_computed_geometry()
         # x = 1(cm) = 1 / 2.54 * 96
-        self.assertAlmostEqual(style['x'], 37.795276, delta=delta)
+        self.assertAlmostEqual(37.795276, style['x'], delta=delta)
         # y = 1(cm) = 1 / 2.54 * 96
-        self.assertAlmostEqual(style['y'], 37.795276, delta=delta)
-        self.assertAlmostEqual(style['width'], 377.952756, delta=delta)
-        self.assertAlmostEqual(style['height'], 151.181102, delta=delta)
+        self.assertAlmostEqual(37.795276, style['y'], delta=delta)
+        self.assertAlmostEqual(377.952756, style['width'], delta=delta)
+        self.assertAlmostEqual(151.181102, style['height'], delta=delta)
 
         vpx, vpy, vpw, vph = svg03.get_viewport_size()
-        self.assertEqual(vpx.tostring(), '40')
-        self.assertEqual(vpy.tostring(), '40')
-        self.assertEqual(vpw.tostring(), '80')
-        self.assertEqual(vph.tostring(), '80')
+        self.assertEqual('40', vpx.tostring())
+        self.assertEqual('40', vpy.tostring())
+        self.assertEqual('80', vpw.tostring())
+        self.assertEqual('80', vph.tostring())
 
         style = svg03.get_computed_geometry()
-        self.assertAlmostEqual(style['x'], 40, delta=delta)
-        self.assertAlmostEqual(style['y'], 40, delta=delta)
-        self.assertAlmostEqual(style['width'], 80, delta=delta)
-        self.assertAlmostEqual(style['height'], 80, delta=delta)
+        self.assertAlmostEqual(40, style['x'], delta=delta)
+        self.assertAlmostEqual(40, style['y'], delta=delta)
+        self.assertAlmostEqual(80, style['width'], delta=delta)
+        self.assertAlmostEqual(80, style['height'], delta=delta)
 
     def test_viewport03(self):
         parser = SVGParser()
@@ -3330,19 +3362,16 @@ class BasicShapesTestCase(unittest.TestCase):
         })
 
         vpx, vpy, vpw, vph = root.get_viewport_size()
-        self.assertEqual(vpx.value(direction=SVGLength.DIRECTION_HORIZONTAL), 0)
-        self.assertEqual(vpy.value(direction=SVGLength.DIRECTION_VERTICAL), 0)
-        self.assertEqual(vpw.value(direction=SVGLength.DIRECTION_HORIZONTAL),
-                         window.inner_width)
-        self.assertEqual(vph.value(direction=SVGLength.DIRECTION_VERTICAL),
-                         window.inner_height)
+        self.assertEqual(0, vpx.value())
+        self.assertEqual(0, vpy.value())
+        self.assertEqual(window.inner_width, vpw.value())
+        self.assertEqual(window.inner_height, vph.value())
 
         vbx, vby, vbw, vbh, _ = root.get_view_box()
-        self.assertEqual(vbx.value(direction=SVGLength.DIRECTION_HORIZONTAL), 0)
-        self.assertEqual(vby.value(direction=SVGLength.DIRECTION_VERTICAL), 50)
-        self.assertEqual(vbw.value(direction=SVGLength.DIRECTION_HORIZONTAL),
-                         500)
-        self.assertEqual(vbh.value(direction=SVGLength.DIRECTION_VERTICAL), 200)
+        self.assertEqual(0, vbx.value())
+        self.assertEqual(50, vby.value())
+        self.assertEqual(500, vbw.value())
+        self.assertEqual(200, vbh.value())
 
 
 if __name__ == '__main__':

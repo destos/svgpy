@@ -79,7 +79,7 @@ class FontConfigTestCase(unittest.TestCase):
         expected = '200'  # bold
         for matched in iter(s):
             items = matched.split('\t')
-            self.assertEqual(items[1], expected)
+            self.assertEqual(expected, items[1])
 
     def test_match01(self):
         if sys.platform == 'win32' or sys.platform == 'darwin':

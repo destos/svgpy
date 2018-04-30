@@ -20,10 +20,10 @@ class ICUTestCase(unittest.TestCase):
         self.assertTrue(u_success(para.status), msg=para.status)
 
         direction = para.get_direction()
-        self.assertEqual(direction, UBiDi.UBIDI_MIXED)
+        self.assertEqual(UBiDi.UBIDI_MIXED, direction)
 
         count = para.count_runs()
-        self.assertEqual(count, 4)
+        self.assertEqual(4, count)
 
         items = [x for x in para.visual_iter()]
         expected = [
@@ -32,7 +32,7 @@ class ICUTestCase(unittest.TestCase):
             ' \u0643\u0652\u0631\u0627\u0645',
             '.'
         ]
-        self.assertEqual(items, expected)
+        self.assertEqual(expected, items)
 
     def test_bidi02(self):
         # https://svgwg.org/svg2-draft/images/text/rtl-text.svg
@@ -49,27 +49,27 @@ class ICUTestCase(unittest.TestCase):
         self.assertTrue(u_success(para.status), msg=para.status)
 
         direction = para.get_direction()
-        self.assertEqual(direction, UBiDi.UBIDI_MIXED)
+        self.assertEqual(UBiDi.UBIDI_MIXED, direction)
 
         count = para.count_runs()
-        self.assertEqual(count, 3)
+        self.assertEqual(3, count)
 
         logical_start, length, direction = para.get_visual_run(0)
-        self.assertEqual(direction, UBiDi.UBIDI_RTL)
-        self.assertEqual(text[logical_start:logical_start + length],
-                         " \u0637\u0648\u0644\u0627" 
+        self.assertEqual(UBiDi.UBIDI_RTL, direction)
+        self.assertEqual(" \u0637\u0648\u0644\u0627" 
                          " \u0646\u064a"
-                         " \u0627\u0633\u062a.")
+                         " \u0627\u0633\u062a.",
+                         text[logical_start:logical_start + length])
 
         logical_start, length, direction = para.get_visual_run(1)
-        self.assertEqual(direction, UBiDi.UBIDI_LTR)
-        self.assertEqual(text[logical_start:logical_start + length],
-                         'SVG 1.1 SE')
+        self.assertEqual(UBiDi.UBIDI_LTR, direction)
+        self.assertEqual('SVG 1.1 SE',
+                         text[logical_start:logical_start + length])
 
         logical_start, length, direction = para.get_visual_run(2)
-        self.assertEqual(direction, UBiDi.UBIDI_RTL)
-        self.assertEqual(text[logical_start:logical_start + length],
-                         '\u062f\u0627\u0633\u062a\u0627\u0646 ')
+        self.assertEqual(UBiDi.UBIDI_RTL, direction)
+        self.assertEqual('\u062f\u0627\u0633\u062a\u0627\u0646 ',
+                         text[logical_start:logical_start + length])
 
     def test_break_iterator_get_available(self):
         count = UBreakIterator.count_available()
@@ -88,13 +88,13 @@ class ICUTestCase(unittest.TestCase):
         bi = UBreakIterator(UBreakIterator.UBRK_WORD, 'en_US')
 
         offset = bi.first()
-        self.assertEqual(offset, 0)
+        self.assertEqual(0, offset)
 
         offset = bi.next()
-        self.assertEqual(offset, -1)
+        self.assertEqual(-1, offset)
 
         offset = bi.last()
-        self.assertEqual(offset, 0)
+        self.assertEqual(0, offset)
 
         offset = bi.previous()
         self.assertEqual(offset, -1)
@@ -107,16 +107,16 @@ class ICUTestCase(unittest.TestCase):
         # |Make| |haste| |slowly|.|
         # |0....4.5.....0.1......7.8
         offset = bi.first()
-        self.assertEqual(offset, 0)
+        self.assertEqual(0, offset)
 
         offset = bi.next()
-        self.assertEqual(offset, 4)
+        self.assertEqual(4, offset)
 
         offset = bi.last()
-        self.assertEqual(offset, 18)
+        self.assertEqual(18, offset)
 
         offset = bi.previous()
-        self.assertEqual(offset, 17)
+        self.assertEqual(17, offset)
 
     def test_break_iterator_iter_character01(self):
         bi = UBreakIterator(
@@ -125,7 +125,7 @@ class ICUTestCase(unittest.TestCase):
             'あｱa\U00020000!')
         items = [x for x in bi]
         expected = ['あ', 'ｱ', 'a', '\U00020000', '!']
-        self.assertEqual(items, expected)
+        self.assertEqual(expected, items)
 
     def test_break_iterator_iter_sentence01(self):
         # http://www.unicode.org/reports/tr29/#Sentence_Boundaries
@@ -140,7 +140,7 @@ class ICUTestCase(unittest.TestCase):
             'John shook his head. ',
             '“Are you going?” ',
             'John asked.']
-        self.assertEqual(items, expected)
+        self.assertEqual(expected, items)
 
     def test_break_iterator_iter_word01(self):
         # http://userguide.icu-project.org/boundaryanalysis
@@ -156,7 +156,7 @@ class ICUTestCase(unittest.TestCase):
             '$', '1,234.56', '.', '.', '.', ' ',
             'I', ' ',
             'think', '.']
-        self.assertEqual(items, expected)
+        self.assertEqual(expected, items)
 
     def test_break_iterator_iter_word02(self):
         # http://userguide.icu-project.org/boundaryanalysis
@@ -168,7 +168,7 @@ class ICUTestCase(unittest.TestCase):
             'Parlez', '-',
             'vous', ' ',
             'français', ' ', '?']
-        self.assertEqual(items, expected)
+        self.assertEqual(expected, items)
 
     def test_break_iterator_iter_word03(self):
         # https://stackoverflow.com/questions/44507838/breakiterator-not-working-correctly-with-chinese-text
@@ -187,7 +187,7 @@ class ICUTestCase(unittest.TestCase):
             '吃',
             '苹果',
             '。']
-        self.assertEqual(items, expected)
+        self.assertEqual(expected, items)
 
     def test_break_iterator_iter_line02(self):
         # http://userguide.icu-project.org/boundaryanalysis
@@ -199,22 +199,22 @@ class ICUTestCase(unittest.TestCase):
             'Parlez-',
             'vous ',
             'français ?']
-        self.assertEqual(items, expected)
+        self.assertEqual(expected, items)
 
     def test_locale_get_character_orientation01(self):
         locale = ULocale('en_US')
         layout = locale.get_character_orientation()
-        self.assertEqual(layout, ULocale.ULOC_LAYOUT_LTR)
+        self.assertEqual(ULocale.ULOC_LAYOUT_LTR, layout)
 
     def test_locale_get_character_orientation02(self):
         locale = ULocale('fa')
         layout = locale.get_character_orientation()
-        self.assertEqual(layout, ULocale.ULOC_LAYOUT_RTL)
+        self.assertEqual(ULocale.ULOC_LAYOUT_RTL, layout)
 
     def test_locale_get_character_orientation03(self):
         locale = ULocale('und-Zzzz')
         layout = locale.get_character_orientation()
-        self.assertEqual(layout, ULocale.ULOC_LAYOUT_LTR)
+        self.assertEqual(ULocale.ULOC_LAYOUT_LTR, layout)
 
     def test_locale_get_default(self):
         locale = ULocale.get_default()
@@ -224,32 +224,32 @@ class ICUTestCase(unittest.TestCase):
     def test_locale_get_language01(self):
         locale = ULocale('sr-Latn-RS-REVISED@currency=USD')
         language = locale.get_language()
-        self.assertEqual(language, 'sr')
+        self.assertEqual('sr', language)
 
     def test_locale_get_language02(self):
         locale = ULocale('und-Zzzz')
         language = locale.get_language()
-        self.assertEqual(language, 'und')
+        self.assertEqual('und', language)
 
     def test_locale_get_line_orientation01(self):
         locale = ULocale('en_US')
         layout = locale.get_line_orientation()
-        self.assertEqual(layout, ULocale.ULOC_LAYOUT_TTB)
+        self.assertEqual(ULocale.ULOC_LAYOUT_TTB, layout)
 
     def test_locale_get_line_orientation03(self):
         locale = ULocale('und-Zzzz')
         layout = locale.get_line_orientation()
-        self.assertEqual(layout, ULocale.ULOC_LAYOUT_TTB)
+        self.assertEqual(ULocale.ULOC_LAYOUT_TTB, layout)
 
     def test_locale_get_script01(self):
         locale = ULocale('sr-Latn-RS-REVISED@currency=USD')
         script = locale.get_script()
-        self.assertEqual(script, 'Latn')
+        self.assertEqual('Latn', script)
 
     def test_locale_get_script02(self):
         locale = ULocale('und-Zzzz')
         script = locale.get_script()
-        self.assertEqual(script, 'Zzzz')
+        self.assertEqual('Zzzz', script)
 
     def test_str_to_utf8(self):
         text = 'あｱa\U00020000!'
@@ -260,7 +260,7 @@ class ICUTestCase(unittest.TestCase):
         src = ffi.new('char[]', text.encode())
         status = ffi.new('UErrorCode *')
         u_str_from_utf8(dest, len(dest), dest_length, src, len(src), status)
-        self.assertEqual(status[0], 0)
+        self.assertEqual(0, status[0])
 
         # auto (cffi): str -> UChar*
         dest2 = ffi.new('UChar[]', text)
@@ -269,7 +269,7 @@ class ICUTestCase(unittest.TestCase):
         self.assertEqual([dest[n] for n in range(length)],
                          [dest2[n] for n in range(length)])
 
-        self.assertEqual(ffi.string(dest2), text)
+        self.assertEqual(text, ffi.string(dest2))
 
         # u_strToUTF8(): UChar* -> char* -> str
         src = dest
@@ -277,8 +277,8 @@ class ICUTestCase(unittest.TestCase):
         dest_length = ffi.new('int32_t *')
         status[0] = 0
         u_str_to_utf8(dest, len(dest), dest_length, src, len(src), status)
-        self.assertEqual(status[0], 0)
-        self.assertEqual(ffi.string(dest).decode(), text)
+        self.assertEqual(0, status[0])
+        self.assertEqual(text, ffi.string(dest).decode())
 
     def test_version(self):
         version = icu.version
