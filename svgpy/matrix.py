@@ -662,7 +662,9 @@ class Matrix(object):
         return self
 
     def scale3d(self, scale=1, origin_x=0, origin_y=0, origin_z=0):
-        return self.scale(scale, scale, scale, origin_x, origin_y, origin_z)
+        x = copy.deepcopy(self)
+        x.scale3d_self(scale, origin_x, origin_y, origin_z)
+        return x
 
     def scale3d_self(self, scale=1, origin_x=0, origin_y=0, origin_z=0):
         return self.scale_self(scale, scale, scale,
