@@ -37,11 +37,11 @@ class SVGTransform(object):
             function_name (str, optional): The type of transform function.
             *values: The values of transform function.
         Examples:
-            >>> t = SVGTransform('translate', 100, -200)
+            >>> t = SVGTransform(SVGTransform.TRANSFORM_TRANSLATE, 100, -200)
             >>> t.tostring()
             'translate(100 -200)'
-            >>> t.matrix.tolist()
-            [[1.0, 0.0, 100.0], [0.0, 1.0, -200.0], [0.0, 0.0, 1.0]]
+            >>> t.matrix.toarray()
+            [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 100.0, -200.0, 0.0, 1.0]
         """
         self._transform_type = None
         self._values = None
@@ -229,7 +229,20 @@ class SVGTransform(object):
 
 
 class SVGTransformList(list):
-    """Represents a list of SVGTransform objects."""
+    """Represents a list of SVGTransform objects.
+
+    Examples:
+        >>> t = SVGTransformList()
+        >>> t.append(SVGTransform(SVGTransform.TRANSFORM_ROTATE, 9))
+        >>> t.append(SVGTransform(SVGTransform.TRANSFORM_SCALE, 0.33))
+        >>> t.tostring()
+        'rotate(9) scale(0.33)'
+        >>> t.tomatrix().tostring()
+        'matrix(0.325937 0.051623 -0.051623 0.325937 0 0)'
+        >>> t.consolidate()
+        >>> t.tostring()
+        'matrix(0.325937 0.051623 -0.051623 0.325937 0 0)'
+    """
 
     RE_TRANSFORM_LIST = re.compile(
         r"(?P<transform>(?P<name>matrix|translate|scale|rotate|skewX|skewY)"
