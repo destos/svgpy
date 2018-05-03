@@ -862,9 +862,16 @@ class Element(etree.ElementBase, Node):
                           local_name=local_name)
 
     def get_elements_by_tag_name(self, tag, namespaces=None):
-        # return self.findall(tag, namespaces)
-        # include itself
-        expr = '//*{}'.format('' if tag == '*' else '[name() = $tag_name]')
+        """Finds all matching sub-elements, by the qualified name.
+
+        Arguments:
+            tag (str): The qualified name.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            list[SVGElement]: A list of elements.
+        """
+        expr = './/*{}'.format('' if tag == '*' else '[name() = $tag_name]')
         return self.xpath(expr,
                           namespaces=namespaces,
                           tag_name=tag)

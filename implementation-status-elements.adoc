@@ -139,7 +139,7 @@
 |removeAttributeNS() ^|Not Planned ||Use attributes.pop_ns() instead.
 |hasAttribute() ^|Not Planned ||Use attributes.has() instead.
 |hasAttributeNS() ^|Not Planned ||Use attributes.has_ns() instead.
-|getElementsByTagName() ^|✓ ||Include itself.
+|getElementsByTagName() ^|✓ ||
 |getElementsByTagNameNS() ^|✓ ||Include itself.
 |getElementsByClassName() ^|✓ ||
 
