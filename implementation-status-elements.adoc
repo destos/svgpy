@@ -140,7 +140,7 @@
 |hasAttribute() ^|Not Planned ||Use attributes.has() instead.
 |hasAttributeNS() ^|Not Planned ||Use attributes.has_ns() instead.
 |getElementsByTagName() ^|✓ ||
-|getElementsByTagNameNS() ^|✓ ||Include itself.
+|getElementsByTagNameNS() ^|✓ ||
 |getElementsByClassName() ^|✓ ||
 
 .33+|Comment .26+|Node |nodeType ^|✓ ||

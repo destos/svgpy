@@ -876,14 +876,28 @@ class Element(etree.ElementBase, Node):
                           namespaces=namespaces,
                           tag_name=tag)
 
-    def get_elements_by_tag_name_ns(self, namespace_uri, local_name):
+    def get_elements_by_tag_name_ns(self, namespace_uri, local_name,
+                                    namespaces=None):
+        """Finds all matching sub-elements, by the namespace URI and the local
+        name.
+
+        Arguments:
+            namespace_uri (str): The namespace URI.
+            local_name (str): The local name.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            list[SVGElement]: A list of elements.
+        """
         pattern = list()
-        pattern.append('namespace-uri() = $namespace_uri')
+        if namespace_uri is not None and namespace_uri != '*':
+            pattern.append('namespace-uri() = $namespace_uri')
         if local_name != '*':
             pattern.append('local-name() = $local_name')
-        # include itself
-        expr = '//*[{}]'.format(' and '.join(pattern))
+        expr = './/*{}'.format('' if len(pattern) == 0
+                               else '[{}]'.format(' and '.join(pattern)))
         return self.xpath(expr,
+                          namespaces=namespaces,
                           namespace_uri=namespace_uri,
                           local_name=local_name)
 

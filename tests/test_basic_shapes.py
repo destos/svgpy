@@ -1402,6 +1402,152 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(element is not None)
         self.assertEqual('path', element.local_name)
 
+    def test_element_find_by_tag_name(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_SVG))
+        root = tree.getroot()
+
+        parent = root.get_element_by_id('gtop')
+        root.attributes.set_ns(Element.XHTML_NAMESPACE_URI,
+                               'html',
+                               Element.XHTML_NAMESPACE_URI)
+        video = parent.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+                                           'video')
+        source = video.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+                                           'source')
+
+        # <g>(id=svgstar), <path>(id=svgbar),
+        # <use>(id=use1), <use>(id=use2), <use>(id=use3)
+        # <html:video>, <html:source>
+        tag = '*'
+        elements = parent.get_elements_by_tag_name(tag)
+        self.assertEqual(7, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('g'))
+        self.assertEqual(1, tags.count('path'))
+        self.assertEqual(3, tags.count('use'))
+        self.assertEqual(1, tags.count('html:video'))
+        self.assertEqual(1, tags.count('html:source'))
+
+        # <use>(id=use1), <use>(id=use2), <use>(id=use3)
+        tag = 'use'
+        elements = parent.get_elements_by_tag_name(tag)
+        self.assertEqual(3, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(3, tags.count('use'))
+
+        # (not found)
+        tag = 'video'
+        elements = parent.get_elements_by_tag_name(tag)
+        self.assertEqual(0, len(elements))
+
+        # <html:video>
+        tag = 'html:video'
+        elements = parent.get_elements_by_tag_name(tag)
+        self.assertEqual(1, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('html:video'))
+
+    def test_element_find_by_tag_name_ns(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_SVG))
+        root = tree.getroot()
+
+        parent = root.get_element_by_id('gtop')
+        root.attributes.set_ns(Element.XHTML_NAMESPACE_URI,
+                               'html',
+                               Element.XHTML_NAMESPACE_URI)
+        video = parent.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+                                           'video')
+        source = video.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+                                           'source')
+
+        # <g>(id=svgstar), <path>(id=svgbar),
+        # <use>(id=use1), <use>(id=use2), <use>(id=use3)
+        # <html:video>, <html:source>
+        namespace = None
+        local_name = '*'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(7, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('g'))
+        self.assertEqual(1, tags.count('path'))
+        self.assertEqual(3, tags.count('use'))
+        self.assertEqual(1, tags.count('html:video'))
+        self.assertEqual(1, tags.count('html:source'))
+
+        # <g>(id=svgstar), <path>(id=svgbar),
+        # <use>(id=use1), <use>(id=use2), <use>(id=use3)
+        # <html:video>, <html:source>
+        namespace = '*'
+        local_name = '*'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(7, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('g'))
+        self.assertEqual(1, tags.count('path'))
+        self.assertEqual(3, tags.count('use'))
+        self.assertEqual(1, tags.count('html:video'))
+        self.assertEqual(1, tags.count('html:source'))
+
+        # <g>(id=svgstar), <path>(id=svgbar),
+        # <use>(id=use1), <use>(id=use2), <use>(id=use3)
+        namespace = Element.SVG_NAMESPACE_URI
+        local_name = '*'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(5, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('g'))
+        self.assertEqual(1, tags.count('path'))
+        self.assertEqual(3, tags.count('use'))
+
+        # <html:video>, <html:source>
+        namespace = Element.XHTML_NAMESPACE_URI
+        local_name = '*'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(2, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('html:video'))
+        self.assertEqual(1, tags.count('html:source'))
+
+        # <use>(id=use1), <use>(id=use2), <use>(id=use3)
+        namespace = '*'
+        local_name = 'use'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(3, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(3, tags.count('use'))
+
+        # <html:source>
+        namespace = '*'
+        local_name = 'source'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(1, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('html:source'))
+
+        # <use>(id=use1), <use>(id=use2), <use>(id=use3)
+        namespace = Element.SVG_NAMESPACE_URI
+        local_name = 'use'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(3, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(3, tags.count('use'))
+
+        # <html:video>
+        namespace = Element.XHTML_NAMESPACE_URI
+        local_name = 'video'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(1, len(elements))
+        tags = [x.tag_name for x in elements]
+        self.assertEqual(1, tags.count('html:video'))
+
+        # (not found)
+        namespace = Element.XHTML_NAMESPACE_URI
+        local_name = 'use'
+        elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
+        self.assertEqual(0, len(elements))
+
     def test_element_isdisplay(self):
         parser = SVGParser()
         root = parser.make_element('svg')
