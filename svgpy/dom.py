@@ -856,7 +856,7 @@ class Element(etree.ElementBase, Node):
         Returns:
             list[SVGElement]: A list of elements.
         """
-        return self.xpath('//*[local-name() = $local_name]',
+        return self.xpath('.//*[local-name() = $local_name]',
                           namespaces=namespaces,
                           local_name=local_name)
 
