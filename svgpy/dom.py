@@ -837,10 +837,11 @@ class Element(etree.ElementBase, Node):
             list[SVGElement]: A list of elements.
         """
         names = class_names.split()
+        if len(names) == 0:
+            return []
         pattern = [r're:test(@class, "(^| ){}($| )")'.format(x)
                    for x in names]
-        # include itself
-        expr = '//*[{}]'.format(' and '.join(pattern))
+        expr = './/*[{}]'.format(' and '.join(pattern))
         if namespaces is None:
             namespaces = dict()
         namespaces['re'] = 'http://exslt.org/regular-expressions'

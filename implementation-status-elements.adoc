@@ -141,7 +141,7 @@
 |hasAttributeNS() ^|Not Planned ||Use attributes.has_ns() instead.
 |getElementsByTagName() ^|✓ ||Include itself.
 |getElementsByTagNameNS() ^|✓ ||Include itself.
-|getElementsByClassName() ^|✓ ||Include itself.
+|getElementsByClassName() ^|✓ ||
 
 .33+|Comment .26+|Node |nodeType ^|✓ ||
 |nodeName ^|✓ ||
