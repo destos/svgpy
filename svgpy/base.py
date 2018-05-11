@@ -338,7 +338,7 @@ class SVGGraphicsElement(SVGElement):
             tx, ty = farthest.current_translate
             ctm *= Matrix(scale, 0, 0, scale, tx, ty)
         for root in roots:
-            vtm = root.get_viewport_transform_matrix(recursive=False)
+            vtm = root.get_viewport_transformation_matrix(recursive=False)
             ctm *= vtm
 
         transform_list = SVGTransformList()
@@ -447,7 +447,7 @@ class SVGGraphicsElement(SVGElement):
             path_data = PathParser.transform(path_data, matrix)
         return path_data
 
-    def get_viewport_transform_matrix(self, recursive=True):
+    def get_viewport_transformation_matrix(self, recursive=True):
         """Returns the transformation matrix of an SVG viewport.
 
         Returns:
