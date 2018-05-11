@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ViewBox</title>
+    <script type="text/javascript">
+        function matrix_to_string(m) {
+            if (m === null) return 'null';
+            return '[' + m.a + ', ' + m.b + ', ' + m.c + ', ' + m.d + ', ' + m.e + ', ' + m.f + ']';
+        }
+        window.onload = function() {
+            var root = document.getElementById('root');
+            root.currentScale = 0.8;
+            var output = document.getElementById('output');
+            [].forEach.call(document.getElementsByClassName('ctm'),
+                            function (element) {
+                var tr = document.createElement('tr');
+                var td;
+                td = document.createElement('td');
+                td.textContent = element.id;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                td.textContent = element.nodeName;
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var ctm = element.getCTM();
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                td = document.createElement('td');
+                var ctm = element.getScreenCTM();
+                td.textContent = matrix_to_string(ctm);
+                tr.appendChild(td);
+                output.appendChild(tr);
+            });
+        }
+
+    </script>
+</head>
+<body>
+<svg width="600px" height="200px"
+     preserveAspectRatio="none"
+     id="root" class="ctm"
+     xmlns="http://www.w3.org/2000/svg">
+
+    <rect x="0" y="0" width="1149" height="200" fill="none" stroke="blue"
+          stroke-width="1"/>
+
+    <svg width="300px" height="200px"
+         x="0" y="0"
+         viewBox="0 0 1500 1000"
+         preserveAspectRatio="none"
+         id="svg01" class="ctm"
+         xmlns="http://www.w3.org/2000/svg">
+        <desc>Example ViewBox - uses the viewBox
+            attribute to automatically create an initial user coordinate
+            system which causes the graphic to scale to fit into the
+            viewport no matter what size the viewport is.
+        </desc>
+
+        <!-- This rectangle goes from (0,0) to (1500,1000) in local coordinate system.
+             Because of the viewBox attribute above,
+             the rectangle will end up filling the entire area
+             reserved for the SVG content. -->
+        <rect x="0" y="0" width="1500" height="1000"
+              fill="yellow" stroke="blue" stroke-width="12"
+              id="rect01" class="ctm"/>
+
+        <!-- A large, red triangle -->
+        <path fill="red" d="M 750,100 L 250,900 L 1250,900 z"/>
+
+        <!-- A text string that spans most of the viewport -->
+        <text x="100" y="600" font-size="200" font-family="Verdana">
+            Stretch to fit
+        </text>
+    </svg>
+
+    <svg width="150px" height="200px"
+         x="300" y="0"
+         viewBox="0 0 1500 1000"
+         preserveAspectRatio="none"
+         id="svg02" class="ctm"
+         xmlns="http://www.w3.org/2000/svg">
+        <desc>Example ViewBox - uses the viewBox
+            attribute to automatically create an initial user coordinate
+            system which causes the graphic to scale to fit into the
+            viewport no matter what size the viewport is.
+        </desc>
+
+        <!-- This rectangle goes from (0,0) to (1500,1000) in local coordinate system.
+             Because of the viewBox attribute above,
+             the rectangle will end up filling the entire area
+             reserved for the SVG content. -->
+        <rect x="0" y="0" width="1500" height="1000"
+              fill="yellow" stroke="blue" stroke-width="12"
+              id="rect02" class="ctm"/>
+
+        <!-- A large, red triangle -->
+        <path fill="red" d="M 750,100 L 250,900 L 1250,900 z"/>
+
+        <!-- A text string that spans most of the viewport -->
+        <text x="100" y="600" font-size="200" font-family="Verdana">
+            Stretch to fit
+        </text>
+    </svg>
+</svg>
+<table id="output" border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>CTM</th>
+        <th>ScreenCTM</th>
+    </tr>
+</table>
+</body>
+</html>

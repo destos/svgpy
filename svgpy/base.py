@@ -87,6 +87,9 @@ class SVGBoundingBoxOptions(object):
 
 # See https://svgwg.org/svg2-draft/types.html#InterfaceSVGElement
 class SVGElement(Element):
+    NEAREST_VIEWPORT = 0
+    FARTHEST_VIEWPORT = 1
+
     @property
     def owner_svg_element(self):
         """SVGSVGElement: The nearest ancestor 'svg' element. If the current
@@ -149,30 +152,32 @@ class SVGElement(Element):
             element = element.getparent()
         return None
 
-    def get_view_box(self):
+    def get_view_box(self, recursive=True):
         """Gets values of the 'viewBox' and 'preserveAspectRatio' attributes
         from nearest ancestor element that establishes an SVG viewport.
 
         Returns:
             tuple[SVGLength, SVGLength, SVGLength, SVGLength,
             SVGPreserveAspectRatio]: Returns a tuple of four numbers <min-x>,
-            <min-y>, <width>, <height> and <SVGPreserveAspectRatio>.
+            <min-y>, <width>, <height> and <preserveAspectRatio>.
         """
         element = self
         while element is not None:
             root = element.get_nearest_viewport_element()
             if root is None:
-                break
+                return None
             assert isinstance(root, SVGFitToViewBox)
             view_box = root.view_box
             if view_box is not None:
                 vbx, vby, vbw, vbh = view_box
                 par = root.preserve_aspect_ratio
                 return vbx, vby, vbw, vbh, par
+            if not recursive:
+                return None
             element = root.getparent()
         return None
 
-    def get_viewport_size(self):
+    def get_viewport_size(self, recursive=True):
         """Gets the SVG viewport size from nearest ancestor element that
         establishes an SVG viewport.
 
@@ -188,6 +193,8 @@ class SVGElement(Element):
             if root is None:
                 break
             roots.insert(0, root)
+            if not recursive:
+                break
             element = root.getparent()
 
         parent_vpw = vpw = SVGLength(window.inner_width,
@@ -298,6 +305,57 @@ class SVGGraphicsElement(SVGElement):
         value = SVGTransformList.tostring(transform)
         self.attributes.set('transform', value)
 
+    def _get_ctm(self, viewport_type):
+        """Returns the current transformation matrix (CTM).
+
+        Returns:
+            Matrix: The current transformation matrix (CTM).
+        """
+        roots = list()
+        ctm = Matrix()
+        farthest = self.get_farthest_svg_element()
+        if farthest is None:
+            return ctm
+        elif hash(farthest) == hash(self):
+            roots.append(farthest)
+        else:
+            element = self
+            while element is not None:
+                root = element.get_nearest_viewport_element()
+                if root is None or root in roots:
+                    break
+                roots.insert(0, root)
+                if viewport_type == SVGElement.NEAREST_VIEWPORT:
+                    if (self.local_name not in ['svg', 'symbol']
+                            or len(roots) >= 2):
+                        break
+                element = root.getparent()
+        if len(roots) == 0:
+            return ctm
+
+        if viewport_type == SVGElement.FARTHEST_VIEWPORT:
+            scale = farthest.current_scale
+            tx, ty = farthest.current_translate
+            ctm *= Matrix(scale, 0, 0, scale, tx, ty)
+        for root in roots:
+            vtm = root.get_viewport_transform_matrix(recursive=False)
+            ctm *= vtm
+
+        transform_list = SVGTransformList()
+        element = self
+        while element is not None:
+            if element.istransformable():
+                transform = element.transform
+                if transform is not None:
+                    transform_list[0:0] = transform
+            if element.local_name in ['svg', 'symbol']:
+                break
+            element = element.getparent()
+        if len(transform_list) > 0:
+            matrix = transform_list.tomatrix()
+            ctm *= matrix
+        return ctm
+
     def get_bbox(self, options=None, _depth=0):
         """Returns the bounding box of the current element.
 
@@ -333,35 +391,14 @@ class SVGGraphicsElement(SVGElement):
         return bbox
 
     def get_ctm(self):
-        """Returns the current transformation matrix (CTM).
+        """Returns the current transformation matrix (CTM). The matrix that
+        transforms the current element's coordinate system to its SVG
+        viewport's coordinate system.
 
         Returns:
             Matrix: The current transformation matrix (CTM).
         """
-        ctm = Matrix()
-        farthest = self.get_farthest_svg_element()
-        if farthest is not None and hash(farthest) == hash(self):
-            if farthest.zoom_and_pan == SVGZoomAndPan.ZOOMANDPAN_MAGNIFY:
-                scale = self.current_scale
-                tx, ty = self.current_translate
-                ctm *= Matrix(scale, 0, 0, scale, tx, ty)
-
-        vtm = self.get_viewport_transform_matrix()
-        ctm *= vtm
-
-        transform_list = SVGTransformList()
-        element = self
-        while element is not None:
-            if element.istransformable():
-                transform = element.transform
-                if transform is not None:
-                    transform_list[0:0] = transform
-            if element.local_name in ['svg', 'symbol']:
-                break
-            element = element.getparent()
-        if len(transform_list) > 0:
-            matrix = transform_list.tomatrix()
-            ctm *= matrix
+        ctm = self._get_ctm(SVGElement.NEAREST_VIEWPORT)
         return ctm
 
     def get_descendant_path_data(self, settings=None):
@@ -384,6 +421,17 @@ class SVGGraphicsElement(SVGElement):
         """
         raise NotImplementedError
 
+    def get_screen_ctm(self):
+        """Returns the current transformation matrix (CTM). The matrix that
+        transforms the current element's coordinate system to the coordinate
+        system of the SVG viewport for the SVG document fragment.
+
+        Returns:
+            Matrix: The current transformation matrix (CTM).
+        """
+        ctm = self._get_ctm(SVGElement.FARTHEST_VIEWPORT)
+        return ctm
+
     def get_transformed_path_data(self, settings=None):
         path_data = self.get_path_data(settings)
         if len(path_data) == 0:
@@ -399,16 +447,15 @@ class SVGGraphicsElement(SVGElement):
             path_data = PathParser.transform(path_data, matrix)
         return path_data
 
-    def get_viewport_transform_matrix(self):
+    def get_viewport_transform_matrix(self, recursive=True):
         """Returns the transformation matrix of an SVG viewport.
 
         Returns:
             Matrix: The transformation matrix.
         """
-        # See https://svgwg.org/svg2-draft/coords.html#ComputingAViewportsTransform
         ctm = Matrix()
-        ex, ey, ew, eh = self.get_viewport_size()
-        view_box = self.get_view_box()
+        ex, ey, ew, eh = self.get_viewport_size(recursive)
+        view_box = self.get_view_box(recursive)
         if view_box is None:
             if ex is not None and ey is not None:
                 ctm.translate_self(ex.value(), ey.value())
@@ -444,7 +491,7 @@ class SVGGraphicsElement(SVGElement):
             ty += (eh - vbh * sy) / 2
         if 'YMax' in align:
             ty += eh - vbh * sy
-        ctm.translate_self(tx.value(tx.unit), ty.value(tx.unit))
+        ctm.translate_self(tx.value(), ty.value())
         ctm.scale_self(sx.value(tx.unit), sy.value(tx.unit))
         return ctm
 

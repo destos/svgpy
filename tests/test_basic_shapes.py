@@ -926,6 +926,522 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual('blue', css_style.get('stroke'))
         self.assertEqual(5, css_style.get('stroke-width'))
 
+    def test_ctm01(self):
+        # nested svg
+        # See also: nestedsvg01.html
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'id': 'svg01',
+            'width': '10cm',
+            'height': '4cm',
+            'viewBox': '0 0 400 400',
+        })
+
+        rect01 = root.make_sub_element('rect')
+        rect01.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg02 = root.make_sub_element('svg')
+        svg02.attributes.update({
+            'id': 'svg02',
+            'x': '1cm',
+            'y': '1cm',
+        })
+
+        rect02 = svg02.make_sub_element('rect')
+        rect02.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg03 = svg02.make_sub_element('svg')
+        svg03.attributes.update({
+            'id': 'svg03',
+            'x': '40',
+            'y': '40',
+            'width': '80',
+            'height': '80',
+        })
+
+        rect03 = svg03.make_sub_element('rect')
+        rect03.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        ctm = root.get_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 113.3828125
+        f = 0
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = root.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 121.3828125 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect01.get_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 113.3828125
+        f = 0
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = rect01.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 121.3828125 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg02.get_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 127.6667695902288
+        f = 14.283957090228796
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = svg02.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 135.6667695902288 - 8
+        f = 22.283957090228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect02.get_ctm()
+        a = 1
+        b = 0
+        c = 0
+        d = 1
+        e = 37.7952766418457
+        f = 37.7952766418457
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = rect02.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 135.6667695902288 - 8
+        f = 22.283957090228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg03.get_ctm()
+        a = 1
+        b = 0
+        c = 0
+        d = 1
+        e = 77.7952766418457
+        f = 77.7952766418457
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = svg03.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 150.7839570902288 - 8
+        f = 37.401144590228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect03.get_ctm()
+        a = 1
+        b = 0
+        c = 0
+        d = 1
+        e = 40
+        f = 40
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = rect03.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 150.7839570902288 - 8
+        f = 37.401144590228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+    def test_ctm02(self):
+        # nested svg
+        # See also: nestedsvg02.html
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'id': 'svg01',
+            'width': '400',
+            'height': '200',
+            'viewBox': '0 0 400 400',
+        })
+        root.current_scale = 1.2
+
+        rect01 = root.make_sub_element('rect')
+        rect01.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg02 = root.make_sub_element('svg')
+        svg02.attributes.update({
+            'id': 'svg02',
+            'x': '30',
+            'y': '40',
+        })
+
+        rect02 = svg02.make_sub_element('rect')
+        rect02.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg03 = svg02.make_sub_element('svg')
+        svg03.attributes.update({
+            'id': 'svg03',
+            'x': '30',
+            'y': '40',
+            'width': '100',
+            'height': '80',
+        })
+
+        rect03 = svg03.make_sub_element('rect')
+        rect03.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        # [0.5, 0, 0, 0.5, 100, 0]
+        # [0.6, 0, 0, 0.6, 128, 8]
+        ctm = root.get_ctm()
+        screen_ctm = root.get_screen_ctm()
+        expected = 'matrix(0.5 0 0 0.5 100 0)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6 0 0 0.6 120 0)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [0.5, 0, 0, 0.5, 100, 0]
+        # [0.6, 0, 0, 0.6, 128, 8]
+        ctm = rect01.get_ctm()
+        screen_ctm = rect01.get_screen_ctm()
+        expected = 'matrix(0.5 0 0 0.5 100 0)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6 0 0 0.6 120 0)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [0.5, 0, 0, 0.5, 115, 20]
+        # [0.6, 0, 0, 0.6, 146, 32]
+        ctm = svg02.get_ctm()
+        screen_ctm = svg02.get_screen_ctm()
+        expected = 'matrix(0.5 0 0 0.5 115 20)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6 0 0 0.6 138 24)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [1, 0, 0, 1, 30, 40]
+        # [0.6, 0, 0, 0.6, 146, 32]
+        ctm = rect02.get_ctm()
+        screen_ctm = rect02.get_screen_ctm()
+        expected = 'matrix(1 0 0 1 30 40)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6 0 0 0.6 138 24)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [1, 0, 0, 1, 60, 80]
+        # [0.6, 0, 0, 0.6, 164, 56]
+        ctm = svg03.get_ctm()
+        screen_ctm = svg03.get_screen_ctm()
+        expected = 'matrix(1 0 0 1 60 80)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6 0 0 0.6 156 48)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [1, 0, 0, 1, 30, 40]
+        # [0.6, 0, 0, 0.6, 164, 56]
+        ctm = rect03.get_ctm()
+        screen_ctm = rect03.get_screen_ctm()
+        expected = 'matrix(1 0 0 1 30 40)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6 0 0 0.6 156 48)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+    def test_ctm03(self):
+        # nested svg
+        # See also: nestedsvg03.html
+        parser = SVGParser()
+        root = parser.make_element('svg')
+        root.attributes.update({
+            'id': 'svg01',
+            'width': '400',
+            'height': '200',
+            'viewBox': '0 0 400 400',
+        })
+        root.current_scale = 0.8
+
+        rect01 = root.make_sub_element('rect')
+        rect01.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+            'transform': 'translate(30) rotate(15)',
+        })
+
+        svg02 = root.make_sub_element('svg')
+        svg02.attributes.update({
+            'id': 'svg02',
+            'x': '30',
+            'y': '40',
+        })
+
+        rect02 = svg02.make_sub_element('rect')
+        rect02.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+            'transform': 'translate(30) rotate(15)',
+        })
+
+        svg03 = svg02.make_sub_element('svg')
+        svg03.attributes.update({
+            'id': 'svg03',
+            'x': '30',
+            'y': '40',
+            'width': '100',
+            'height': '80',
+        })
+
+        rect03 = svg03.make_sub_element('rect')
+        rect03.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+            'transform': 'translate(30) rotate(15)',
+        })
+
+        ctm = root.get_ctm()
+        screen_ctm = root.get_screen_ctm()
+        expected = 'matrix(0.5 0 0 0.5 100 0)'
+        self.assertEqual(expected, ctm.tostring())
+        a = 0.4000000059604645
+        b = 0
+        c = 0
+        d = 0.4000000059604645
+        e = 88.0000011920929 - 8
+        f = 8 - 8
+        print(screen_ctm.tostring())
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect01.get_ctm()
+        screen_ctm = rect01.get_screen_ctm()
+        a = 0.48296291314453416
+        b = 0.12940952255126037
+        c = -0.12940952255126037
+        d = 0.48296291314453416
+        e = 115
+        f = 0
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+        a = 0.3863703362729939
+        b = 0.10352761958369001
+        c = -0.10352761958369001
+        d = 0.3863703362729939
+        e = 100.00000137090683 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg02.get_ctm()
+        screen_ctm = svg02.get_screen_ctm()
+        expected = 'matrix(0.5 0 0 0.5 115 20)'
+        self.assertEqual(expected, ctm.tostring())
+        a = 0.4000000059604645
+        b = 0
+        c = 0
+        d = 0.4000000059604645
+        e = 100.00000137090683 - 8
+        f = 24.00000023841858 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect02.get_ctm()
+        screen_ctm = rect02.get_screen_ctm()
+        a = 0.9659258262890683
+        b = 0.25881904510252074
+        c = -0.25881904510252074
+        d = 0.9659258262890683
+        e = 60
+        f = 40
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+        a = 0.3863703362729939
+        b = 0.10352761958369001
+        c = -0.10352761958369001
+        d = 0.3863703362729939
+        e = 112.00000154972076 - 8
+        f = 24.00000023841858 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg03.get_ctm()
+        screen_ctm = svg03.get_screen_ctm()
+        expected = 'matrix(1 0 0 1 60 80)'
+        self.assertEqual(expected, ctm.tostring())
+        a = 0.4000000059604645
+        b = 0
+        c = 0
+        d = 0.4000000059604645
+        e = 112.00000154972076 - 8
+        f = 40.00000047683716 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect03.get_ctm()
+        screen_ctm = rect03.get_screen_ctm()
+        a = 0.9659258262890683
+        b = 0.25881904510252074
+        c = -0.25881904510252074
+        d = 0.9659258262890683
+        e = 60
+        f = 40
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+        a = 0.3863703362729939
+        b = 0.10352761958369001
+        c = -0.10352761958369001
+        d = 0.3863703362729939
+        e = 124.0000017285347 - 8
+        f = 40.00000047683716 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
     def test_element_attributes(self):
         parser = SVGParser()
         root = parser.make_element('svg')
@@ -3154,52 +3670,90 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(expected, m)
 
     def test_view_box02(self):
-        # See also: ViewBox.html
+        # See also: ViewBox02.html
         # https://svgwg.org/svg2-draft/coords.html#ViewBoxAttribute
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_VIEW_BOX))
         root = tree.getroot()
 
         # outermost svg element
+        # id="root"
         element = root.get_element_by_id('root')
         element.attributes.update({
-            'transform': 'translate(50 25)',
+            # 'transform': 'translate(50 15)',
             'zoomAndPan': 'magnify',
         })
-        element.current_scale = 1.2
-        element.current_translate = 100, 50
+        element.current_scale = 0.8
+        # element.current_translate = 100, 50
 
         zap = element.zoom_and_pan
         self.assertEqual(SVGZoomAndPan.ZOOMANDPAN_MAGNIFY, zap)
 
-        # CTM: [1, 0, 0, 1, 0, 0] ->
-        # [1.2, 0, 0, 1.2, 100, 50] * [1, 0, 0, 1, 50, 25]
-        # = [1.2, 0, 0, 1.2, 160, 80]
-        m = element.get_ctm()
-        expected = Matrix(1.2, 0, 0, 1.2, 160, 80)
-        self.assertEqual(expected, m)
+        ctm = element.get_ctm()
+        expected = Matrix(1, 0, 0, 1, 0, 0)
+        self.assertEqual(expected, ctm)
 
-        element.attributes.update({
-            'zoomAndPan': 'disable',
-        })
-
-        # CTM: [1, 0, 0, 1, 0, 0] -> [1, 0, 0, 1, 50, 25]
-        m = element.get_ctm()
-        expected = Matrix(1, 0, 0, 1, 50, 25)
-        self.assertEqual(expected, m)
+        screen_ctm = element.get_screen_ctm()
+        a = 0.8
+        b = 0
+        c = 0
+        d = 0.8
+        e = 8 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
 
         # child svg element
+        # id="svg01"
+        element = root.get_element_by_id('svg01')
+
+        ctm = element.get_ctm()
+        expected = Matrix(0.2, 0, 0, 0.2, 0, 0)
+        self.assertEqual(expected, ctm)
+
+        screen_ctm = element.get_screen_ctm()
+        a = 0.16
+        b = 0
+        c = 0
+        d = 0.16
+        e = 8 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        # id="svg02"
         element = root.get_element_by_id('svg02')
         element.attributes.update({
             'zoomAndPan': 'magnify',
         })
-        element.current_scale = 1.2
-        element.current_translate = 100, 50
+        element.current_scale = 1.2  # ignored
+        # element.current_translate = 100, 50
 
-        # CTM: [0.1, 0, 0, 0.2, 300, 0]
-        m = element.get_ctm()
+        ctm = element.get_ctm()
         expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
-        self.assertEqual(expected, m)
+        self.assertEqual(expected, ctm)
+
+        screen_ctm = element.get_screen_ctm()
+        a = 0.08
+        b = 0
+        c = 0
+        d = 0.16
+        e = 248 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
 
     def test_viewport01_01(self):
         # See also: SVGPreserveAspectRatio.html

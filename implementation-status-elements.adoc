@@ -278,8 +278,8 @@
 .5+|[[SVGGraphicsElement]]SVGGraphicsElement .1+|link:#SVGElement[SVGElement] |- |||
 .4+|- |transform ^|✓ ||
 |getBBox() ^|In Progress ^|High |Support object bounding box only.
-|getCTM() ^|Not Verified ^| |
-|getScreenCTM() ^|TBD ||
+|getCTM() ^|✓ ^| |
+|getScreenCTM() ^|✓ ||
 
 .6+|[[SVGGeometryElement]]SVGGeometryElement .1+|link:#SVGGraphicsElement[SVGGraphicsElement] ||||
 .5+|- |pathLength ^|Planned ||
