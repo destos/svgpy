@@ -3,7 +3,7 @@
 
 import os
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 NAME = 'svgpy'
 AUTHOR = 'Tetsuya Miura'
@@ -12,16 +12,16 @@ DESCRIPTION = 'SVG parser based on lxml'
 LICENSE = 'Apache License 2.0'
 KEYWORDS = 'svg parser'
 URL = 'https://github.com/miute/svgpy'
-PACKAGES = [NAME]
+PACKAGES = find_packages()
 PACKAGE_DATA = {}
 PYTHON_REQUIRES = '>=3.6'
 INSTALL_REQUIRES = [
     'cffi>=1.11',
     'cssselect',
-    'cssutils',
     'lxml',
     'numpy',
     'scipy',
+    'tinycss2',
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
