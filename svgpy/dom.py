@@ -207,6 +207,9 @@ class Attrib(MutableMapping):
             name (str): The name of the attribute.
             value (str): The value of the attribute.
         """
+        if len(value) == 0:
+            self.__delitem__(name)
+            return
         if name in self._attrib:
             self._attrib[name] = value
             return
