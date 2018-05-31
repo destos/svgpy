@@ -13,15 +13,11 @@
 # limitations under the License.
 
 
-from urllib.error import URLError
-
-import cssutils
-from cssutils.css import CSSRule
 from lxml import etree, cssselect
 
 from .core import window
-# from .harfbuzz import HBLanguage
-from .utils import get_content_type, load
+from .css import CSSParser, CSSRule, normalize_url
+
 
 _SVG_UA_CSS_STYLESHEET = '''
 @namespace url(http://www.w3.org/2000/svg);
@@ -60,50 +56,103 @@ symbol {
 # }
 # '''
 
-cssutils.log.enabled = False
+
+def flatten_css_rules(element, css_rules):
+    window.document = element
+    flattened_css_rules = list()
+    for css_rule in css_rules:
+        if css_rule.type == CSSRule.IMPORT_RULE:
+            # '@import' at-rule
+            media = css_rule.media.media_text
+            if media not in ['', 'all']:
+                mql = window.match_media(media)
+                if not mql.matches:
+                    continue
+            flattened_css_rules.extend(
+                flatten_css_rules(element, css_rule.style_sheet.css_rules))
+        elif css_rule.type == CSSRule.MEDIA_RULE:
+            # '@media' at-rule
+            media = css_rule.media.media_text
+            if media not in ['', 'all']:
+                mql = window.match_media(media)
+                if not mql.matches:
+                    continue
+            flattened_css_rules.extend(
+                flatten_css_rules(element, css_rule.css_rules))
+        else:
+            flattened_css_rules.append(css_rule)
+    return flattened_css_rules
 
 
 def get_css_rules(element):
-    stylesheet_list = list()
-    stylesheet_list.append(_SVG_UA_CSS_STYLESHEET)
-    # stylesheet_list.append(_OPENTYPE_UA_CSS_STYLESHEET)
-    stylesheet_list.extend(get_stylesheets_from_xml_stylesheet(element))
-    stylesheet_list.extend(get_stylesheets_from_link_elements(element))
-    stylesheet_list.extend(get_stylesheets_from_style_elements(element))
+    css_rules = CSSParser.fromstring(_SVG_UA_CSS_STYLESHEET)
+    css_rules.extend(get_css_rules_from_xml_stylesheet(element))
+    css_rules.extend(get_css_rules_from_svg_document(element))
+    flattened = flatten_css_rules(element, css_rules)
+    return flattened
 
-    def _parse_css_rules(_rules):
-        _css_rules = list()
-        for _rule in _rules:
-            if _rule.type == CSSRule.IMPORT_RULE:
-                _href = _rule.href
-                if _href is None or _href[0] == '#':
-                    continue
-                _media = _rule.media.mediaText
-                if _media != 'all':
-                    _mql = window.match_media(_media)
-                    if not _mql.matches:
-                        continue
-                _stylesheet = load_css_stylesheet(_href)
-                if _stylesheet is not None:
-                    _sheet = parser.parseString(_stylesheet)
-                    _css_rules.extend(_parse_css_rules(_sheet.cssRules))
-            elif _rule.type == CSSRule.MEDIA_RULE:
-                _media = _rule.media.mediaText
-                if _media != 'all':
-                    _mql = window.match_media(_media)
-                    if not _mql.matches:
-                        continue
-                _css_rules.extend(_parse_css_rules(_rule.cssRules))
-            else:
-                _css_rules.append(_rule)
-        return _css_rules
 
-    window.document = element
-    parser = cssutils.CSSParser(parseComments=False)
+def get_css_rules_from_svg_document(element):
     css_rules = list()
-    for text in stylesheet_list:
-        sheet = parser.parseString(text)
-        css_rules.extend(_parse_css_rules(sheet.cssRules))
+    window.document = element
+    root = element.getroottree().getroot()
+    for target in root.iter(tag=('{*}style', '{*}link')):
+        local_name = target.local_name
+        if local_name == 'style':
+            if target.type != 'text/css' or target.text is None:
+                continue
+            media = target.media
+            if media != 'all':
+                mql = window.match_media(media)
+                if not mql.matches:
+                    continue
+            rules = CSSParser.fromstring(target.text)
+            css_rules.extend(rules)
+        elif local_name == 'link':
+            rel_list = target.rel_list
+            if 'stylesheet' not in rel_list or 'alternate' in rel_list:
+                continue  # TODO: support alternative style sheet.
+            href = target.href
+            if href is None or href[0] == '#':
+                continue
+            media = target.media
+            if media != 'all':
+                mql = window.match_media(media)
+                if not mql.matches:
+                    continue
+            css_style_sheet = CSSParser.parse(normalize_url(href),
+                                              owner_node=target)
+            css_rules.extend(css_style_sheet.css_rules)
+    return css_rules
+
+
+def get_css_rules_from_xml_stylesheet(element):
+    css_rules = list()
+    window.document = element
+    root = element.getroottree().getroot()
+    # 'lxml.etree.SiblingsIterator' object is not reversible
+    siblings = root.itersiblings(preceding=True)
+    elements = [it for it in siblings]
+    elements.reverse()
+    for target in elements:
+        tag = etree.tostring(target).decode()
+        if tag.split()[0] != '<?xml-stylesheet':
+            continue
+        href = target.get('href')
+        if (href is None
+                or href[0] == '#'
+                or target.get('alternate', '') == 'yes'):
+            continue  # TODO: support alternative style sheet.
+        media = target.get('media', 'all')
+        if media != 'all':
+            mql = window.match_media(media)
+            if not mql.matches:
+                continue
+        encoding = target.get('charset')
+        css_style_sheet = CSSParser.parse(normalize_url(href),
+                                          owner_node=target,
+                                          encoding=encoding)
+        css_rules.extend(css_style_sheet.css_rules)
     return css_rules
 
 
@@ -112,131 +161,28 @@ def get_css_style(element, css_rules):
     style = dict()
     style_important = dict()
     namespaces = None
-    for rule in css_rules:
-        if rule.type == CSSRule.STYLE_RULE:
+    for css_rule in css_rules:
+        if css_rule.type == CSSRule.STYLE_RULE:
             try:
-                selector = cssselect.CSSSelector(rule.selectorText,
+                selector = cssselect.CSSSelector(css_rule.selector_text,
                                                  namespaces=namespaces)
                 matched = selector(element)
                 if len(matched) > 0 and element in matched:
-                    rule_style = rule.style
-                    for key in rule_style.keys():
-                        value = rule_style.getPropertyValue(key)
+                    for key, (value, priority) in css_rule.style.items():
                         style[key] = value
-                        priority = rule_style.getPropertyPriority(key)
                         if priority == 'important':
                             style_important[key] = value
             except cssselect.ExpressionError:
                 pass
-        elif rule.type == CSSRule.FONT_FACE_RULE:
-            # TODO: support CSS font face rule.
+        elif css_rule.type == CSSRule.FONT_FACE_RULE:
+            # TODO: support CSS @font-face at-rule.
             pass
-        elif rule.type == CSSRule.NAMESPACE_RULE:
-            if len(rule.prefix) > 0:
+        elif css_rule.type == CSSRule.FONT_FEATURE_VALUES_RULE:
+            # TODO: support CSS @font-feature-values at-rule.
+            pass
+        elif css_rule.type == CSSRule.NAMESPACE_RULE:
+            if len(css_rule.prefix) > 0:
                 if namespaces is None:
                     namespaces = dict()
-                namespaces[rule.prefix] = rule.namespaceURI
-        else:
-            import logging
-            logging.getLogger(__name__).warning(
-                'Not implemented CSS rule: ' + str(rule.type))
+                namespaces[css_rule.prefix] = css_rule.namespace_uri
     return style, style_important
-
-
-def get_stylesheets_from_link_elements(element):
-    window.document = element
-    stylesheet_list = list()
-    root = element.getroottree().getroot()
-    elements = root.get_elements_by_local_name('link')
-    # TODO: support alternative stylesheet.
-    alternates = list()
-    for target in elements:
-        if ('alternate' in target.rel_list
-                and 'stylesheet' in target.rel_list
-                and target.href is not None
-                and target.hreflang is not None):
-            alternates.append({
-                'hreflang': target.hreflang,
-                'title': target.title,
-                'element': target,
-            })
-    # user_language = HBLanguage.get_default().tostring()
-    for alternate in alternates:
-        elements.remove(alternate['element'])
-    for target in elements:
-        href = target.href
-        if ('stylesheet' not in target.rel_list
-                or (target.type is not None and target.type != 'text/css')
-                or href is None
-                or href[0] == '#'):
-            continue
-        media = target.media
-        if media != 'all':
-            mql = window.match_media(media)
-            if not mql.matches:
-                continue
-        try:
-            stylesheet = load_css_stylesheet(href)
-            if stylesheet is not None:
-                stylesheet_list.append(stylesheet)
-        except URLError:
-            pass
-    return stylesheet_list
-
-
-def get_stylesheets_from_style_elements(element):
-    window.document = element
-    stylesheet_list = list()
-    root = element.getroottree().getroot()
-    elements = root.get_elements_by_local_name('style')
-    for target in elements:
-        if target.type != 'text/css' or target.text is None:
-            continue
-        media = target.media
-        if media != 'all':
-            mql = window.match_media(media)
-            if not mql.matches:
-                continue
-        stylesheet_list.append(target.text)
-    return stylesheet_list
-
-
-def get_stylesheets_from_xml_stylesheet(element):
-    window.document = element
-    stylesheet_list = list()
-    root = element.getroottree().getroot()
-    elements = root.itersiblings(preceding=True)
-    for target in elements:
-        tag = etree.tostring(target).decode()
-        href = target.get('href')
-        if (tag.split()[0] != '<?xml-stylesheet'
-                or target.get('type', 'text/css') != 'text/css'
-                or href is None
-                or href[0] == '#'):
-            continue
-        media = target.get('media', 'all')
-        if media != 'all':
-            mql = window.match_media(media)
-            if not mql.matches:
-                continue
-        try:
-            encoding = target.get('charset', 'utf-8')
-            stylesheet = load_css_stylesheet(href, encoding)
-            if stylesheet is not None:
-                stylesheet_list.append(stylesheet)
-        except URLError:
-            pass
-    return stylesheet_list
-
-
-def load_css_stylesheet(path_or_url, encoding=None):
-    if encoding is None:
-        encoding = 'utf-8'
-    data, headers = load(path_or_url)
-    content_type = get_content_type(headers)
-    if content_type is not None:
-        if content_type.get(None) != 'text/css':
-            return None
-        encoding = content_type.get('charset', encoding)
-    stylesheet = data.decode(encoding)
-    return stylesheet
