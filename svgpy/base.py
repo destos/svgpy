@@ -15,7 +15,7 @@
 from abc import abstractmethod
 
 from .core import SVGLength, window
-from .dom import Element
+from .dom import Element, ElementCSSInlineStyle
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
 from .matrix import Matrix
@@ -24,9 +24,7 @@ from .rect import Rect
 from .transform import SVGTransformList
 
 
-# See https://www.w3.org/TR/html51/dom.html#htmlelement-htmlelement
-# See https://drafts.csswg.org/cssom-view/#extensions-to-the-htmlelement-interface
-class HTMLElement(Element):
+class HTMLElement(ElementCSSInlineStyle):
     pass
 
 
@@ -85,8 +83,7 @@ class SVGBoundingBoxOptions(object):
         self.clipped = False
 
 
-# See https://svgwg.org/svg2-draft/types.html#InterfaceSVGElement
-class SVGElement(Element):
+class SVGElement(ElementCSSInlineStyle):
     NEAREST_VIEWPORT = 0
     FARTHEST_VIEWPORT = 1
 

@@ -17,10 +17,10 @@ import re
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
 
-import cssutils
 from lxml import etree
 
 from .core import CSSUtils, Font, SVGLength
+from .css import CSSRule, CSSStyleDeclaration, CSSStyleSheet, StyleSheet
 from .style import get_css_rules, get_css_style
 
 
@@ -998,14 +998,40 @@ class Element(etree.ElementBase, Node):
         return etree.tostring(self, **kwargs)
 
 
+class ElementCSSInlineStyle(Element):
+    """Represents the CSSOM ElementCSSInlineStyle."""
+
+    @property
+    def style(self):
+        """CSSStyleDeclaration: A CSS declaration block object."""
+        style_sheet = CSSStyleSheet(owner_node=self)
+        rule = CSSRule(None,
+                       CSSRule.UNKNOWN_RULE,
+                       parent_style_sheet=style_sheet)
+        style = CSSStyleDeclaration(parent_rule=rule)
+        return style
+
+
 class LinkStyle(Element):
     """Represents the CSSOM LinkStyle."""
 
     @property
     def sheet(self):
-        """cssutils.css.CSSStyleSheet: The associated CSS style sheet or None.
-        """
-        if (self.attributes.get('type', 'text/css') != 'text/css'
-                or self.text is None):
+        """StyleSheet: An associated CSS style sheet or None."""
+        local_name = self.local_name
+        assert local_name in ['link', 'style']
+        type_ = self.type
+        if local_name == 'link':
+            href = self.href
+        else:  # 'style'
+            href = None
+        if (type_ is None or type_ != 'text/css'
+                or ((local_name == 'link' and href is None)
+                    or (local_name == 'style' and self.text is None))):
             return None
-        return cssutils.parseString(self.text)
+        style_sheet = StyleSheet(type_=type_,
+                                 href=href,
+                                 owner_node=self,
+                                 title=self.title,
+                                 media=self.media)
+        return style_sheet
