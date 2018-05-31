@@ -31,8 +31,6 @@ from .freetype import FreeType, FTFace
 
 
 class CSSUtils(object):
-    # See https://www.w3.org/TR/css-fonts-3/#font-size-prop
-    # See https://drafts.csswg.org/css-fonts-3/#font-size-prop
     _ABSOLUTE_FONT_SIZE_MAP = {
         # <absolute-size> keyword: (row, scale size factor)
         'xx-small': (0, 3 / 5),
@@ -73,8 +71,6 @@ class CSSUtils(object):
     _FONT_SIZE_TABLE_MIN = 9
     _MINIMUM_FONT_SIZE = 10
 
-    # See https://www.w3.org/TR/css-fonts-3/#font-weight-prop
-    # See https://drafts.csswg.org/css-fonts-3/#font-weight-prop
     _FONT_WEIGHT_MAP = {
         'normal': 400,
         'bold': 700,
@@ -91,8 +87,6 @@ class CSSUtils(object):
 
     @staticmethod
     def compute_font_size(element, inherited_size=None, inherited_style=None):
-        # See https://www.w3.org/TR/css-fonts-3/#font-size-prop
-        # See https://drafts.csswg.org/css-fonts-3/#font-size-prop
         if inherited_style is None:
             inherited_style = element.get_inherited_style()
 
@@ -155,8 +149,6 @@ class CSSUtils(object):
         # Initial: none
         # Inherited: yes
         # Percentages: N/A
-        # See https://www.w3.org/TR/css-fonts-3/#font-size-adjust-prop
-        # See https://drafts.csswg.org/css-fonts-3/#font-size-adjust-prop
         font_size_adjust = style['font-size-adjust']
         if font_size_adjust != 'none':
             font_size_adjust = SVGLength(font_size_adjust).value()
@@ -165,8 +157,6 @@ class CSSUtils(object):
     @staticmethod
     def compute_font_weight(element,
                             inherited_weight=None, inherited_style=None):
-        # See https://www.w3.org/TR/css-fonts-3/#font-weight-prop
-        # See https://drafts.csswg.org/css-fonts/#font-weight-prop
         if inherited_style is None:
             inherited_style = element.get_inherited_style()
 
@@ -218,8 +208,6 @@ class CSSUtils(object):
         # Initial: normal
         # Inherited: yes
         # Percentages: refer to the font size of the element itself
-        # See https://www.w3.org/TR/CSS22/visudet.html#line-height
-        # See https://drafts.csswg.org/css2/visudet.html#propdef-line-height
         value = computed_style['line-height']
         font_size = computed_style['font-size']
         if value == 'normal':
@@ -306,7 +294,6 @@ class CSSUtils(object):
                 _out_text += _text[_last:]
             return _out_text
 
-        # See https://drafts.csswg.org/css-text-3/#white-space-property
         # 'white-space' property
         # Value: normal | pre | nowrap | pre-wrap | pre-line
         # Initial: normal
@@ -316,7 +303,6 @@ class CSSUtils(object):
         out_text = html.unescape(text)
 
         # FIXME: fix white-space processing.
-        # See https://drafts.csswg.org/css-text-3/#white-space-rules
         if white_space in ['normal', 'nowrap', 'pre-line']:
             out_text = CSSUtils._RE_PRECEDING_TAB_WHITESPACE.sub(
                 '', out_text)
@@ -351,7 +337,6 @@ class CSSUtils(object):
         Returns:
             dict:
         """
-        # See https://drafts.csswg.org/css-fonts-3/#font-prop
         # 'font' property
         # Value: [ [ <font-style> || <font-variant-css21>
         #  || <font-weight> || <font-stretch> ]? <font-size>
@@ -442,8 +427,6 @@ class CSSUtils(object):
         Returns:
             list[str]:
         """
-        # See https://drafts.csswg.org/css-fonts-3/#font-family-prop
-        # See https://drafts.csswg.org/css2/fonts.html#font-family-prop
         # 'font-family' property
         # Value: [[ <family-name> | <generic-family> ]
         #  [, [ <family-name>| <generic-family>] ]* ] | inherit
@@ -474,7 +457,6 @@ class CSSUtils(object):
         # Value: normal | <feature-tag-value>#
         # <feature-tag-value> = <string> [ <integer> | on | off ]?
         # Initial: normal
-        # https://drafts.csswg.org/css-fonts-3/#propdef-font-feature-settings
         features = dict()
         if value == 'normal':
             return features
@@ -532,9 +514,6 @@ class CSSUtils(object):
         #  || <numeric-fraction-values> || ordinal || slashed-zero
         #  || <east-asian-variant-values> || <east-asian-width-values>
         #  || ruby || [ sub | super ] ]
-        # https://drafts.csswg.org/css-fonts-3/#font-variant-prop
-        # https://drafts.csswg.org/css-fonts-3/#propdef-font-variant
-        # https://drafts.csswg.org/css-fonts-3/#font-rend-desc
         style = dict({
             'font-variant-alternates': None,
             'font-variant-caps': 'normal',
@@ -568,7 +547,6 @@ class CSSUtils(object):
                         'no-discretionary-ligatures',
                         'historical-ligatures', 'no-historical-ligatures',
                         'contextual', 'no-contextual']:
-                # https://drafts.csswg.org/css-fonts-3/#font-variant-ligatures-prop
                 font_variant_ligatures.append(item)
             elif (item in ['historical-forms']
                   or item.startswith('stylistic(')
@@ -577,25 +555,20 @@ class CSSUtils(object):
                   or item.startswith('swash(')
                   or item.startswith('ornaments(')
                   or item.startswith('annotation(')):
-                # https://drafts.csswg.org/css-fonts-3/#font-variant-alternates-prop
                 font_variant_alternates.append(item)
             elif item in ['small-caps', 'all-small-caps', 'petite-caps',
                           'all-petite-caps', 'unicase', 'titling-caps']:
-                # https://drafts.csswg.org/css-fonts-3/#font-variant-caps-prop
                 style['font-variant-caps'] = item
             elif item in ['jis78', 'jis83', 'jis90', 'jis04', 'simplified',
                           'traditional',
                           'full-width', 'proportional-width', 'ruby']:
-                # https://drafts.csswg.org/css-fonts-3/#font-variant-east-asian-prop
                 font_variant_east_asian.append(item)
             elif item in ['lining-nums', 'oldstyle-nums',
                           'proportional-nums', 'tabular-nums',
                           'diagonal-fractions', 'stacked-fractions',
                           'ordinal', 'slashed-zero']:
-                # https://drafts.csswg.org/css-fonts-3/#font-variant-numeric-prop
                 font_variant_numeric.append(item)
             elif item in ['sub', 'super']:
-                # https://drafts.csswg.org/css-fonts-3/#font-variant-position-prop
                 style['font-variant-position'] = item
 
         if len(font_variant_alternates) == 0:
@@ -691,8 +664,6 @@ class Font(object):
 
     @property
     def cap_height(self):
-        # See https://drafts.csswg.org/css-values/#cap
-        # See https://drafts.csswg.org/css-values-4/#cap
         for ch in 'Hh':
             index = self._face.get_char_index(ch)
             if index != 0:
@@ -703,7 +674,6 @@ class Font(object):
     @property
     def ch_advance(self):
         """float: An advance measure of the '0' (ZERO, U+0030)."""
-        # See https://drafts.csswg.org/css-values/#ch
         self._face.load_char('\u0030', FreeType.FT_LOAD_NO_BITMAP)
         writing_mode = self._style['writing-mode']
         if writing_mode in ['horizontal-tb', 'lr', 'lr-tb', 'rl', 'rl-tb']:
@@ -741,7 +711,6 @@ class Font(object):
     def ic_advance(self):
         """float: An advance measure of the '水' (CJK water ideograph, U+6C34).
         """
-        # See https://drafts.csswg.org/css-values/#ic
         index = self._face.get_char_index('\u6c34')
         if index == 0:
             return 0  # 1em
@@ -759,12 +728,10 @@ class Font(object):
 
     @property
     def line_height(self):
-        # See https://drafts.csswg.org/css2/visudet.html#propdef-line-height
         return self._face.size.metrics.height / 64
 
     @property
     def x_height(self):
-        # See https://drafts.csswg.org/css-values/#ex
         self._face.load_char('x', FreeType.FT_LOAD_NO_BITMAP)
         return self._face.glyph.metrics.height / 64
 
@@ -1038,9 +1005,7 @@ class MediaQueryList(object):
         return self._query
 
 
-# See https://svgwg.org/svg2-draft/types.html#InterfaceSVGLength
 class SVGLength(object):
-    # See https://drafts.csswg.org/css-values-3/#lengths
     TYPE_NUMBER = ''  # pixel
     TYPE_PERCENTAGE = '%'
     TYPE_EMS = 'em'

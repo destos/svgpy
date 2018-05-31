@@ -625,12 +625,8 @@ language_tag_to_iso639_codes_map = {
 
 
 def features_from_style(style):
-    # See https://www.microsoft.com/typography/otspec/featurelist.htm
-
-    # https://drafts.csswg.org/css-fonts-3/#propdef-font-feature-settings
     features = style['font-feature-settings'].copy()  # type: dict
 
-    # See https://drafts.csswg.org/css-fonts-3/#font-kerning-prop
     font_kerning = style['font-kerning']
     if font_kerning == 'none':
         features['kern'] = 0
@@ -639,7 +635,6 @@ def features_from_style(style):
         features['kern'] = 1
         features['vkrn'] = 1
 
-    # https://drafts.csswg.org/css-fonts-3/#font-variant-alternates-prop
     font_variant_alternates = style['font-variant-alternates']
     if font_variant_alternates == ['normal']:
         pass
@@ -653,7 +648,6 @@ def features_from_style(style):
         if 'historical-forms' in font_variant_alternates:
             features['hist'] = 1
 
-    # https://drafts.csswg.org/css-fonts-3/#font-variant-caps-prop
     font_variant_caps = style['font-variant-caps']
     if font_variant_caps == 'small-caps':
         features['smcp'] = 1
@@ -670,7 +664,6 @@ def features_from_style(style):
     elif font_variant_caps == 'titling-caps':
         features['titl'] = 1
 
-    # https://drafts.csswg.org/css-fonts-3/#font-variant-east-asian-prop
     font_variant_east_asian = style['font-variant-east-asian']
     if 'jis78' in font_variant_east_asian:
         features['jp78'] = 1
@@ -691,7 +684,6 @@ def features_from_style(style):
     if 'ruby' in font_variant_east_asian:
         features['ruby'] = 1
 
-    # https://drafts.csswg.org/css-fonts-3/#font-variant-ligatures-prop
     font_variant_ligatures = style['font-variant-ligatures']
     if font_variant_ligatures == ['normal']:
         pass
@@ -724,7 +716,6 @@ def features_from_style(style):
         elif 'no-contextual' in font_variant_ligatures:
             features['calt'] = 0
 
-    # https://drafts.csswg.org/css-fonts-3/#font-variant-numeric-prop
     font_variant_numeric = style['font-variant-numeric']
     if font_variant_numeric == ['normal']:
         pass
@@ -750,7 +741,6 @@ def features_from_style(style):
         if 'slashed-zero' in font_variant_numeric:
             features['zero'] = 1
 
-    # https://drafts.csswg.org/css-fonts-3/#font-variant-position-prop
     font_variant_position = style['font-variant-position']
     if font_variant_position == 'sub':
         features['subs'] = 1

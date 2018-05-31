@@ -1319,7 +1319,6 @@ class BasicShapesTestCase(unittest.TestCase):
         d = 0.4000000059604645
         e = 88.0000011920929 - 8
         f = 8 - 8
-        print(screen_ctm.tostring())
         self.assertAlmostEqual(a, screen_ctm.a, places=places)
         self.assertAlmostEqual(b, screen_ctm.b, places=places)
         self.assertAlmostEqual(c, screen_ctm.c, places=places)

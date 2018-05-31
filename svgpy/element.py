@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from lxml import etree
 
 from .base import HTMLElement, \
@@ -147,13 +148,11 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
         self.attributes.set('type', value)
 
 
-# See https://www.w3.org/TR/html51/semantics-embedded-content.html#the-video-element
 class HTMLVideoElement(HTMLMediaElement):
     """Represents the HTML <video> element."""
     pass
 
 
-# See https://svgwg.org/svg2-draft/linking.html#InterfaceSVGAElement
 class SVGAElement(SVGGraphicsElement,
                   SVGURIReference, HTMLHyperlinkElementUtils):
     # TODO: implement the SVGAElement.
@@ -374,9 +373,6 @@ class SVGForeignObjectElement(SVGGraphicsElement):
 class SVGGElement(SVGGraphicsElement):
     """Represents the SVG <g> element."""
 
-    def get_computed_geometry(self):
-        return {}
-
     def get_path_data(self, settings=None):
         """Returns a list of path segments that corresponds to the path data.
 
@@ -473,17 +469,12 @@ class SVGLineElement(SVGGeometryElement):
         return path_data
 
 
-# See https://svgwg.org/svg2-draft/painting.html#InterfaceSVGMarkerElement
 class SVGMarkerElement(SVGGraphicsElement):
     # TODO: implement the SVGMarkerElement.
     """Represents the SVG <marker> element."""
     pass
 
 
-# See https://www.w3.org/TR/SVG2/shapes.html#MeshElement
-# See https://www.w3.org/TR/SVG2/pservers.html#MeshGradientElement
-# See https://svgwg.org/svg2-draft/shapes.html#MeshElement
-# See https://svgwg.org/svg2-draft/pservers.html#MeshGradients
 class SVGMeshElement(SVGGeometryElement):
     # TODO: implement the SVGMeshElement.
     """Represents the SVG <mesh> element."""
@@ -523,7 +514,6 @@ class SVGPathElement(SVGGeometryElement, SVGPathData):
         # Initial: none
         # Inherited: no
         # Percentages: N/A
-        # See https://svgwg.org/svg2-draft/paths.html#DProperty
         d = self.attributes.get('d', 'none')
         if d == 'none' or len(d) == 0:
             d = None
@@ -555,7 +545,6 @@ class SVGPathElement(SVGGeometryElement, SVGPathData):
         return path_data
 
 
-# See https://svgwg.org/svg2-draft/pservers.html#InterfaceSVGPatternElement
 class SVGPatternElement(SVGGraphicsElement, SVGFitToViewBox, SVGURIReference):
     # TODO: implement the SVGPatternElement.
     """Represents the SVG <pattern> element."""
@@ -964,7 +953,6 @@ class SVGTextElement(SVGTextPositioningElement):
     pass
 
 
-# See https://svgwg.org/svg2-draft/text.html#InterfaceSVGTextPathElement
 class SVGTextPathElement(SVGTextContentElement):
     # TODO: implement the SVGTextPathElement.
     """Represents the SVG <textPath> element."""
@@ -1080,7 +1068,6 @@ class SVGUseElement(SVGGraphicsElement, SVGURIReference):
         return path_data
 
 
-# See https://svgwg.org/svg2-draft/linking.html#InterfaceSVGViewElement
 class SVGViewElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
     # TODO: implement the SVGViewElement.
     """Represents the SVG <view> element."""
@@ -1088,7 +1075,6 @@ class SVGViewElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
 
 
 class SVGElementClassLookup(etree.CustomElementClassLookup):
-    # See https://svgwg.org/svg2-draft/eltindex.html
     ELEMENT_CLASS_MAP = {
         'a': SVGAElement,
         'audio': HTMLAudioElement,

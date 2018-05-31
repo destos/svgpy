@@ -28,7 +28,6 @@ from .path import PathParser
 from .rect import Rect
 
 
-# See https://svgwg.org/svg2-draft/text.html#InterfaceSVGTextContentElement
 class SVGTextContentElement(SVGGraphicsElement):
     _CHARS_ID = 0
     _CHARS_TEXT = 1

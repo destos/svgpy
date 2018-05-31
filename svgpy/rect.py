@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import copy
 
 
@@ -40,10 +41,6 @@ class Rect(object):
     def __eq__(self, other):
         if not isinstance(other, Rect):
             return NotImplemented
-        # elif not self.isvalid():
-        #     raise ValueError('Left value is not valid')
-        # elif not other.isvalid():
-        #     raise ValueError('Right value is not valid')
         elif self.x == other.x and self.y == other.y \
                 and self.width == other.width and self.height == other.height:
             return True

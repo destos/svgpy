@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 precision = 6
 """int: The precision is a decimal number indicating how many digits should
 be displayed after the decimal point for a floating point value.

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from abc import abstractmethod
 
 from .core import SVGLength, window
@@ -33,7 +34,6 @@ class HTMLHyperlinkElementUtils(object):
     pass
 
 
-# See https://www.w3.org/TR/html51/semantics-embedded-content.html#htmlmediaelement-htmlmediaelement
 class HTMLMediaElement(HTMLElement):
     pass
 
@@ -74,7 +74,6 @@ class SVGAnimatedPoints(Element):
         self.attributes.set('points', value)
 
 
-# See https://svgwg.org/svg2-draft/types.html#InterfaceSVGGraphicsElement
 class SVGBoundingBoxOptions(object):
     def __init__(self):
         self.fill = True
@@ -281,7 +280,6 @@ class SVGElement(ElementCSSInlineStyle):
         return vpx, vpy, vpw, vph
 
 
-# See https://svgwg.org/svg2-draft/types.html#InterfaceSVGGraphicsElement
 class SVGGraphicsElement(SVGElement):
     @property
     def transform(self):
@@ -533,7 +531,6 @@ class SVGFitToViewBox(Element):
                           direction=SVGLength.DIRECTION_VERTICAL))
 
 
-# See https://svgwg.org/svg2-draft/types.html#InterfaceSVGGeometryElement
 class SVGGeometryElement(SVGGraphicsElement):
     def get_path_data(self, settings=None):
         """Returns a list of path segments that corresponds to the path data.
@@ -549,7 +546,6 @@ class SVGGeometryElement(SVGGraphicsElement):
 
     def get_point_at_length(self, distance):
         # TODO: implement SVGGeometryElement.getPointAtLength().
-        # See https://svgwg.org/svg2-draft/types.html#__svg__SVGGeometryElement__getPointAtLength
         pass
 
     def get_total_length(self):
@@ -573,8 +569,6 @@ class SVGPathData(Element):
         self.attributes.set('d', d)
 
 
-# See https://www.w3.org/TR/svg-paths/#InterfaceSVGPathData
-# See https://svgwg.org/specs/paths/#InterfaceSVGPathData
 class SVGPathDataSettings(object):
     def __init__(self):
         self.normalize = False
