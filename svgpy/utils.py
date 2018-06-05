@@ -136,10 +136,10 @@ class CaseInsensitiveMapping(MutableMapping):
         self.update(dict(*args, **kwargs))
 
     def __delitem__(self, key):
-        del self._data[self._keys[key.lower()]]
+        del self._data[self._keys[CaseInsensitiveMapping._key(key)]]
 
     def __getitem__(self, key):
-        return self._data[self._keys[key.lower()]]
+        return self._data[self._keys[CaseInsensitiveMapping._key(key)]]
 
     def __iter__(self):
         return iter(self._data)
@@ -151,4 +151,11 @@ class CaseInsensitiveMapping(MutableMapping):
         return repr(self._data)
 
     def __setitem__(self, key, value):
-        self._data[self._keys.setdefault(key.lower(), key)] = value
+        self._data[
+            self._keys.setdefault(
+                CaseInsensitiveMapping._key(key), key)
+        ] = value
+
+    @staticmethod
+    def _key(key):
+        return key.lower() if isinstance(key, str) else key
