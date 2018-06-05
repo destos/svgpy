@@ -158,8 +158,9 @@ class FTCharMap(object):
 class FTFace(object):
     """Represents the 'FT_Face' data type."""
 
-    def __init__(self, ft_face, reference=False):
+    def __init__(self, ft_face, reference=False, _memory_base=None):
         self._face = ft_face
+        self._memory_base = _memory_base  # keep a reference
         if reference:
             self.reference_face()
 
@@ -363,6 +364,21 @@ class FTFace(object):
         if error:
             raise RuntimeError('FT_New_Face() failed: ' + hex(error))
         return FTFace(face[0])
+
+    @staticmethod
+    def new_memory_face(file_base, file_size=0, face_index=0):
+        memory_base = ffi.new('FT_Byte[]', file_base)
+        if file_size <= 0:
+            file_size = len(file_base)
+        face = ffi.new('FT_Face *')
+        error = lib.FT_New_Memory_Face(FreeType.library.ft_library,
+                                       memory_base,
+                                       file_size,
+                                       face_index,
+                                       face)
+        if error:
+            raise RuntimeError('FT_New_Memory_Face() failed: ' + hex(error))
+        return FTFace(face[0], _memory_base=memory_base)
 
     def reference_face(self):
         error = lib.FT_Reference_Face(self._face)

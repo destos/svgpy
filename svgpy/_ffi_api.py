@@ -19,19 +19,20 @@ _API = r"""
 /*
  * FreeType 2.8.1
  */
+typedef int32_t  FT_Int32;
+
 /* ---- freetype/fttypes.h ---- */
-typedef int  FT_Error;
+typedef unsigned char  FT_Byte;
+typedef char  FT_String;
+typedef signed short  FT_Short;
+typedef unsigned short  FT_UShort;
+typedef signed int  FT_Int;
+typedef unsigned int  FT_UInt;
+typedef signed long  FT_Long;
+typedef unsigned long  FT_ULong;
 typedef signed long  FT_F26Dot6;
 typedef signed long  FT_Fixed;
-typedef signed int  FT_Int;
-typedef signed long  FT_Long;
-typedef signed long  FT_Pos;
-typedef signed short  FT_Short;
-typedef char  FT_String;
-typedef unsigned int  FT_UInt;
-typedef signed int  FT_Int32;
-typedef unsigned long  FT_ULong;
-typedef unsigned short  FT_UShort;
+typedef int  FT_Error;
 
 typedef struct  FT_Matrix_
 {
@@ -60,6 +61,8 @@ typedef struct FT_MemoryRec_*  FT_Memory;
 typedef struct FT_StreamRec_*  FT_Stream;
 
 /* ---- freetype/ftimage.h ---- */
+typedef signed long  FT_Pos;
+
 typedef struct  FT_Vector_
 {
   FT_Pos  x;
@@ -148,8 +151,8 @@ typedef struct  FT_Bitmap_Size_
   FT_Pos    y_ppem;
 } FT_Bitmap_Size;
 
-typedef void  *FT_Library;
-// typedef struct FT_ModuleRec_*  FT_Module;
+typedef ...  *FT_Library;
+/* typedef struct FT_ModuleRec_*  FT_Module; */
 typedef struct FT_DriverRec_*  FT_Driver;
 typedef struct FT_RendererRec_*  FT_Renderer;
 typedef struct FT_FaceRec_*  FT_Face;
@@ -312,6 +315,13 @@ FT_New_Face( FT_Library   library,
              const char*  filepathname,
              FT_Long      face_index,
              FT_Face     *aface );
+
+FT_Error
+FT_New_Memory_Face( FT_Library      library,
+                    const FT_Byte*  file_base,
+                    FT_Long         file_size,
+                    FT_Long         face_index,
+                    FT_Face        *aface );
 
 FT_Error
 FT_Reference_Face( FT_Face  face );
