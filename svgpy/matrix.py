@@ -320,17 +320,18 @@ class Matrix(object):
         """numpy.matrix: The current matrix."""
         return self._matrix
 
-    def clear(self, is2d=True):
+    def clear(self, is2d=None):
         """Sets the matrix [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1].
 
         Returns:
             Matrix: Returns itself.
         """
+        _is2d = self._is2d if is2d is None else is2d
         self.set_matrix(1, 0, 0, 0,
                         0, 1, 0, 0,
                         0, 0, 1, 0,
                         0, 0, 0, 1)
-        self._is2d = is2d
+        self._is2d = _is2d
         return self
 
     def flipx(self):
