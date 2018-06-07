@@ -85,11 +85,11 @@ class Matrix(object):
             self._is2d = is2d
 
     def __deepcopy__(self, memodict={}):
-        x = Matrix()
+        m = Matrix()
         if self._matrix is not None:
-            x._matrix = np.matrix.copy(self._matrix)
-            x._is2d = self._is2d
-        return x
+            m._matrix = np.matrix.copy(self._matrix)
+            m._is2d = self._is2d
+        return m
 
     def __eq__(self, other):
         if not isinstance(other, Matrix):
@@ -105,9 +105,9 @@ class Matrix(object):
     def __mul__(self, other):
         if not isinstance(other, Matrix):
             return NotImplemented
-        x = copy.deepcopy(self)
-        x.multiply_self(other)
-        return x
+        m = copy.deepcopy(self)
+        m.multiply_self(other)
+        return m
 
     def __repr__(self):
         return '<{}.{} object at {} {}>'.format(
@@ -342,8 +342,8 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = self * Matrix(-1, 0, 0, 1, 0, 0)
-        return x
+        m = self * Matrix(-1, 0, 0, 1, 0, 0)
+        return m
 
     def flipy(self):
         """Post-multiplies the transformation [1 0 0 -1 0 0] on the current
@@ -353,8 +353,8 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = self * Matrix(1, 0, 0, -1, 0, 0)
-        return x
+        m = self * Matrix(1, 0, 0, -1, 0, 0)
+        return m
 
     @staticmethod
     def fromjson(text):
@@ -387,15 +387,15 @@ class Matrix(object):
         elif matrix.shape != (4, 4):
             raise ValueError('Expected 4x4 matrix, got {}'.format(
                 matrix.tolist()))
-        x = Matrix()
-        x._matrix = np.matrix.copy(matrix)
-        if ((x.m13 or x.m14 or x.m23 or x.m24 or x.m31 or x.m32
-             or x.m34 or x.m43)
-                or (x.m33 != 1 or x.m44 != 1)):
-            x._is2d = False
+        m = Matrix()
+        m._matrix = np.matrix.copy(matrix)
+        if ((m.m13 or m.m14 or m.m23 or m.m24 or m.m31 or m.m32
+             or m.m34 or m.m43)
+                or (m.m33 != 1 or m.m44 != 1)):
+            m._is2d = False
         else:
-            x._is2d = True
-        return x
+            m._is2d = True
+        return m
 
     def get_angle(self, degrees=True):
         """Returns the rotation angle.
@@ -424,7 +424,7 @@ class Matrix(object):
         """Returns the scale amounts.
 
         Returns:
-             tuple[float, float]: The scale amounts.
+             tuple[float, ...]: The scale amounts.
         """
         m11 = self.m11
         m12 = self.m12
@@ -446,7 +446,7 @@ class Matrix(object):
         """Returns the translation amounts.
 
         Returns:
-             tuple[float, float]: The translation amounts.
+             tuple[float, ...]: The translation amounts.
         """
         tx = self.m41
         ty = self.m42
@@ -462,9 +462,9 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = copy.deepcopy(self)
-        x.invert_self()
-        return x
+        m = copy.deepcopy(self)
+        m.invert_self()
+        return m
 
     def invert_self(self):
         """Inverts the current matrix.
@@ -485,8 +485,8 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = self * other
-        return x
+        m = self * other
+        return m
 
     def multiply_self(self, other):
         """Post-multiplies the other matrix on the current matrix.
@@ -531,9 +531,9 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = copy.deepcopy(self)
-        x.rotate_self(rot_x, rot_y, rot_z)
-        return x
+        m = copy.deepcopy(self)
+        m.rotate_self(rot_x, rot_y, rot_z)
+        return m
 
     def rotate_axis_angle(self, x=0, y=0, z=0, angle=0):
         m = copy.deepcopy(self)
@@ -626,9 +626,9 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = copy.deepcopy(self)
-        x.scale_self(scale_x, scale_y, scale_z, origin_x, origin_y, origin_z)
-        return x
+        m = copy.deepcopy(self)
+        m.scale_self(scale_x, scale_y, scale_z, origin_x, origin_y, origin_z)
+        return m
 
     def scale_self(self, scale_x=1, scale_y=None, scale_z=1,
                    origin_x=0, origin_y=0, origin_z=0):
@@ -663,9 +663,9 @@ class Matrix(object):
         return self
 
     def scale3d(self, scale=1, origin_x=0, origin_y=0, origin_z=0):
-        x = copy.deepcopy(self)
-        x.scale3d_self(scale, origin_x, origin_y, origin_z)
-        return x
+        m = copy.deepcopy(self)
+        m.scale3d_self(scale, origin_x, origin_y, origin_z)
+        return m
 
     def scale3d_self(self, scale=1, origin_x=0, origin_y=0, origin_z=0):
         return self.scale_self(scale, scale, scale,
@@ -694,9 +694,9 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = copy.deepcopy(self)
-        x.skewx_self(angle)
-        return x
+        m = copy.deepcopy(self)
+        m.skewx_self(angle)
+        return m
 
     def skewx_self(self, angle):
         """Post-multiplies a skewX transformation on the current matrix.
@@ -720,9 +720,9 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = copy.deepcopy(self)
-        x.skewy_self(angle)
-        return x
+        m = copy.deepcopy(self)
+        m.skewy_self(angle)
+        return m
 
     def skewy_self(self, angle):
         """Post-multiplies a skewY transformation on the current matrix.
@@ -807,9 +807,9 @@ class Matrix(object):
         Returns:
             Matrix: The resulting matrix.
         """
-        x = copy.deepcopy(self)
-        x.translate_self(tx, ty, tz)
-        return x
+        m = copy.deepcopy(self)
+        m.translate_self(tx, ty, tz)
+        return m
 
     def translate_self(self, tx=0, ty=0, tz=0):
         """Post-multiplies a translation transformation on the current

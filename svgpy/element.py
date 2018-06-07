@@ -1137,7 +1137,7 @@ class SVGElementClassLookup(etree.CustomElementClassLookup):
 
 class SVGParser(object):
     def __init__(self, **kwargs):
-        """Constructs a SVGParser object.
+        """Constructs an SVGParser object.
 
         Arguments:
             **kwargs: See lxml.etree.XMLParser.__init__().
@@ -1177,7 +1177,8 @@ class SVGParser(object):
 
     def make_element(self, tag, attrib=None, nsmap=None, **_extra):
         """Creates a new element instance, and returns it.
-        See also Element.make_sub_element() and Element.make_sub_element_ns().
+        See also SVGParser.make_element_ns(), Element.make_sub_element() and
+        Element.make_sub_element_ns().
 
         Arguments:
             tag (str): A tag of an element to be created.
@@ -1201,7 +1202,8 @@ class SVGParser(object):
                         **_extra):
         """Creates a new element instance with the specified namespace URI,
         and returns it.
-        See also Element.make_sub_element() and Element.make_sub_element_ns().
+        See also SVGParser.make_element(), Element.make_sub_element() and
+        Element.make_sub_element_ns().
 
         Arguments:
             namespace_uri (str): The namespace URI to associated with the

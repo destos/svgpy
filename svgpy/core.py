@@ -394,7 +394,7 @@ class CSSUtils(object):
             style['font-size'] = item
 
         while len(items) > 0:
-            item = items[0]
+            item = items.pop(0)
             if item == 'normal':
                 pass
             elif item in ['italic', 'oblique']:
@@ -414,7 +414,6 @@ class CSSUtils(object):
                 style['font-stretch'] = item
             else:
                 break
-            items.pop(0)
 
         return style
 

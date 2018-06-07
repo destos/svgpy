@@ -257,9 +257,9 @@ class SVGTransformList(list):
     def __add__(self, other):
         if not isinstance(other, SVGTransformList):
             return NotImplemented
-        x = copy.deepcopy(self)
-        x.extend(other)
-        return x
+        t = copy.deepcopy(self)
+        t.extend(other)
+        return t
 
     def __iadd__(self, other):
         if not isinstance(other, SVGTransformList):

@@ -24,12 +24,12 @@ from .config import config
 
 
 def get_content_type(headers):
-    _headers = {k.lower(): v for k, v in headers.items()}
+    _headers = CaseInsensitiveMapping(headers)
     content_type = _headers.get('content-type')
     if content_type is None:
         return None
     parameters = [x.strip() for x in content_type.split(';')]
-    result = dict({None: parameters.pop(0)})
+    result = CaseInsensitiveMapping({None: parameters.pop(0)})
     for parameter in parameters:
         items = parameter.split('=')
         if len(items) == 2:
@@ -39,7 +39,7 @@ def get_content_type(headers):
 
 def load(path_or_url, encoding=None, **kwargs):
     scheme = urlparse(path_or_url).scheme
-    headers = {}
+    headers = CaseInsensitiveMapping()
     if scheme == 'data':
         # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
         start = path_or_url.find(':')
@@ -54,15 +54,16 @@ def load(path_or_url, encoding=None, **kwargs):
         if 'base64' in parameters:
             parameters.remove('base64')
             data = base64.b64decode(data)
-        headers = {'Content-Type': ';'.join(parameters)}
+        headers = CaseInsensitiveMapping(
+            {'Content-Type': ';'.join(parameters)})
         return data, headers
     elif len(scheme) > 0:
         url = path_or_url
     else:
-        url = Path(path_or_url).absolute().as_uri()
+        url = normalize_path(path_or_url)
     with urlopen(url, **kwargs) as response:
         if hasattr(response, 'getheaders'):
-            headers = dict(response.getheaders())
+            headers = CaseInsensitiveMapping(response.getheaders())
         data = response.read()
         if encoding is not None:
             data = data.decode(encoding)

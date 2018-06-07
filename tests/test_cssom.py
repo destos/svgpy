@@ -2,6 +2,7 @@
 
 
 import logging
+import os
 import unittest
 
 from svgpy import SVGParser
@@ -10,6 +11,9 @@ from svgpy.css import CSSFontFaceRule, CSSFontFeatureValuesRule, \
     CSSImportRule, CSSMediaRule, CSSNamespaceRule, CSSParser, CSSRule, \
     CSSStyleDeclaration, CSSStyleRule, CSSStyleSheet, MediaList, StyleSheet
 from svgpy.utils import normalize_url
+
+here = os.path.abspath(os.path.dirname(__file__))
+os.chdir(here)
 
 
 class CSSOMTestCase(unittest.TestCase):

@@ -16,7 +16,8 @@
 from lxml import etree, cssselect
 
 from .core import window
-from .css import CSSParser, CSSRule, normalize_url
+from .css import CSSParser, CSSRule
+from .utils import normalize_url
 
 
 _SVG_UA_CSS_STYLESHEET = '''
@@ -59,7 +60,7 @@ symbol {
 
 def flatten_css_rules(element, css_rules):
     window.document = element
-    flattened_css_rules = list()
+    flattened = list()
     for css_rule in css_rules:
         if css_rule.type == CSSRule.IMPORT_RULE:
             # '@import' at-rule
@@ -68,7 +69,7 @@ def flatten_css_rules(element, css_rules):
                 mql = window.match_media(media)
                 if not mql.matches:
                     continue
-            flattened_css_rules.extend(
+            flattened.extend(
                 flatten_css_rules(element, css_rule.style_sheet.css_rules))
         elif css_rule.type == CSSRule.MEDIA_RULE:
             # '@media' at-rule
@@ -77,11 +78,11 @@ def flatten_css_rules(element, css_rules):
                 mql = window.match_media(media)
                 if not mql.matches:
                     continue
-            flattened_css_rules.extend(
+            flattened.extend(
                 flatten_css_rules(element, css_rule.css_rules))
         else:
-            flattened_css_rules.append(css_rule)
-    return flattened_css_rules
+            flattened.append(css_rule)
+    return flattened
 
 
 def get_css_rules(element):
@@ -96,19 +97,9 @@ def get_css_rules_from_svg_document(element):
     css_rules = list()
     window.document = element
     root = element.getroottree().getroot()
-    for target in root.iter(tag=('{*}style', '{*}link')):
+    for target in root.iter(tag=('{*}link', '{*}style')):
         local_name = target.local_name
-        if local_name == 'style':
-            if target.type != 'text/css' or target.text is None:
-                continue
-            media = target.media
-            if media != 'all':
-                mql = window.match_media(media)
-                if not mql.matches:
-                    continue
-            rules = CSSParser.fromstring(target.text)
-            css_rules.extend(rules)
-        elif local_name == 'link':
+        if local_name == 'link':
             rel_list = target.rel_list
             if 'stylesheet' not in rel_list or 'alternate' in rel_list:
                 continue  # TODO: support alternative style sheet.
@@ -123,6 +114,16 @@ def get_css_rules_from_svg_document(element):
             css_style_sheet = CSSParser.parse(normalize_url(href),
                                               owner_node=target)
             css_rules.extend(css_style_sheet.css_rules)
+        else:  # 'style'
+            if target.type != 'text/css' or target.text is None:
+                continue
+            media = target.media
+            if media != 'all':
+                mql = window.match_media(media)
+                if not mql.matches:
+                    continue
+            rules = CSSParser.fromstring(target.text)
+            css_rules.extend(rules)
     return css_rules
 
 

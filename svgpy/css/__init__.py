@@ -16,11 +16,11 @@
 import logging
 import re
 from abc import ABC, abstractmethod
+from collections.abc import MutableMapping, MutableSequence
 from urllib.error import URLError
 from urllib.request import urlopen
 
 import tinycss2
-from collections.abc import MutableMapping, MutableSequence
 
 from ..utils import CaseInsensitiveMapping, normalize_url
 
@@ -491,14 +491,16 @@ class CSSStyleDeclaration(MutableMapping):
     def __iter__(self):
         if self._owner_attributes is not None:
             style = self._owner_attributes.get_style({})
-            return iter(style)
-        return iter(self._properties)
+        else:
+            style = self._properties
+        return iter(style)
 
     def __len__(self):
         if self._owner_attributes is not None:
             style = self._owner_attributes.get_style({})
-            return len(style)
-        return len(self._properties)
+        else:
+            style = self._properties
+        return len(style)
 
     def __repr__(self):
         if self._owner_attributes is not None:
@@ -675,7 +677,7 @@ class CSSParser(object):
                 'title': owner_node.get('title'),
                 'media': owner_node.get('media'),
             })
-        css_stylesheet = CSSStyleSheet(owner_rule=parent_rule, **extra)
+        css_style_sheet = CSSStyleSheet(owner_rule=parent_rule, **extra)
         try:
             response = urlopen(url)
             css_bytes = response.read()
@@ -690,12 +692,12 @@ class CSSParser(object):
                 rules,
                 parent_style_sheet=parent_style_sheet,
                 parent_rule=parent_rule)
-            css_stylesheet.css_rules.extend(css_rules)
+            css_style_sheet.css_rules.extend(css_rules)
         except URLError as exp:
             logging.getLogger(__name__).info(
                 'CSSParser#parse() error: ' + str(exp),
                 stack_info=True)
-        return css_stylesheet
+        return css_style_sheet
 
     @staticmethod
     def parse_rules(rules, parent_style_sheet=None, parent_rule=None):

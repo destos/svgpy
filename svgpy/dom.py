@@ -27,7 +27,7 @@ from .style import get_css_rules, get_css_style
 def dict_to_style(d):
     if d is None:
         return ''
-    items = ['{}: {};'.format(x, d[x]) for x in iter(d.keys())]
+    items = ['{}: {};'.format(key, value) for key, value in iter(d.items())]
     return ' '.join(sorted(items))
 
 
@@ -44,7 +44,7 @@ class Attrib(MutableMapping):
     """A wrapper class for lxml.etree._Attrib."""
 
     def __init__(self, attrib):
-        """Constructs a Attrib object.
+        """Constructs an Attrib object.
 
         Arguments:
             attrib (lxml.etree._Attrib): An attribute object.
@@ -477,8 +477,8 @@ class Element(etree.ElementBase, Node):
         return self.attributes.get('id')
 
     @id.setter
-    def id(self, element_id):
-        self.attributes.set('id', element_id)
+    def id(self, ident):
+        self.attributes.set('id', ident)
 
     @property
     def local_name(self):
@@ -813,19 +813,19 @@ class Element(etree.ElementBase, Node):
 
         return style
 
-    def get_element_by_id(self, element_id, namespaces=None):
+    def get_element_by_id(self, ident, namespaces=None):
         """Finds the first matching sub-element, by id.
 
         Arguments:
-            element_id (str): The id of the element.
+            ident (str): The id of the element.
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
             SVGElement: An element or None.
         """
-        elements = self.xpath('//*[@id = $element_id]',
+        elements = self.xpath('//*[@id = $ident]',
                               namespaces=namespaces,
-                              element_id=element_id)
+                              ident=ident)
         return elements[0] if len(elements) > 0 else None
 
     def get_elements_by_class_name(self, class_names, namespaces=None):
@@ -935,7 +935,8 @@ class Element(etree.ElementBase, Node):
     def make_sub_element(self,
                          tag, index=None, attrib=None, nsmap=None, **_extra):
         """Creates a sub-element instance, and adds to the end of this element.
-        See also SVGParser.make_element() and SVGParser.make_element_ns().
+        See also Element.make_sub_element_ns(), SVGParser.make_element() and
+        SVGParser.make_element_ns().
 
         Arguments:
             tag (str): A tag of an element to be created.
@@ -960,7 +961,8 @@ class Element(etree.ElementBase, Node):
                             nsmap=None, **_extra):
         """Creates a sub-element instance with the specified namespace URI,
         and adds to the end of this element.
-        See also SVGParser.make_element() and SVGParser.make_element_ns().
+        See also Element.make_sub_element(), SVGParser.make_element() and
+        SVGParser.make_element_ns().
 
         Arguments:
             namespace_uri (str, None): The namespace URI to associated with the

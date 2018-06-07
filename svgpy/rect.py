@@ -162,6 +162,11 @@ class Rect(object):
     def y(self, y):
         self.top = y
 
+    def adjust(self, dx1, dy1, dx2, dy2):
+        rect = copy.copy(self)
+        rect.adjust_self(dx1, dy1, dx2, dy2)
+        return rect
+
     def adjust_self(self, dx1, dy1, dx2, dy2):
         """Adds dx1, dy1, dx2 and dy2 respectively to the existing coordinates
         of the rectangle.
@@ -175,11 +180,6 @@ class Rect(object):
         y2 += dy2
         self.set_coords(x1, y1, x2, y2)
         return self
-
-    def adjust(self, dx1, dy1, dx2, dy2):
-        rect = copy.copy(self)
-        rect.adjust_self(dx1, dy1, dx2, dy2)
-        return rect
 
     def contains(self, x, y, width=0, height=0):
         """Returns True if the given point (x, y) or rectangle is inside or on
@@ -202,7 +202,8 @@ class Rect(object):
 
     @staticmethod
     def fromjson(text):
-        fields = eval(text)
+        import ast
+        fields = ast.literal_eval(text)
         rect = Rect(fields['X'], fields['Y'],
                     fields['Width'], fields['Height'])
         return rect
@@ -222,6 +223,13 @@ class Rect(object):
     def get_size(self):
         """Returns the size of the rectangle."""
         return self.width, self.height
+
+    def intersect(self, other):
+        """Returns the intersection of this rectangle and the given rectangle.
+        """
+        rect = copy.copy(self)
+        rect.intersect_self(other)
+        return rect
 
     def intersect_self(self, other):
         """Computes the intersection of this rectangle and the given rectangle.
@@ -266,13 +274,6 @@ class Rect(object):
         self.set_coords(x1, y1, x2, y2)
         return self
 
-    def intersect(self, other):
-        """Returns the intersection of this rectangle and the given rectangle.
-        """
-        rect = copy.copy(self)
-        rect.intersect_self(other)
-        return rect
-
     def isempty(self):
         """Returns True if the rectangle is empty, otherwise returns False.
 
@@ -301,10 +302,6 @@ class Rect(object):
         """Returns a normalized rectangle."""
         x1, y1, x2, y2 = self.get_coords()
         width, height = self.get_size()
-        # x1 = self._x
-        # y1 = self._y
-        # x2 = x1 + self._width
-        # y2 = y1 + self._height
         if width is not None and width < 0:
             x1, x2 = x2, x1
             width = x2 - x1
@@ -341,6 +338,11 @@ class Rect(object):
         }
         return repr(fields)
 
+    def transform(self, matrix):
+        rect = copy.copy(self)
+        rect.transform_self(matrix)
+        return rect
+
     def transform_self(self, matrix):
         if not self.isvalid():
             return self
@@ -361,9 +363,12 @@ class Rect(object):
         self.set_coords(x1, y1, x3, y3)
         return self
 
-    def transform(self, matrix):
+    def translate(self, dx, dy):
+        """Returns a copy of the rectangle that is translated dx along the
+        x-axis and dy along the y-axis, relative to the current position.
+        """
         rect = copy.copy(self)
-        rect.transform_self(matrix)
+        rect.translate_self(dx, dy)
         return rect
 
     def translate_self(self, dx, dy):
@@ -374,19 +379,6 @@ class Rect(object):
         self._y += dy
         return self
 
-    def translate(self, dx, dy):
-        """Returns a copy of the rectangle that is translated dx along the
-        x-axis and dy along the y-axis, relative to the current position.
-        """
-        rect = copy.copy(self)
-        rect.translate_self(dx, dy)
-        return rect
-
-    def transpose_self(self):
-        """Swaps width with height."""
-        self._width, self._height = self._height, self._width
-        return self
-
     def transpose(self):
         """Returns a copy of the rectangle that has its width and height
         exchanged.
@@ -395,15 +387,25 @@ class Rect(object):
         rect.transpose_self()
         return rect
 
+    def transpose_self(self):
+        """Swaps width with height."""
+        self._width, self._height = self._height, self._width
+        return self
+
+    def unite(self, x, y, width=0, height=0):
+        """Returns the bounding rectangle of this rectangle and the given
+        rectangle.
+        """
+        rect = copy.copy(self)
+        rect.unite_self(x, y, width, height)
+        return rect
+
     def unite_self(self, x, y, width=0, height=0):
         """Computes the bounding rectangle of this rectangle and the given
         rectangle.
         """
         if x is None or y is None:
             return self
-        # elif not self.isvalid():
-        #     self.set_rect(x, y, width, height)
-        #     return self
         elif self.contains(x, y, width, height):
             return self
 
@@ -433,11 +435,3 @@ class Rect(object):
             self.x = x1
             self.y = y1
         return self
-
-    def unite(self, x, y, width=0, height=0):
-        """Returns the bounding rectangle of this rectangle and the given
-        rectangle.
-        """
-        rect = copy.copy(self)
-        rect.unite_self(x, y, width, height)
-        return rect
