@@ -14,6 +14,7 @@
 
 
 import re
+import warnings
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
 
@@ -107,7 +108,7 @@ class Attrib(MutableMapping):
         """Gets an element attribute with the specified namespace and name.
 
         Arguments:
-            namespace (str): The namespace URI.
+            namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
             default (str, optional): The default value of the attribute.
         Returns:
@@ -153,7 +154,7 @@ class Attrib(MutableMapping):
         and name exists; otherwise returns False.
 
         Arguments:
-            namespace (str): The namespace URI.
+            namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
         Returns:
             bool: Returns True if the attribute exists, else False.
@@ -187,7 +188,7 @@ class Attrib(MutableMapping):
         and returns the value associated with it.
 
         Arguments:
-            namespace (str): The namespace URI.
+            namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
             default (str, optional): The default value of the attribute.
         Returns:
@@ -224,7 +225,7 @@ class Attrib(MutableMapping):
         """Sets an element attribute with the specified namespace and name.
 
         Arguments:
-            namespace (str): The namespace URI.
+            namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
             value (str): The value of the attribute.
         """
@@ -257,7 +258,7 @@ class Attrib(MutableMapping):
         an element attribute with a value of default and returns default.
 
         Arguments:
-            namespace (str): The namespace URI.
+            namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
             default (str, optional): The default value of the attribute.
         Returns:
@@ -296,6 +297,10 @@ class Node(ABC):
 
     ELEMENT_NODE = 1
     COMMENT_NODE = 8
+    DOCUMENT_NODE = 9
+
+    def __init__(self):
+        self._owner_document = None
 
     @property
     @abstractmethod
@@ -314,7 +319,27 @@ class Node(ABC):
 
     @node_value.setter
     @abstractmethod
-    def node_value(self, text):
+    def node_value(self, value):
+        raise NotImplementedError
+
+    @property
+    def owner_document(self):
+        """Document: An owner document."""
+        return (self._owner_document if self.node_type != Node.DOCUMENT_NODE
+                else None)
+
+    @property
+    def parent_element(self):
+        """Element: A parent element."""
+        parent = self.parent_node
+        if parent is not None and parent.node_type == Node.ELEMENT_NODE:
+            return parent
+        return None
+
+    @property
+    @abstractmethod
+    def parent_node(self):
+        """Node: A parent node."""
         raise NotImplementedError
 
     @property
@@ -327,8 +352,65 @@ class Node(ABC):
     def text_content(self, text):
         raise NotImplementedError
 
+    @abstractmethod
+    def append_child(self, node):
+        """Adds a node to the end of this node.
+
+        Arguments:
+            node (Node): A node to be added.
+        Returns:
+            Node: An appended node.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_root_node(self):
+        """Returns a root node of the document that contains this node.
+
+        Returns:
+            Node: A root node.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def insert_before(self, node, child):
+        """Inserts a node into a parent before a child.
+
+        Arguments:
+            node (Node): A node to be inserted.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A inserted node.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def remove_child(self, child):
+        """Removes a child node from this node.
+
+        Arguments:
+            child (Node): A node to be removed.
+        Returns:
+            Node: A removed node.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def replace_child(self, node, child):
+        """Replaces a child with node.
+
+        Arguments:
+            node (Node): A node to be replaced.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A replaced node.
+        """
+        raise NotImplementedError
+
 
 class CharacterData(Node):
+    """Represents the DOM CharacterData."""
+
     @property
     @abstractmethod
     def data(self):
@@ -339,25 +421,12 @@ class CharacterData(Node):
     def data(self, data):
         raise NotImplementedError
 
-    @property
-    def node_value(self):
-        raise NotImplementedError
-
-    @node_value.setter
-    def node_value(self, text):
-        raise NotImplementedError
-
-    @property
-    def text_content(self):
-        raise NotImplementedError
-
-    @text_content.setter
-    def text_content(self, text):
-        raise NotImplementedError
-
 
 class Comment(etree.CommentBase, CharacterData):
     """Represents the DOM Comment."""
+
+    def _init(self):
+        Node.__init__(self)
 
     @property
     def data(self):
@@ -380,8 +449,13 @@ class Comment(etree.CommentBase, CharacterData):
         return self.text
 
     @node_value.setter
-    def node_value(self, text):
-        self.text = text
+    def node_value(self, value):
+        self.text = value
+
+    @property
+    def parent_node(self):
+        """Node: A parent node."""
+        return self.getparent()
 
     @property
     def text_content(self):
@@ -391,8 +465,59 @@ class Comment(etree.CommentBase, CharacterData):
     def text_content(self, text):
         self.text = text
 
+    def append_child(self, node):
+        """Adds a node to the end of this node.
+
+        Arguments:
+            node (Node): A node to be added.
+        Returns:
+            Node: An appended node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def get_root_node(self):
+        """Returns a root node of the document that contains this node.
+
+        Returns:
+            Node: A root node.
+        """
+        return self.getroottree().getroot()
+
+    def insert_before(self, node, child):
+        """Inserts a node into a parent before a child.
+
+        Arguments:
+            node (Node): A node to be inserted.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A inserted node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def remove_child(self, child):
+        """Removes a child node from this node.
+
+        Arguments:
+            child (Node): A node to be removed.
+        Returns:
+            Node: A removed node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def replace_child(self, node, child):
+        """Replaces a child with node.
+
+        Arguments:
+            node (Node): A node to be replaced.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A replaced node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
     def tostring(self):
-        return '' if self.text is None else '<!--{}-->'.format(self.text)
+        return ('' if self.text is None or len(self.text) == 0
+                else '<!--{}-->'.format(self.text))
 
 
 class Element(etree.ElementBase, Node):
@@ -447,6 +572,7 @@ class Element(etree.ElementBase, Node):
     RE_DIGIT_SEQUENCE_SPLITTER = re.compile(r'\s*,\s*|\s+')
 
     def _init(self):
+        Node.__init__(self)
         self._attributes = Attrib(self.attrib)
 
     @property
@@ -502,8 +628,13 @@ class Element(etree.ElementBase, Node):
         return None
 
     @node_value.setter
-    def node_value(self, node_value):
+    def node_value(self, value):
         pass  # do nothing
+
+    @property
+    def parent_node(self):
+        """Node: A parent node."""
+        return self.getparent()
 
     @property
     def qname(self):
@@ -555,6 +686,165 @@ class Element(etree.ElementBase, Node):
                         and child.tail is not None):
                     chars.append(child.tail)
         return chars
+
+    def addnext(self, element):
+        """Reimplemented from lxml.etree.ElementBase.addnext().
+
+        Adds the element as a following sibling directly after this element.
+        """
+        for it in element.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = self.owner_document
+        super().addnext(element)
+
+    def addprevious(self, element):
+        """Reimplemented from lxml.etree.ElementBase.addprevious().
+
+        Adds the element as a preceding sibling directly before this element.
+        """
+        for it in element.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = self.owner_document
+        super().addprevious(element)
+
+    def append(self, element):
+        """Reimplemented from lxml.etree.ElementBase.append().
+
+        Adds a subelement to the end of this element.
+        """
+        for it in element.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = self.owner_document
+        super().append(element)
+
+    def append_child(self, node):
+        """Adds a node to the end of this node.
+
+        Arguments:
+            node (Node): A node to be added.
+        Returns:
+            Node: An appended node.
+        """
+        self.append(node)
+        return node
+
+    def create_sub_element(self,
+                           local_name, index=None, attrib=None, nsmap=None,
+                           **_extra):
+        """Creates a sub-element instance, and adds to the end of this element.
+        See also Element.create_sub_element_ns(), Document.create_element(),
+        Document.create_element_ns(), SVGParser.create_element() and
+        SVGParser.create_element_ns().
+
+        Arguments:
+            local_name (str): A local name of an element to be created.
+            index (int, optional): If specified, inserts a sub-element at the
+                given position in this element.
+            attrib (dict, optional): A dictionary of an element's attributes.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **_extra: See lxml.etree._Element.makeelement() and
+                lxml.etree._BaseParser.makeelement().
+        Returns:
+            Element: A new element.
+        """
+        element = self.makeelement(local_name,
+                                   attrib=attrib,
+                                   nsmap=nsmap,
+                                   **_extra)
+        if index is not None:
+            self.insert(index, element)
+        else:
+            self.append(element)
+        return element
+
+    def create_sub_element_ns(self,
+                              namespace, local_name, index=None,
+                              attrib=None, nsmap=None, **_extra):
+        """Creates a sub-element instance with the specified namespace URI,
+        and adds to the end of this element.
+        See also Element.create_sub_element(), Document.create_element(),
+        Document.create_element_ns(), SVGParser.create_element() and
+        SVGParser.create_element_ns().
+
+        Arguments:
+            namespace (str, None): The namespace URI to associated with
+                the element.
+            local_name (str): A local name of an element to be created.
+            index (int, optional): If specified, inserts a sub-element at the
+                given position in this element.
+            attrib (dict, optional): A dictionary of an element's attributes.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **_extra: See lxml.etree._Element.makeelement() and
+                lxml.etree._BaseParser.makeelement().
+        Returns:
+            Element: A new element.
+        Examples:
+            >>> from svgpy import SVGParser
+            >>> parser = SVGParser()
+            >>> root = parser.create_element('svg', nsmap={'html': 'http://www.w3.org/1999/xhtml'})
+            >>> video = root.create_sub_element_ns('http://www.w3.org/1999/xhtml', 'video')
+            >>> print(root.tostring(pretty_print=True).decode())
+            <svg xmlns:html="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/2000/svg">
+              <html:video/>
+            </svg>
+        """
+        if namespace is not None:
+            tag = '{{{0}}}{1}'.format(namespace, local_name)
+        else:
+            tag = local_name
+        element = self.create_sub_element(tag,
+                                          index=index,
+                                          attrib=attrib,
+                                          nsmap=nsmap,
+                                          **_extra)
+        return element
+
+    def extend(self, elements):
+        """Reimplemented from lxml.etree.ElementBase.extend().
+
+        Extends the current children by the elements in the iterable.
+        """
+        for it in elements.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = self.owner_document
+        super().extend(elements)
+
+    def get_attribute(self, qualified_name):
+        """Returns an element attribute with the specified name.
+
+        Arguments:
+            qualified_name (str): The name of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute or None.
+        """
+        return self.attributes.get(qualified_name)
+
+    def get_attribute_names(self):
+        """Returns a list of attribute names in order.
+
+        Returns:
+            list[str]: A list of attribute names.
+        """
+        return sorted(self.attributes.keys())
+
+    def get_attribute_ns(self, namespace, local_name):
+        """Returns an element attribute with the specified namespace and name.
+
+        Arguments:
+            namespace (str, None): The namespace URI.
+            local_name (str): The local name of the attribute.
+        Returns:
+            str: Returns the value of the specified attribute or None.
+        """
+        return self.attributes.get_ns(namespace, local_name)
 
     def get_computed_geometry(self):
         return {}  # override with a subclass
@@ -821,7 +1111,7 @@ class Element(etree.ElementBase, Node):
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
-            SVGElement: An element or None.
+            Element: An element or None.
         """
         elements = self.xpath('//*[@id = $ident]',
                               namespaces=namespaces,
@@ -837,7 +1127,7 @@ class Element(etree.ElementBase, Node):
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
-            list[SVGElement]: A list of elements.
+            list[Element]: A list of elements.
         """
         names = class_names.split()
         if len(names) == 0:
@@ -858,7 +1148,7 @@ class Element(etree.ElementBase, Node):
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
-            list[SVGElement]: A list of elements.
+            list[Element]: A list of elements.
         """
         return self.xpath('.//*[local-name() = $local_name]',
                           namespaces=namespaces,
@@ -868,11 +1158,11 @@ class Element(etree.ElementBase, Node):
         """Finds all matching sub-elements, by the qualified name.
 
         Arguments:
-            tag (str): The qualified name.
+            tag (str): The qualified name or '*'.
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
-            list[SVGElement]: A list of elements.
+            list[Element]: A list of elements.
         """
         expr = './/*{}'.format('' if tag == '*' else '[name() = $tag_name]')
         return self.xpath(expr,
@@ -885,12 +1175,12 @@ class Element(etree.ElementBase, Node):
         name.
 
         Arguments:
-            namespace_uri (str): The namespace URI.
-            local_name (str): The local name.
+            namespace_uri (str, None): The namespace URI, '*' or None.
+            local_name (str): The local name or '*'.
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
-            list[SVGElement]: A list of elements.
+            list[Element]: A list of elements.
         """
         pattern = list()
         if namespace_uri is not None and namespace_uri != '*':
@@ -903,6 +1193,66 @@ class Element(etree.ElementBase, Node):
                           namespaces=namespaces,
                           namespace_uri=namespace_uri,
                           local_name=local_name)
+
+    def get_root_node(self):
+        """Returns a root node of the document that contains this node.
+
+        Returns:
+            Node: A root node.
+        """
+        return self.getroottree().getroot()
+
+    def has_attribute(self, qualified_name):
+        """Returns True if an element attribute with the specified name
+        exists; otherwise returns False.
+
+        Arguments:
+            qualified_name (str): The name of the attribute.
+        Returns:
+            bool: Returns True if the attribute exists, else False.
+        """
+        return self.attributes.has(qualified_name)
+
+    def has_attribute_ns(self, namespace, local_name):
+        """Returns True if an element attribute with the specified namespace
+        and name exists; otherwise returns False.
+
+        Arguments:
+            namespace (str, None): The namespace URI.
+            local_name (str): The local name of the attribute.
+        Returns:
+            bool: Returns True if the attribute exists, else False.
+        """
+        return self.attributes.has_ns(namespace, local_name)
+
+    def insert(self, index, element):
+        """Reimplemented from lxml.etree.ElementBase.insert().
+
+        Inserts a subelement at the given position in this element.
+        """
+        for it in element.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = self.owner_document
+        super().insert(index, element)
+
+    def insert_before(self, node, child):
+        """Inserts a node into a parent before a child.
+
+        Arguments:
+            node (Node): A node to be inserted.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A inserted node.
+        """
+        if child is None:
+            return self.append_child(node)
+        elif child not in self:
+            raise ValueError('The object can not be found here.')
+        else:
+            child.addprevious(node)
+        return node
 
     def iscontainer(self):
         """Returns True if this element is container element."""
@@ -934,9 +1284,8 @@ class Element(etree.ElementBase, Node):
 
     def make_sub_element(self,
                          tag, index=None, attrib=None, nsmap=None, **_extra):
-        """Creates a sub-element instance, and adds to the end of this element.
-        See also Element.make_sub_element_ns(), SVGParser.make_element() and
-        SVGParser.make_element_ns().
+        """*[DEPRECATED]*
+        Same as Element.create_sub_element().
 
         Arguments:
             tag (str): A tag of an element to be created.
@@ -949,20 +1298,23 @@ class Element(etree.ElementBase, Node):
         Returns:
             Element: A new element.
         """
-        element = self.makeelement(tag, attrib=attrib, nsmap=nsmap, **_extra)
-        if index is None:
-            self.append(element)
-        else:
-            self.insert(index, element)
-        return element
+        # TODO: Remove Element.make_sub_element().
+        warnings.warn(
+            'instead use {}.{}.'.format(type(self).__name__,
+                                        'create_sub_element()'),
+            DeprecationWarning,
+            stacklevel=2)
+        return self.create_sub_element(tag,
+                                       index=index,
+                                       attrib=attrib,
+                                       nsmap=nsmap,
+                                       **_extra)
 
     def make_sub_element_ns(self,
                             namespace_uri, local_name, index=None, attrib=None,
                             nsmap=None, **_extra):
-        """Creates a sub-element instance with the specified namespace URI,
-        and adds to the end of this element.
-        See also Element.make_sub_element(), SVGParser.make_element() and
-        SVGParser.make_element_ns().
+        """*[DEPRECATED]*
+        Same as Element.create_sub_element_ns().
 
         Arguments:
             namespace_uri (str, None): The namespace URI to associated with the
@@ -976,29 +1328,121 @@ class Element(etree.ElementBase, Node):
                 lxml.etree._BaseParser.makeelement().
         Returns:
             Element: A new element.
-        Examples:
-            >>> from svgpy import SVGParser
-            >>> parser = SVGParser()
-            >>> root = parser.make_element('svg', nsmap={'html': 'http://www.w3.org/1999/xhtml'})
-            >>> video = root.make_sub_element_ns('http://www.w3.org/1999/xhtml', 'video')
-            >>> print(root.tostring(pretty_print=True).decode())
-            <svg xmlns:html="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/2000/svg">
-              <html:video/>
-            </svg>
         """
-        if namespace_uri is None:
-            tag = local_name
-        else:
-            tag = '{{{0}}}{1}'.format(namespace_uri, local_name)
-        element = self.make_sub_element(tag, index, attrib, nsmap, **_extra)
-        return element
+        # TODO: Remove Element.make_sub_element_ns().
+        warnings.warn(
+            'instead use {}.{}.'.format(type(self).__name__,
+                                        'create_sub_element_ns()'),
+            DeprecationWarning,
+            stacklevel=2)
+        return self.create_sub_element_ns(namespace_uri,
+                                          local_name,
+                                          index=index,
+                                          attrib=attrib,
+                                          nsmap=nsmap,
+                                          **_extra)
+
+    def remove(self, element):
+        """Reimplemented from lxml.etree.ElementBase.remove().
+
+        Removes a matching subelement. Unlike the find methods, this method
+        compares elements based on identity, not on tag value or contents.
+        """
+        if element not in self:
+            raise ValueError('The object can not be found here.')
+        for it in element.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = None
+        super().remove(element)
+
+    def remove_attribute(self, qualified_name):
+        """Removes an element attribute with the specified name.
+
+        Arguments:
+            qualified_name (str): The name of the attribute.
+        """
+        self.attributes.pop(qualified_name, None)
+
+    def remove_attribute_ns(self, namespace, local_name):
+        """Removes an element attribute with the specified namespace and name.
+
+        Arguments:
+            namespace (str, None): The namespace URI.
+            local_name (str): The local name of the attribute.
+        """
+        self.attributes.pop_ns(namespace, local_name, None)
+
+    def remove_child(self, child):
+        """Removes a child node from this node.
+
+        Arguments:
+            child (Node): A node to be removed.
+        Returns:
+            Node: A removed node.
+        """
+        self.remove(child)
+        return child
+
+    def replace(self, old_element, new_element):
+        """Reimplemented from lxml.etree.ElementBase.replace().
+
+        Replaces a subelement with the element passed as second argument.
+        """
+        if old_element not in self:
+            raise ValueError('The object can not be found here.')
+        for it in old_element.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = None
+        for it in new_element.iter():
+            if not isinstance(it, Node):
+                raise ValueError(
+                    'The operation would yield an incorrect node tree.')
+            it._owner_document = self.owner_document
+        super().replace(old_element, new_element)
+
+    def replace_child(self, node, child):
+        """Replaces a child with node.
+
+        Arguments:
+            node (Node): A node to be replaced.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A replaced node.
+        """
+        self.replace(child, node)
+        return node
+
+    def set_attribute(self, qualified_name, value):
+        """Sets an element attribute.
+
+        Arguments:
+            qualified_name (str): The name of the attribute.
+            value (str): The value of the attribute.
+        """
+        self.attributes.set(qualified_name, value)
+
+    def set_attribute_ns(self, namespace, local_name, value):
+        """Sets an element attribute with the specified namespace and name.
+
+        Arguments:
+            namespace (str, None): The namespace URI.
+            local_name (str): The local name of the attribute.
+            value (str): The value of the attribute.
+        """
+        self.attributes.set_ns(namespace, local_name, value)
 
     def tostring(self, **kwargs):
-        """Serialize an element to an encoded string representation of its
+        """Serializes an element to an encoded string representation of its
         XML tree.
 
         Arguments:
             **kwargs: See lxml.etree.tostring().
+        Returns:
+            str: An XML document.
         """
         return etree.tostring(self, **kwargs)
 
@@ -1022,7 +1466,7 @@ class LinkStyle(Element):
 
     @property
     def sheet(self):
-        """StyleSheet: An associated CSS style sheet or None."""
+        """StyleSheet: An associated CSS style sheet."""
         local_name = self.local_name
         assert local_name in ['link', 'style']
         type_ = self.type
