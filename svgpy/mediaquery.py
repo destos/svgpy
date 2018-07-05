@@ -16,6 +16,7 @@
 import pprint
 import re
 from fractions import Fraction
+from logging import getLogger
 
 MEDIA_TYPES = [
     'all', 'print', 'screen', 'speech',
@@ -76,6 +77,8 @@ MQ_ID = 'id'
 MQ_LEFT = 'left'
 MQ_NUM = 'n'
 
+logger = getLogger(__name__)
+
 
 def parse(query):
     node_list = list()
@@ -95,14 +98,19 @@ def dump(node_list, **kwargs):
 
 
 def match(node_list, conditions, compare_func, user_data=None):
+    logger.debug(hex(id(node_list)) + ': start')
     matched_media = None
     for node in node_list:
+        logger.debug(hex(id(node_list)) + ': node: ' + repr(node))
         result, media = _match_node(node, conditions, compare_func,
                                     user_data=user_data)
         if result and media and matched_media is None:
             matched_media = media
         if result:
+            logger.debug(hex(id(node_list)) + ': matched: media = '
+                         + repr(matched_media))
             return True, matched_media
+    logger.debug(hex(id(node_list)) + ': unmatched')
     return False, matched_media
 
 
@@ -182,6 +190,8 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
             # value type: discrete
             # e.g.: '(orientation: portrait)' -> '(orientation == portrait)'
             # FIXME: '(min-grid: 1)' to invalidate.
+            logger.debug('feature \'{}\': {} {} {}'.format(
+                name, repr(left_value), op, repr(right_value)))
             if op[-1] != '=' or left_value != right_value:
                 return False, None
         elif ((left_expr == MQ_EXPR_NAME or right_expr == MQ_EXPR_NAME)
@@ -190,6 +200,8 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
             # e.g.: '(aspect-ratio: 16/9)' -> '(aspect-ratio == 16/9)'
             left_ratio = Fraction(left_value)
             right_ratio = Fraction(right_value)
+            logger.debug('feature \'{}\': {} {} {}'.format(
+                name, repr(left_ratio), op, repr(right_ratio)))
             if op[-1] == '=' and left_ratio == right_ratio:
                 pass  # ok
             else:
@@ -202,6 +214,8 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
             # '(1 < color-index)' and '(color-index < 255)'
             try:
                 cmp = compare_func(left_value, right_value, user_data)
+                logger.debug('feature \'{}\': {} {} {}: result = {}'.format(
+                    name, repr(left_value), op, repr(right_value), cmp))
             except ValueError:
                 return False, None
             if ((cmp == 0 and op[-1] == '=')
@@ -224,6 +238,7 @@ def _eval_expr_name(node, conditions):
         if name == 'all' or conditions.get('media', '') == name:
             result = True
             matched_media = name
+        logger.debug('media \'{}\': result = {}'.format(name, result))
     else:
         # <mf-boolean>
         if name in DISCRETE_FEATURES:
@@ -237,6 +252,8 @@ def _eval_expr_name(node, conditions):
             result = conditions.get(name, 0) > 0
         else:
             result = name in conditions
+        logger.debug('feature \'{}\': {}: result = {}'.format(
+            name, repr(conditions.get(name)), result))
     return result, matched_media
 
 
