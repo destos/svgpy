@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+import warnings
+
 from lxml import etree
 
 from .base import HTMLElement, \
@@ -1151,6 +1153,87 @@ class SVGParser(object):
         """lxml.etree.XMLParser: The XML parser."""
         return self._parser
 
+    def create_comment(self, data):
+        """Creates a new comment instance, and returns it.
+        See also Document.create_comment().
+
+        Arguments:
+            data (str): A string of the comment.
+        Returns:
+            Comment: A new comment.
+        """
+        _ = self
+        comment = etree.Comment(data)
+        return comment
+
+    def create_element(self, local_name, attrib=None, nsmap=None, **_extra):
+        """Creates a new element instance, and returns it.
+        See also SVGParser.create_element_ns(), Document.create_element(),
+        Document.create_element_ns(), Element.create_sub_element() and
+        Element.create_sub_element_ns().
+
+        Arguments:
+            local_name (str): A local name of an element to be created.
+            attrib (dict, optional): A dictionary of an element's attributes.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **_extra: See lxml.etree._Element.makeelement() and
+                lxml.etree._BaseParser.makeelement().
+        Returns:
+            Element: A new element.
+        """
+        if local_name == 'svg' or local_name.endswith('}svg'):
+            if nsmap is None:
+                nsmap = dict()
+            if None not in nsmap:
+                nsmap[None] = Element.SVG_NAMESPACE_URI
+        element = self._parser.makeelement(local_name,
+                                           attrib=attrib,
+                                           nsmap=nsmap,
+                                           **_extra)
+        return element
+
+    def create_element_ns(self,
+                          namespace, qualified_name, attrib=None, nsmap=None,
+                          **_extra):
+        """Creates a new element instance with the specified namespace URI,
+        and returns it.
+        See also SVGParser.create_element(), Document.create_element(),
+        Document.create_element_ns(), Element.create_sub_element() and
+        Element.create_sub_element_ns().
+
+        Arguments:
+            namespace (str, None): The namespace URI to associated with the
+                element or None.
+            qualified_name (str): A qualified name of an element to be created.
+            attrib (dict, optional): A dictionary of an element's attributes.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **_extra: See lxml.etree._Element.makeelement() and
+                lxml.etree._BaseParser.makeelement().
+        Returns:
+            Element: A new element.
+        Examples:
+            >>> from svgpy import SVGParser
+            >>> parser = SVGParser()
+            >>> element = parser.create_element_ns('http://www.w3.org/1999/xhtml', 'source')
+            >>> element.tag
+            '{http://www.w3.org/1999/xhtml}source'
+            >>> element.node_name
+            'html:source'
+            >>> element.tag_name
+            'html:source'
+            >>> element.local_name
+            'source'
+        """
+        if namespace is not None:
+            tag = '{{{0}}}{1}'.format(namespace, qualified_name)
+        else:
+            tag = qualified_name
+        element = self.create_element(tag,
+                                      attrib=attrib,
+                                      nsmap=nsmap,
+                                      **_extra)
+        return element
+
     def fromstring(self, text):
         """Parses an SVG document or fragment from a string, and returns the
         root node.
@@ -1164,21 +1247,25 @@ class SVGParser(object):
         return root
 
     def make_comment(self, text):
-        """Creates a new comment instance, and returns it.
+        """*[DEPRECATED]*
+        Same as SVGParser.create_comment().
 
         Arguments:
             text (str): A string of the comment.
         Returns:
             Comment: A new comment.
         """
-        _ = self
-        comment = etree.Comment(text)
-        return comment
+        # TODO: Remove SVGParser.make_comment().
+        warnings.warn(
+            'instead use {}.{}.'.format(type(self).__name__,
+                                        'create_comment()'),
+            DeprecationWarning,
+            stacklevel=2)
+        return self.create_comment(text)
 
     def make_element(self, tag, attrib=None, nsmap=None, **_extra):
-        """Creates a new element instance, and returns it.
-        See also SVGParser.make_element_ns(), Element.make_sub_element() and
-        Element.make_sub_element_ns().
+        """*[DEPRECATED]*
+        Same as SVGParser.create_element().
 
         Arguments:
             tag (str): A tag of an element to be created.
@@ -1189,21 +1276,19 @@ class SVGParser(object):
         Returns:
             Element: A new element.
         """
-        if tag == 'svg' or tag.endswith('}svg'):
-            if nsmap is None:
-                nsmap = dict()
-            if None not in nsmap:
-                nsmap[None] = Element.SVG_NAMESPACE_URI
-        element = self._parser.makeelement(tag, attrib, nsmap, **_extra)
-        return element
+        # TODO: Remove SVGParser.make_element().
+        warnings.warn(
+            'instead use {}.{}.'.format(type(self).__name__,
+                                        'create_element()'),
+            DeprecationWarning,
+            stacklevel=2)
+        return self.create_element(tag, attrib=attrib, nsmap=nsmap, **_extra)
 
     def make_element_ns(self,
                         namespace_uri, local_name, attrib=None, nsmap=None,
                         **_extra):
-        """Creates a new element instance with the specified namespace URI,
-        and returns it.
-        See also SVGParser.make_element(), Element.make_sub_element() and
-        Element.make_sub_element_ns().
+        """*[DEPRECATED]*
+        Same as SVGParser.create_element_ns().
 
         Arguments:
             namespace_uri (str): The namespace URI to associated with the
@@ -1215,23 +1300,18 @@ class SVGParser(object):
                 lxml.etree._BaseParser.makeelement().
         Returns:
             Element: A new element.
-        Examples:
-            >>> from svgpy import SVGParser
-            >>> parser = SVGParser()
-            >>> element = parser.make_element_ns('http://www.w3.org/1999/xhtml', 'source')
-            >>> element.tag
-            '{http://www.w3.org/1999/xhtml}source'
-            >>> element.node_name
-            'html:source'
-            >>> element.local_name
-            'source'
         """
-        if namespace_uri is None:
-            tag = local_name
-        else:
-            tag = '{{{0}}}{1}'.format(namespace_uri, local_name)
-        element = self.make_element(tag, attrib, nsmap, **_extra)
-        return element
+        # TODO: Remove SVGParser.make_element_ns().
+        warnings.warn(
+            'instead use {}.{}.'.format(type(self).__name__,
+                                        'create_element_ns()'),
+            DeprecationWarning,
+            stacklevel=2)
+        return self.create_element_ns(namespace_uri,
+                                      local_name,
+                                      attrib=attrib,
+                                      nsmap=nsmap,
+                                      **_extra)
 
     def parse(self, source):
         """Parses the source into an ElementTree object, and returns it.

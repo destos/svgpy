@@ -58,14 +58,14 @@ class LengthTestCase(unittest.TestCase):
     def test_convert01(self):
         # with context
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': '16',
         })
         # 1(rem) = 16(px)
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         a = SVGLength('1in', context=text)
         self.assertEqual('in', a.unit)
@@ -122,17 +122,17 @@ class LengthTestCase(unittest.TestCase):
     def test_convert02(self):
         # with context
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'font-size': '16'
         })
-        group = root.make_sub_element('g')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': '62.5%',
         })
         # 1(rem) = 62.5(%) = 16(px) * 62.5(%) = 10(px)
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         a = SVGLength('1in', context=text)
         self.assertEqual('in', a.unit)
@@ -267,13 +267,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -289,13 +289,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -311,13 +311,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -333,13 +333,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -355,13 +355,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -377,13 +377,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Sans, sans-serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -399,13 +399,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'IPAmjMincho, serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -421,13 +421,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'IPAmjMincho, serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -443,13 +443,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'IPAmjMincho, serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -465,13 +465,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'IPAmjMincho, serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -487,13 +487,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'IPAmjMincho, serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -509,13 +509,13 @@ class LengthTestCase(unittest.TestCase):
         Font.default_font_size = base_font_size
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'IPAmjMincho, serif',
             'font-size': str(element_font_size),
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '1em',
         })
@@ -527,12 +527,12 @@ class LengthTestCase(unittest.TestCase):
     def test_font_size_vw(self):
         # 'vw unit'
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '200mm',
         })
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-size': '8vw',
         })
@@ -705,8 +705,8 @@ class LengthTestCase(unittest.TestCase):
 
     def test_new_value_percentage2(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-size': '16',
         })

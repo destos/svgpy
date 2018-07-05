@@ -416,8 +416,8 @@ class TextTestCase(unittest.TestCase):
         from svgpy import Matrix
 
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'IPAmjMincho, DejaVu Serif, serif',
             'font-style': 'oblique',
@@ -425,7 +425,7 @@ class TextTestCase(unittest.TestCase):
             'font-stretch': 'expanded',
             'font-size': '20',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         font = Font(text)
         face = font.face
@@ -447,8 +447,8 @@ class TextTestCase(unittest.TestCase):
         # 'font' property
         # https://drafts.csswg.org/css-fonts-3/#font-prop
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'Helvetica, Verdana, sans-serif',
             'font-style': 'oblique',
@@ -461,7 +461,7 @@ class TextTestCase(unittest.TestCase):
             'font-kerning': 'none',
             'font-language-override': 'SRB',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         # font-size/line-height | font-family
         text.attributes.set('font', '12pt/14pt sans-serif')
@@ -491,8 +491,8 @@ class TextTestCase(unittest.TestCase):
         # 'font' property
         # https://drafts.csswg.org/css-fonts-3/#font-prop
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'Helvetica, Verdana, sans-serif',
             'font-style': 'oblique',
@@ -505,7 +505,7 @@ class TextTestCase(unittest.TestCase):
             'font-kerning': 'none',
             'font-language-override': 'SRB',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font', '80% sans-serif')
         style = text.get_computed_style()
@@ -534,8 +534,8 @@ class TextTestCase(unittest.TestCase):
         # 'font' property
         # https://drafts.csswg.org/css-fonts-3/#font-prop
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'Helvetica, Verdana, sans-serif',
             'font-style': 'oblique',
@@ -548,7 +548,7 @@ class TextTestCase(unittest.TestCase):
             'font-kerning': 'none',
             'font-language-override': 'SRB',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font',
                             'x-large/110% "new century schoolbook", serif')
@@ -579,8 +579,8 @@ class TextTestCase(unittest.TestCase):
         # 'font' property
         # https://drafts.csswg.org/css-fonts-3/#font-prop
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'Helvetica, Verdana, sans-serif',
             'font-style': 'oblique',
@@ -593,7 +593,7 @@ class TextTestCase(unittest.TestCase):
             'font-kerning': 'none',
             'font-language-override': 'SRB',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font', 'bold italic large Palatino, serif')
         style = text.get_computed_style()
@@ -628,8 +628,8 @@ class TextTestCase(unittest.TestCase):
         # 'font' property
         # https://drafts.csswg.org/css-fonts-3/#font-prop
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'Helvetica, Verdana, sans-serif',
             'font-style': 'oblique',
@@ -642,7 +642,7 @@ class TextTestCase(unittest.TestCase):
             'font-kerning': 'none',
             'font-language-override': 'SRB',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font', 'normal small-caps 120%/120% fantasy')
         style = text.get_computed_style()
@@ -671,8 +671,8 @@ class TextTestCase(unittest.TestCase):
         # 'font' property
         # https://drafts.csswg.org/css-fonts-3/#font-prop
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'Helvetica, Verdana, sans-serif',
             'font-style': 'oblique',
@@ -685,7 +685,7 @@ class TextTestCase(unittest.TestCase):
             'font-kerning': 'none',
             'font-language-override': 'SRB',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font',
                             'condensed oblique 12pt "Helvetica Neue", serif')
@@ -726,9 +726,9 @@ class TextTestCase(unittest.TestCase):
         # See also: length01.html
         Font.default_font_size = 16
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
@@ -763,9 +763,9 @@ class TextTestCase(unittest.TestCase):
         # See also: length01.html
         Font.default_font_size = 10
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
@@ -800,9 +800,9 @@ class TextTestCase(unittest.TestCase):
         # See also: length01.html
         Font.default_font_size = 12
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
@@ -837,9 +837,9 @@ class TextTestCase(unittest.TestCase):
         # See also: length01.html
         Font.default_font_size = 20
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
@@ -874,9 +874,9 @@ class TextTestCase(unittest.TestCase):
         # See also: length01.html
         Font.default_font_size = 24
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
 
         text.attributes.set('font-size', 'xx-small')
         style = text.get_computed_style()
@@ -1075,9 +1075,9 @@ class TextTestCase(unittest.TestCase):
     def test_font_variant_prop00(self):
         # font-variant: normal
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
 
         style = text.get_computed_style()
         self.assertEqual('normal', style['font-variant'])
@@ -1091,9 +1091,9 @@ class TextTestCase(unittest.TestCase):
     def test_font_variant_prop01(self):
         # font-variant: normal
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-variant': 'normal',
         })
@@ -1110,9 +1110,9 @@ class TextTestCase(unittest.TestCase):
     def test_font_variant_prop02(self):
         # font-variant: none
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-variant': 'none',
         })
@@ -1129,9 +1129,9 @@ class TextTestCase(unittest.TestCase):
     def test_font_variant_prop03(self):
         # font-variant: ...
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
-        text = group.make_sub_element('text')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-variant':
                 'common-ligatures discretionary-ligatures historical-ligatures'
@@ -1168,12 +1168,12 @@ class TextTestCase(unittest.TestCase):
         # font: small-caps 16px serif
         # -> font-variant-caps: small-caps
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-variant-caps': 'all-small-caps',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font': 'small-caps 16px serif',
         })
@@ -1191,12 +1191,12 @@ class TextTestCase(unittest.TestCase):
         # font: small-caps 16px serif
         # -> font-variant-caps: small-caps
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font': 'small-caps 16px serif',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.attributes.update({
             'font-variant-east-asian': 'jis78 proportional-width',
         })
@@ -1498,14 +1498,14 @@ class TextTestCase(unittest.TestCase):
 
     def _test_get_path_data00(self):
         parser = SVGParser()
-        root = parser.make_element('svg',
+        root = parser.create_element('svg',
                                    nsmap={'xml': Element.XML_NAMESPACE_URI})
-        # root = parser.make_element('svg')
+        # root = parser.create_element('svg')
         root.attributes.update({
             # '{http://www.w3.org/XML/1998/namespace}lang': 'ja',
             Element.XML_LANG: 'ja',
         })
-        group = root.make_sub_element('g')
+        group = root.create_sub_element('g')
         group.attributes.update({
             # 'font-family': 'IPAmjMincho, serif',
             'font-family': 'DejaVu Serif, serif',
@@ -1513,7 +1513,7 @@ class TextTestCase(unittest.TestCase):
             # 'font-weight': 'bold',
             # 'font-style': 'italic'
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         # text.text = 'Hello World!'
         # text.text = '春は\n\tあけぼの。'
         text.text = 'office'
@@ -2762,13 +2762,13 @@ class TextTestCase(unittest.TestCase):
         # bi-directional text
         formatter.precision = 2
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '300',
             'height': '100',
             'viewBox': '0 0 300 100',
         })
-        text = root.make_sub_element('text')
+        text = root.create_sub_element('text')
         text.attributes.update({
             'x': '250',
             'y': '30',
@@ -2788,13 +2788,13 @@ class TextTestCase(unittest.TestCase):
         # http://unicode.org/faq/bidi.html
         formatter.precision = 2
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '300',
             'height': '100',
             'viewBox': '0 0 300 100',
         })
-        text = root.make_sub_element('text')
+        text = root.create_sub_element('text')
         text.attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ar')
         text.attributes.update({
             'x': '200',
@@ -2812,13 +2812,13 @@ class TextTestCase(unittest.TestCase):
         # http://unicode.org/faq/bidi.html
         formatter.precision = 2
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '300',
             'height': '100',
             'viewBox': '0 0 300 100',
         })
-        text = root.make_sub_element('text')
+        text = root.create_sub_element('text')
         text.attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ar')
         text.attributes.update({
             'x': '-150',
@@ -2835,20 +2835,20 @@ class TextTestCase(unittest.TestCase):
     def _test_text_repositioning_x01(self):
         formatter.precision = 2
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Serif, serif',
             'font-size': '12',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.text = 'flip'
         text.attributes.update({
             'x': '10, 20, 30, 40, 50, 60, 70, 80, 90, 100',
             'y': '0',
             'rotate': '0',
         })
-        tspan = text.make_sub_element('tspan')
+        tspan = text.create_sub_element('tspan')
         tspan.text = 'flop'
         # x: fl(10) i(30) p(40) _(50) fl(60) o(80) p(90)
 
@@ -2858,20 +2858,20 @@ class TextTestCase(unittest.TestCase):
     def _test_text_repositioning_x02(self):
         formatter.precision = 2
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'font-family': 'DejaVu Serif, serif',
             'font-size': '18',
         })
-        text = group.make_sub_element('text')
+        text = group.create_sub_element('text')
         text.text = 'ff'
         text.attributes.update({
             'x': '10, 20, 30, 40, 50, 60',
             'y': '0',
             'rotate': '-20',
         })
-        tspan = text.make_sub_element('tspan')
+        tspan = text.create_sub_element('tspan')
         tspan.text = 'flfflo'
         # x: ff(10) _(30) fl(40) ffl(60)
 
@@ -2881,14 +2881,14 @@ class TextTestCase(unittest.TestCase):
     def _test_text_wrap_vertical(self):
         formatter.precision = 2
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             Element.XML_LANG: 'ja-Jpan',
             'width': '100',
             'height': '300',
             'viewBox': '0 0 100 300',
         })
-        text = root.make_sub_element('text')
+        text = root.create_sub_element('text')
         text.attributes.update({
             'x': '62.5',
             'y': '25',
@@ -2946,7 +2946,7 @@ class TextTestCase(unittest.TestCase):
         # Spaces/Tabs: Collapse
         # Text wrapping: Wrap
         parser = SVGParser()
-        text = parser.make_element('text')
+        text = parser.create_element('text')
         text.text = \
             "\nHello there\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n&#x20;   ﾊﾝ  ｶｸ\n"
         style = {'white-space': 'normal'}
@@ -2962,7 +2962,7 @@ class TextTestCase(unittest.TestCase):
         # Spaces/Tabs: Collapse
         # Text wrapping: No wrap
         parser = SVGParser()
-        text = parser.make_element('text')
+        text = parser.create_element('text')
         text.text = \
             "\nHello there\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n&#x20;   ﾊﾝ  ｶｸ\n"
         style = {'white-space': 'nowrap'}
@@ -2978,7 +2978,7 @@ class TextTestCase(unittest.TestCase):
         # Spaces/Tabs: Preserve
         # Text wrapping: No wrap
         parser = SVGParser()
-        text = parser.make_element('text')
+        text = parser.create_element('text')
         text.text = \
             "\nHello there\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n&#x20;   ﾊﾝ  ｶｸ\n"
         style = {'white-space': 'pre'}
@@ -2994,7 +2994,7 @@ class TextTestCase(unittest.TestCase):
         # Spaces/Tabs: Preserve
         # Text wrapping: Wrap
         parser = SVGParser()
-        text = parser.make_element('text')
+        text = parser.create_element('text')
         text.text = \
             "\nHello there\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n&#x20;   ﾊﾝ  ｶｸ\n"
         style = {'white-space': 'pre-wrap'}
@@ -3010,7 +3010,7 @@ class TextTestCase(unittest.TestCase):
         # Spaces/Tabs: Collapse
         # Text wrapping: Wrap
         parser = SVGParser()
-        text = parser.make_element('text')
+        text = parser.create_element('text')
         text.text = \
             "\nHello there\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n&#x20;   ﾊﾝ  ｶｸ\n"
         style = {'white-space': 'pre-line'}
@@ -3026,7 +3026,7 @@ class TextTestCase(unittest.TestCase):
         # Spaces/Tabs: Collapse
         # Text wrapping: Wrap
         parser = SVGParser()
-        text = parser.make_element('text')
+        text = parser.create_element('text')
         text.text = \
             "\n\nHello there\n\n\t\tＦＵＬＬ  ＷＩＤＴＨ \n\n&#x20;   ﾊﾝ  ｶｸ\n\n"
         style = {'white-space': 'normal'}

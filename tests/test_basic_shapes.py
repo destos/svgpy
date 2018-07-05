@@ -636,7 +636,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_circle00_length(self):
         # circle: initial value
         parser = SVGParser()
-        circle = parser.make_element('circle')
+        circle = parser.create_element('circle')
 
         style = circle.get_computed_style()
         self.assertEqual(0, style['cx'])
@@ -652,7 +652,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_circle01_bbox(self):
         parser = SVGParser()
-        circle = parser.make_element('circle')
+        circle = parser.create_element('circle')
         circle.attributes.update({
             'cx': '200',
             'cy': '300',
@@ -668,12 +668,12 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_circle02_length(self):
         # See also: circle01.html
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
 
         cx = 600
         cy = 200
         r = 100
-        circle = root.make_sub_element('circle')
+        circle = root.create_sub_element('circle')
         circle.attributes.update({
             'cx': str(cx),
             'cy': str(cy),
@@ -702,9 +702,9 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_circle02_normalize(self):
         # See also: circle01.html
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
 
-        circle = root.make_sub_element('circle')
+        circle = root.create_sub_element('circle')
         circle.attributes.update({
             'cx': '600',
             'cy': '200',
@@ -726,14 +726,14 @@ class BasicShapesTestCase(unittest.TestCase):
         # circle: viewport-relative length
         # See also: circle01.html
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '12cm',
             'height': '4cm',
             'viewBox': '0 0 1200 400',
         })
 
-        circle = root.make_sub_element('circle')
+        circle = root.create_sub_element('circle')
         circle.attributes.update({
             'cx': '25%',
             'cy': '50%',
@@ -760,6 +760,42 @@ class BasicShapesTestCase(unittest.TestCase):
         # 2 * pi * r = 561.9851784832581
         expected = 561.9851784832581
         self.assertAlmostEqual(expected, n, places=places)
+
+    def test_comment(self):
+        parser = SVGParser()
+        expected = 'Comment'
+        comment = parser.create_comment(expected)
+        self.assertIsInstance(comment, Comment)
+        self.assertEqual(8, Node.COMMENT_NODE)
+        self.assertEqual(8, comment.node_type)
+        self.assertEqual('#comment', comment.node_name)
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring())
+
+        comment.data = None
+        self.assertEqual('', comment.data)
+        self.assertEqual('', comment.node_value)
+        self.assertEqual('', comment.text_content)
+        self.assertEqual('', comment.tostring())
+
+        expected = 'node_value'
+        comment.node_value = expected
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring())
+
+        expected = 'text_content'
+        comment.text_content = expected
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring())
 
     def test_computed_style02(self):
         # See also: Units.html
@@ -836,14 +872,14 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_computed_style04(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.set_style({
             'fill': 'red',
             'stroke': 'blue',
             'stroke-width': '1',
         })
-        rect = group.make_sub_element('rect')
+        rect = group.create_sub_element('rect')
         rect.attributes.update({
             'fill': 'white',
             'stroke-width': '5',
@@ -867,13 +903,13 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_computed_style05(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.update({
             'fill': 'white',
             'stroke-width': '5',
         })
-        rect = group.make_sub_element('rect')
+        rect = group.create_sub_element('rect')
         rect.attributes.set_style({
             'fill': 'red',
             'stroke': 'blue',
@@ -898,14 +934,14 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_computed_style06(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element('g')
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
         group.attributes.set_style({
             'fill': 'red',
             'stroke': 'blue',
             'stroke-width': '1',
         })
-        rect = group.make_sub_element('rect')
+        rect = group.create_sub_element('rect')
         rect.attributes.set_style({
             'fill': 'white',
             'stroke-width': '5',
@@ -930,7 +966,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # nested svg
         # See also: nestedsvg01.html
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'id': 'svg01',
             'width': '10cm',
@@ -938,7 +974,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'viewBox': '0 0 400 400',
         })
 
-        rect01 = root.make_sub_element('rect')
+        rect01 = root.create_sub_element('rect')
         rect01.attributes.update({
             'x': '1',
             'y': '1',
@@ -946,14 +982,14 @@ class BasicShapesTestCase(unittest.TestCase):
             'height': '100',
         })
 
-        svg02 = root.make_sub_element('svg')
+        svg02 = root.create_sub_element('svg')
         svg02.attributes.update({
             'id': 'svg02',
             'x': '1cm',
             'y': '1cm',
         })
 
-        rect02 = svg02.make_sub_element('rect')
+        rect02 = svg02.create_sub_element('rect')
         rect02.attributes.update({
             'x': '1',
             'y': '1',
@@ -961,7 +997,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'height': '100',
         })
 
-        svg03 = svg02.make_sub_element('svg')
+        svg03 = svg02.create_sub_element('svg')
         svg03.attributes.update({
             'id': 'svg03',
             'x': '40',
@@ -970,7 +1006,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'height': '80',
         })
 
-        rect03 = svg03.make_sub_element('rect')
+        rect03 = svg03.create_sub_element('rect')
         rect03.attributes.update({
             'x': '1',
             'y': '1',
@@ -1150,7 +1186,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # nested svg
         # See also: nestedsvg02.html
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'id': 'svg01',
             'width': '400',
@@ -1159,7 +1195,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
         root.current_scale = 1.2
 
-        rect01 = root.make_sub_element('rect')
+        rect01 = root.create_sub_element('rect')
         rect01.attributes.update({
             'x': '1',
             'y': '1',
@@ -1167,14 +1203,14 @@ class BasicShapesTestCase(unittest.TestCase):
             'height': '100',
         })
 
-        svg02 = root.make_sub_element('svg')
+        svg02 = root.create_sub_element('svg')
         svg02.attributes.update({
             'id': 'svg02',
             'x': '30',
             'y': '40',
         })
 
-        rect02 = svg02.make_sub_element('rect')
+        rect02 = svg02.create_sub_element('rect')
         rect02.attributes.update({
             'x': '1',
             'y': '1',
@@ -1182,7 +1218,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'height': '100',
         })
 
-        svg03 = svg02.make_sub_element('svg')
+        svg03 = svg02.create_sub_element('svg')
         svg03.attributes.update({
             'id': 'svg03',
             'x': '30',
@@ -1191,7 +1227,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'height': '80',
         })
 
-        rect03 = svg03.make_sub_element('rect')
+        rect03 = svg03.create_sub_element('rect')
         rect03.attributes.update({
             'x': '1',
             'y': '1',
@@ -1257,7 +1293,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # nested svg
         # See also: nestedsvg03.html
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'id': 'svg01',
             'width': '400',
@@ -1266,7 +1302,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
         root.current_scale = 0.8
 
-        rect01 = root.make_sub_element('rect')
+        rect01 = root.create_sub_element('rect')
         rect01.attributes.update({
             'x': '1',
             'y': '1',
@@ -1275,14 +1311,14 @@ class BasicShapesTestCase(unittest.TestCase):
             'transform': 'translate(30) rotate(15)',
         })
 
-        svg02 = root.make_sub_element('svg')
+        svg02 = root.create_sub_element('svg')
         svg02.attributes.update({
             'id': 'svg02',
             'x': '30',
             'y': '40',
         })
 
-        rect02 = svg02.make_sub_element('rect')
+        rect02 = svg02.create_sub_element('rect')
         rect02.attributes.update({
             'x': '1',
             'y': '1',
@@ -1291,7 +1327,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'transform': 'translate(30) rotate(15)',
         })
 
-        svg03 = svg02.make_sub_element('svg')
+        svg03 = svg02.create_sub_element('svg')
         svg03.attributes.update({
             'id': 'svg03',
             'x': '30',
@@ -1300,7 +1336,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'height': '80',
         })
 
-        rect03 = svg03.make_sub_element('rect')
+        rect03 = svg03.create_sub_element('rect')
         rect03.attributes.update({
             'x': '1',
             'y': '1',
@@ -1443,7 +1479,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_element_attributes(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
 
         root.attributes.set('width', '20cm')
         root.attributes.set('height', '10cm')
@@ -1455,6 +1491,16 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(root.attributes.has('width'))
         self.assertTrue(root.attributes.has('height'))
         self.assertTrue(not root.attributes.has('x'))
+
+        self.assertEqual(['height', 'width'],
+                         root.get_attribute_names())
+        self.assertTrue(root.has_attribute('width'))
+        self.assertTrue(root.has_attribute('height'))
+        self.assertTrue(not root.has_attribute('x'))
+        self.assertEqual('20cm',
+                         root.get_attribute('width'))
+        self.assertEqual('10cm',
+                         root.get_attribute('height'))
 
         width = root.attributes.pop('width')
         self.assertEqual(1, len(root.attributes))
@@ -1501,17 +1547,31 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue('viewBox' in root.attributes)
         self.assertTrue(root.attributes.has('viewBox'))
 
+        # 'width': '15cm', 'height': '10cm', 'viewBox': '0 0 200 100'
+        root.remove_attribute('viewBox')
+        root.remove_attribute('x')
+        self.assertEqual('15cm',
+                         root.get_attribute('width'))
+        self.assertEqual('10cm',
+                         root.get_attribute('height'))
+        self.assertIsNone(root.get_attribute('viewBox'))
+        self.assertIsNone(root.get_attribute('x'))
+
     def test_element_attributes_ns(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        text = root.make_sub_element('text')
+        root = parser.create_element('svg')
+        text = root.create_sub_element('text')
 
         attributes = text.attributes
 
         self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
                                               'lang'))
+        self.assertTrue(not text.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                                  'lang'))
         attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ja')
         self.assertTrue(attributes.has_ns(Element.XML_NAMESPACE_URI, 'lang'))
+        self.assertTrue(text.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang'))
 
         expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
                    "<text xml:lang=\"ja\"/></svg>"
@@ -1519,11 +1579,19 @@ class BasicShapesTestCase(unittest.TestCase):
 
         lang = attributes.get('lang')
         self.assertIsNone(lang)
+        self.assertIsNone(text.get_attribute_ns(None, 'lang'))
         self.assertTrue(not attributes.has_ns(None, 'lang'))
+        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
 
         lang = attributes.get_ns(Element.XML_NAMESPACE_URI, 'lang')
         expected = 'ja'
         self.assertEqual(expected, lang)
+        self.assertEqual(expected,
+                         text.get_attribute_ns(Element.XML_NAMESPACE_URI,
+                                               'lang'))
+        self.assertEqual(
+            'ja',
+            text.get('{http://www.w3.org/XML/1998/namespace}lang'))
 
         space = attributes.get_ns(Element.XML_NAMESPACE_URI,
                                   'space')  # deprecated
@@ -1555,11 +1623,29 @@ class BasicShapesTestCase(unittest.TestCase):
                    "<text xml:lang=\"en\"/></svg>"
         self.assertEqual(expected, root.tostring().decode())
 
+        text.set_attribute_ns(Element.XML_NAMESPACE_URI,
+                              'lang',
+                              'fr')
+        self.assertEqual('fr',
+                         text.get_attribute_ns(Element.XML_NAMESPACE_URI,
+                                               'lang'))
+        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
+        self.assertTrue(text.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang'))
+        text.remove_attribute_ns(None, 'lang')
+        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
+        self.assertTrue(text.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang'))
+        text.remove_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
+        self.assertTrue(not text.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                                  'lang'))
+
     def test_element_style_attribute(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
 
-        circle = root.make_sub_element('circle')
+        circle = root.create_sub_element('circle')
         circle.attributes.update({
             'r': '120',
             'cx': '100',
@@ -1738,8 +1824,8 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_element_style_attribute_ns(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        circle = root.make_sub_element('circle')
+        root = parser.create_element('svg')
+        circle = root.create_sub_element('circle')
 
         value = circle.attributes.get_ns(None, 'fill')
         self.assertIsNone(value)
@@ -1847,28 +1933,28 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_element_find_by_class_names02(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        circle = root.make_sub_element('circle')
+        root = parser.create_element('svg')
+        circle = root.create_sub_element('circle')
         circle.attributes.update({
             'class': 'red',
         })
-        ellipse = root.make_sub_element('ellipse')
+        ellipse = root.create_sub_element('ellipse')
         ellipse.attributes.update({
             'class': 'red test',  # match
         })
-        line = root.make_sub_element('line')
+        line = root.create_sub_element('line')
         line.attributes.update({
             'class': 'test',
         })
-        polygon = root.make_sub_element('polygon')
+        polygon = root.create_sub_element('polygon')
         polygon.attributes.update({
             'class': 'test red',  # match
         })
-        polyline = root.make_sub_element('polyline')
+        polyline = root.create_sub_element('polyline')
         polyline.attributes.update({
             'class': 'test dark-red',
         })
-        rect = root.make_sub_element('rect')
+        rect = root.create_sub_element('rect')
         rect.attributes.update({
             'class': 'test dark red',  # match
         })
@@ -1926,9 +2012,9 @@ class BasicShapesTestCase(unittest.TestCase):
         root.attributes.set_ns(Element.XHTML_NAMESPACE_URI,
                                'html',
                                Element.XHTML_NAMESPACE_URI)
-        video = parent.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+        video = parent.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'video')
-        source = video.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+        source = video.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'source')
 
         # <g>(id=svgstar), <path>(id=svgbar),
@@ -1972,9 +2058,9 @@ class BasicShapesTestCase(unittest.TestCase):
         root.attributes.set_ns(Element.XHTML_NAMESPACE_URI,
                                'html',
                                Element.XHTML_NAMESPACE_URI)
-        video = parent.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+        video = parent.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'video')
-        source = video.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+        source = video.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'source')
 
         # <g>(id=svgstar), <path>(id=svgbar),
@@ -2065,12 +2151,12 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_element_isdisplay(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        group = root.make_sub_element(
+        root = parser.create_element('svg')
+        group = root.create_sub_element(
             'group',
             attrib={'display': 'none'}
         )
-        text = group.make_sub_element(
+        text = group.create_sub_element(
             'text',
             attrib={'display': 'inline'}
         )
@@ -2097,12 +2183,12 @@ class BasicShapesTestCase(unittest.TestCase):
             else:
                 self.assertEqual(Node.ELEMENT_NODE, element.node_type)
 
-    def test_element_make_sub_element(self):
+    def test_element_create_sub_element(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
-        _ = root.make_sub_element('rect')
-        _ = root.make_sub_element('ellipse')
-        _ = root.make_sub_element('circle', index=1)
+        root = parser.create_element('svg')
+        _ = root.create_sub_element('rect')
+        _ = root.create_sub_element('ellipse')
+        _ = root.create_sub_element('circle', index=1)
         # rect > circle > ellipse
         expected = \
             "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
@@ -2110,26 +2196,26 @@ class BasicShapesTestCase(unittest.TestCase):
             "</svg>"
         self.assertEqual(expected, root.tostring().decode())
 
-    def test_element_make_sub_element_html(self):
+    def test_element_create_sub_element_html(self):
         parser = SVGParser()
         nsmap = {
             None: Element.SVG_NAMESPACE_URI,
             'html': Element.XHTML_NAMESPACE_URI
         }
-        root = parser.make_element('svg', nsmap=nsmap)
+        root = parser.create_element('svg', nsmap=nsmap)
         self.assertTrue(isinstance(root, SVGSVGElement))
         self.assertEqual('svg', root.tag_name)
         self.assertEqual('svg', root.local_name)
         self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
-        video = root.make_sub_element('video')
+        video = root.create_sub_element('video')
         self.assertTrue(isinstance(video, HTMLVideoElement))
         self.assertEqual('video', video.tag_name)
         self.assertEqual('video', video.local_name)
         self.assertEqual('http://www.w3.org/2000/svg', video.namespace_uri)
 
         tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'audio')
-        audio = root.make_sub_element(tag)
+        audio = root.create_sub_element(tag)
         self.assertTrue(isinstance(audio, HTMLAudioElement))
         self.assertEqual(tag, audio.tag)
         self.assertEqual('html:audio', audio.tag_name)
@@ -2137,7 +2223,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual('http://www.w3.org/1999/xhtml', audio.namespace_uri)
 
         tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'source')
-        source = audio.make_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+        source = audio.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'source')
         self.assertTrue(isinstance(source, HTMLElement))
         self.assertEqual(tag, source.tag)
@@ -2145,22 +2231,22 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual('source', source.local_name)
         self.assertEqual('http://www.w3.org/1999/xhtml', source.namespace_uri)
 
-    def test_element_make_sub_element_svg01(self):
+    def test_element_create_sub_element_svg01(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         self.assertTrue(isinstance(root, SVGSVGElement))
         self.assertEqual('svg', root.tag)
         self.assertEqual('svg', root.tag_name)
         self.assertEqual('svg', root.local_name)
         self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
-        g = root.make_sub_element('g')
+        g = root.create_sub_element('g')
         self.assertTrue(isinstance(g, SVGGElement))
 
-        path = g.make_sub_element('path')
+        path = g.create_sub_element('path')
         self.assertTrue(isinstance(path, SVGPathElement))
 
-        rect = g.make_sub_element('rect', index=0)
+        rect = g.create_sub_element('rect', index=0)
         self.assertTrue(isinstance(rect, SVGRectElement))
 
         # svg > g > (rect, path)
@@ -2170,30 +2256,30 @@ class BasicShapesTestCase(unittest.TestCase):
             "</svg>"
         self.assertEqual(expected, root.tostring().decode())
 
-    def test_element_make_sub_element_svg02(self):
+    def test_element_create_sub_element_svg02(self):
         parser = SVGParser()
-        root = parser.make_element_ns('http://www.w3.org/2000/svg', 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertTrue(isinstance(root, SVGSVGElement))
         self.assertEqual('{http://www.w3.org/2000/svg}svg', root.tag)
         self.assertEqual('svg', root.tag_name)
         self.assertEqual('svg', root.local_name)
         self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
-        g = root.make_sub_element('g')
+        g = root.create_sub_element('g')
         self.assertTrue(isinstance(g, SVGGElement))
         self.assertEqual('g', g.tag)
         self.assertEqual('g', g.tag_name)
         self.assertEqual('g', g.local_name)
         self.assertEqual('http://www.w3.org/2000/svg', g.namespace_uri)
 
-        path = g.make_sub_element_ns('http://www.w3.org/2000/svg', 'path')
+        path = g.create_sub_element_ns('http://www.w3.org/2000/svg', 'path')
         self.assertTrue(isinstance(path, SVGPathElement))
         self.assertEqual('{http://www.w3.org/2000/svg}path', path.tag)
         self.assertEqual('path', path.tag_name)
         self.assertEqual('path', path.local_name)
         self.assertEqual('http://www.w3.org/2000/svg', path.namespace_uri)
 
-        rect = g.make_sub_element_ns(None, 'rect', index=0)
+        rect = g.create_sub_element_ns(None, 'rect', index=0)
         self.assertTrue(isinstance(rect, SVGRectElement))
         self.assertEqual('rect', rect.tag)
         self.assertEqual('rect', rect.tag_name)
@@ -2203,7 +2289,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_ellipse01_length(self):
         # ellipse: initial value
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         path_data = ellipse.get_path_data()
         self.assertEqual(0, len(path_data))
@@ -2214,7 +2300,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_ellipse02_length(self):
         # ellipse: rx = 0
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         ellipse.attributes.update({
             'cx': '0',
@@ -2237,7 +2323,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_ellipse03_length(self):
         # ellipse: ry = 0
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         ellipse.attributes.update({
             'cx': '0',
@@ -2261,7 +2347,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # ellipse: rx = ry
         # See also: circle01.html
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         ellipse.attributes.update({
             'cx': '600',
@@ -2288,7 +2374,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # ellipse: rx = ry
         # See also: circle01.html
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         ellipse.attributes.update({
             'cx': '600',
@@ -2313,7 +2399,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # See also: ellipse01.html
         # id="ellipse1"
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         ellipse.attributes.update({
             'cx': '0',
@@ -2338,7 +2424,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # See also: ellipse01.html
         # id="ellipse1"
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         ellipse.attributes.update({
             'cx': '0',
@@ -2368,7 +2454,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # ellipse: ry > rx
         # See also: ellipse01.html
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
 
         ellipse.attributes.update({
             'cx': '0',
@@ -2396,13 +2482,13 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_ellipse07_length(self):
         # ellipse: viewport-percentage length
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '1250',
             'height': '400',
         })
 
-        ellipse = root.make_sub_element('ellipse')
+        ellipse = root.create_sub_element('ellipse')
         ellipse.attributes.update({
             'cx': '0',
             'cy': '0',
@@ -2432,7 +2518,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_ellipse08_bbox(self):
         parser = SVGParser()
-        ellipse = parser.make_element('ellipse')
+        ellipse = parser.create_element('ellipse')
         ellipse.attributes.update({
             'cx': '200',
             'cy': '300',
@@ -2471,7 +2557,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_line01_length(self):
         parser = SVGParser()
-        line = parser.make_element('line')
+        line = parser.create_element('line')
 
         path_data = line.get_path_data()
         self.assertEqual(0, len(path_data))
@@ -2487,7 +2573,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_line02_length(self):
         # horizontal line
         parser = SVGParser()
-        line = parser.make_element('line')
+        line = parser.create_element('line')
         line.attributes.update({
             'x1': '0',
             'y1': '0',
@@ -2509,7 +2595,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_line03_length(self):
         # vertical line
         parser = SVGParser()
-        line = parser.make_element('line')
+        line = parser.create_element('line')
         line.attributes.update({
             'x1': '0',
             'y1': '100',
@@ -2530,7 +2616,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_line04_length(self):
         parser = SVGParser()
-        line = parser.make_element('line')
+        line = parser.create_element('line')
         line.attributes.update({
             'x1': '-100',
             'y1': '-100',
@@ -2551,7 +2637,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_line05_length(self):
         parser = SVGParser()
-        line = parser.make_element('line')
+        line = parser.create_element('line')
         line.attributes.update({
             'x1': '100',
             'y1': '200',
@@ -2572,7 +2658,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_line06_bbox(self):
         parser = SVGParser()
-        line = parser.make_element('line')
+        line = parser.create_element('line')
         line.attributes.update({
             'x1': '100',
             'y1': '200',
@@ -2815,7 +2901,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_polygon01_bbox(self):
         parser = SVGParser()
-        polygon = parser.make_element('polygon')
+        polygon = parser.create_element('polygon')
         polygon.attributes.update({
             'points': "350,75 379,161 469,161 397,215 423,301 350,250" 
                       " 277,301 303,215 231,161 321,161",
@@ -2830,7 +2916,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_polygon02_length(self):
         # See also: polygon01.html
         parser = SVGParser()
-        polygon = parser.make_element('polygon')
+        polygon = parser.create_element('polygon')
         points = \
             "350,75 379,161 469,161 397,215 423,301 350,250" \
             " 277,301 303,215 231,161 321,161"
@@ -2880,7 +2966,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_polygon02_normalize(self):
         # See also: polygon01.html
         parser = SVGParser()
-        polygon = parser.make_element('polygon')
+        polygon = parser.create_element('polygon')
         points = \
             "350,75 379,161 469,161 397,215 423,301 350,250" \
             " 277,301 303,215 231,161 321,161"
@@ -2898,7 +2984,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_polygon03_length(self):
         # See also: polygon01.html
         parser = SVGParser()
-        polygon = parser.make_element('polygon')
+        polygon = parser.create_element('polygon')
         points = \
             "850,75 958,137.5 958,262.5" \
             " 850,325 742,262.6 742,137.5"
@@ -2940,7 +3026,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_polyline01_length(self):
         parser = SVGParser()
-        polyline = parser.make_element('polyline')
+        polyline = parser.create_element('polyline')
 
         style = polyline.get_computed_geometry()
         points = style['points']
@@ -2953,7 +3039,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_polyline02_length(self):
         # See also: polyline01.html
         parser = SVGParser()
-        polyline = parser.make_element('polyline')
+        polyline = parser.create_element('polyline')
 
         pts = \
             "50,375" \
@@ -2989,7 +3075,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_polyline02_normalize(self):
         # See also: polyline01.html
         parser = SVGParser()
-        polyline = parser.make_element('polyline')
+        polyline = parser.create_element('polyline')
         pts = \
             "50,375" \
             " 150,375 150,325 250,325 250,375" \
@@ -3013,7 +3099,7 @@ class BasicShapesTestCase(unittest.TestCase):
     def test_polyline03_length(self):
         # See also: triangle01.html
         parser = SVGParser()
-        polyline = parser.make_element('polyline')
+        polyline = parser.create_element('polyline')
         pts = [(100, 100), (300, 100), (200, 300), (100, 100)]
         polyline.points = pts
 
@@ -3027,7 +3113,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_polyline04_bbox(self):
         parser = SVGParser()
-        polyline = parser.make_element('polyline')
+        polyline = parser.create_element('polyline')
         polyline.attributes.update({
             'points': "350,75 379,161 469,161 397,215 423,301 350,250" 
                       " 277,301 303,215 231,161 321,161",
@@ -3107,7 +3193,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_rect01_bbox(self):
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '0',
             'y': '0',
@@ -3125,7 +3211,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_rect02_bbox(self):
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '.5',
             'y': '.5',
@@ -3148,7 +3234,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: auto => 0
         # ry: auto => 0
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
 
         path_data = rect.get_path_data()
         self.assertEqual(0, len(path_data))
@@ -3170,7 +3256,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: auto => 0
         # ry: auto => 0
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '20',
             'y': '10',
@@ -3197,7 +3283,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: auto => 0
         # ry: auto => 0
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '20',
             'y': '10',
@@ -3222,7 +3308,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: 50
         # ry: auto => 50
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '100',
             'y': '100',
@@ -3258,7 +3344,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: 50
         # ry: auto => 50
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '100',
             'y': '100',
@@ -3289,7 +3375,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: 50
         # ry: 25
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '0',
             'y': '0',
@@ -3324,7 +3410,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: 50
         # ry: 25
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '0',
             'y': '0',
@@ -3356,7 +3442,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: auto => 0
         # ry: auto => 0
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '150',
             'y': '150',
@@ -3386,7 +3472,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: 50
         # ry: auto => 50
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '150',
             'y': '150',
@@ -3422,7 +3508,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: auto => 50
         # ry: 50
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         rect.attributes.update({
             'x': '150',
             'y': '150',
@@ -3458,11 +3544,11 @@ class BasicShapesTestCase(unittest.TestCase):
         # rx: 12.5% => 400 * 12.5% = 50
         # ry: auto => 50
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'viewBox': '0 0 400 200'
         })
-        rect = root.make_sub_element('rect')
+        rect = root.create_sub_element('rect')
         rect.attributes.update({
             'x': '150',
             'y': '150',
@@ -3498,14 +3584,14 @@ class BasicShapesTestCase(unittest.TestCase):
         # ry: auto => rx => 200(px) => height / 2 => 100(px)
         # => ellipse rx=200 ry=100
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '4cm',
             'height': '3cm',
             'viewBox': '0 0 1600 400',
         })
 
-        rect = root.make_sub_element('rect')
+        rect = root.create_sub_element('rect')
         rect.attributes.update({
             'x': '150',
             'y': '150',
@@ -3524,13 +3610,13 @@ class BasicShapesTestCase(unittest.TestCase):
         # nested svg
         # percentage-length
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'width': '1200',
             'height': '400',
         })
 
-        child = root.make_sub_element('svg')
+        child = root.create_sub_element('svg')
         child.attributes.update({
             'width': '40%',
             'height': '50%',
@@ -3547,12 +3633,12 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_svg_current_scale(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'id': 'root',
         })
 
-        child = root.make_sub_element('svg')
+        child = root.create_sub_element('svg')
         child.attributes.update({
             'id': 'svg01',
         })
@@ -3579,12 +3665,12 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_svg_current_translate(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'id': 'root',
         })
 
-        child = root.make_sub_element('svg')
+        child = root.create_sub_element('svg')
         child.attributes.update({
             'id': 'svg01',
         })
@@ -3989,7 +4075,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # nested svg
         # See also: nestedsvg01.html
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'id': 'svg01',
             'width': '10cm',
@@ -3997,14 +4083,14 @@ class BasicShapesTestCase(unittest.TestCase):
             'viewBox': '0 0 400 400',
         })
 
-        svg02 = root.make_sub_element('svg')
+        svg02 = root.create_sub_element('svg')
         svg02.attributes.update({
             'id': 'svg02',
             'x': '1cm',
             'y': '1cm',
         })
 
-        svg03 = svg02.make_sub_element('svg')
+        svg03 = svg02.create_sub_element('svg')
         svg03.attributes.update({
             'id': 'svg03',
             'x': '40',
@@ -4055,7 +4141,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_viewport03(self):
         parser = SVGParser()
-        root = parser.make_element('svg')
+        root = parser.create_element('svg')
         root.attributes.update({
             'viewBox': '0 50 500 200',
         })
