@@ -20,14 +20,13 @@ import re
 import shlex
 import unicodedata
 from decimal import Decimal, InvalidOperation
-from fractions import Fraction
 
 import numpy as np
 
-from . import mediaquery as mq
 from .fontconfig import FontConfig
 from .formatter import format_number_sequence
 from .freetype import FreeType, FTFace
+from .screen import Screen
 
 
 class CSSUtils(object):
@@ -625,11 +624,13 @@ class Font(object):
         """Constructs a Font object.
 
         Arguments:
-            context (SVGElement): An Element object.
+            context (Element): An Element object.
         """
         self._context = context
         self._style = context.get_computed_style()
-        self._face = FontManager.get_face(self._style, context.text_content)
+        self._face = FontManager.get_face(self._style,
+                                          context.owner_document,
+                                          context.text)
 
     def __eq__(self, other):
         if not isinstance(other, Font):
@@ -900,17 +901,24 @@ class FontManager(object):
         return face
 
     @staticmethod
-    def get_face(style, text=None):
+    def get_face(style, owner_document, text=None):
         face = FontManager._find_face(style, text)
         face.select_charmap(FreeType.FT_ENCODING_UNICODE)
         pixel_size = style['font-size']
         point_size = int(SVGLength(pixel_size).value(SVGLength.TYPE_PT) * 64)
-        screen = window.screen
+        if (owner_document is not None
+                and owner_document.default_view is not None):
+            screen = owner_document.default_view.screen
+            horizontal_resolution = screen.horizontal_resolution
+            vertical_resolution = screen.vertical_resolution
+        else:
+            horizontal_resolution = Screen.DEFAULT_HORIZONTAL_RESOLUTION
+            vertical_resolution = Screen.DEFAULT_VERTICAL_RESOLUTION
         face.request_size(FreeType.FT_SIZE_REQUEST_TYPE_NOMINAL,
                           0,
                           point_size,
-                          int(screen.horizontal_resolution),
-                          int(screen.vertical_resolution))
+                          horizontal_resolution,
+                          vertical_resolution)
         return face
 
     @staticmethod
@@ -944,64 +952,6 @@ class FontManager(object):
         if len(matched) == 0:
             return None
         return matched[0]
-
-
-def _mql_compare(left, right, user_data):
-    left_value = SVGLength(left, context=user_data)
-    right_value = SVGLength(right, context=user_data)
-    if left_value == right_value:
-        return 0
-    cmp = 1 if left_value > right_value else -1
-    return cmp
-
-
-class MediaQueryList(object):
-    def __init__(self, query):
-        self._query = query
-        self._tree = mq.parse(self._query)
-
-    @property
-    def matches(self):
-        context = window.document
-        if context is not None:
-            _, _, vpw, vph = context.get_viewport_size()
-            width = vpw.value()
-            height = vph.value()
-        else:
-            width = window.inner_width
-            height = window.inner_height
-        aspect_ratio = Fraction(int(width), int(height))
-        screen = window.screen
-        device_aspect_ratio = Fraction(int(screen.width), int(screen.height))
-        conditions = {
-            'media': window.media,
-            'width': str(width) + 'px',
-            'height': str(height) + 'px',
-            'aspect-ratio': str(aspect_ratio),
-            'orientation': screen.orientation,
-            'resolution': str(window.device_pixel_ratio) + 'dppx',
-            'scan': screen.scan,
-            'grid': 0,
-            'update': screen.update,
-            'overflow-block': 'none',
-            'overflow-inline': 'none',
-            'color': screen.color_depth,
-            'color-index': 1 << screen.color_depth,
-            'monochrome': screen.monochrome,
-            'color-gamut': screen.color_gamut,
-            # deprecated media features
-            'device-width': str(screen.width) + 'px',
-            'device-height': str(screen.height) + 'px',
-            'device-aspect-ratio': str(device_aspect_ratio),
-        }
-        matches, _ = mq.match(self._tree, conditions, _mql_compare,
-                              user_data=context)
-        return matches
-
-    @property
-    def media(self):
-        # TODO: serialize a media query list.
-        return self._query
 
 
 class SVGLength(object):
@@ -1565,11 +1515,18 @@ class SVGLength(object):
             else:
                 pt = int(px / SVGLength._TO_PIXEL_SIZE_MAP[SVGLength.TYPE_PT]
                          * 64)
-                screen = window.screen
+                horizontal_resolution = Screen.DEFAULT_HORIZONTAL_RESOLUTION
+                vertical_resolution = Screen.DEFAULT_VERTICAL_RESOLUTION
+                if self._context is not None:
+                    doc = self._context.owner_document
+                    if doc is not None and doc.default_view is not None:
+                        screen = doc.default_view.screen
+                        horizontal_resolution = screen.horizontal_resolution
+                        vertical_resolution = screen.vertical_resolution
                 font.set_point_size(0,
                                     pt,
-                                    int(screen.horizontal_resolution),
-                                    int(screen.vertical_resolution))
+                                    horizontal_resolution,
+                                    vertical_resolution)
                 if unit == SVGLength.TYPE_EXS:
                     k = font.x_height
                 elif unit == SVGLength.TYPE_CAPS:
@@ -1610,58 +1567,3 @@ class SVGLength(object):
         if k is None:
             raise NotImplementedError('Unknown unit: ' + repr(unit))
         return float(px / k)
-
-
-class Screen(object):
-    def __init__(self):
-        self.width = 1280
-        self.height = 720
-        self.color_depth = 24
-        self.orientation = 'landscape'
-        self.horizontal_resolution = 96
-        self.vertical_resolution = 96
-        self.device_pixel_ratio = 1
-        self.scan = 'progressive'
-        self.update = 'none'
-        self.monochrome = 0
-        self.color_gamut = 'srgb'
-
-    def __repr__(self):
-        return repr({'width': self.width,
-                     'height': self.height,
-                     'color_depth': self.color_depth,
-                     'orientation': self.orientation,
-                     'horizontal_resolution': self.horizontal_resolution,
-                     'vertical_resolution': self.vertical_resolution,
-                     'device_pixel_ratio': self.device_pixel_ratio,
-                     })
-
-    @property
-    def pixel_depth(self):
-        return self.color_depth
-
-
-class Window(object):
-    def __init__(self):
-        self._screen = Screen()
-        self.inner_width = self._screen.width
-        self.inner_height = self._screen.height
-        self.document = None
-        self.media = 'screen'
-        self.page_zoom_scale = 1
-
-    @property
-    def device_pixel_ratio(self):
-        return self._screen.device_pixel_ratio * self.page_zoom_scale
-
-    @property
-    def screen(self):
-        return self._screen
-
-    def match_media(self, query):
-        _ = self
-        mql = MediaQueryList(query)
-        return mql
-
-
-window = Window()

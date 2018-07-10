@@ -21,8 +21,9 @@ from collections.abc import MutableMapping
 from lxml import etree
 
 from .core import CSSUtils, Font, SVGLength
-from .css import CSSRule, CSSStyleDeclaration, CSSStyleSheet, StyleSheet
-from .style import get_css_rules, get_css_style
+from .css import CSSStyleDeclaration
+from .style import get_css_rules, get_css_style, \
+    get_css_style_sheet_from_element
 
 
 def dict_to_style(d):
@@ -465,6 +466,30 @@ class Comment(etree.CommentBase, CharacterData):
     def text_content(self, text):
         self.text = text
 
+    def addnext(self, element):
+        """Reimplemented from lxml.etree.CommentBase.addnext().
+
+        Adds the element as a following sibling directly after this element.
+        """
+        for it in element.iter():
+            if not isinstance(it, Node):
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
+            it._owner_document = self.owner_document
+        super().addnext(element)
+
+    def addprevious(self, element):
+        """Reimplemented from lxml.etree.CommentBase.addprevious().
+
+        Adds the element as a preceding sibling directly before this element.
+        """
+        for it in element.iter():
+            if not isinstance(it, Node):
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
+            it._owner_document = self.owner_document
+        super().addprevious(element)
+
     def append_child(self, node):
         """Adds a node to the end of this node.
 
@@ -474,6 +499,18 @@ class Comment(etree.CommentBase, CharacterData):
             Node: An appended node.
         """
         raise ValueError('The operation would yield an incorrect node tree.')
+
+    def extend(self, elements):
+        """Reimplemented from lxml.etree.CommentBase.extend().
+
+        Extends the current children by the elements in the iterable.
+        """
+        for it in elements.iter():
+            if not isinstance(it, Node):
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
+            it._owner_document = self.owner_document
+        super().extend(elements)
 
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
@@ -494,6 +531,14 @@ class Comment(etree.CommentBase, CharacterData):
         """
         raise ValueError('The operation would yield an incorrect node tree.')
 
+    def remove(self, element):
+        """Reimplemented from lxml.etree.CommentBase.remove().
+
+        Removes a matching subelement. Unlike the find methods, this method
+        compares elements based on identity, not on tag value or contents.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
     def remove_child(self, child):
         """Removes a child node from this node.
 
@@ -501,6 +546,13 @@ class Comment(etree.CommentBase, CharacterData):
             child (Node): A node to be removed.
         Returns:
             Node: A removed node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def replace(self, old_element, new_element):
+        """Reimplemented from lxml.etree.CommentBase.replace().
+
+        Replaces a subelement with the element passed as second argument.
         """
         raise ValueError('The operation would yield an incorrect node tree.')
 
@@ -694,8 +746,8 @@ class Element(etree.ElementBase, Node):
         """
         for it in element.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = self.owner_document
         super().addnext(element)
 
@@ -706,8 +758,8 @@ class Element(etree.ElementBase, Node):
         """
         for it in element.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = self.owner_document
         super().addprevious(element)
 
@@ -718,8 +770,8 @@ class Element(etree.ElementBase, Node):
         """
         for it in element.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = self.owner_document
         super().append(element)
 
@@ -812,8 +864,8 @@ class Element(etree.ElementBase, Node):
         """
         for it in elements.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = self.owner_document
         super().extend(elements)
 
@@ -1232,8 +1284,8 @@ class Element(etree.ElementBase, Node):
         """
         for it in element.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = self.owner_document
         super().insert(index, element)
 
@@ -1352,8 +1404,8 @@ class Element(etree.ElementBase, Node):
             raise ValueError('The object can not be found here.')
         for it in element.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = None
         super().remove(element)
 
@@ -1394,13 +1446,13 @@ class Element(etree.ElementBase, Node):
             raise ValueError('The object can not be found here.')
         for it in old_element.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = None
         for it in new_element.iter():
             if not isinstance(it, Node):
-                raise ValueError(
-                    'The operation would yield an incorrect node tree.')
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
             it._owner_document = self.owner_document
         super().replace(old_element, new_element)
 
@@ -1453,11 +1505,7 @@ class ElementCSSInlineStyle(Element):
     @property
     def style(self):
         """CSSStyleDeclaration: A CSS declaration block object."""
-        style_sheet = CSSStyleSheet(owner_node=self)
-        rule = CSSRule(None,
-                       CSSRule.UNKNOWN_RULE,
-                       parent_style_sheet=style_sheet)
-        style = CSSStyleDeclaration(parent_rule=rule)
+        style = CSSStyleDeclaration(owner_node=self)
         return style
 
 
@@ -1467,20 +1515,5 @@ class LinkStyle(Element):
     @property
     def sheet(self):
         """StyleSheet: An associated CSS style sheet."""
-        local_name = self.local_name
-        assert local_name in ['link', 'style']
-        type_ = self.type
-        if local_name == 'link':
-            href = self.href
-        else:  # 'style'
-            href = None
-        if (type_ is None or type_ != 'text/css'
-                or ((local_name == 'link' and href is None)
-                    or (local_name == 'style' and self.text is None))):
-            return None
-        style_sheet = StyleSheet(type_=type_,
-                                 href=href,
-                                 owner_node=self,
-                                 title=self.title,
-                                 media=self.media)
-        return style_sheet
+        css_style_sheet = get_css_style_sheet_from_element(self)
+        return css_style_sheet

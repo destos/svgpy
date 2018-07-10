@@ -98,19 +98,19 @@ def dump(node_list, **kwargs):
 
 
 def match(node_list, conditions, compare_func, user_data=None):
-    logger.debug(hex(id(node_list)) + ': start')
+    logger.debug('{}: start'.format(hex(id(node_list))))
     matched_media = None
     for node in node_list:
-        logger.debug(hex(id(node_list)) + ': node: ' + repr(node))
+        logger.debug('{}: node: {}'.format(hex(id(node_list)), repr(node)))
         result, media = _match_node(node, conditions, compare_func,
                                     user_data=user_data)
         if result and media and matched_media is None:
             matched_media = media
         if result:
-            logger.debug(hex(id(node_list)) + ': matched: media = '
-                         + repr(matched_media))
+            logger.debug('{}: matched {}'.format(
+                hex(id(node_list)), repr(matched_media)))
             return True, matched_media
-    logger.debug(hex(id(node_list)) + ': unmatched')
+    logger.debug('{}: unmatched'.format(hex(id(node_list))))
     return False, matched_media
 
 

@@ -20,11 +20,15 @@ from svgpy.base import \
     SVGElement, SVGGeometryElement, SVGGradientElement, SVGGraphicsElement, \
     SVGPathData, SVGPathDataSettings, SVGPreserveAspectRatio, \
     SVGURIReference, SVGZoomAndPan
-from svgpy.core import Font, SVGLength, window
+from svgpy.core import Font, SVGLength
 from svgpy.dom import Comment, Element, Node
 from svgpy.element import SVGElementClassLookup, SVGParser
 from svgpy.matrix import Matrix
 from svgpy.path import PathParser, SVGPathSegment
 from svgpy.rect import Rect
+from svgpy.screen import Screen
 from svgpy.text import SVGTextContentElement, SVGTextPositioningElement
 from svgpy.transform import SVGTransform, SVGTransformList
+from svgpy.url import Location, URL, URLSearchParams
+from svgpy.window import Document, SVGDOMImplementation, Window, XMLDocument, \
+    window

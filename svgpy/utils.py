@@ -16,16 +16,18 @@
 import base64
 import os
 from collections.abc import MutableMapping
-from pathlib import Path
-from urllib.parse import quote, urljoin, urlparse, urlunparse, unquote
+from pathlib import PurePath
+from urllib.parse import unquote
 from urllib.request import urlopen
 
-from .config import config
+from .url import Location, URL
 
 
 def get_content_type(headers):
     _headers = CaseInsensitiveMapping(headers)
-    content_type = _headers.get('content-type')
+    # Content-Type := type "/" subtype *[";" parameter]
+    # parameter := attribute "=" value
+    content_type = _headers.get('Content-Type')
     if content_type is None:
         return None
     parameters = [x.strip() for x in content_type.split(';')]
@@ -37,90 +39,59 @@ def get_content_type(headers):
     return result
 
 
-def load(path_or_url, encoding=None, **kwargs):
-    scheme = urlparse(path_or_url).scheme
+def load(src, encoding=None, **kwargs):
+    if isinstance(src, URL):
+        url = src
+    elif isinstance(src, str):
+        url = URL(src)
+    else:
+        raise TypeError('Expected str or URL, got {}'.format(src))
+    scheme = url.protocol
     headers = CaseInsensitiveMapping()
-    if scheme == 'data':
+    if scheme == 'data:':
         # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-        start = path_or_url.find(':')
-        end = path_or_url.find(',')
-        if start < 0 or end < 0:
+        pathname = url.pathname
+        end = pathname.find(',')
+        if end < 0:
             return None, headers
-        content_type = path_or_url[start + 1:end].strip()
+        content_type = pathname[0:end].strip()
         if len(content_type) == 0:
             content_type = 'text/plain;charset=US-ASCII'
-        data = unquote(path_or_url[end + 1:].strip())
+        data = unquote(pathname[end + 1:].strip())
         parameters = [x.strip() for x in content_type.split(';')]
         if 'base64' in parameters:
             parameters.remove('base64')
             data = base64.b64decode(data)
-        headers = CaseInsensitiveMapping(
-            {'Content-Type': ';'.join(parameters)})
+        headers['Content-Type'] = ';'.join(parameters)
         return data, headers
-    elif len(scheme) > 0:
-        url = path_or_url
-    else:
-        url = normalize_path(path_or_url)
-    with urlopen(url, **kwargs) as response:
+
+    with urlopen(url.href, **kwargs) as response:
         if hasattr(response, 'getheaders'):
-            headers = CaseInsensitiveMapping(response.getheaders())
+            headers.update(response.getheaders())
         data = response.read()
         if encoding is not None:
             data = data.decode(encoding)
         return data, headers
 
 
-def normalize_path(path):
-    path_obj = Path(path).absolute()
-    return Path(os.path.normpath(path_obj)).as_uri()
+def normalize_url(src, base=None):
+    """Normalizes an URL.
 
-
-def normalize_url(path_or_url):
-    def _url_normalize(_parts):
-        _scheme = _parts.scheme.lower()
-        _netloc = _parts.netloc.lower().split(':')
-        _path = _parts.path
-        _params = _parts.params
-        _query = _parts.query
-        _fragment = _parts.fragment
-        if len(_scheme) > 0 and len(_netloc) == 2:
-            if ((_scheme == 'http' and int(_netloc[1]) == 80)
-                    or (_scheme == 'https' and int(_netloc[1]) == 443)):
-                del _netloc[1]
-        if _scheme != 'data':
-            _path = unquote(_path)
-            _path = os.path.normpath(_path)
-            _path = quote(_path, safe='/~')
-        return urlunparse(
-            (_scheme, ':'.join(_netloc), _path, _params, _query, _fragment))
-
-    if path_or_url.startswith('local(') and path_or_url.endswith(')'):
-        # local(...)
-        src = remove_quotes(path_or_url[6:-1])
-        url = normalize_path(src)
-        return url
-    elif path_or_url.startswith('url(') and path_or_url.endswith(')'):
-        # url(...)
-        src = remove_quotes(path_or_url[4:-1])
-        parts = urlparse(src)
-        if len(parts.scheme) > 0:
-            url = _url_normalize(parts)
-            return url
-        for proxy_pass_path, base_url in config.proxy_pass.items():
-            if proxy_pass_path != '/' and src.startswith(proxy_pass_path):
-                url = urljoin(base_url, src[len(proxy_pass_path) + 1:])
-                url = _url_normalize(urlparse(url))
-                return url
-        url = urljoin(config.proxy_pass['/'], src)
-        url = _url_normalize(urlparse(url))
-        return url
-
-    parts = urlparse(remove_quotes(path_or_url))
-    if len(parts.scheme) > 0:
-        url = _url_normalize(parts)
+    Arguments:
+        src (str, Location): An entire URL or a relative-URL to be normalized.
+        base (str, optional): A base URL for a relative-URL.
+    Returns:
+        URL: A new URL object.
+    """
+    if isinstance(src, str):
+        _src = src
+    elif isinstance(src, Location):
+        _src = src.href
     else:
-        url = normalize_path(path_or_url)
-    return url
+        raise TypeError('Expected str or Location, got ' + repr(type(src)))
+    if base is None or base.startswith('about:'):
+        base = PurePath(os.getcwd()).as_uri()
+    return URL(_src, base=base)
 
 
 def remove_quotes(src):

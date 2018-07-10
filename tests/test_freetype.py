@@ -4,11 +4,12 @@
 import os
 import sys
 import unittest
+from pathlib import Path
 
 sys.path.extend(['.', '..'])
 
 from svgpy.freetype import FreeType, FTFace, ft_tag_to_string
-from svgpy.utils import load
+from svgpy.utils import load, normalize_url
 
 here = os.path.abspath(os.path.dirname(__file__))
 os.chdir(here)
@@ -16,8 +17,9 @@ os.chdir(here)
 
 class FreeTypeTestCase(unittest.TestCase):
     def test_new_memory_face(self):
-        path = 'fonts/dejavu/DejaVuSans.ttf'
-        data, _ = load(path)
+        path = os.path.join(here, 'fonts/dejavu/DejaVuSans.ttf')
+        url = Path(path).as_uri()
+        data, _ = load(url)
         face = FTFace.new_memory_face(data)
 
         face.select_charmap(FreeType.FT_ENCODING_UNICODE)

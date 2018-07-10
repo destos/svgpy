@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 
+import logging
 import os
 import sys
+import tempfile
 import unittest
 from io import StringIO
 from urllib.parse import unquote
@@ -11,9 +13,12 @@ sys.path.extend(['.', '..'])
 
 from svgpy import Font, SVGParser, window
 from svgpy.css import CSSRule
-from svgpy.style import get_css_rules, get_css_rules_from_svg_document, \
-    get_css_rules_from_xml_stylesheet, get_css_style
+from svgpy.style import get_css_rules, get_css_style_sheets_from_svg_document, \
+    get_css_style_sheets_from_xml_stylesheet, get_css_style
 from svgpy.utils import get_content_type, load
+
+# LOGGING_LEVEL = logging.DEBUG
+LOGGING_LEVEL = logging.WARNING
 
 here = os.path.abspath(os.path.dirname(__file__))
 os.chdir(here)
@@ -27,9 +32,17 @@ class StyleTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        window.media = 'screen'
+        logging_level = int(os.getenv('LOGGING_LEVEL', str(LOGGING_LEVEL)))
+        filename = os.path.join(tempfile.gettempdir(),
+                                '{}.log'.format(__name__))
+        fmt = '%(asctime)s|%(levelname)s|%(name)s|%(funcName)s|%(message)s'
+        logging.basicConfig(level=logging_level,
+                            filename=filename,
+                            format=fmt)
+        window.screen.media = 'screen'
         window.inner_width = 1280
         window.inner_height = 720
+        window.location = 'about:blank'
 
     def test_get_css_rules_from_svg_document01(self):
         # 'link' and 'style' elements
@@ -72,31 +85,59 @@ class StyleTestCase(unittest.TestCase):
         parser = SVGParser()
         tree = parser.parse(StringIO(svg))
         root = tree.getroot()
-        css_rules = get_css_rules_from_svg_document(root)
-        self.assertEqual(15 + 7 + 2, len(css_rules))
 
-        css_rule = css_rules[0]
+        style_sheets = get_css_style_sheets_from_svg_document(root)
+        self.assertEqual(3, len(style_sheets))
+
+        # <link rel="stylesheet" href="svg/style8.css"/>
+        css_style_sheet = style_sheets[0]
+        self.assertEqual(15, len(css_style_sheet.css_rules))
+
+        css_rule = css_style_sheet.css_rules[0]
         self.assertEqual(CSSRule.STYLE_RULE, css_rule.type)
         self.assertEqual('svg', css_rule.selector_text)
 
-        css_rule = css_rules[14]
+        css_rule = css_style_sheet.css_rules[14]
         self.assertEqual(CSSRule.STYLE_RULE, css_rule.type)
         self.assertEqual('#inner-petals .segment:hover > .segment-edge',
                          css_rule.selector_text)
 
-        css_rule = css_rules[15]
+        # <style type="text/css">...
+        css_style_sheet = style_sheets[1]
+        self.assertEqual(7, len(css_style_sheet.css_rules))
+
+        css_rule = css_style_sheet.css_rules[0]
         self.assertEqual(CSSRule.STYLE_RULE, css_rule.type)
         self.assertEqual('.Border', css_rule.selector_text)
 
-        css_rule = css_rules[21]
+        css_rule = css_style_sheet.css_rules[6]
         self.assertEqual(CSSRule.STYLE_RULE, css_rule.type)
         self.assertEqual('.Label', css_rule.selector_text)
 
-        css_rule = css_rules[22]
+        # <style> @media at-rule
+        css_style_sheet = style_sheets[2]
+        self.assertEqual(2, len(css_style_sheet.css_rules))
+
+        # @media 'print'
+        css_rule = css_style_sheet.css_rules[0]
         self.assertEqual(CSSRule.MEDIA_RULE, css_rule.type)
         self.assertEqual('print', css_rule.media.media_text)
 
-        css_rule = css_rules[23]
+        # child rules
+        self.assertEqual(2, len(css_rule.css_rules))
+
+        # (1) style rule
+        child_css_rule = css_rule.css_rules[0]
+        self.assertEqual(CSSRule.STYLE_RULE, child_css_rule.type)
+        self.assertEqual('#navigation', child_css_rule.selector_text)
+
+        # (2) @media at-rule
+        child_css_rule = css_rule.css_rules[1]
+        self.assertEqual(CSSRule.MEDIA_RULE, child_css_rule.type)
+        self.assertEqual('(max-width: 12cm)',
+                         child_css_rule.media.media_text)
+
+        css_rule = css_style_sheet.css_rules[1]
         self.assertEqual(CSSRule.MEDIA_RULE, css_rule.type)
         self.assertEqual(
             'screen and (min-width: 35em), print and (min-width: 40em)',
@@ -107,28 +148,55 @@ class StyleTestCase(unittest.TestCase):
         # 'link' element
         # See also: svg/style8.css
         parser = SVGParser()
-        root = parser.make_element('svg')
-        link = root.make_sub_element('link')
+        root = parser.create_element('svg')
+        link = root.create_sub_element('link')
         link.attributes.update({
             'rel': 'stylesheet',
             'href': 'svg/style8.css',
             'type': 'text/css',
         })
-        css_rules = get_css_rules_from_svg_document(root)
+
+        style_sheets = get_css_style_sheets_from_svg_document(root)
+        self.assertEqual(1, len(style_sheets))
+
+        css_style_sheet = style_sheets[0]
+        self.assertIsNone(css_style_sheet.owner_rule)
+        self.assertEqual('text/css', css_style_sheet.type)
+        self.assertEqual('svg/style8.css', css_style_sheet.href)
+        self.assertEqual(link, css_style_sheet.owner_node)
+        self.assertIsNone(css_style_sheet.parent_style_sheet)
+        self.assertIsNone(css_style_sheet.title)
+        self.assertEqual(0, css_style_sheet.media.length)
+
+        css_rules = css_style_sheet.css_rules
         self.assertEqual(15, len(css_rules))
 
     def test_get_css_rules_from_svg_document03(self):
         # 'link' element
         # See also: svg/style8.css
         parser = SVGParser()
-        root = parser.make_element('svg')
-        link = root.make_sub_element('link')
+        root = parser.create_element('svg')
+        link = root.create_sub_element('link')
         link.attributes.update({
             'rel': 'stylesheet',
             'href': 'http://localhost:8000/svg/style8.css',
             'type': 'text/css',
         })
-        css_rules = get_css_rules_from_svg_document(root)
+
+        style_sheets = get_css_style_sheets_from_svg_document(root)
+        self.assertEqual(1, len(style_sheets))
+
+        css_style_sheet = style_sheets[0]
+        self.assertIsNone(css_style_sheet.owner_rule)
+        self.assertEqual('text/css', css_style_sheet.type)
+        self.assertEqual('http://localhost:8000/svg/style8.css',
+                         css_style_sheet.href)
+        self.assertEqual(link, css_style_sheet.owner_node)
+        self.assertIsNone(css_style_sheet.parent_style_sheet)
+        self.assertIsNone(css_style_sheet.title)
+        self.assertEqual(0, css_style_sheet.media.length)
+
+        css_rules = css_style_sheet.css_rules
         self.assertEqual(15, len(css_rules),
                          msg='http server may not be working.')
 
@@ -136,10 +204,23 @@ class StyleTestCase(unittest.TestCase):
         # 'style' element
         # See also: svg/style8.css
         parser = SVGParser()
-        root = parser.make_element('svg')
-        style = root.make_sub_element('style')
-        style.text = '@import url(svg/style8.css);'
-        css_rules = get_css_rules_from_svg_document(root)
+        root = parser.create_element('svg')
+        style = root.create_sub_element('style')
+        style.text = '@import url(http://localhost:8000/svg/style8.css);'
+
+        style_sheets = get_css_style_sheets_from_svg_document(root)
+        self.assertEqual(1, len(style_sheets))
+
+        css_style_sheet = style_sheets[0]
+        self.assertIsNone(css_style_sheet.owner_rule)
+        self.assertEqual('text/css', css_style_sheet.type)
+        self.assertIsNone(css_style_sheet.href)
+        self.assertEqual(style, css_style_sheet.owner_node)
+        self.assertIsNone(css_style_sheet.parent_style_sheet)
+        self.assertIsNone(css_style_sheet.title)
+        self.assertEqual('all', css_style_sheet.media.media_text)
+
+        css_rules = css_style_sheet.css_rules
         self.assertEqual(1, len(css_rules))
 
         css_rule = css_rules[0]
@@ -148,14 +229,70 @@ class StyleTestCase(unittest.TestCase):
         self.assertEqual(15, len(css_stylesheet.css_rules),
                          msg='http server may not be working.')
 
+    def test_get_css_rules_from_svg_document05(self):
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <style>
+            @import url(svg/style8.css);
+          </style>
+        </svg>
+        '''
+        doc = window.document
+        doc.write(svg)
+        root = doc.document_element
+
+        style_sheets = get_css_style_sheets_from_svg_document(root)
+        self.assertEqual(1, len(style_sheets))
+
+        css_rules = style_sheets[0].css_rules
+        self.assertEqual(1, len(css_rules))
+
+        css_rule = css_rules[0]
+        self.assertEqual(CSSRule.IMPORT_RULE, css_rule.type)
+        self.assertEqual(style_sheets[0], css_rule.parent_style_sheet)
+        self.assertIsNone(css_rule.parent_rule)
+        self.assertEqual(0, css_rule.media.length)
+
+        style = doc.get_elements_by_tag_name('style')[0]
+        self.assertEqual(style, style_sheets[0].owner_node)
+
+    def test_get_css_rules_from_svg_document06(self):
+        # <link> element
+        # <link rel="stylesheet" type="text/css" href="ny1.css"/>
+        # See also: svg/ny1u.svg and svg/ny1.css
+        doc = window.document
+        doc.location = 'http://localhost:8000/svg/ny1u.svg'
+        root = doc.document_element
+        style_sheets = get_css_style_sheets_from_svg_document(root)
+        self.assertEqual(1, len(style_sheets))
+
+        css_style_sheet = style_sheets[0]
+        self.assertEqual(7, len(css_style_sheet.css_rules))
+
+        for css_rule in css_style_sheet.css_rules:
+            self.assertEqual(css_style_sheet, css_rule.parent_style_sheet)
+
     def test_get_css_rules_from_xml_stylesheet01(self):
         # xml-stylesheet
         # See also: svg/doc8.svg and svg/style8.css
-        parser = SVGParser()
-        tree = parser.parse(here + '/svg/doc8.svg')
-        root = tree.getroot()
+        src = 'http://localhost:8000/svg/doc8.svg'
+        window.location = src
+        root = window.document.document_element
+
         # read svg/style8.css
-        css_rules = get_css_rules_from_xml_stylesheet(root)
+        style_sheets = get_css_style_sheets_from_xml_stylesheet(root)
+        self.assertEqual(1, len(style_sheets))
+
+        css_style_sheet = style_sheets[0]
+        self.assertIsNone(css_style_sheet.owner_rule)
+        self.assertEqual('text/css', css_style_sheet.type)
+        self.assertEqual('style8.css', css_style_sheet.href)
+        # self.assertIsNone(css_style_sheet.owner_node)
+        self.assertIsNone(css_style_sheet.parent_style_sheet)
+        self.assertIsNone(css_style_sheet.title)
+        self.assertEqual(0, css_style_sheet.media.length)
+
+        css_rules = css_style_sheet.css_rules
         self.assertEqual(15, len(css_rules))
 
         css_rule = css_rules[0]
@@ -182,8 +319,14 @@ class StyleTestCase(unittest.TestCase):
         parser = SVGParser()
         tree = parser.parse(StringIO(svg))
         root = tree.getroot()
-        css_rules = get_css_rules_from_xml_stylesheet(root)
-        self.assertEqual(15 + 7, len(css_rules))
+
+        style_sheets = get_css_style_sheets_from_xml_stylesheet(root)
+        self.assertEqual(2, len(style_sheets))
+
+        css_style_sheet = style_sheets[0]
+
+        css_rules = css_style_sheet.css_rules
+        self.assertEqual(15, len(css_rules))
 
         css_rule = css_rules[0]
         self.assertEqual(CSSRule.STYLE_RULE, css_rule.type)
@@ -194,11 +337,14 @@ class StyleTestCase(unittest.TestCase):
         self.assertEqual('#inner-petals .segment:hover > .segment-edge',
                          css_rule.selector_text)
 
-        css_rule = css_rules[15]
+        css_rules = style_sheets[1].css_rules
+        self.assertEqual(7, len(css_rules))
+
+        css_rule = css_rules[0]
         self.assertEqual(CSSRule.STYLE_RULE, css_rule.type)
         self.assertEqual('text', css_rule.selector_text)
 
-        css_rule = css_rules[21]
+        css_rule = css_rules[6]
         self.assertEqual(CSSRule.STYLE_RULE, css_rule.type)
         self.assertEqual('.tick', css_rule.selector_text)
 
@@ -206,10 +352,10 @@ class StyleTestCase(unittest.TestCase):
         # 'style' element
         # See also: svg/style8.css
         parser = SVGParser()
-        root = parser.make_element('svg')
-        style = root.make_sub_element('style')
+        root = parser.create_element('svg')
+        style = root.create_sub_element('style')
         style.text = '@import url(svg/style8.css);'
-        text = root.make_sub_element('text')
+        text = root.create_sub_element('text')
         text.id = 'heading'
 
         css_rules = get_css_rules(text)
@@ -224,9 +370,10 @@ class StyleTestCase(unittest.TestCase):
         self.assertEqual(700, css_style.get('font-weight'))
 
     def test_get_css_style02(self):
-        parser = SVGParser()
-        root = parser.make_element('svg')
-        style = root.make_sub_element('style')
+        doc = window.document
+        root = doc.create_element('svg')
+        doc.append_child(root)
+        style = root.create_sub_element('style')
         style.text = '''
 @media (min-height: 680px) and (orientation: landscape) {
     #heading {
@@ -238,7 +385,7 @@ class StyleTestCase(unittest.TestCase):
     }
 }
         '''
-        text = root.make_sub_element('text')
+        text = root.create_sub_element('text')
         text.id = 'heading'
 
         root.attributes.update({

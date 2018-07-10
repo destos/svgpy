@@ -15,13 +15,14 @@
 
 from abc import abstractmethod
 
-from .core import SVGLength, window
+from .core import SVGLength
 from .dom import Element, ElementCSSInlineStyle
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
 from .matrix import Matrix
 from .path import PathParser
 from .rect import Rect
+from .screen import Screen
 from .transform import SVGTransformList
 
 
@@ -45,7 +46,7 @@ class SVGAnimatedPoints(Element):
 
         Examples:
             >>> parser = SVGParser()
-            >>> polygon = parser.make_element('polygon')
+            >>> polygon = parser.create_element('polygon')
             >>> polygon.attributes.set('points', '100,300 300,300 200,100')
             >>> polygon.points
             [(100.0, 300.0), (300.0, 300.0), (200.0, 100.0)]
@@ -193,9 +194,18 @@ class SVGElement(ElementCSSInlineStyle):
                 break
             element = root.getparent()
 
-        parent_vpw = vpw = SVGLength(window.inner_width,
+        win = (self.owner_document.default_view
+               if self.owner_document is not None
+               else None)
+        if win is None:
+            initial_viewport_width = Screen.DEFAULT_SCREEN_WIDTH
+            initial_viewport_height = Screen.DEFAULT_SCREEN_HEIGHT
+        else:
+            initial_viewport_width = win.inner_width
+            initial_viewport_height = win.inner_height
+        parent_vpw = vpw = SVGLength(initial_viewport_width,
                                      direction=SVGLength.DIRECTION_HORIZONTAL)
-        parent_vph = vph = SVGLength(window.inner_height,
+        parent_vph = vph = SVGLength(initial_viewport_height,
                                      direction=SVGLength.DIRECTION_VERTICAL)
         for root in roots:
             attributes = root.attributes

@@ -3,14 +3,19 @@
 
 import logging
 import os
+import sys
+import tempfile
 import unittest
 
-from svgpy import SVGParser
-from svgpy.config import config
+sys.path.extend(['.', '..'])
+
+from svgpy import SVGParser, window
 from svgpy.css import CSSFontFaceRule, CSSFontFeatureValuesRule, \
     CSSImportRule, CSSMediaRule, CSSNamespaceRule, CSSParser, CSSRule, \
     CSSStyleDeclaration, CSSStyleRule, CSSStyleSheet, MediaList, StyleSheet
-from svgpy.utils import normalize_url
+
+# LOGGING_LEVEL = logging.DEBUG
+LOGGING_LEVEL = logging.WARNING
 
 here = os.path.abspath(os.path.dirname(__file__))
 os.chdir(here)
@@ -22,10 +27,14 @@ class CSSOMTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        config.proxy_pass['/'] = 'http://localhost:8000/'
-        config.proxy_pass['/fonts'] = 'http://www.example.com/'
-
-        logging.disable(logging.INFO)
+        logging_level = int(os.getenv('LOGGING_LEVEL', str(LOGGING_LEVEL)))
+        filename = os.path.join(tempfile.gettempdir(),
+                                '{}.log'.format(__name__))
+        fmt = '%(asctime)s|%(levelname)s|%(name)s|%(funcName)s|%(message)s'
+        logging.basicConfig(level=logging_level,
+                            filename=filename,
+                            format=fmt)
+        window.location = 'about:blank'
 
     def test_css_font_face_rule(self):
         stylesheet = '''
@@ -132,7 +141,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertIsNone(rule.parent_rule)
         self.assertIsNone(rule.parent_style_sheet)
         self.assertIsNotNone(rule.href)
-        self.assertEqual('http://localhost:8000/svg/style8.css', rule.href)
+        # self.assertEqual('http://localhost:8000/svg/style8.css', rule.href)
         self.assertEqual(0, rule.media.length)
 
         sheet = rule.style_sheet
@@ -359,10 +368,11 @@ class CSSOMTestCase(unittest.TestCase):
 
     def test_inline_style01(self):
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         attributes = rect.attributes
         style = rect.style
         self.assertIsInstance(style, CSSStyleDeclaration)
+        self.assertIsNone(style.parent_rule)
         self.assertEqual(0, style.length)
         self.assertEqual(0, len(attributes))
 
@@ -393,7 +403,7 @@ class CSSOMTestCase(unittest.TestCase):
 
     def test_inline_style02(self):
         parser = SVGParser()
-        rect = parser.make_element('rect')
+        rect = parser.create_element('rect')
         attributes = rect.attributes
         attributes.update_style({
             'fill': 'red',
@@ -402,6 +412,7 @@ class CSSOMTestCase(unittest.TestCase):
         })
         style = rect.style
         self.assertIsInstance(style, CSSStyleDeclaration)
+        self.assertIsNone(style.parent_rule)
         self.assertEqual(3, style.length)
         self.assertEqual('red',
                          style.get_property_value('fill'))
@@ -431,13 +442,47 @@ class CSSOMTestCase(unittest.TestCase):
 
     def test_link_style_sheet_link(self):
         # HTMLLinkElement#sheet
-        parser = SVGParser()
-        link = parser.make_element('link')
+        doc = window.document
+        root = doc.create_element('svg')
+        doc.append_child(root)
+        link = doc.create_element('link')
+
         sheet = link.sheet
         self.assertIsNone(sheet)
 
+        # alternative style sheet
         link.attributes.update({
-            'type': 'text/css',
+            'rel': 'stylesheet alternate',
+            'href': 'style.css',
+        })
+        sheet = link.sheet
+        self.assertIsNone(sheet)
+
+        # internal link
+        link.attributes.update({
+            'rel': 'stylesheet',
+            'href': '#style.css',
+        })
+        sheet = link.sheet
+        self.assertIsNone(sheet)
+
+        # non-associated window
+        link.attributes.update({
+            'rel': 'stylesheet',
+            'href': 'style.css',
+            'media': 'print',
+        })
+        sheet = link.sheet
+        self.assertIsNone(sheet)
+
+        # unmatched media
+        root.append_child(link)
+        sheet = link.sheet
+        self.assertIsNone(sheet)
+
+        # file not found
+        link.attributes.update({
+            'rel': 'stylesheet',
             'href': 'style.css',
             'title': 'Default',
             'media': 'screen, print and (color)',
@@ -450,23 +495,65 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('Default', sheet.title)
         self.assertEqual('screen, print and (color)', sheet.media.media_text)
         self.assertTrue(not sheet.disabled)
+        self.assertIsNone(sheet.owner_rule)
+        self.assertEqual(0, len(sheet.css_rules))
+
+        # normal pattern
+        link.attributes.update({
+            'rel': 'stylesheet',
+            'href': 'svg/style8.css',
+            'title': 'Default',
+            'media': 'screen, print and (color)',
+        })
+        sheet = link.sheet
+        self.assertEqual('text/css', sheet.type)
+        self.assertEqual('svg/style8.css', sheet.href)
+        self.assertEqual(link, sheet.owner_node)
+        self.assertIsNone(sheet.parent_style_sheet)
+        self.assertEqual('Default', sheet.title)
+        self.assertEqual('screen, print and (color)', sheet.media.media_text)
+        self.assertTrue(not sheet.disabled)
+        self.assertIsNone(sheet.owner_rule)
+        self.assertEqual(15, len(sheet.css_rules))
 
     def test_link_style_sheet_style(self):
         # HTMLStyleElement#sheet
-        parser = SVGParser()
-        style = parser.make_element('style')
+        doc = window.document
+        root = doc.create_element('svg')
+        doc.append_child(root)
+        style = doc.create_element('style')
+
+        # empty style
         sheet = style.sheet
         self.assertIsNone(sheet)
 
+        # unexpected type
+        style.attributes.update({
+            'type': 'text/xhtml',
+        })
+        sheet = style.sheet
+        self.assertIsNone(sheet)
+
+        # non-associated window
+        style.text = '@import url(style.css);'
+        style.attributes.update({
+            'type': 'text/css',
+            'media': 'print',
+        })
+        sheet = style.sheet
+        self.assertIsNone(sheet)
+
+        # unmatched media
+        root.append_child(style)
+        sheet = style.sheet
+        self.assertIsNone(sheet)
+
+        # file not found
         style.attributes.update({
             'type': 'text/css',
             'title': 'Default',
             'media': 'screen, print and (color)',
         })
-        sheet = style.sheet
-        self.assertIsNone(sheet)
-
-        style.text = '@import url(style.css);'
         sheet = style.sheet
         self.assertEqual('text/css', sheet.type)
         self.assertIsNone(sheet.href)
@@ -475,6 +562,33 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('Default', sheet.title)
         self.assertEqual('screen, print and (color)', sheet.media.media_text)
         self.assertTrue(not sheet.disabled)
+        self.assertIsNone(sheet.owner_rule)
+        self.assertEqual(1, len(sheet.css_rules))
+        css_rule = sheet.css_rules[0]
+        self.assertEqual(CSSRule.IMPORT_RULE, css_rule.type)
+        self.assertEqual(sheet, css_rule.parent_style_sheet)
+        sheet = css_rule.style_sheet
+        self.assertEqual(css_rule, sheet.owner_rule)
+        self.assertEqual(0, len(sheet.css_rules))
+
+        # normal pattern
+        style.text = '@import url(svg/style8.css);'
+        sheet = style.sheet
+        self.assertEqual('text/css', sheet.type)
+        self.assertIsNone(sheet.href)
+        self.assertEqual(style, sheet.owner_node)
+        self.assertIsNone(sheet.parent_style_sheet)
+        self.assertEqual('Default', sheet.title)
+        self.assertEqual('screen, print and (color)', sheet.media.media_text)
+        self.assertTrue(not sheet.disabled)
+        self.assertIsNone(sheet.owner_rule)
+        self.assertEqual(1, len(sheet.css_rules))
+        css_rule = sheet.css_rules[0]
+        self.assertEqual(CSSRule.IMPORT_RULE, css_rule.type)
+        self.assertEqual(sheet, css_rule.parent_style_sheet)
+        sheet = css_rule.style_sheet
+        self.assertEqual(css_rule, sheet.owner_rule)
+        self.assertEqual(15, len(sheet.css_rules))
 
     def test_media_list(self):
         ml = MediaList()
@@ -507,63 +621,6 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(expected, ml.media_text)
 
         self.assertRaises(ValueError, lambda: ml.delete_medium('print'))
-
-    def test_normalize_url01(self):
-        # local()
-        src = 'local(style.css)'
-        url = normalize_url(src)
-        self.assertTrue(url.startswith('file://'))
-        self.assertTrue(url.endswith('/style.css'))
-
-    def test_normalize_url02(self):
-        # url()
-        src = 'url(style.css)'
-        url = normalize_url(src)
-        self.assertEqual('http://localhost:8000/style.css', url)
-
-        src = 'url("style.css")'
-        url = normalize_url(src)
-        self.assertEqual('http://localhost:8000/style.css', url)
-
-        src = 'url(\'style.css\')'
-        url = normalize_url(src)
-        self.assertEqual('http://localhost:8000/style.css', url)
-
-        src = 'url(/css/style.css)'
-        url = normalize_url(src)
-        self.assertEqual('http://localhost:8000/css/style.css', url)
-
-        src = 'url(/fonts/simple.woff)'
-        url = normalize_url(src)
-        self.assertEqual('http://www.example.com/simple.woff', url)
-
-    def test_normalize_url03(self):
-        # see https://en.wikipedia.org/wiki/URL_normalization
-        src = 'HTTP://WWW.EXAMPLE.COM:80/css/./style.css'
-        url = normalize_url(src)
-        self.assertEqual('http://www.example.com/css/style.css', url)
-
-        src = 'HTTPS://WWW.EXAMPLE.COM:443/css/./style.css'
-        url = normalize_url(src)
-        self.assertEqual('https://www.example.com/css/style.css', url)
-
-        src = 'HTTP://www.Example.com:80/~%c2%b1/'
-        url = normalize_url(src)
-        self.assertEqual('http://www.example.com/~%C2%B1', url)
-
-        src = 'HTTP://www.Example.com:80/%7e%c2%b1/'
-        url = normalize_url(src)
-        self.assertEqual('http://www.example.com/~%C2%B1', url)
-
-        src = 'http://www.example.com/../a/b/../c/./d.html'
-        url = normalize_url(src)
-        self.assertEqual('http://www.example.com/a/c/d.html', url)
-
-    def test_normalize_url04(self):
-        # data scheme
-        src = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ%3D%3D'
-        url = normalize_url(src)
-        self.assertEqual(src, url)
 
     def test_style_sheet(self):
         sheet = StyleSheet()

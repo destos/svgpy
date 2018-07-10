@@ -13,10 +13,10 @@
 # limitations under the License.
 
 
-import logging
 import re
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
+from logging import getLogger
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -49,8 +49,17 @@ class CSSRule(object):
     SUPPORTS_RULE = 12
     FONT_FEATURE_VALUES_RULE = 14
 
-    def __init__(self, rule, rule_type, parent_style_sheet=None,
-                 parent_rule=None):
+    def __init__(self,
+                 rule, rule_type, parent_style_sheet=None, parent_rule=None):
+        """Constructs a CSSRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            rule_type (int): The CSS rule type.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         self._type = rule_type
         self._parent_style_sheet = parent_style_sheet
         self._parent_rule = parent_rule
@@ -60,18 +69,23 @@ class CSSRule(object):
 
     @property
     def css_text(self):
+        """str: A serialization of the CSS rule."""
+        # TODO: implement CSSRule.cssText.
         return self._css_text
 
     @property
     def parent_rule(self):
+        """CSSRule: The parent CSS rule."""
         return self._parent_rule
 
     @property
     def parent_style_sheet(self):
+        """CSSStyleSheet: The parent CSS style sheet."""
         return self._parent_style_sheet
 
     @property
     def type(self):
+        """int: The CSS rule type."""
         return self._type
 
 
@@ -89,13 +103,28 @@ class CSSGroupingRule(CSSRule):
 
     @property
     def css_rules(self):
+        """list[CSSRule]: A list of the child CSS rules."""
         return self._css_rules
 
     def delete_rule(self, index):
+        """Removes a CSS rule from a list of the child CSS rules at index.
+
+        Arguments:
+            index (int): An index position of the child CSS rules to be
+                removed.
+        """
         del self._css_rules[index]
 
     def insert_rule(self, rule, index):
-        # str -> list[CSSRule]
+        """Inserts a CSS rule into a list of the child CSS rules at index.
+
+        Arguments:
+            rule (str): A CSS rule.
+            index (int): An index position of the child CSS rules to be
+                inserted.
+        Returns:
+            int: An index position of the child CSS rules.
+        """
         css_rules = CSSParser.fromstring(
             rule,
             parent_style_sheet=self.parent_style_sheet,
@@ -119,6 +148,7 @@ class CSSConditionRule(CSSGroupingRule, ABC):
     @property
     @abstractmethod
     def condition_text(self):
+        """str: The condition of the rule."""
         raise NotImplementedError
 
 
@@ -145,10 +175,12 @@ class MediaList(MutableSequence):
 
     @property
     def length(self):
+        """int: The number of media queries."""
         return self.__len__()
 
     @property
     def media_text(self):
+        """str: A serialization of the collection of media queries."""
         return ', '.join(self._items)
 
     @media_text.setter
@@ -160,27 +192,70 @@ class MediaList(MutableSequence):
         self._items = [x.strip() for x in media_text.split(',')]
 
     def append(self, item):
+        """Same as append_medium()."""
         self.append_medium(item)
 
     def append_medium(self, item):
+        """Adds the media query to the collection of media queries.
+
+        Arguments:
+            item (str): The media query to be added.
+        """
         self._items.append(item.strip())
 
     def delete_medium(self, item):
+        """Removes the media query in the collection of media queries.
+
+        Arguments:
+            item (str): The media query to be removed.
+        """
         self._items.remove(item.strip())
 
     def insert(self, index, item):
+        """Inserts the media query into the collection of media queries at
+        index.
+
+        Arguments:
+            index (int): An index position of the collection of media queries.
+            item (str): The media query to be added.
+        """
         self._items.insert(index, item.strip())
 
     def item(self, index):
+        """Returns a serialization of the media query in the collection of
+        media queries given by index, or None, if index is greater than or
+        equal to the number of media queries in the collection of media
+        queries.
+
+        Arguments:
+            index (int): An index position of the collection of media queries.
+        Returns:
+            str: The media query.
+        """
+        if index < 0 or index >= len(self):
+            return None
         return self.__getitem__(index)
 
 
 class StyleSheet(object):
     """Represents an abstract, base style sheet."""
 
-    def __init__(self, type_=None, href=None, owner_node=None,
+    def __init__(self,
+                 type_=None, href=None, owner_node=None,
                  parent_style_sheet=None, title=None, media=None,
                  disabled=False):
+        """Constructs a StyleSheet object.
+
+        Arguments:
+            type_ (str, optional): The type of the style sheet.
+            href (str, optional): The location of the style sheet.
+            owner_node (Element, optional): The owner node of the style sheet.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            title (str, optional): The title of the style sheet.
+            media (str, optional): The media queries of the style sheet.
+            disabled (bool, optional): The disabled flag of the style sheet.
+        """
         self._type = type_ if type_ is not None else 'text/css'
         self._media = MediaList()
         if media is not None:
@@ -193,6 +268,7 @@ class StyleSheet(object):
 
     @property
     def disabled(self):
+        """bool: The disabled flag of the style sheet."""
         return self._disabled
 
     @disabled.setter
@@ -201,26 +277,32 @@ class StyleSheet(object):
 
     @property
     def href(self):
+        """str: The location of the style sheet."""
         return self._href
 
     @property
     def media(self):
+        """MediaList: The media queries of the style sheet."""
         return self._media
 
     @property
     def owner_node(self):
+        """Element: The owner node of the style sheet."""
         return self._owner_node
 
     @property
     def parent_style_sheet(self):
+        """CSSStyleSheet: The parent CSS style sheet."""
         return self._parent_style_sheet
 
     @property
     def title(self):
+        """str: The title of the style sheet."""
         return self._title
 
     @property
     def type(self):
+        """str: The type of the style sheet."""
         return self._type
 
 
@@ -228,6 +310,14 @@ class CSSFontFaceRule(CSSRule):
     """Represents the '@font-face' at-rule."""
 
     def __init__(self, rule, parent_style_sheet=None, parent_rule=None):
+        """Constructs a CSSFontFaceRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          CSSRule.FONT_FACE_RULE,
                          parent_style_sheet=parent_style_sheet,
@@ -235,10 +325,12 @@ class CSSFontFaceRule(CSSRule):
         self._style = CSSStyleDeclaration(rule, parent_rule=self)
 
     def __repr__(self):
-        return repr(('CSSFontFaceRule', self.style))
+        return repr((type(self).__name__, self.style))
 
     @property
     def style(self):
+        """CSSStyleDeclaration: A CSS declaration block associated with the
+        at-rule."""
         return self._style
 
 
@@ -246,6 +338,14 @@ class CSSFontFeatureValuesRule(CSSRule):
     """Represents the '@font-feature-values' at-rule."""
 
     def __init__(self, rule, parent_style_sheet=None, parent_rule=None):
+        """Constructs a CSSFontFeatureValuesRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          CSSRule.FONT_FEATURE_VALUES_RULE,
                          parent_style_sheet=parent_style_sheet,
@@ -260,7 +360,7 @@ class CSSFontFeatureValuesRule(CSSRule):
         self._parse_content(rule.content)
 
     def __repr__(self):
-        return repr(('CSSFontFeatureValuesRule', {
+        return repr((type(self).__name__, {
             'font-family': self.font_family,
             '@annotation': self.annotation,
             '@character-variant': self.character_variant,
@@ -310,30 +410,38 @@ class CSSFontFeatureValuesRule(CSSRule):
 
     @property
     def font_family(self):
+        """str: The list of one or more font families."""
         return self._font_family
 
     @property
     def annotation(self):
+        """CaseInsensitiveMapping: A '@annotation' feature values."""
         return self._annotation
 
     @property
     def character_variant(self):
+        """CaseInsensitiveMapping: A '@character-variant' feature values.
+        """
         return self._character_variant
 
     @property
     def ornaments(self):
+        """CaseInsensitiveMapping: A '@ornaments' feature values."""
         return self._ornaments
 
     @property
     def styleset(self):
+        """CaseInsensitiveMapping: A '@styleset' feature values."""
         return self._styleset
 
     @property
     def stylistic(self):
+        """CaseInsensitiveMapping: A '@stylistic' feature values."""
         return self._stylistic
 
     @property
     def swash(self):
+        """CaseInsensitiveMapping: A '@swash' feature values."""
         return self._swash
 
 
@@ -341,6 +449,14 @@ class CSSImportRule(CSSRule):
     """Represents the '@import' at-rule."""
 
     def __init__(self, rule, parent_style_sheet=None, parent_rule=None):
+        """Constructs a CSSImportRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          CSSRule.IMPORT_RULE,
                          parent_style_sheet=parent_style_sheet,
@@ -351,39 +467,55 @@ class CSSImportRule(CSSRule):
         self._parse_prelude(rule.prelude)
 
     def __repr__(self):
-        return repr(('CSSImportRule', {
+        return repr((type(self).__name__, {
             'href': self.href,
             'media': self.media,
             'styleSheet': self._style_sheet,
         }))
 
     def _parse_prelude(self, prelude):
+        if self.parent_style_sheet is not None:
+            owner_node = self.parent_style_sheet.owner_node
+            base_url = self.parent_style_sheet.href
+            if base_url is None and owner_node is not None:
+                doc = owner_node.owner_document
+                if doc is not None:
+                    base_url = doc.location.href
+        else:
+            owner_node = None
+            base_url = None
         mediums = list()
         for token in prelude:
             if self._href is None:
-                if token.type == 'url':
-                    self._href = normalize_url('url({})'.format(token.value))
-                elif token.type == 'string':
-                    self._href = normalize_url(token.value)
+                if token.type in ['string', 'url']:
+                    url = normalize_url(token.value, base_url)
+                    self._href = url.href
             else:
                 mediums.append(token)
         if len(mediums) > 0:
             self._media.media_text = tinycss2.serialize(mediums)
         if self._href is None:
-            self._style_sheet = CSSStyleSheet(owner_rule=self)
-            return
-        self._style_sheet = CSSParser.parse(self._href, parent_rule=self)
+            self._style_sheet = CSSStyleSheet(owner_node=owner_node,
+                                              media=self._media.media_text,
+                                              owner_rule=self)
+        else:
+            self._style_sheet = CSSParser.parse(self._href,
+                                                owner_node=owner_node,
+                                                parent_rule=self)
 
     @property
     def href(self):
+        """str: The location of the style sheet."""
         return self._href
 
     @property
     def media(self):
+        """MediaList: The media queries of the style sheet."""
         return self._media
 
     @property
     def style_sheet(self):
+        """CSSStyleSheet: The associated CSS style sheet."""
         return self._style_sheet
 
 
@@ -391,6 +523,14 @@ class CSSMediaRule(CSSConditionRule):
     """Represents the '@media' at-rule."""
 
     def __init__(self, rule, parent_style_sheet=None, parent_rule=None):
+        """Constructs a CSSMediaRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          CSSRule.MEDIA_RULE,
                          parent_style_sheet=parent_style_sheet,
@@ -407,13 +547,14 @@ class CSSMediaRule(CSSConditionRule):
         self.css_rules.extend(css_rules)
 
     def __repr__(self):
-        return repr(('CSSMediaRule', {
+        return repr((type(self).__name__, {
             'media': self.media,
             'cssRules': self.css_rules,
         }))
 
     @property
     def condition_text(self):
+        """str: Same as media.media_text."""
         return self._media.media_text
 
     @condition_text.setter
@@ -422,6 +563,7 @@ class CSSMediaRule(CSSConditionRule):
 
     @property
     def media(self):
+        """MediaList: The media queries of the style sheet."""
         return self._media
 
 
@@ -429,6 +571,14 @@ class CSSNamespaceRule(CSSRule):
     """Represents the '@namespace' at-rule."""
 
     def __init__(self, rule, parent_style_sheet=None, parent_rule=None):
+        """Constructs a CSSNamespaceRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          CSSRule.NAMESPACE_RULE,
                          parent_style_sheet=parent_style_sheet,
@@ -438,7 +588,7 @@ class CSSNamespaceRule(CSSRule):
         self._parse_prelude(rule.prelude)
 
     def __repr__(self):
-        return repr(('CSSNamespaceRule', {
+        return repr((type(self).__name__, {
             'namespaceURI': self.namespace_uri,
             'prefix': self.prefix,
         }))
@@ -452,28 +602,36 @@ class CSSNamespaceRule(CSSRule):
 
     @property
     def namespace_uri(self):
+        """str: The namespace of the '@namespace' at-rule."""
         return self._namespace_uri
 
     @property
     def prefix(self):
+        """str: The prefix of the '@namespace' at-rule."""
         return self._prefix
 
 
 class CSSStyleDeclaration(MutableMapping):
     """Represents a CSS declaration block."""
 
-    def __init__(self, rule=None, parent_rule=None):
+    def __init__(self, rule=None, parent_rule=None, owner_node=None):
+        """Constructs a CSSStyleDeclaration object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+            owner_node (Element, optional): The owner node of the inline style
+                properties.
+        """
         self._parent_rule = parent_rule
         self._css_text = None
-        self._properties = CaseInsensitiveMapping()
+        self._properties = dict()
         self._owner_attributes = None
         if rule is not None:
             self._css_text = normalize_text(tinycss2.serialize(rule.content))
             self._parse_content(rule.content)
-        else:
-            owner_node = self.get_owner_node()
-            if owner_node is not None:
-                self._owner_attributes = owner_node.attributes
+        elif owner_node is not None:
+            self._owner_attributes = owner_node.attributes
 
     def __delitem__(self, name):
         if self._owner_attributes is not None:
@@ -507,7 +665,7 @@ class CSSStyleDeclaration(MutableMapping):
             style = self._owner_attributes.get_style({})
         else:
             style = self._properties
-        return repr(('CSSStyleDeclaration', style))
+        return repr((type(self).__name__, style))
 
     def __setitem__(self, name, value_and_priority):
         # TODO: support shorthand property.
@@ -519,8 +677,8 @@ class CSSStyleDeclaration(MutableMapping):
             value, priority = value_and_priority
             priority = priority.lower()
         else:
-            raise ValueError(
-                'Expected a tuple of two numbers <str> and <str>, got '
+            raise TypeError(
+                'Expected a tuple of two numbers (<str>, <str>), got '
                 + repr(value_and_priority))
         value = normalize_text(value)
         value = value.replace('("', '(').replace('")', ')')
@@ -547,36 +705,62 @@ class CSSStyleDeclaration(MutableMapping):
 
     @property
     def css_text(self):
+        """str: A serialization of the CSS rule."""
+        # TODO: implement CSSStyleDeclaration.cssText.
         return self._css_text
 
     @property
     def length(self):
+        """int: The number of CSS declarations in the declarations."""
         return self.__len__()
 
     @property
     def parent_rule(self):
+        """CSSRule: The parent CSS rule."""
         return self._parent_rule
 
-    def get_owner_node(self):
-        if self._parent_rule is None:
-            return None
-        sheet = self._parent_rule.parent_style_sheet
-        if sheet is None:
-            return None
-        return sheet.owner_node
-
     def get_property_priority(self, name):
+        """Returns the important flag of the first exact match of name in the
+        declarations.
+
+        Arguments:
+            name (str): A property name of a CSS declaration.
+        Returns:
+            str: The important flag of the declarations.
+        """
         _, priority = self.__getitem__(name)
         return priority
 
     def get_property_value(self, name):
+        """Returns a CSS value of the first exact match of name in the
+        declarations.
+
+        Arguments:
+            name (str): A property name of a CSS declaration.
+        Returns:
+            str: A CSS value of the declarations.
+        """
         value, _ = self.__getitem__(name)
         return value
 
     def remove_property(self, name):
+        """Removes a CSS declaration property of the first exact match of name
+        in the declarations.
+
+        Arguments:
+            name (str): A property name of a CSS declaration.
+        """
         self.__delitem__(name)
 
     def set_property(self, name, value, priority=''):
+        """Sets a CSS declaration property with a value and an important flag
+        in the declarations.
+
+        Arguments:
+            name (str): A property name of a CSS declaration.
+            value (str): A CSS value of the declarations.
+            priority (str): An important flag of the declarations.
+        """
         self.__setitem__(name, (value, priority))
 
 
@@ -584,6 +768,14 @@ class CSSStyleRule(CSSRule):
     """Represents a style rule."""
 
     def __init__(self, rule, parent_style_sheet=None, parent_rule=None):
+        """Constructs a CSSStyleRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          CSSRule.STYLE_RULE,
                          parent_style_sheet=parent_style_sheet,
@@ -592,14 +784,17 @@ class CSSStyleRule(CSSRule):
         self._style = CSSStyleDeclaration(rule, parent_rule=self)
 
     def __repr__(self):
-        return repr(('CSSStyleRule', self.selector_text, self.style))
+        return repr((type(self).__name__, self.selector_text, self.style))
 
     @property
     def selector_text(self):
+        """str: The associated group of selectors."""
         return self._selector_text
 
     @property
     def style(self):
+        """CSSStyleDeclaration: A CSS declaration block associated with the
+        at-rule."""
         return self._style
 
 
@@ -607,12 +802,18 @@ class CSSStyleSheet(StyleSheet):
     """Represents a CSS style sheet."""
 
     def __init__(self, owner_rule=None, **extra):
+        """Constructs a CSSStyleSheet object.
+
+        Arguments:
+            owner_rule (CSSRule, optional): The owner CSS rule.
+            **extra: See StyleSheet.__init__().
+        """
         super().__init__(**extra)
         self._owner_rule = owner_rule
         self._css_rules = list()
 
     def __repr__(self):
-        return repr(('CSSStyleSheet', {
+        return repr((type(self).__name__, {
             'href': self.href,
             'media': self.media,
             'title': self.title,
@@ -621,17 +822,33 @@ class CSSStyleSheet(StyleSheet):
 
     @property
     def owner_rule(self):
+        """CSSRule: The owner CSS rule."""
         return self._owner_rule
 
     @property
     def css_rules(self):
+        """list[CSSRule]: A list of the child CSS rules."""
         return self._css_rules
 
     def delete_rule(self, index):
+        """Removes a CSS rule from a list of the child CSS rules at index.
+
+        Arguments:
+            index (int): An index position of the child CSS rules to be
+                removed.
+        """
         del self._css_rules[index]
 
     def insert_rule(self, rule, index=0):
-        # str -> list[CSSRule]
+        """Inserts a CSS rule into a list of the child CSS rules at index.
+
+        Arguments:
+            rule (str): A CSS rule.
+            index (int, optional): An index position of the child CSS rules to
+            be inserted.
+        Returns:
+            int: An index position of the child CSS rules.
+        """
         css_rules = CSSParser.fromstring(
             rule,
             parent_style_sheet=self,
@@ -641,8 +858,19 @@ class CSSStyleSheet(StyleSheet):
 
 
 class CSSParser(object):
-    @staticmethod
-    def fromstring(stylesheet, parent_style_sheet=None, parent_rule=None):
+    @classmethod
+    def fromstring(cls,
+                   stylesheet, parent_style_sheet=None, parent_rule=None):
+        """Parses the CSS style sheet or fragment from a string.
+
+        Arguments:
+            stylesheet (str): The CSS style sheet to be parsed.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        Returns:
+            list[CSSRule]: A list of CSS rules.
+       """
         try:
             rules = tinycss2.parse_stylesheet(
                 stylesheet,
@@ -654,14 +882,27 @@ class CSSParser(object):
                 parent_rule=parent_rule)
             return css_rules
         except URLError as exp:
-            logging.getLogger(__name__).info(
-                'CSSParser#fromstring() error: ' + str(exp),
-                stack_info=True)
+            logger = getLogger('{}.{}'.format(__name__, cls.__name__))
+            logger.info('failed to parse: ' + repr(exp))
             return []
 
-    @staticmethod
-    def parse(url, owner_node=None, parent_style_sheet=None,
+    @classmethod
+    def parse(cls,
+              url, owner_node=None, parent_style_sheet=None,
               parent_rule=None, encoding=None):
+        """Parses the CSS style sheet.
+
+        Arguments:
+            url (str): The location of the style sheet.
+            owner_node (Element, optional): The owner node of the style sheet.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+            encoding (str, optional): An advisory character encoding for the
+                referenced style sheet.
+        Returns:
+            CSSStyleSheet: A new CSSStyleSheet object.
+        """
         extra = dict({
             'type_': None,
             'href': None,
@@ -678,25 +919,26 @@ class CSSParser(object):
                 'media': owner_node.get('media'),
             })
         css_style_sheet = CSSStyleSheet(owner_rule=parent_rule, **extra)
+        logger = getLogger('{}.{}'.format(__name__, cls.__name__))
         try:
-            response = urlopen(url)
-            css_bytes = response.read()
-            if encoding is None:
-                encoding = response.info().get_charset()
-            rules, encoding = tinycss2.parse_stylesheet_bytes(
-                css_bytes=css_bytes,
-                protocol_encoding=encoding,
-                skip_comments=True,
-                skip_whitespace=True)
-            css_rules = CSSParser.parse_rules(
-                rules,
-                parent_style_sheet=parent_style_sheet,
-                parent_rule=parent_rule)
-            css_style_sheet.css_rules.extend(css_rules)
+            logger.debug('urlopen \'{}\''.format(url))
+            with urlopen(url) as response:
+                css_bytes = response.read()
+                if encoding is None:
+                    encoding = response.info().get_charset()
+                rules, encoding = tinycss2.parse_stylesheet_bytes(
+                    css_bytes=css_bytes,
+                    protocol_encoding=encoding,
+                    skip_comments=True,
+                    skip_whitespace=True)
+                css_rules = CSSParser.parse_rules(
+                    rules,
+                    parent_style_sheet=css_style_sheet,
+                    parent_rule=parent_rule)
+                css_style_sheet.css_rules.extend(css_rules)
         except URLError as exp:
-            logging.getLogger(__name__).info(
-                'CSSParser#parse() error: ' + str(exp),
-                stack_info=True)
+            logger.info(
+                'failed to parse: \'{}\': {}'.format(url, repr(exp)))
         return css_style_sheet
 
     @staticmethod

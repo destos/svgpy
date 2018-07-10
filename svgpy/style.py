@@ -13,10 +13,11 @@
 # limitations under the License.
 
 
+from logging import getLogger
+
 from lxml import etree, cssselect
 
-from .core import window
-from .css import CSSParser, CSSRule
+from .css import CSSParser, CSSRule, CSSStyleSheet
 from .utils import normalize_url
 
 
@@ -57,17 +58,24 @@ symbol {
 # }
 # '''
 
+logger = getLogger(__name__)
+
 
 def flatten_css_rules(element, css_rules):
-    window.document = element
+    doc = element.owner_document
+    win = doc.default_view if doc is not None else None
     flattened = list()
     for css_rule in css_rules:
         if css_rule.type == CSSRule.IMPORT_RULE:
             # '@import' at-rule
             media = css_rule.media.media_text
             if media not in ['', 'all']:
-                mql = window.match_media(media)
+                if win is None:
+                    logger.debug('no active window: {}'.format(element))
+                    continue
+                mql = win.match_media(media)
                 if not mql.matches:
+                    logger.debug('media not matched: {}'.format(repr(media)))
                     continue
             flattened.extend(
                 flatten_css_rules(element, css_rule.style_sheet.css_rules))
@@ -75,8 +83,12 @@ def flatten_css_rules(element, css_rules):
             # '@media' at-rule
             media = css_rule.media.media_text
             if media not in ['', 'all']:
-                mql = window.match_media(media)
+                if win is None:
+                    logger.debug('no active window: {}'.format(element))
+                    continue
+                mql = win.match_media(media)
                 if not mql.matches:
+                    logger.debug('media not matched: {}'.format(repr(media)))
                     continue
             flattened.extend(
                 flatten_css_rules(element, css_rule.css_rules))
@@ -87,78 +99,143 @@ def flatten_css_rules(element, css_rules):
 
 def get_css_rules(element):
     css_rules = CSSParser.fromstring(_SVG_UA_CSS_STYLESHEET)
-    css_rules.extend(get_css_rules_from_xml_stylesheet(element))
-    css_rules.extend(get_css_rules_from_svg_document(element))
+
+    root = element.getroottree().getroot()
+
+    style_sheets = get_css_style_sheets_from_xml_stylesheet(root)
+    for css_style_sheet in style_sheets:
+        css_rules.extend(css_style_sheet.css_rules)
+
+    style_sheets = get_css_style_sheets_from_svg_document(root)
+    for css_style_sheet in style_sheets:
+        css_rules.extend(css_style_sheet.css_rules)
+
     flattened = flatten_css_rules(element, css_rules)
     return flattened
 
 
-def get_css_rules_from_svg_document(element):
-    css_rules = list()
-    window.document = element
-    root = element.getroottree().getroot()
-    for target in root.iter(tag=('{*}link', '{*}style')):
-        local_name = target.local_name
-        if local_name == 'link':
-            rel_list = target.rel_list
-            if 'stylesheet' not in rel_list or 'alternate' in rel_list:
-                continue  # TODO: support alternative style sheet.
-            href = target.href
-            if href is None or href[0] == '#':
-                continue
-            media = target.media
-            if media != 'all':
-                mql = window.match_media(media)
-                if not mql.matches:
-                    continue
-            css_style_sheet = CSSParser.parse(normalize_url(href),
-                                              owner_node=target)
-            css_rules.extend(css_style_sheet.css_rules)
-        else:  # 'style'
-            if target.type != 'text/css' or target.text is None:
-                continue
-            media = target.media
-            if media != 'all':
-                mql = window.match_media(media)
-                if not mql.matches:
-                    continue
-            rules = CSSParser.fromstring(target.text)
-            css_rules.extend(rules)
-    return css_rules
+def get_css_style_sheet_from_element(element, doc=None):
+    local_name = element.local_name
+    if local_name not in ['link', 'style']:
+        raise ValueError(
+            'Expected <link> or <style> element, got <{}>'.format(local_name))
+    if doc is None:
+        doc = element.owner_document
+    if doc is not None:
+        win = doc.default_view
+        base_url = doc.document_uri
+    else:
+        win = None
+        base_url = None
+
+    if local_name == 'link':
+        rel_list = element.rel_list
+        if 'stylesheet' not in rel_list or 'alternate' in rel_list:
+            logger.debug('not a style sheet: {}: relList: {}'.format(
+                element, repr(rel_list)))
+            return None  # TODO: support alternative style sheet.
+        href = element.href
+        if href is None or href[0] == '#':
+            logger.debug('invalid URL: {}: href: {}'.format(
+                element, repr(href)))
+            return None
+        media = element.media
+        if media != 'all':
+            if win is None:
+                logger.debug('no active window: {}'.format(element))
+                return None
+            mql = win.match_media(media)
+            if not mql.matches:
+                logger.debug('media not matched: {}: {}'.format(
+                    element, repr(media)))
+                return None
+        url = normalize_url(href, base_url)
+        css_style_sheet = CSSParser.parse(url.href,
+                                          owner_node=element)
+        return css_style_sheet
+    else:  # 'style'
+        if element.type != 'text/css' or element.text is None:
+            logger.debug(
+                'not a style sheet: {}: type: {}: size = {}'.format(
+                    element,
+                    repr(element.type),
+                    0 if element.text is None else len(element.text)))
+            return None
+        media = element.media
+        if media != 'all':
+            if win is None:
+                logger.debug('no active window: {}'.format(element))
+                return None
+            mql = win.match_media(media)
+            if not mql.matches:
+                logger.debug('media not matched: {}: {}'.format(
+                    element, repr(media)))
+                return None
+        css_style_sheet = CSSStyleSheet(type_=element.type,
+                                        owner_node=element,
+                                        title=element.title,
+                                        media=element.media)
+        css_rules = CSSParser.fromstring(element.text,
+                                         parent_style_sheet=css_style_sheet)
+        css_style_sheet.css_rules.extend(css_rules)
+        return css_style_sheet
 
 
-def get_css_rules_from_xml_stylesheet(element):
-    css_rules = list()
-    window.document = element
-    root = element.getroottree().getroot()
+def get_css_style_sheets_from_svg_document(root):
+    style_sheets = list()
+    doc = root.owner_document
+    for element in root.iter(tag=('{*}link', '{*}style')):
+        # FIXME: iterated node's owner_document returns None.
+        css_style_sheet = get_css_style_sheet_from_element(element, doc)
+        if css_style_sheet is None:
+            continue
+        style_sheets.append(css_style_sheet)
+    return style_sheets
+
+
+def get_css_style_sheets_from_xml_stylesheet(root):
+    style_sheets = list()
+    doc = root.owner_document
+    if doc is not None:
+        win = doc.default_view
+        base_url = doc.document_uri
+    else:
+        win = None
+        base_url = None
+
     # 'lxml.etree.SiblingsIterator' object is not reversible
     siblings = root.itersiblings(preceding=True)
     elements = [it for it in siblings]
     elements.reverse()
-    for target in elements:
-        tag = etree.tostring(target).decode()
+    for element in elements:
+        tag = etree.tostring(element).decode()
         if tag.split()[0] != '<?xml-stylesheet':
             continue
-        href = target.get('href')
+        href = element.get('href')
         if (href is None
                 or href[0] == '#'
-                or target.get('alternate', '') == 'yes'):
+                or element.get('alternate', '') == 'yes'):
+            logger.debug('not a style sheet: {}'.format(element))
             continue  # TODO: support alternative style sheet.
-        media = target.get('media', 'all')
+        media = element.get('media', 'all')
         if media != 'all':
-            mql = window.match_media(media)
-            if not mql.matches:
+            if win is None:
+                logger.debug('no active window: {}'.format(root))
                 continue
-        encoding = target.get('charset')
-        css_style_sheet = CSSParser.parse(normalize_url(href),
-                                          owner_node=target,
+            mql = win.match_media(media)
+            if not mql.matches:
+                logger.debug('media not matched: {}'.format(repr(media)))
+                continue
+        encoding = element.get('charset')
+        url = normalize_url(href, base_url)
+        css_style_sheet = CSSParser.parse(url.href,
+                                          owner_node=element,
                                           encoding=encoding)
-        css_rules.extend(css_style_sheet.css_rules)
-    return css_rules
+        style_sheets.append(css_style_sheet)
+    return style_sheets
 
 
 def get_css_style(element, css_rules):
-    window.document = element
     style = dict()
     style_important = dict()
     namespaces = None
