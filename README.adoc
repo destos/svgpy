@@ -12,9 +12,11 @@ This project aims to implement an SVG 2 DOM API.
 +
 [source,python]
 ----
->>> from svgpy import SVGParser
+>>> from svgpy import Node, SVGParser
 >>> parser = SVGParser(remove_comments=True)
 >>> tree = parser.parse('tests/svg/svg.svg')
+>>> tree
+<lxml.etree._ElementTree object at 0x7fd75cad6cc8>
 >>> for element in tree.iter():
 ...     print((element.node_type, element.node_name, element.id))
 ...
@@ -27,6 +29,13 @@ This project aims to implement an SVG 2 DOM API.
 (1, 'use', 'use3')
 (1, 'use', 'usetop')
 >>> root = tree.getroot()
+>>> root
+<Element svg at 0x7fd73910ff98>
+>>> from lxml import etree
+>>> isinstance(root, etree.ElementBase)
+True
+>>> isinstance(root, Node)
+True
 >>> element = root.get_element_by_id('usetop')
 >>> element.attributes
 {'id': 'usetop', '{http://www.w3.org/1999/xlink}href': '#svgstar', 'fill': '#FB4'}
@@ -49,11 +58,11 @@ This project aims to implement an SVG 2 DOM API.
 ----
 >>> from svgpy import SVGParser
 >>> parser = SVGParser()
->>> root = parser.make_element('svg')
+>>> root = parser.create_element('svg')
 >>> root.attributes.update({'width': '10cm', 'height': '3cm', 'viewBox': '0 0 1000 300'})
->>> text = root.make_sub_element('text')
+>>> text = root.create_sub_element('text')
 >>> text.attributes.update({'font-family': 'Verdana', 'font-size': '55', 'fill': 'blue'})
->>> tspan = text.make_sub_element('tspan')
+>>> tspan = text.create_sub_element('tspan')
 >>> tspan.attributes.update({'x': '250', 'y': '150', 'rotate': '-30,0,30'})
 >>> tspan.text = 'Hello, out there'
 >>> print(root.tostring(pretty_print=True).decode())
@@ -82,7 +91,7 @@ $ cat output.svg
 ----
 >>> from svgpy import PathParser, SVGParser, SVGPathSegment, formatter
 >>> parser = SVGParser()
->>> path = parser.make_element('path')
+>>> path = parser.create_element('path')
 >>> path_data = list()
 >>> path_data.append(SVGPathSegment('M', 150, 10))
 >>> path_data.append(SVGPathSegment('B', 36))
@@ -117,6 +126,46 @@ b'<path d="M150,10 L188.024,37.626 173.5,82.326 126.5,82.326 111.976,37.626 Z"/>
 (111.976, 10.0, 76.048, 72.326)
 >>> path.get_total_length()
 235.00121335747357
+----
+
+. DOM interface
++
+[source,python]
+----
+>>> from svgpy import window
+>>> window.location = 'https://raw.githubusercontent.com/miute/svgpy/master/tests/svg/svg.svg'
+>>> document = window.document
+>>> document.content_type
+'image/svg+xml'
+>>> document.location
+{'href': 'https://raw.githubusercontent.com/miute/svgpy/master/tests/svg/svg.svg', 'origin': 'https://raw.githubusercontent.com', 'protocol': 'https:', 'username': '', 'password': '', 'host': 'raw.githubusercontent.com', 'hostname': 'raw.githubusercontent.com', 'port': '', 'pathname': '/miute/svgpy/master/tests/svg/svg.svg', 'search': {}, 'hash': ''}
+>>> document.origin
+'https://raw.githubusercontent.com'
+>>> root = document.document_element
+>>> for element in root.iter():
+...     print(element)
+...
+<Element {http://www.w3.org/2000/svg}svg at 0x7fd7390b2958>
+<Element {http://www.w3.org/2000/svg}g at 0x7fd7390b2e58>
+<Element {http://www.w3.org/2000/svg}g at 0x7fd7390b2ea8>
+<Element {http://www.w3.org/2000/svg}path at 0x7fd7390b2e08>
+<Element {http://www.w3.org/2000/svg}use at 0x7fd7390b2db8>
+<Element {http://www.w3.org/2000/svg}use at 0x7fd7390b2a98>
+<Element {http://www.w3.org/2000/svg}use at 0x7fd7390b2b88>
+<Element {http://www.w3.org/2000/svg}use at 0x7fd7390c8048>
+>>> sheets = document.style_sheets
+>>> len(sheets)
+1
+>>> for rule in sheets[0].css_rules:
+...     print(rule)
+...
+('CSSNamespaceRule', {'namespaceURI': 'http://www.w3.org/2000/svg', 'prefix': ''})
+('CSSNamespaceRule', {'namespaceURI': 'http://www.w3.org/XML/1998/namespace', 'prefix': 'xml'})
+('CSSStyleRule', 'svg:not(:root), hatch, image, marker, pattern, symbol', ('CSSStyleDeclaration', {'overflow': ('hidden', '')}))
+('CSSStyleRule', '*:not(svg), *:not(foreignObject) > svg', ('CSSStyleDeclaration', {'transform-origin': ('0 0', '')}))
+('CSSStyleRule', '*[xml|space=preserve]', ('CSSStyleDeclaration', {'text-space-collapse': ('preserve-spaces', '')}))
+('CSSStyleRule', 'defs, clipPath, mask, marker, desc, title, metadata, pattern, hatch, linearGradient, radialGradient, meshGradient, script, style, symbol', ('CSSStyleDeclaration', {'display': ('none', 'important')}))
+('CSSStyleRule', ':host(use) > symbol', ('CSSStyleDeclaration', {'display': ('inline', 'important')}))
 ----
 
 == Dependencies
