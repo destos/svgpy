@@ -24,7 +24,7 @@ from .dom import Element, Node
 from .element import SVGParser
 from .screen import Screen
 from .url import Location
-from .utils import normalize_url
+from .utils import get_content_type, load, normalize_url
 
 
 class BrowsingContext(object):
@@ -518,7 +518,8 @@ class GenericDOMImplementation(DOMImplementation):
         """Parses an XML document, and returns the root element of it.
 
         Arguments:
-            source (file, str): A filename or a file object of an XML document.
+            source (str, file): An URL or a file-like object of an SVG
+                document.
         Returns:
             Element: A root element of the document.
         """
@@ -665,11 +666,22 @@ class SVGDOMImplementation(GenericDOMImplementation):
         """Parses an SVG document, and returns the root element of it.
 
         Arguments:
-            source (str, file): A filename or a file object of an SVG document.
+            source (str, file): An URL or a file-like object of an SVG
+                document.
         Returns:
             Element: A root element of the document.
         """
-        tree = self._parser.parse(source)
+        if isinstance(source, str):
+            data, headers = load(source)
+            content_type = get_content_type(headers)
+            if content_type is None:
+                charset = 'utf-8'
+            else:
+                charset = content_type.get('charset', 'utf-8')
+            data = StringIO(data.decode(charset))
+        else:
+            data = source
+        tree = self._parser.parse(data)
         return tree.getroot()
 
 
