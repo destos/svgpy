@@ -18,11 +18,11 @@ from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
 from logging import getLogger
 from urllib.error import URLError
-from urllib.request import urlopen
 
 import tinycss2
 
-from ..utils import CaseInsensitiveMapping, normalize_url
+from ..utils import CaseInsensitiveMapping, get_content_type, load, \
+    normalize_url
 
 _RE_COLLAPSIBLE_WHITESPACE = re.compile(r'(\x20){2,}')
 
@@ -922,20 +922,23 @@ class CSSParser(object):
         logger = getLogger('{}.{}'.format(__name__, cls.__name__))
         try:
             logger.debug('urlopen \'{}\''.format(url))
-            with urlopen(url) as response:
-                css_bytes = response.read()
-                if encoding is None:
-                    encoding = response.info().get_charset()
-                rules, encoding = tinycss2.parse_stylesheet_bytes(
-                    css_bytes=css_bytes,
-                    protocol_encoding=encoding,
-                    skip_comments=True,
-                    skip_whitespace=True)
-                css_rules = CSSParser.parse_rules(
-                    rules,
-                    parent_style_sheet=css_style_sheet,
-                    parent_rule=parent_rule)
-                css_style_sheet.css_rules.extend(css_rules)
+            data, headers = load(url)
+            if encoding is None:
+                content_type = get_content_type(headers)
+                if content_type is None:
+                    encoding = 'utf-8'
+                else:
+                    encoding = content_type.get('charset', 'utf-8')
+            rules, encoding = tinycss2.parse_stylesheet_bytes(
+                css_bytes=data,
+                protocol_encoding=encoding,
+                skip_comments=True,
+                skip_whitespace=True)
+            css_rules = CSSParser.parse_rules(
+                rules,
+                parent_style_sheet=css_style_sheet,
+                parent_rule=parent_rule)
+            css_style_sheet.css_rules.extend(css_rules)
         except URLError as exp:
             logger.info(
                 'failed to parse: \'{}\': {}'.format(url, repr(exp)))
