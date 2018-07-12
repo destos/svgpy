@@ -23,6 +23,7 @@ from .core import SVGLength
 from .dom import Element, Node
 from .element import SVGParser
 from .screen import Screen
+from .style import get_css_style_sheets
 from .url import Location
 from .utils import get_content_type, load, normalize_url
 
@@ -160,6 +161,14 @@ class Document(Node):
         if self._document_element is None:
             return None
         return self._document_element.getparent()
+
+    @property
+    def style_sheets(self):
+        """list[StyleSheet]: A list of the document CSS style sheets."""
+        root = self._document_element
+        if root is None or root.node_type != Node.ELEMENT_NODE:
+            raise ValueError('The object is in the wrong document.')
+        return get_css_style_sheets(root)
 
     @property
     def text_content(self):

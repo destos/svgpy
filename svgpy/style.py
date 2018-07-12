@@ -98,20 +98,31 @@ def flatten_css_rules(element, css_rules):
 
 
 def get_css_rules(element):
-    css_rules = CSSParser.fromstring(_SVG_UA_CSS_STYLESHEET)
+    css_rules = list()
+    style_sheets = get_css_style_sheets(element)
+    for css_style_sheet in style_sheets:
+        css_rules.extend(css_style_sheet.css_rules)
+    flattened = flatten_css_rules(element, css_rules)
+    return flattened
+
+
+def get_css_style_sheets(element):
+    style_sheets = list()
+
+    # user-agent style sheet
+    css_style_sheet = CSSStyleSheet()
+    css_style_sheet.insert_rule(_SVG_UA_CSS_STYLESHEET)
+    style_sheets.append(css_style_sheet)
 
     root = element.getroottree().getroot()
 
-    style_sheets = get_css_style_sheets_from_xml_stylesheet(root)
-    for css_style_sheet in style_sheets:
-        css_rules.extend(css_style_sheet.css_rules)
+    # xml-stylesheet
+    style_sheets.extend(get_css_style_sheets_from_xml_stylesheet(root))
 
-    style_sheets = get_css_style_sheets_from_svg_document(root)
-    for css_style_sheet in style_sheets:
-        css_rules.extend(css_style_sheet.css_rules)
+    # linked into or embedded stylesheet
+    style_sheets.extend(get_css_style_sheets_from_svg_document(root))
 
-    flattened = flatten_css_rules(element, css_rules)
-    return flattened
+    return style_sheets
 
 
 def get_css_style_sheet_from_element(element, doc=None):
