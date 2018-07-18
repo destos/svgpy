@@ -17,7 +17,7 @@ import os
 import re
 import sys
 from collections.abc import MutableMapping
-from urllib.parse import quote, unquote, urlsplit
+from urllib.parse import quote, quote_plus, unquote, urlencode, urlsplit
 
 _SPECIAL_SCHEMES_PORT_NUMBERS = {
     'ftp:': '21',
@@ -30,25 +30,29 @@ _SPECIAL_SCHEMES_PORT_NUMBERS = {
 }
 
 _RE_NUMERIC_CHARACTER_REFERENCE = re.compile(
-    r'(?P<prefix>&#)(\d+|x[0-9a-f]+)(?P<suffix>;)',
+    r'(?P<prefix>&#)([0-9]{4}|x[0-9a-f]{4})(?P<suffix>;)',
     re.IGNORECASE)
 
 
-def quote_numeric_character_references(query):
-    spans = list()
+def quote_numeric_character_references(query, quote_via=None, safe=''):
+    def _quote(_string):
+        if quote_via is None:
+            return _string
+        else:
+            return quote_via(_string, safe=safe)
+
+    _query = ''
+    pos = 0
     for it in _RE_NUMERIC_CHARACTER_REFERENCE.finditer(query):
-        # find '&#dddd;' or '&#xhhhh;'
-        prefix = it.group('prefix')
-        suffix = it.group('suffix')
-        if prefix and suffix:
-            spans.append(it.span())
-    if len(spans) == 0:
-        return query
-    _query = list(query)
-    for prefix, suffix in reversed(spans):
-        _query[suffix - 1:suffix] = '%3B'  # U+003B(;) to '%3B'
-        _query[prefix:prefix + 2] = '%26%23'  # '&#' to '%26%23'
-    return ''.join(_query)
+        start, end = it.span()
+        if start != pos:
+            _query += _quote(query[pos:start])
+        _query += '%26%23{}%3B'.format(query[start + 2:end - 1])
+        pos = end
+    else:
+        if pos < len(query):
+            _query += _quote(query[pos:])
+    return _query
 
 
 class Location(object):
@@ -293,8 +297,10 @@ class URL(object):
     @hash.setter
     def hash(self, fragment):
         fragment = fragment.lstrip('#')
+        # unsafe:
+        # U+0020 (SP), U+0022 ("), U+003C (<), U+003E (>), and U+0060 (`)
         self._hash = quote(unquote(fragment),
-                           safe='!$&\'()*+,-./:;=?@_~')
+                           safe='!#$%&\'()*+,-./:;=?@[\\]^_{|}~')
 
     @property
     def host(self):
@@ -437,8 +443,24 @@ class URL(object):
     @property
     def search(self):
         """str: The URL's query (includes leading "?" if non-empty)."""
-        search = self._search_params.tostring()
-        return '?' + search if len(search) > 0 else ''
+        if len(self._search_params) == 0:
+            return ''
+        queries = list()
+        # unsafe:
+        # U+0020 (SP), U+0023 (#), U+0026 (&), and U+0027 (')
+        safe = '!$%()*+,-./:;=?@[\\]^_`{|}~'
+        # FIXME: implement URLSearchParams.sort().
+        for key in sorted(self._search_params):
+            value = self._search_params[key]
+            key = quote_numeric_character_references(key,
+                                                     quote_via=quote_plus,
+                                                     safe=safe)
+            value = quote_numeric_character_references(value,
+                                                       quote_via=quote_plus,
+                                                       safe=safe)
+            query = '{}={}'.format(key, value)
+            queries.append(query)
+        return '?' + '&'.join(queries)
 
     @search.setter
     def search(self, query):
@@ -446,13 +468,14 @@ class URL(object):
         self._search_params.clear()
         if len(query) == 0:
             return
-        query = quote_numeric_character_references(query)
         pairs = query.split('&')
         for pair in pairs:
             kv = pair.split('=')
             if len(kv) < 2:
                 kv.append('')
-            self._search_params[kv[0]] = kv[1]
+            key = kv[0].replace('+', ' ')
+            value = kv[1].replace('+', ' ')
+            self._search_params[key] = value
 
     @property
     def search_params(self):
@@ -560,11 +583,7 @@ class URL(object):
         if len(host) > 0 or len(pathname) > 0:
             parts.append(self.search)
             if not exclude_fragment:
-                # U+0023 (#), U+0026 (&),
-                # U+002F (/), U+003A (:), U+003B (;), U+003D (=), U+003F (?),
-                # U+0040 (@), U+005B ([), U+005C (\), U+005D (]), U+005E (^),
-                # U+005F (_), U+007B ({), U+007C (|), U+007D (}), U+007E (~)
-                parts.append(quote(self.hash, safe='#&/:;=?@[]^_{|}~'))
+                parts.append(self.hash)
         return ''.join(parts)
 
 
@@ -601,12 +620,13 @@ class URLSearchParams(MutableMapping):
         """
         if self.__len__() == 0:
             return ''
+        # U+0020 (SP) -> U+002B (+)
+        # safe:
+        # U+002A (*), U+002D (-), U+002E (.), U+005F (_)
         queries = list()
+        # FIXME: implement URLSearchParams.sort().
         for key in sorted(self._data):
-            value = quote_numeric_character_references(
-                unquote(self._data[key]))
-            # U+0026 (&), U+002B (+), U+003B (;)
-            value = quote(unquote(value), safe='!$\'()*,-./:=?@_~')
-            key = quote(unquote(key), safe='!$\'()*,-./:=?@_~')
-            queries.append('{}={}'.format(key, value))
+            value = self.get(key)
+            query = urlencode({key: value}, safe='*-._')
+            queries.append(query)
         return '&'.join(queries)

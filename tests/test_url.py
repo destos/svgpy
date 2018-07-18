@@ -13,7 +13,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 os.chdir(here)
 
 
-class LocationTestCase(unittest.TestCase):
+class URLTestCase(unittest.TestCase):
     def test_location_attr_hash(self):
         location = Location()
         location.href = 'https://example.org/'
@@ -44,6 +44,10 @@ class LocationTestCase(unittest.TestCase):
         self.assertEqual('/', location.pathname)
         self.assertEqual('', location.search)
         self.assertEqual('#url-class', location.hash)
+
+        location.hash = 'hash!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+        self.assertEqual('#hash!%22#$%&\'()*+,-./:;%3C=%3E?@[\]^_%60{|}~',
+                         location.hash)
 
         location.hash = ''
         self.assertEqual('', location.hash)
@@ -779,8 +783,15 @@ class LocationTestCase(unittest.TestCase):
         self.assertEqual(value, sp[key])
         self.assertEqual('key=730d67', sp.tostring())
 
-        # value = '100%+20%'
-        value = '100&#x0025;+20&#x0025;'
+        value = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+        sp[key] = value
+        self.assertEqual(value, sp[key])
+        self.assertEqual(
+            "key=%21%22%23%24%25%26%27%28%29*%2B%2C-."
+            "%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D%7E",
+            sp.tostring())
+
+        value = '100&#x0025;+20&#x0025;'  # '100%+20%'
         sp[key] = value
         self.assertEqual(value, sp[key])
         self.assertEqual('key=100%26%23x0025%3B%2B20%26%23x0025%3B',
@@ -788,11 +799,47 @@ class LocationTestCase(unittest.TestCase):
 
         url = URL('http://example.org')
         sp = url.search_params
-        value = '100&#x0025;&20&#x0025;'
+        value = '100&#x0025;&80&#x0025;'  # '100%&80%'
         sp[key] = value
         self.assertEqual(1, len(sp))
-        self.assertEqual('100&#x0025;&20&#x0025;', sp['key'])
-        self.assertEqual('?key=100%26%23x0025%3B%2620%26%23x0025%3B',
+        self.assertEqual('100&#x0025;&80&#x0025;', sp['key'])
+        self.assertEqual('key=100%26%23x0025%3B%2680%26%23x0025%3B',
+                         sp.tostring())
+        self.assertEqual('?key=100%26%23x0025%3B%2680%26%23x0025%3B',
+                         url.search)
+
+        value = '100&#x0025; 80&#x0025;'  # '100% 80%'
+        sp[key] = value
+        self.assertEqual(value, sp[key])
+        self.assertEqual('key=100%26%23x0025%3B+80%26%23x0025%3B',
+                         sp.tostring())
+        self.assertEqual('?key=100%26%23x0025%3B+80%26%23x0025%3B',
+                         url.search)
+
+        value = 'key=100% 80%'
+        url.search = value
+        self.assertEqual('100% 80%', sp[key])
+        self.assertEqual('key=100%25+80%25',
+                         sp.tostring())
+        # FIXME: self.assertEqual('?key=100%%2080%', url.search)
+
+        url.search = 'key=!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+        self.assertEqual(2, len(sp))
+        self.assertEqual('!"#$%', sp['key'])
+        self.assertEqual('>?@[\\]^_`{|}~', sp['\'()* ,-./:;<'])
+        # key=%21%22%23%24%25
+        # &
+        # %27%28%29*+%2C-.%2F%3A%3B%3C=%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D%7E
+        self.assertEqual("%27%28%29*+%2C-.%2F%3A%3B%3C=%3E%3F%40%5B%5C%5D%5E_"
+                         "%60%7B%7C%7D%7E"
+                         "&"
+                         "key=%21%22%23%24%25",
+                         sp.tostring())
+        # "?key=!%22%23$%&%27()*+,-./:;%3C=%3E?@[\]^_`{|}~"
+        self.assertEqual("?"
+                         "%27()*+,-./:;%3C=%3E?@[\]^_`{|}~"
+                         "&"
+                         "key=!%22%23$%",
                          url.search)
 
 
