@@ -309,6 +309,8 @@ class StyleTestCase(unittest.TestCase):
         svg = '''<?xml version="1.0" standalone="no"?>
         <?xml-stylesheet type="text/css" href="svg/style8.css" title="default"?>
         <?xml-stylesheet type="text/css" href="svg/ny1.css" title="extras"?>
+        <?demo-pi ?>
+        <!--comment-->
         <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
           "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
         

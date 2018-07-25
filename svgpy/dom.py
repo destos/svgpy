@@ -293,10 +293,56 @@ class Attrib(MutableMapping):
         self.set_style(style)
 
 
+class ParentNode(ABC):
+    """Represents the DOM ParentNode."""
+
+    @property
+    def child_element_count(self):
+        """int: The number of the child elements."""
+        return len(self.children)
+
+    @property
+    @abstractmethod
+    def children(self):
+        """list[Element]: A list of the child elements, in document order."""
+        raise NotImplementedError
+
+    @property
+    def first_element_child(self):
+        """Element: The first child element or None."""
+        children = self.children
+        return children[0] if len(children) > 0 else None
+
+    @property
+    def last_element_child(self):
+        """Element: The last child element or None."""
+        children = self.children
+        return children[-1] if len(children) > 0 else None
+
+    @abstractmethod
+    def append(self, node):
+        """Inserts a sub-node after the last child node.
+
+        Arguments:
+            node (Node): A node to be added.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def prepend(self, node):
+        """Inserts a sub-node before the first child node.
+
+        Arguments:
+            node (Node): A node to be added.
+        """
+        raise NotImplementedError
+
+
 class Node(ABC):
     """Represents the DOM Node."""
 
     ELEMENT_NODE = 1
+    PROCESSING_INSTRUCTION_NODE = 7
     COMMENT_NODE = 8
     DOCUMENT_NODE = 9
 
@@ -306,16 +352,19 @@ class Node(ABC):
     @property
     @abstractmethod
     def node_name(self):
+        """str: A string appropriate for the type of node."""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def node_type(self):
+        """int: The type of node."""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def node_value(self):
+        """str: The value of node."""
         raise NotImplementedError
 
     @node_value.setter
@@ -325,7 +374,7 @@ class Node(ABC):
 
     @property
     def owner_document(self):
-        """Document: An owner document."""
+        """Document: An associated document."""
         return (self._owner_document if self.node_type != Node.DOCUMENT_NODE
                 else None)
 
@@ -346,6 +395,7 @@ class Node(ABC):
     @property
     @abstractmethod
     def text_content(self):
+        """str: The text content of node."""
         raise NotImplementedError
 
     @text_content.setter
@@ -355,7 +405,7 @@ class Node(ABC):
 
     @abstractmethod
     def append_child(self, node):
-        """Adds a node to the end of this node.
+        """Adds a sub-node to the end of this node.
 
         Arguments:
             node (Node): A node to be added.
@@ -408,6 +458,18 @@ class Node(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def tostring(self, **kwargs):
+        """Serializes a node to an encoded string representation of its XML
+        tree.
+
+        Arguments:
+            **kwargs: See lxml.etree.tostring().
+        Returns:
+            bytes: An XML document.
+        """
+        raise NotImplementedError
+
 
 class CharacterData(Node):
     """Represents the DOM CharacterData."""
@@ -415,12 +477,18 @@ class CharacterData(Node):
     @property
     @abstractmethod
     def data(self):
+        """str: The value of node."""
         raise NotImplementedError
 
     @data.setter
     @abstractmethod
     def data(self, data):
         raise NotImplementedError
+
+    @property
+    def length(self):
+        """int: A length of the data."""
+        return len(self.data)
 
 
 class Comment(etree.CommentBase, CharacterData):
@@ -431,7 +499,8 @@ class Comment(etree.CommentBase, CharacterData):
 
     @property
     def data(self):
-        return '' if self.text is None else self.text
+        """str: The value of node."""
+        return self.text
 
     @data.setter
     def data(self, data):
@@ -439,19 +508,22 @@ class Comment(etree.CommentBase, CharacterData):
 
     @property
     def node_name(self):
+        """str: '#comment'."""
         return '#comment'
 
     @property
     def node_type(self):
+        """int: The type of node."""
         return Node.COMMENT_NODE
 
     @property
     def node_value(self):
-        return self.text
+        """str: The value of node."""
+        return self.data
 
     @node_value.setter
     def node_value(self, value):
-        self.text = value
+        self.data = value
 
     @property
     def parent_node(self):
@@ -460,22 +532,26 @@ class Comment(etree.CommentBase, CharacterData):
 
     @property
     def text_content(self):
-        return self.text
+        """str: The text content of node."""
+        return self.data
 
     @text_content.setter
     def text_content(self, text):
-        self.text = text
+        self.data = text
+
+    def _set_owner_document(self, node):
+        for it in node.iter():
+            if not isinstance(it, Node):
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
+            it._owner_document = self.owner_document
 
     def addnext(self, element):
         """Reimplemented from lxml.etree.CommentBase.addnext().
 
         Adds the element as a following sibling directly after this element.
         """
-        for it in element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        self._set_owner_document(element)
         super().addnext(element)
 
     def addprevious(self, element):
@@ -483,11 +559,7 @@ class Comment(etree.CommentBase, CharacterData):
 
         Adds the element as a preceding sibling directly before this element.
         """
-        for it in element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        self._set_owner_document(element)
         super().addprevious(element)
 
     def append_child(self, node):
@@ -505,11 +577,8 @@ class Comment(etree.CommentBase, CharacterData):
 
         Extends the current children by the elements in the iterable.
         """
-        for it in elements.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        for element in elements:
+            self._set_owner_document(element)
         super().extend(elements)
 
     def get_root_node(self):
@@ -567,12 +636,19 @@ class Comment(etree.CommentBase, CharacterData):
         """
         raise ValueError('The operation would yield an incorrect node tree.')
 
-    def tostring(self):
-        return ('' if self.text is None or len(self.text) == 0
-                else '<!--{}-->'.format(self.text))
+    def tostring(self, **kwargs):
+        """Serializes a comment to an encoded string representation of its
+        XML tree.
+
+        Arguments:
+            **kwargs: See lxml.etree.tostring().
+        Returns:
+            bytes: An XML document.
+        """
+        return etree.tostring(self, **kwargs)
 
 
-class Element(etree.ElementBase, Node):
+class Element(etree.ElementBase, Node, ParentNode):
     """Represents the DOM Element."""
 
     SVG_NAMESPACE_URI = 'http://www.w3.org/2000/svg'
@@ -633,6 +709,15 @@ class Element(etree.ElementBase, Node):
         return self._attributes
 
     @property
+    def children(self):
+        """list[Element]: A list of the child elements, in document order."""
+        elements = list()
+        for node in iter(self):
+            if node.node_type == Node.ELEMENT_NODE:
+                elements.append(node)
+        return elements
+
+    @property
     def class_list(self):
         """list[str]: A list of classes."""
         classes = self.class_name
@@ -669,14 +754,17 @@ class Element(etree.ElementBase, Node):
 
     @property
     def node_name(self):
+        """str: Same as Element.tag_name."""
         return self.tag_name
 
     @property
     def node_type(self):
+        """int: The type of node."""
         return Node.ELEMENT_NODE
 
     @property
     def node_value(self):
+        """str: The value of node."""
         return None
 
     @node_value.setter
@@ -696,6 +784,7 @@ class Element(etree.ElementBase, Node):
 
     @property
     def tag_name(self):
+        """str: The qualified name of an element."""
         prefix = self.prefix
         local_name = self.local_name
         if prefix is not None:
@@ -704,7 +793,7 @@ class Element(etree.ElementBase, Node):
 
     @property
     def text_content(self):
-        """str: Implements Node#textContent."""
+        """str: The text content of node."""
         # See https://dom.spec.whatwg.org/#dom-node-textcontent
         local_name = self.local_name
         if local_name in Element.DESCRIPTIVE_ELEMENTS:
@@ -739,44 +828,44 @@ class Element(etree.ElementBase, Node):
                     chars.append(child.tail)
         return chars
 
+    def _set_owner_document(self, node, remove=False):
+        owner_document = self.owner_document if not remove else None
+        for it in node.iter():
+            if not isinstance(it, Node):
+                raise TypeError('Expected Node, got {} {}'.format(
+                    repr(type(it)), hex(id(it))))
+            it._owner_document = owner_document
+
     def addnext(self, element):
         """Reimplemented from lxml.etree.ElementBase.addnext().
 
         Adds the element as a following sibling directly after this element.
         """
-        for it in element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        self._set_owner_document(element)
         super().addnext(element)
+
 
     def addprevious(self, element):
         """Reimplemented from lxml.etree.ElementBase.addprevious().
 
         Adds the element as a preceding sibling directly before this element.
         """
-        for it in element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        self._set_owner_document(element)
         super().addprevious(element)
 
-    def append(self, element):
+    def append(self, node):
         """Reimplemented from lxml.etree.ElementBase.append().
 
-        Adds a subelement to the end of this element.
+        Inserts a sub-node after the last child node.
+
+        Arguments:
+            node (Node): A node to be added.
         """
-        for it in element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
-        super().append(element)
+        self._set_owner_document(node)
+        super().append(node)
 
     def append_child(self, node):
-        """Adds a node to the end of this node.
+        """Adds a sub-node to the end of this node.
 
         Arguments:
             node (Node): A node to be added.
@@ -862,11 +951,8 @@ class Element(etree.ElementBase, Node):
 
         Extends the current children by the elements in the iterable.
         """
-        for it in elements.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        for element in elements:
+            self._set_owner_document(element)
         super().extend(elements)
 
     def get_attribute(self, qualified_name):
@@ -1282,11 +1368,7 @@ class Element(etree.ElementBase, Node):
 
         Inserts a subelement at the given position in this element.
         """
-        for it in element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        self._set_owner_document(element)
         super().insert(index, element)
 
     def insert_before(self, node, child):
@@ -1394,6 +1476,14 @@ class Element(etree.ElementBase, Node):
                                           nsmap=nsmap,
                                           **_extra)
 
+    def prepend(self, node):
+        """Inserts a sub-node before the first child node.
+
+        Arguments:
+            node (Node): A node to be added.
+        """
+        self.insert(0, node)
+
     def remove(self, element):
         """Reimplemented from lxml.etree.ElementBase.remove().
 
@@ -1402,11 +1492,7 @@ class Element(etree.ElementBase, Node):
         """
         if element not in self:
             raise ValueError('The object can not be found here.')
-        for it in element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = None
+        self._set_owner_document(element, remove=True)
         super().remove(element)
 
     def remove_attribute(self, qualified_name):
@@ -1444,16 +1530,8 @@ class Element(etree.ElementBase, Node):
         """
         if old_element not in self:
             raise ValueError('The object can not be found here.')
-        for it in old_element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = None
-        for it in new_element.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
+        self._set_owner_document(new_element)
+        self._set_owner_document(old_element, remove=True)
         super().replace(old_element, new_element)
 
     def replace_child(self, node, child):
@@ -1494,7 +1572,7 @@ class Element(etree.ElementBase, Node):
         Arguments:
             **kwargs: See lxml.etree.tostring().
         Returns:
-            str: An XML document.
+            bytes: An XML document.
         """
         return etree.tostring(self, **kwargs)
 
@@ -1517,3 +1595,131 @@ class LinkStyle(Element):
         """StyleSheet: An associated CSS style sheet."""
         css_style_sheet = get_css_style_sheet_from_element(self)
         return css_style_sheet
+
+
+class NonElementParentNode(ABC):
+    """Represents the DOM NonElementParentNode."""
+
+    @abstractmethod
+    def get_element_by_id(self, element_id, namespaces=None):
+        """Finds the first matching sub-element, by id.
+
+        Arguments:
+            element_id (str): The id of the element.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            Element: The first matching sub-element. Returns None if there is
+                no such element.
+        """
+        raise NotImplementedError
+
+
+class ProcessingInstruction(etree.PIBase, CharacterData):
+    """Represents the DOM ProcessingInstruction."""
+
+    def _init(self):
+        Node.__init__(self)
+
+    @property
+    def data(self):
+        """str: The value of node."""
+        return self.text
+
+    @data.setter
+    def data(self, data):
+        self.text = data
+
+    @property
+    def node_name(self):
+        """str: A string appropriate for the type of node."""
+        return self.target
+
+    @property
+    def node_type(self):
+        """int: The type of node."""
+        return Node.PROCESSING_INSTRUCTION_NODE
+
+    @property
+    def node_value(self):
+        """str: The value of node."""
+        return self.data
+
+    @node_value.setter
+    def node_value(self, value):
+        self.data = value
+
+    @property
+    def parent_node(self):
+        """Node: A parent node."""
+        return self.getparent()
+
+    @property
+    def text_content(self):
+        """str: The text content of node."""
+        return self.data
+
+    @text_content.setter
+    def text_content(self, text):
+        self.data = text
+
+    def append_child(self, node):
+        """Adds a node to the end of this node.
+
+        Arguments:
+            node (Node): A node to be added.
+        Returns:
+            Node: An appended node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def get_root_node(self):
+        """Returns a root node of the document that contains this node.
+
+        Returns:
+            Node: A root node.
+        """
+        return self.getroottree().getroot()
+
+    def insert_before(self, node, child):
+        """Inserts a node into a parent before a child.
+
+        Arguments:
+            node (Node): A node to be inserted.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A inserted node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def remove_child(self, child):
+        """Removes a child node from this node.
+
+        Arguments:
+            child (Node): A node to be removed.
+        Returns:
+            Node: A removed node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def replace_child(self, node, child):
+        """Replaces a child with node.
+
+        Arguments:
+            node (Node): A node to be replaced.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A replaced node.
+        """
+        raise ValueError('The operation would yield an incorrect node tree.')
+
+    def tostring(self, **kwargs):
+        """Serializes a processing instruction to an encoded string
+        representation of its XML tree.
+
+        Arguments:
+            **kwargs: See lxml.etree.tostring().
+        Returns:
+            bytes: An XML document.
+        """
+        return etree.tostring(self, **kwargs)

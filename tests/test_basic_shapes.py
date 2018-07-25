@@ -773,13 +773,13 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(expected, comment.node_value)
         self.assertEqual(expected, comment.text_content)
         expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring())
+        self.assertEqual(expected, comment.tostring().decode())
 
         comment.data = None
         self.assertEqual('', comment.data)
         self.assertEqual('', comment.node_value)
         self.assertEqual('', comment.text_content)
-        self.assertEqual('', comment.tostring())
+        self.assertEqual('', comment.tostring().decode())
 
         expected = 'node_value'
         comment.node_value = expected
@@ -787,7 +787,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(expected, comment.node_value)
         self.assertEqual(expected, comment.text_content)
         expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring())
+        self.assertEqual(expected, comment.tostring().decode())
 
         expected = 'text_content'
         comment.text_content = expected
@@ -795,7 +795,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(expected, comment.node_value)
         self.assertEqual(expected, comment.text_content)
         expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring())
+        self.assertEqual(expected, comment.tostring().decode())
 
     def test_computed_style02(self):
         # See also: Units.html

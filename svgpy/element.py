@@ -23,7 +23,7 @@ from .base import HTMLElement, \
     SVGGeometryElement, SVGGraphicsElement, SVGGradientElement, \
     SVGPathData, SVGPathDataSettings, SVGURIReference, SVGZoomAndPan
 from .core import CSSUtils, SVGLength
-from .dom import Comment, Element, LinkStyle
+from .dom import Comment, Element, LinkStyle, ProcessingInstruction
 from .path import PathParser, SVGPathSegment
 from .text import SVGTextContentElement, SVGTextPositioningElement
 from .transform import SVGTransform, SVGTransformList
@@ -1130,6 +1130,8 @@ class SVGElementClassLookup(etree.CustomElementClassLookup):
             return SVGElementClassLookup.ELEMENT_CLASS_MAP.get(name, default)
         elif node_type == 'comment':
             return Comment
+        elif node_type == 'PI':
+            return ProcessingInstruction
         return None  # pass on to (default) fallback
 
     @staticmethod
@@ -1233,6 +1235,25 @@ class SVGParser(object):
                                       nsmap=nsmap,
                                       **_extra)
         return element
+
+    def create_processing_instruction(self, target, data=None):
+        """Creates a new ProcessingInstruction node, and returns it.
+
+        Arguments:
+            target (str): The target of this processing instruction.
+            data (str, optional): The content of this processing instruction.
+        Returns:
+            ProcessingInstruction: A new ProcessingInstruction node.
+        Examples:
+            >>> from svgpy import SVGParser
+            >>> parser = SVGParser()
+            >>> pi = parser.create_processing_instruction('xml-stylesheet', 'href="style.css" media="print"')
+            >>> pi.tostring()
+            b'<?xml-stylesheet href="style.css" media="print"?>'
+        """
+        _ = self
+        pi = etree.ProcessingInstruction(target, data)
+        return pi
 
     def fromstring(self, text):
         """Parses an SVG document or fragment from a string, and returns the

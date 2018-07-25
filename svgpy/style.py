@@ -15,7 +15,7 @@
 
 from logging import getLogger
 
-from lxml import etree, cssselect
+from lxml import cssselect, etree
 
 from .css import CSSParser, CSSRule, CSSStyleSheet
 from .utils import normalize_url
@@ -219,8 +219,9 @@ def get_css_style_sheets_from_xml_stylesheet(root):
     elements = [it for it in siblings]
     elements.reverse()
     for element in elements:
-        tag = etree.tostring(element).decode()
-        if tag.split()[0] != '<?xml-stylesheet':
+        if not isinstance(element, etree.PIBase):
+            continue
+        elif element.target != 'xml-stylesheet':
             continue
         href = element.get('href')
         if (href is None

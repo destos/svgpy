@@ -39,6 +39,92 @@ def get_content_type(headers):
     return result
 
 
+def get_element_by_id(element, element_id, namespaces=None):
+    """Finds the first matching sub-element, by id.
+
+    Arguments:
+        element (Element): The root element.
+        element_id (str): The id of the element.
+        namespaces (dict, optional): The XPath prefixes in the path
+            expression.
+    Returns:
+        Element: The first matching sub-element. Returns None if there is no
+            such element.
+    """
+    elements = element.xpath('.//*[@id = $element_id]',
+                             namespaces=namespaces,
+                             element_id=element_id)
+    return elements[0] if len(elements) > 0 else None
+
+
+def get_elements_by_class_name(element, class_names, namespaces=None):
+    """Finds all matching sub-elements, by class names.
+
+    Arguments:
+        element (Element): The root element.
+        class_names (str): A list of class names that are separated by
+            whitespace.
+        namespaces (dict, optional): The XPath prefixes in the path
+            expression.
+    Returns:
+        list[Element]: A list of elements.
+    """
+    names = class_names.split()
+    if len(names) == 0:
+        return []
+    patterns = [r're:test(@class, "(^| ){}($| )")'.format(x) for x in names]
+    expr = './/*[{}]'.format(' and '.join(patterns))
+    if namespaces is None:
+        namespaces = dict()
+    namespaces['re'] = 'http://exslt.org/regular-expressions'
+    return element.xpath(expr, namespaces=namespaces)
+
+
+def get_elements_by_tag_name(element, qualified_name, namespaces=None):
+    """Finds all matching sub-elements, by the qualified name.
+
+    Arguments:
+        element (Element): The root element.
+        qualified_name (str): The qualified name or '*'.
+        namespaces (dict, optional): The XPath prefixes in the path
+            expression.
+    Returns:
+        list[Element]: A list of elements.
+    """
+    expr = './/*{}'.format('' if qualified_name == '*'
+                           else '[name() = $qualified_name]')
+    return element.xpath(expr,
+                         namespaces=namespaces,
+                         qualified_name=qualified_name)
+
+
+def get_elements_by_tag_name_ns(element, namespace, local_name,
+                                namespaces=None):
+    """Finds all matching sub-elements, by the namespace URI and the local
+    name.
+
+    Arguments:
+        element (Element): The root element.
+        namespace (str, None): The namespace URI, '*' or None.
+        local_name (str): The local name or '*'.
+        namespaces (dict, optional): The XPath prefixes in the path
+            expression.
+    Returns:
+        list[Element]: A list of elements.
+    """
+    patterns = list()
+    if namespace is not None and namespace != '*':
+        patterns.append('namespace-uri() = $namespace')
+    if local_name != '*':
+        patterns.append('local-name() = $local_name')
+    expr = './/*{}'.format('' if len(patterns) == 0
+                           else '[{}]'.format(' and '.join(patterns)))
+    return element.xpath(expr,
+                         namespaces=namespaces,
+                         namespace=namespace,
+                         local_name=local_name)
+
+
 def load(src, encoding=None, **kwargs):
     if isinstance(src, URL):
         url = src
