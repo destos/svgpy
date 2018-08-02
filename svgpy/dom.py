@@ -24,6 +24,8 @@ from .core import CSSUtils, Font, SVGLength
 from .css import CSSStyleDeclaration
 from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
+from .utils import get_elements_by_class_name, get_elements_by_tag_name, \
+    get_elements_by_tag_name_ns
 
 
 def dict_to_style(d):
@@ -1249,21 +1251,6 @@ class Element(etree.ElementBase, Node, ParentNode):
 
         return style
 
-    def get_element_by_id(self, ident, namespaces=None):
-        """Finds the first matching sub-element, by id.
-
-        Arguments:
-            ident (str): The id of the element.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
-        Returns:
-            Element: An element or None.
-        """
-        elements = self.xpath('//*[@id = $ident]',
-                              namespaces=namespaces,
-                              ident=ident)
-        return elements[0] if len(elements) > 0 else None
-
     def get_elements_by_class_name(self, class_names, namespaces=None):
         """Finds all matching sub-elements, by class names.
 
@@ -1275,16 +1262,9 @@ class Element(etree.ElementBase, Node, ParentNode):
         Returns:
             list[Element]: A list of elements.
         """
-        names = class_names.split()
-        if len(names) == 0:
-            return []
-        pattern = [r're:test(@class, "(^| ){}($| )")'.format(x)
-                   for x in names]
-        expr = './/*[{}]'.format(' and '.join(pattern))
-        if namespaces is None:
-            namespaces = dict()
-        namespaces['re'] = 'http://exslt.org/regular-expressions'
-        return self.xpath(expr, namespaces=namespaces)
+        return get_elements_by_class_name(self,
+                                          class_names,
+                                          namespaces=namespaces)
 
     def get_elements_by_local_name(self, local_name, namespaces=None):
         """Finds all matching sub-elements, by the local name.
@@ -1300,45 +1280,37 @@ class Element(etree.ElementBase, Node, ParentNode):
                           namespaces=namespaces,
                           local_name=local_name)
 
-    def get_elements_by_tag_name(self, tag, namespaces=None):
+    def get_elements_by_tag_name(self, qualified_name, namespaces=None):
         """Finds all matching sub-elements, by the qualified name.
 
         Arguments:
-            tag (str): The qualified name or '*'.
+            qualified_name (str): The qualified name or '*'.
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
             list[Element]: A list of elements.
         """
-        expr = './/*{}'.format('' if tag == '*' else '[name() = $tag_name]')
-        return self.xpath(expr,
-                          namespaces=namespaces,
-                          tag_name=tag)
+        return get_elements_by_tag_name(self,
+                                        qualified_name,
+                                        namespaces=namespaces)
 
-    def get_elements_by_tag_name_ns(self, namespace_uri, local_name,
-                                    namespaces=None):
+    def get_elements_by_tag_name_ns(self,
+                                    namespace, local_name, namespaces=None):
         """Finds all matching sub-elements, by the namespace URI and the local
         name.
 
         Arguments:
-            namespace_uri (str, None): The namespace URI, '*' or None.
+            namespace (str, None): The namespace URI, '*' or None.
             local_name (str): The local name or '*'.
             namespaces (dict, optional): The XPath prefixes in the path
                 expression.
         Returns:
             list[Element]: A list of elements.
         """
-        pattern = list()
-        if namespace_uri is not None and namespace_uri != '*':
-            pattern.append('namespace-uri() = $namespace_uri')
-        if local_name != '*':
-            pattern.append('local-name() = $local_name')
-        expr = './/*{}'.format('' if len(pattern) == 0
-                               else '[{}]'.format(' and '.join(pattern)))
-        return self.xpath(expr,
-                          namespaces=namespaces,
-                          namespace_uri=namespace_uri,
-                          local_name=local_name)
+        return get_elements_by_tag_name_ns(self,
+                                           namespace,
+                                           local_name,
+                                           namespaces=namespaces)
 
     def get_root_node(self):
         """Returns a root node of the document that contains this node.

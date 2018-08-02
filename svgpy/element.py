@@ -26,6 +26,8 @@ from .core import CSSUtils, SVGLength
 from .dom import Comment, Element, LinkStyle, ProcessingInstruction
 from .path import PathParser, SVGPathSegment
 from .text import SVGTextContentElement, SVGTextPositioningElement
+from .utils import get_element_by_id, get_elements_by_class_name, \
+    get_elements_by_tag_name, get_elements_by_tag_name_ns
 from .transform import SVGTransform, SVGTransformList
 
 
@@ -888,6 +890,75 @@ class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
 
         return geometry
 
+    def get_element_by_id(self, element_id, namespaces=None):
+        """Finds the first matching sub-element, by id.
+
+        Arguments:
+            element_id (str): The id of the element.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            Element: The first matching sub-element. Returns None if there is
+                no such element.
+        """
+        return get_element_by_id(self, element_id, namespaces=namespaces)
+
+    def get_elements_by_class_name(self, class_names, namespaces=None):
+        """Reimplemented from Element.get_elements_by_class_name().
+
+        Finds all matching sub-elements, by class names.
+
+        Arguments:
+            class_names (str): A list of class names that are separated by
+                whitespace.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            list[Element]: A list of elements.
+        """
+        return get_elements_by_class_name(self,
+                                          class_names,
+                                          namespaces=namespaces,
+                                          include_self=True)
+
+    def get_elements_by_tag_name(self, qualified_name, namespaces=None):
+        """Reimplemented from Element.get_elements_by_tag_name().
+
+        Finds all matching sub-elements, by the qualified name.
+
+        Arguments:
+            qualified_name (str): The qualified name or '*'.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            list[Element]: A list of elements.
+        """
+        return get_elements_by_tag_name(self,
+                                        qualified_name,
+                                        namespaces=namespaces,
+                                        include_self=True)
+
+    def get_elements_by_tag_name_ns(self,
+                                    namespace, local_name, namespaces=None):
+        """Reimplemented from Element.get_elements_by_tag_name_ns().
+
+        Finds all matching sub-elements, by the namespace URI and the local
+        name.
+
+        Arguments:
+            namespace (str, None): The namespace URI, '*' or None.
+            local_name (str): The local name or '*'.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            list[Element]: A list of elements.
+        """
+        return get_elements_by_tag_name_ns(self,
+                                           namespace,
+                                           local_name,
+                                           namespaces=namespaces,
+                                           include_self=True)
+
     def get_path_data(self, settings=None):
         """Returns a list of path segments that corresponds to the path data.
 
@@ -982,8 +1053,9 @@ class SVGUseElement(SVGGraphicsElement, SVGURIReference):
         elif href[0] != '#':
             # TODO: support external link.
             raise NotImplementedError(href)
-        root = self.get_element_by_id(href[1:])
-        return root
+        root = self.getroottree().getroot()
+        element = root.get_element_by_id(href[1:])
+        return element
 
     def get_computed_geometry(self):
         geometry = dict()

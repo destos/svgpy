@@ -326,6 +326,15 @@ class DocumentTestCase(unittest.TestCase):
             self.assertIsInstance(it, Node)
             self.assertEqual(doc, it.owner_document)
 
+        root = doc.document_element
+        root.id = 'root'
+        root.class_name = 'Root'
+
+        # Document.get_element_by_id()
+        element = doc.get_element_by_id('root')
+        self.assertIsNotNone(element)
+        self.assertEqual(root, element)
+
         element = doc.get_element_by_id('path01')
         self.assertIsNotNone(element)
         self.assertEqual('path', element.local_name)
@@ -333,6 +342,11 @@ class DocumentTestCase(unittest.TestCase):
 
         element = doc.get_element_by_id('path04')
         self.assertIsNone(element)
+
+        # Document.get_elements_by_class_name()
+        elements = doc.get_elements_by_class_name('Root')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
 
         elements = doc.get_elements_by_class_name('EndPoint')
         self.assertEqual(3, len(elements))
@@ -343,9 +357,33 @@ class DocumentTestCase(unittest.TestCase):
         elements = doc.get_elements_by_class_name('EndPoint AutoCtlPoint')
         self.assertEqual(0, len(elements))
 
+        # Document.get_elements_by_tag_name()
+        elements = doc.get_elements_by_tag_name('svg')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
+
         elements = doc.get_elements_by_tag_name('rect')
         self.assertEqual(1, len(elements))
         self.assertEqual('Border', elements[0].class_name)
+
+        # Document.get_elements_by_tag_name_ns()
+        elements = doc.get_elements_by_tag_name_ns(
+            None,
+            'svg')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
+
+        elements = doc.get_elements_by_tag_name_ns(
+            '*',
+            'svg')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
+
+        elements = doc.get_elements_by_tag_name_ns(
+            Element.SVG_NAMESPACE_URI,
+            'svg')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
 
         elements = doc.get_elements_by_tag_name_ns(None, 'rect')
         self.assertEqual(1, len(elements))

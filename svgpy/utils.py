@@ -48,16 +48,17 @@ def get_element_by_id(element, element_id, namespaces=None):
         namespaces (dict, optional): The XPath prefixes in the path
             expression.
     Returns:
-        Element: The first matching sub-element. Returns None if there is no
-            such element.
+        Element: The first matching sub-element. Returns None if there is
+            no such element.
     """
-    elements = element.xpath('.//*[@id = $element_id]',
+    elements = element.xpath('descendant-or-self::*[@id = $element_id]',
                              namespaces=namespaces,
                              element_id=element_id)
     return elements[0] if len(elements) > 0 else None
 
 
-def get_elements_by_class_name(element, class_names, namespaces=None):
+def get_elements_by_class_name(element, class_names, namespaces=None,
+                               include_self=False):
     """Finds all matching sub-elements, by class names.
 
     Arguments:
@@ -66,21 +67,27 @@ def get_elements_by_class_name(element, class_names, namespaces=None):
             whitespace.
         namespaces (dict, optional): The XPath prefixes in the path
             expression.
+        include_self (bool, optional):
     Returns:
         list[Element]: A list of elements.
     """
     names = class_names.split()
     if len(names) == 0:
         return []
+    if include_self:
+        axis = 'descendant-or-self'
+    else:
+        axis = 'descendant'
     patterns = [r're:test(@class, "(^| ){}($| )")'.format(x) for x in names]
-    expr = './/*[{}]'.format(' and '.join(patterns))
+    expr = '{}::*[{}]'.format(axis, ' and '.join(patterns))
     if namespaces is None:
         namespaces = dict()
     namespaces['re'] = 'http://exslt.org/regular-expressions'
     return element.xpath(expr, namespaces=namespaces)
 
 
-def get_elements_by_tag_name(element, qualified_name, namespaces=None):
+def get_elements_by_tag_name(element, qualified_name, namespaces=None,
+                             include_self=False):
     """Finds all matching sub-elements, by the qualified name.
 
     Arguments:
@@ -88,18 +95,24 @@ def get_elements_by_tag_name(element, qualified_name, namespaces=None):
         qualified_name (str): The qualified name or '*'.
         namespaces (dict, optional): The XPath prefixes in the path
             expression.
+        include_self (bool, optional):
     Returns:
         list[Element]: A list of elements.
     """
-    expr = './/*{}'.format('' if qualified_name == '*'
-                           else '[name() = $qualified_name]')
+    if include_self:
+        axis = 'descendant-or-self'
+    else:
+        axis = 'descendant'
+    expr = '{}::*{}'.format(axis,
+                            '' if qualified_name == '*'
+                            else '[name() = $qualified_name]')
     return element.xpath(expr,
                          namespaces=namespaces,
                          qualified_name=qualified_name)
 
 
 def get_elements_by_tag_name_ns(element, namespace, local_name,
-                                namespaces=None):
+                                namespaces=None, include_self=False):
     """Finds all matching sub-elements, by the namespace URI and the local
     name.
 
@@ -109,16 +122,22 @@ def get_elements_by_tag_name_ns(element, namespace, local_name,
         local_name (str): The local name or '*'.
         namespaces (dict, optional): The XPath prefixes in the path
             expression.
+        include_self (bool, optional):
     Returns:
         list[Element]: A list of elements.
     """
+    if include_self:
+        axis = 'descendant-or-self'
+    else:
+        axis = 'descendant'
     patterns = list()
     if namespace is not None and namespace != '*':
         patterns.append('namespace-uri() = $namespace')
     if local_name != '*':
         patterns.append('local-name() = $local_name')
-    expr = './/*{}'.format('' if len(patterns) == 0
-                           else '[{}]'.format(' and '.join(patterns)))
+    expr = '{}::*{}'.format(axis,
+                            '' if len(patterns) == 0
+                            else '[{}]'.format(' and '.join(patterns)))
     return element.xpath(expr,
                          namespaces=namespaces,
                          namespace=namespace,

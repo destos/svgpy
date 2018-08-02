@@ -112,7 +112,8 @@ class Document(Node, NonElementParentNode, ParentNode):
     @property
     def default_view(self):
         """Window: The active window that is associated with the current
-        document."""
+        document.
+        """
         return self._browsing_context.window
 
     @property
@@ -355,7 +356,8 @@ class Document(Node, NonElementParentNode, ParentNode):
             return []
         return get_elements_by_class_name(root,
                                           class_names,
-                                          namespaces=namespaces)
+                                          namespaces=namespaces,
+                                          include_self=True)
 
     def get_elements_by_tag_name(self, qualified_name, namespaces=None):
         """Finds all matching sub-elements, by the qualified name.
@@ -372,7 +374,8 @@ class Document(Node, NonElementParentNode, ParentNode):
             return []
         return get_elements_by_tag_name(root,
                                         qualified_name,
-                                        namespaces=namespaces)
+                                        namespaces=namespaces,
+                                        include_self=True)
 
     def get_elements_by_tag_name_ns(self,
                                     namespace, local_name, namespaces=None):
@@ -393,7 +396,8 @@ class Document(Node, NonElementParentNode, ParentNode):
         return get_elements_by_tag_name_ns(root,
                                            namespace,
                                            local_name,
-                                           namespaces=namespaces)
+                                           namespaces=namespaces,
+                                           include_self=True)
 
     def get_root_node(self):
         """Returns a root node of the current document that contains this node.

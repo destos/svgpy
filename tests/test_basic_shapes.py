@@ -1909,12 +1909,18 @@ class BasicShapesTestCase(unittest.TestCase):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_CUBIC01))
         root = tree.getroot()
+        root.class_name = 'Root'
 
-        # not match
+        # matched
+        elements = root.get_elements_by_class_name('Root')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
+
+        # not matched
         elements = root.get_elements_by_class_name('NotExistClass')
         self.assertEqual(0, len(elements))
 
-        # match
+        # matched
         elements = root.get_elements_by_class_name('Connect')
         self.assertEqual(4, len(elements))
         self.assertTrue(isinstance(elements[0], SVGPolylineElement))
@@ -1922,12 +1928,16 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(isinstance(elements[2], SVGPolylineElement))
         self.assertTrue(isinstance(elements[3], SVGPolylineElement))
 
-        # match
+        # matched
         elements = root.get_elements_by_class_name('SamplePath')
         self.assertEqual(1, len(elements))
         self.assertTrue(isinstance(elements[0], SVGPathElement))
 
-        # not match
+        # not matched
+        elements = elements[0].get_elements_by_class_name('Root')
+        self.assertEqual(0, len(elements))
+
+        # not matched
         elements = root.get_elements_by_class_name('Connect SamplePath')
         self.assertEqual(0, len(elements))
 
@@ -1940,7 +1950,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
         ellipse = root.create_sub_element('ellipse')
         ellipse.attributes.update({
-            'class': 'red test',  # match
+            'class': 'red test',  # matched
         })
         line = root.create_sub_element('line')
         line.attributes.update({
@@ -1948,7 +1958,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
         polygon = root.create_sub_element('polygon')
         polygon.attributes.update({
-            'class': 'test red',  # match
+            'class': 'test red',  # matched
         })
         polyline = root.create_sub_element('polyline')
         polyline.attributes.update({
@@ -1956,7 +1966,7 @@ class BasicShapesTestCase(unittest.TestCase):
         })
         rect = root.create_sub_element('rect')
         rect.attributes.update({
-            'class': 'test dark red',  # match
+            'class': 'test dark red',  # matched
         })
 
         elements = root.get_elements_by_class_name('red test')
@@ -1994,13 +2004,18 @@ class BasicShapesTestCase(unittest.TestCase):
         tree = parser.parse(StringIO(SVG_CUBIC01))
         root = tree.getroot()
 
+        # found
+        root.id = 'root'
+        element = root.get_element_by_id('root')
+        self.assertEqual(root, element)
+
         # not found
         element = root.get_element_by_id('dummy')
-        self.assertTrue(element is None)
+        self.assertIsNone(element)
 
         # found
         element = root.get_element_by_id('path01')
-        self.assertTrue(element is not None)
+        self.assertIsNotNone(element)
         self.assertEqual('path', element.local_name)
 
     def test_element_find_by_tag_name(self):
@@ -2008,14 +2023,26 @@ class BasicShapesTestCase(unittest.TestCase):
         tree = parser.parse(StringIO(SVG_SVG))
         root = tree.getroot()
 
+        # found
+        elements = root.get_elements_by_tag_name('svg')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
+        tag = '{{{}}}svg'.format(Element.SVG_NAMESPACE_URI)
+        self.assertEqual(tag, root.tag)
+
         parent = root.get_element_by_id('gtop')
-        root.attributes.set_ns(Element.XHTML_NAMESPACE_URI,
-                               'html',
-                               Element.XHTML_NAMESPACE_URI)
         video = parent.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'video')
         source = video.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
                                            'source')
+        tag = '{{{}}}video'.format(Element.XHTML_NAMESPACE_URI)
+        self.assertEqual(tag, video.tag)
+        tag = '{{{}}}source'.format(Element.XHTML_NAMESPACE_URI)
+        self.assertEqual(tag, source.tag)
+
+        # not found
+        elements = parent.get_elements_by_tag_name('svg')
+        self.assertEqual(0, len(elements))
 
         # <g>(id=svgstar), <path>(id=svgbar),
         # <use>(id=use1), <use>(id=use2), <use>(id=use3)
@@ -2030,6 +2057,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(1, tags.count('html:video'))
         self.assertEqual(1, tags.count('html:source'))
 
+        # found
         # <use>(id=use1), <use>(id=use2), <use>(id=use3)
         tag = 'use'
         elements = parent.get_elements_by_tag_name(tag)
@@ -2037,12 +2065,12 @@ class BasicShapesTestCase(unittest.TestCase):
         tags = [x.tag_name for x in elements]
         self.assertEqual(3, tags.count('use'))
 
-        # (not found)
+        # not found: <video>
         tag = 'video'
         elements = parent.get_elements_by_tag_name(tag)
         self.assertEqual(0, len(elements))
 
-        # <html:video>
+        # found: <html:video>
         tag = 'html:video'
         elements = parent.get_elements_by_tag_name(tag)
         self.assertEqual(1, len(elements))
@@ -2054,14 +2082,23 @@ class BasicShapesTestCase(unittest.TestCase):
         tree = parser.parse(StringIO(SVG_SVG))
         root = tree.getroot()
 
+        # found
+        elements = root.get_elements_by_tag_name_ns(Element.SVG_NAMESPACE_URI,
+                                                    'svg')
+        self.assertEqual(1, len(elements))
+        self.assertEqual(root, elements[0])
+        tag = '{{{}}}svg'.format(Element.SVG_NAMESPACE_URI)
+        self.assertEqual(tag, root.tag)
+
         parent = root.get_element_by_id('gtop')
-        root.attributes.set_ns(Element.XHTML_NAMESPACE_URI,
-                               'html',
-                               Element.XHTML_NAMESPACE_URI)
         video = parent.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
-                                           'video')
+                                             'video')
         source = video.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
-                                           'source')
+                                             'source')
+        tag = '{{{}}}video'.format(Element.XHTML_NAMESPACE_URI)
+        self.assertEqual(tag, video.tag)
+        tag = '{{{}}}source'.format(Element.XHTML_NAMESPACE_URI)
+        self.assertEqual(tag, source.tag)
 
         # <g>(id=svgstar), <path>(id=svgbar),
         # <use>(id=use1), <use>(id=use2), <use>(id=use3)
@@ -2143,7 +2180,7 @@ class BasicShapesTestCase(unittest.TestCase):
         tags = [x.tag_name for x in elements]
         self.assertEqual(1, tags.count('html:video'))
 
-        # (not found)
+        # not found
         namespace = Element.XHTML_NAMESPACE_URI
         local_name = 'use'
         elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
