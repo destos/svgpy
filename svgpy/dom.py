@@ -18,7 +18,7 @@ import warnings
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
 
-from lxml import etree
+from lxml import cssselect, etree
 
 from .core import CSSUtils, Font, SVGLength
 from .css import CSSStyleDeclaration
@@ -335,6 +335,14 @@ class ParentNode(ABC):
         Arguments:
             node (Node): A node to be added.
         """
+        raise NotImplementedError
+
+    def query_selector(self, selectors):
+        elements = self.query_selector_all(selectors)
+        return elements[0] if len(elements) > 0 else None
+
+    @abstractmethod
+    def query_selector_all(self, selectors):
         raise NotImplementedError
 
 
@@ -1483,6 +1491,14 @@ class Element(etree.ElementBase, Node, ParentNode):
             node (Node): A node to be added.
         """
         self.insert(0, node)
+
+    def query_selector_all(self, selectors):
+        nsmap = self.nsmap.copy()
+        uri = nsmap.pop(None, None)
+        if uri is not None:
+            nsmap['svg'] = uri
+        sel = cssselect.CSSSelector(selectors, namespaces=nsmap)
+        return sel(self)
 
     def remove(self, element):
         """Reimplemented from lxml.etree.ElementBase.remove().

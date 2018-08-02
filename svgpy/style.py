@@ -25,8 +25,11 @@ _SVG_UA_CSS_STYLESHEET = '''
 @namespace url(http://www.w3.org/2000/svg);
 @namespace xml url(http://www.w3.org/XML/1998/namespace);
 
+svg|svg:not(:root), svg|hatch, svg|image, svg|marker, svg|pattern, svg|symbol,
 svg:not(:root), hatch, image, marker, pattern, symbol { overflow: hidden; }
 
+*:not(svg|svg),
+*:not(svg|foreignObject) > svg|svg,
 *:not(svg),
 *:not(foreignObject) > svg {
   transform-origin: 0 0;
@@ -36,6 +39,13 @@ svg:not(:root), hatch, image, marker, pattern, symbol { overflow: hidden; }
   text-space-collapse: preserve-spaces;
 }
 
+svg|defs,
+svg|clipPath, svg|mask, svg|marker,
+svg|desc, svg|title, svg|metadata,
+svg|pattern, svg|hatch,
+svg|linearGradient, svg|radialGradient, svg|meshGradient,
+svg|script, svg|style,
+svg|symbol,
 defs,
 clipPath, mask, marker,
 desc, title, metadata,
@@ -45,6 +55,7 @@ script, style,
 symbol {
   display: none !important;
 }
+:host(svg|use) > svg|symbol,
 :host(use) > symbol {
   display: inline !important;
 }
@@ -250,7 +261,10 @@ def get_css_style_sheets_from_xml_stylesheet(root):
 def get_css_style(element, css_rules):
     style = dict()
     style_important = dict()
-    namespaces = None
+    namespaces = element.nsmap.copy()
+    uri = namespaces.pop(None, None)
+    if uri is not None:
+        namespaces['svg'] = uri
     for css_rule in css_rules:
         if css_rule.type == CSSRule.STYLE_RULE:
             try:
@@ -262,8 +276,14 @@ def get_css_style(element, css_rules):
                         style[key] = value
                         if priority == 'important':
                             style_important[key] = value
-            except cssselect.ExpressionError:
-                pass
+            except cssselect.ExpressionError as exp:
+                logger.info('ExpressionError: {}: \'{}\''.format(
+                    exp,
+                    css_rule.selector_text))
+            except cssselect.SelectorSyntaxError as exp:
+                logger.info('SelectorSyntaxError: {}: \'{}\''.format(
+                    exp,
+                    css_rule.selector_text))
         elif css_rule.type == CSSRule.FONT_FACE_RULE:
             # TODO: support CSS @font-face at-rule.
             pass
@@ -271,8 +291,9 @@ def get_css_style(element, css_rules):
             # TODO: support CSS @font-feature-values at-rule.
             pass
         elif css_rule.type == CSSRule.NAMESPACE_RULE:
-            if len(css_rule.prefix) > 0:
-                if namespaces is None:
-                    namespaces = dict()
-                namespaces[css_rule.prefix] = css_rule.namespace_uri
+            if len(css_rule.namespace_uri) > 0:
+                prefix = css_rule.prefix
+                if len(prefix) == 0:
+                    prefix = 'svg'
+                namespaces[prefix] = css_rule.namespace_uri
     return style, style_important

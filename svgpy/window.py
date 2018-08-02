@@ -460,6 +460,10 @@ class Document(Node, NonElementParentNode, ParentNode):
             siblings = self._get_siblings()
             siblings[0].addprevious(node)
 
+    def query_selector_all(self, selectors):
+        root = self._document_element
+        return root.query_selector_all(selectors) if root is not None else []
+
     def remove_child(self, child):
         """Removes a child node from this node.
 

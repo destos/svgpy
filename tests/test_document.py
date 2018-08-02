@@ -801,6 +801,55 @@ class DocumentTestCase(unittest.TestCase):
         for it in root.iter():
             self.assertEqual(doc, it.owner_document)
 
+    def test_document_query_selector_all(self):
+        doc = window.document
+        doc.write(SVG_SVG)
+
+        sub_root = doc.create_element('svg', {'id': 'svg2'})
+        root = doc.document_element
+        root.append(sub_root)
+        # print(doc.tostring(pretty_print=True).decode())
+
+        selectors = 'rect, svg|rect'
+        elements = doc.query_selector_all(selectors)
+        # print((selectors, elements))
+        self.assertEqual(0, len(elements))
+
+        element = doc.query_selector(selectors)
+        self.assertIsNone(element)
+
+        selectors = 'svg, svg|svg'
+        elements = doc.query_selector_all(selectors)
+        # print((selectors, elements))
+        self.assertEqual(2, len(elements))
+        self.assertTrue(root in elements)
+        self.assertTrue(sub_root in elements)
+
+        element = doc.query_selector(selectors)
+        self.assertEqual(root, element)
+
+        selectors = 'svg:not(:root), svg|svg:not(:root)'
+        elements = doc.query_selector_all(selectors)
+        # print((selectors, elements))
+        self.assertEqual(1, len(elements))
+        self.assertTrue(sub_root in elements)
+
+        element = doc.query_selector(selectors)
+        self.assertEqual(sub_root, element)
+
+        selectors = '*[xlink|href]'
+        elements = doc.query_selector_all(selectors)
+        # print((selectors, elements))
+        self.assertEqual(4, len(elements))
+        ids = [e.id for e in elements]
+        self.assertEqual('use1', ids[0])
+        self.assertEqual('use2', ids[1])
+        self.assertEqual('use3', ids[2])
+        self.assertEqual('usetop', ids[3])
+
+        element = doc.query_selector(selectors)
+        self.assertEqual('use1', element.id)
+
     def test_document_remove_child(self):
         impl = SVGDOMImplementation()
 
