@@ -24,7 +24,7 @@ from scipy.special import ellipeinc
 from .core import SVGLength
 from .formatter import format_number_sequence, to_coordinate_pair_sequence
 from .freetype import FTMatrix
-from .matrix import Matrix
+from .geometry.matrix import DOMMatrix
 from .rect import Rect
 
 
@@ -929,7 +929,7 @@ class PathSegment(object):
             control_length = (4 / 3 * math.sin(increment / 2)
                               / (1 + math.cos(increment / 2)))
 
-            matrix = Matrix()
+            matrix = DOMMatrix()
             matrix.translate_self(cx, -cy)
             matrix.rotate_self(rot_z=-x_axis_rotation)
             matrix.scale_self(rx, ry)
@@ -1034,7 +1034,7 @@ class PathSegment(object):
             # 'A'|'a' (rx,ry x-axis-rotation large-arc-flag sweep-flag x,y)+
             rx, ry, x_axis_rotation, fa, fs, x, y = values
             if bearing != 0:
-                matrix = Matrix()
+                matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
                 x_axis_rotation += bearing
@@ -1049,7 +1049,7 @@ class PathSegment(object):
             # 'C'|'c' (x1,y1 x2,y2 x,y)+
             x1, y1, x2, y2, x, y = values
             if bearing != 0:
-                matrix = Matrix()
+                matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
                 x1, y1 = matrix.point(x1, y1)
                 x2, y2 = matrix.point(x2, y2)
@@ -1065,7 +1065,7 @@ class PathSegment(object):
             # 'H'|'h' x+
             x, y = values[0], 0
             if bearing != 0:
-                matrix = Matrix()
+                matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
             x += cpx
@@ -1077,7 +1077,7 @@ class PathSegment(object):
             # 'T'|'t' (x,y)+
             x, y = values
             if bearing != 0:
-                matrix = Matrix()
+                matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
             x += cpx
@@ -1088,7 +1088,7 @@ class PathSegment(object):
             # 'S'|'s' (x2,y2 x,y)+
             x2, y2, x, y = values
             if bearing != 0:
-                matrix = Matrix()
+                matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
                 x2, y2 = matrix.point(x2, y2)
                 x, y = matrix.point(x, y)
@@ -1101,7 +1101,7 @@ class PathSegment(object):
             # 'V'|'v' y+
             x, y = 0, values[0]
             if bearing != 0:
-                matrix = Matrix()
+                matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
                 x, y = matrix.point(x, y)
             x += cpx

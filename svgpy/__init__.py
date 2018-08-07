@@ -23,7 +23,7 @@ from svgpy.base import \
 from svgpy.core import Font, SVGLength
 from svgpy.dom import Comment, Element, Node
 from svgpy.element import SVGElementClassLookup, SVGParser
-from svgpy.matrix import Matrix
+from svgpy.geometry.matrix import DOMMatrix
 from svgpy.path import PathParser, SVGPathSegment
 from svgpy.rect import Rect
 from svgpy.screen import Screen

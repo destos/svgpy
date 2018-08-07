@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import math
 import sys
 import unittest
 
@@ -8,8 +7,8 @@ import numpy as np
 
 sys.path.extend(['.', '..'])
 
-from svgpy import Matrix, formatter
-from svgpy.matrix import matrix2d, matrix3d
+from svgpy import DOMMatrix, formatter
+from svgpy.geometry.matrix import matrix2d, matrix3d
 
 places = 9
 
@@ -38,7 +37,7 @@ class MatrixTestCase(unittest.TestCase):
                         [4, 8, 12, 16]]) == m).all())
 
     def test_attribute(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.a = 1
         m.b = 2
         m.c = 3
@@ -54,7 +53,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertEqual(6, m.f)
 
     def test_attribute3d(self):
-        m = Matrix(is2d=False)
+        m = DOMMatrix(is2d=False)
         m.m11 = 1
         m.m12 = 2
         m.m13 = 3
@@ -90,7 +89,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertEqual(16, m.m44)
 
     def test_init(self):
-        m = Matrix()
+        m = DOMMatrix()
         self.assertEqual('matrix(1 0 0 1 0 0)', m.tostring())
         self.assertTrue(
             (np.matrix([[1, 0, 0, 0],
@@ -99,7 +98,7 @@ class MatrixTestCase(unittest.TestCase):
                         [0, 0, 0, 1]]) == m.matrix).all())
 
     def test_init3d(self):
-        m = Matrix(is2d=False)
+        m = DOMMatrix(is2d=False)
         self.assertEqual(
             'matrix3d(1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1)',
             m.tostring())
@@ -110,32 +109,32 @@ class MatrixTestCase(unittest.TestCase):
                         [0, 0, 0, 1]]) == m.matrix).all())
 
     def test_init_type_error1(self):
-        self.assertRaises(TypeError, lambda: Matrix(1))
+        self.assertRaises(TypeError, lambda: DOMMatrix(1))
 
     def test_init_type_error2(self):
-        self.assertRaises(TypeError, lambda: Matrix(1, 2))
+        self.assertRaises(TypeError, lambda: DOMMatrix(1, 2))
 
     def test_init_type_error3(self):
-        self.assertRaises(TypeError, lambda: Matrix(1, 2, 3))
+        self.assertRaises(TypeError, lambda: DOMMatrix(1, 2, 3))
 
     def test_init_type_error4(self):
-        self.assertRaises(TypeError, lambda: Matrix(1, 2, 3, 4))
+        self.assertRaises(TypeError, lambda: DOMMatrix(1, 2, 3, 4))
 
     def test_init_type_error5(self):
-        self.assertRaises(TypeError, lambda: Matrix(1, 2, 3, 4, 5))
+        self.assertRaises(TypeError, lambda: DOMMatrix(1, 2, 3, 4, 5))
 
     def test_init_type_error7(self):
-        self.assertRaises(TypeError, lambda: Matrix(1, 2, 3, 4, 5, 6, 7))
+        self.assertRaises(TypeError, lambda: DOMMatrix(1, 2, 3, 4, 5, 6, 7))
 
     def test_init_type_error15(self):
         self.assertRaises(TypeError,
-                          lambda: Matrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                                         11, 12, 13, 14, 15))
+                          lambda: DOMMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                                            11, 12, 13, 14, 15))
 
     def test_init_type_error17(self):
         self.assertRaises(TypeError,
-                          lambda: Matrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                                         11, 12, 13, 14, 15, 16, 17))
+                          lambda: DOMMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                                            11, 12, 13, 14, 15, 16, 17))
 
     def test_flipx(self):
         a = 1
@@ -144,7 +143,7 @@ class MatrixTestCase(unittest.TestCase):
         d = 4
         e = 5
         f = 6
-        m = Matrix(a, b, c, d, e, f)
+        m = DOMMatrix(a, b, c, d, e, f)
         o = m.flipx()
         self.assertEqual(-a, o.a)
         self.assertEqual(-b, o.b)
@@ -170,10 +169,10 @@ class MatrixTestCase(unittest.TestCase):
         m42 = 14
         m43 = 15
         m44 = 16
-        m = Matrix(m11, m12, m13, m14,
-                   m21, m22, m23, m24,
-                   m31, m32, m33, m34,
-                   m41, m42, m43, m44)
+        m = DOMMatrix(m11, m12, m13, m14,
+                      m21, m22, m23, m24,
+                      m31, m32, m33, m34,
+                      m41, m42, m43, m44)
         o = m.flipx()
         self.assertEqual(-1, o.m11)
         self.assertEqual(-2, o.m12)
@@ -199,7 +198,7 @@ class MatrixTestCase(unittest.TestCase):
         d = 4
         e = 5
         f = 6
-        m = Matrix(a, b, c, d, e, f)
+        m = DOMMatrix(a, b, c, d, e, f)
         m = m.flipy()
         self.assertEqual(a, m.a)
         self.assertEqual(b, m.b)
@@ -225,10 +224,10 @@ class MatrixTestCase(unittest.TestCase):
         m42 = 14
         m43 = 15
         m44 = 16
-        m = Matrix(m11, m12, m13, m14,
-                   m21, m22, m23, m24,
-                   m31, m32, m33, m34,
-                   m41, m42, m43, m44)
+        m = DOMMatrix(m11, m12, m13, m14,
+                      m21, m22, m23, m24,
+                      m31, m32, m33, m34,
+                      m41, m42, m43, m44)
         o = m.flipy()
         self.assertEqual(1, o.m11)
         self.assertEqual(2, o.m12)
@@ -252,7 +251,7 @@ class MatrixTestCase(unittest.TestCase):
                          [2, 4, 0, 6],
                          [0, 0, 1, 0],
                          [0, 0, 0, 1]])
-        m = Matrix.frommatrix(src)
+        m = DOMMatrix.frommatrix(src)
         self.assertTrue((src == m.matrix).all())
         self.assertEqual('matrix(1 2 3 4 5 6)', m.tostring())
         self.assertNotEqual(id(src), id(m.matrix))
@@ -262,7 +261,7 @@ class MatrixTestCase(unittest.TestCase):
                          [2, 6, 10, 14],
                          [3, 7, 11, 15],
                          [4, 8, 12, 16]])
-        m = Matrix.frommatrix(src)
+        m = DOMMatrix.frommatrix(src)
         self.assertTrue((src == m.matrix).all())
         self.assertEqual(
             'matrix3d(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)',
@@ -274,83 +273,83 @@ class MatrixTestCase(unittest.TestCase):
         src = np.matrix([[1, 3, 5],
                          [2, 4, 6],
                          [0, 0, 1]])
-        self.assertRaises(ValueError, lambda: Matrix.frommatrix(src))
+        self.assertRaises(ValueError, lambda: DOMMatrix.frommatrix(src))
 
     def test_get_angle01(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 45)
         self.assertEqual(45, m.get_angle())
 
     def test_get_angle02(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 90)
         self.assertEqual(90, m.get_angle())
 
     def test_get_angle03(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 135)
         self.assertEqual(135, m.get_angle())
 
     def test_get_angle04(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 180)
         self.assertEqual(180, m.get_angle())
 
     def test_get_angle05(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 225)
         # returns -135.00000000000003
         self.assertAlmostEqual(-(360 % 225), m.get_angle())
 
     def test_get_angle06(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 270)
         # returns -90.00000000000001
         self.assertAlmostEqual(-(360 % 270), m.get_angle())
 
     def test_get_angle07(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 315)
         # returns -45.000000000000014
         self.assertAlmostEqual(-(360 % 315), m.get_angle())
 
     def test_get_angle08(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 360)
         # returns -1.4033418597069752e-14
         self.assertAlmostEqual((360 % 360), m.get_angle())
 
     def test_get_angle09(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, -45)
         self.assertAlmostEqual(-45, m.get_angle())
 
     def test_get_angle10(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, -90)
         self.assertAlmostEqual(-90, m.get_angle())
 
     def test_get_angle11(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, -180)
         self.assertAlmostEqual(-180, m.get_angle())
 
     def test_get_angle12(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, -270)
         # returns 90.00000000000001
         self.assertAlmostEqual((360 % 270), m.get_angle())
 
     def test_get_angle13(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(24, 24)
         m.rotate_self(0, 0, 90)
         m.translate_self(-24, -24)
         self.assertAlmostEqual(90, m.get_angle())
 
     def test_imul(self):
-        m = Matrix()
-        r = Matrix()
+        m = DOMMatrix()
+        r = DOMMatrix()
 
         r *= m.translate(100, 100)
         r *= m.rotate(0, 0, 25)
@@ -368,7 +367,7 @@ class MatrixTestCase(unittest.TestCase):
 
     def test_inverse(self):
         formatter.precision = 4
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(200, 40)
         m.scale_self(1.5)
         # (1.5, 0, 0, 1.5, 200, 40)
@@ -383,8 +382,8 @@ class MatrixTestCase(unittest.TestCase):
             i.tostring())
 
     def test_mul(self):
-        m = Matrix()
-        r = Matrix()
+        m = DOMMatrix()
+        r = DOMMatrix()
 
         r = r * m.translate(100, 100)
         r = r * m.rotate(0, 0, 25)
@@ -401,7 +400,7 @@ class MatrixTestCase(unittest.TestCase):
             r.tostring())
 
     def test_multiply01(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(100, 100)
         m.rotate_self(0, 0, 25)
         m.translate_self(-100, -100)
@@ -421,7 +420,7 @@ class MatrixTestCase(unittest.TestCase):
     def test_multiply02(self):
         # See also: RotateScale.html
         formatter.precision = 6
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(50, 30)
         m.rotate_self(0, 0, 30)
         # (0.8660254037844387, 0.49999999999999994, -0.49999999999999994,
@@ -433,7 +432,7 @@ class MatrixTestCase(unittest.TestCase):
     def test_multiply03(self):
         # See also: RotateScale.html
         formatter.precision = 6
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(200, 40)
         m.scale_self(1.5)
         # (1.5, 0, 0, 1.5, 200, 40)
@@ -442,7 +441,7 @@ class MatrixTestCase(unittest.TestCase):
             m.tostring())
 
     def test_rotate01(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 0, 15)
         m.rotate_self(0, 0, 10)
         m.rotate_self(0, 0, 20)
@@ -465,7 +464,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertAlmostEqual(45, t, places=places)
 
     def test_rotate02(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(15)
         m.rotate_self(10)
         m.rotate_self(20)
@@ -510,7 +509,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertAlmostEqual(0, rot_z, places=places)
 
     def test_rotate03(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(0, 15)
         m.rotate_self(0, 10)
         m.rotate_self(0, 20)
@@ -555,7 +554,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertAlmostEqual(0, rot_z, places=places)
 
     def test_rotate04(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(15, 45, 90)
 
         m11 = 4.329780281177467e-17
@@ -598,7 +597,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertAlmostEqual(90, rot_z, places=places)
 
     def test_rotate05(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(45, 45, 45)
         m.rotate_self(135, 90, 90)
         m.rotate_self(90, 135, 135)
@@ -639,7 +638,7 @@ class MatrixTestCase(unittest.TestCase):
 
     def test_scale01(self):
         # matrix(x 0 0 y 0 0)
-        m = Matrix()
+        m = DOMMatrix()
         m.scale_self(1.1, 1.2)
         m.scale_self(2)
         sx, sy = m.get_scale()
@@ -658,7 +657,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertEqual((1.1 * 2 * 10, 1.2 * 2 * 10), (x, y))
 
     def test_set_matrix(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.set_matrix(1, 2, 3, 4, 5, 6)
         self.assertTrue(m.is2d)
         self.assertEqual('matrix(1 2 3 4 5 6)', m.tostring())
@@ -669,7 +668,7 @@ class MatrixTestCase(unittest.TestCase):
              [0, 0, 0, 1]]) == m.matrix).all())
 
     def test_set_matrix3d(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.set_matrix(1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 10, 11, 12,
@@ -686,32 +685,32 @@ class MatrixTestCase(unittest.TestCase):
 
     def test_tostring01(self):
         formatter.precision = 6
-        m = Matrix(1.1, 2.1234, 3.5678, 4.9012, 5.8901, 6.000001)
+        m = DOMMatrix(1.1, 2.1234, 3.5678, 4.9012, 5.8901, 6.000001)
         self.assertEqual(
             'matrix(1.1 2.1234 3.5678 4.9012 5.8901 6.000001)',
             m.tostring())
 
     def test_tostring02(self):
         formatter.precision = 6
-        m = Matrix(1.8126156330108643,
-                   0.8452365398406982,
-                   0.21130913496017456,
-                   1.7536019086837769,
-                   -144.42214965820312,
-                   -240.16839599609375)
+        m = DOMMatrix(1.8126156330108643,
+                      0.8452365398406982,
+                      0.21130913496017456,
+                      1.7536019086837769,
+                      -144.42214965820312,
+                      -240.16839599609375)
         self.assertEqual(
             "matrix(1.812616 0.845237 0.211309 1.753602 -144.42215"
             " -240.168396)",
             m.tostring())
 
     def test_tostring03(self):
-        m = Matrix(1, 2, 3, 4, 5, 6)
+        m = DOMMatrix(1, 2, 3, 4, 5, 6)
         self.assertEqual(
             'matrix(1, 2, 3, 4, 5, 6)',
             m.tostring(delimiter=', '))
 
     def test_translate(self):
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(12, 16)
         tx, ty = m.get_translate()
         self.assertEqual((12, 16), (tx, ty))
@@ -748,7 +747,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertTrue((src == m.matrix).all())
 
     def test_translate3d(self):
-        m = Matrix(is2d=False)
+        m = DOMMatrix(is2d=False)
         m.translate_self(10, 20, 30)
         tx, ty, tz = m.get_translate()
         self.assertEqual((10, 20, 30), (tx, ty, tz))

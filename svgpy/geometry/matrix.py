@@ -18,7 +18,7 @@ import math
 
 import numpy as np
 
-from .formatter import format_number_sequence
+from ..formatter import format_number_sequence
 
 
 def matrix2d(a, b, c, d, e, f):
@@ -72,7 +72,7 @@ def matrix3d(m11, m12, m13, m14,
                       [float(m14), float(m24), float(m34), float(m44)]])
 
 
-class Matrix(object):
+class DOMMatrix(object):
     """Represents a 3d (4x4) matrix."""
 
     def __init__(self, *values, is2d=True):
@@ -85,25 +85,25 @@ class Matrix(object):
             self._is2d = is2d
 
     def __deepcopy__(self, memodict={}):
-        m = Matrix()
+        m = DOMMatrix()
         if self._matrix is not None:
             m._matrix = np.matrix.copy(self._matrix)
             m._is2d = self._is2d
         return m
 
     def __eq__(self, other):
-        if not isinstance(other, Matrix):
+        if not isinstance(other, DOMMatrix):
             return NotImplemented
         return (self._matrix == other.matrix).all()
 
     def __imul__(self, other):
-        if not isinstance(other, Matrix):
+        if not isinstance(other, DOMMatrix):
             return NotImplemented
         self.multiply_self(other)
         return self
 
     def __mul__(self, other):
-        if not isinstance(other, Matrix):
+        if not isinstance(other, DOMMatrix):
             return NotImplemented
         m = copy.deepcopy(self)
         m.multiply_self(other)
@@ -324,7 +324,7 @@ class Matrix(object):
         """Sets the matrix [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1].
 
         Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         _is2d = self._is2d if is2d is None else is2d
         self.set_matrix(1, 0, 0, 0,
@@ -340,9 +340,9 @@ class Matrix(object):
         The current matrix is not modified.
 
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
-        m = self * Matrix(-1, 0, 0, 1, 0, 0)
+        m = self * DOMMatrix(-1, 0, 0, 1, 0, 0)
         return m
 
     def flipy(self):
@@ -351,9 +351,9 @@ class Matrix(object):
         The current matrix is not modified.
 
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
-        m = self * Matrix(1, 0, 0, -1, 0, 0)
+        m = self * DOMMatrix(1, 0, 0, -1, 0, 0)
         return m
 
     @staticmethod
@@ -361,11 +361,11 @@ class Matrix(object):
         import ast
         fields = ast.literal_eval(text)
         if fields['Is2D']:
-            matrix = Matrix(fields['M11'], fields['M12'],
-                            fields['M21'], fields['M22'],
-                            fields['M41'], fields['M42'])
+            matrix = DOMMatrix(fields['M11'], fields['M12'],
+                               fields['M21'], fields['M22'],
+                               fields['M41'], fields['M42'])
         else:
-            matrix = Matrix(
+            matrix = DOMMatrix(
                 fields['M11'], fields['M12'], fields['M13'], fields['M14'],
                 fields['M21'], fields['M22'], fields['M23'], fields['M24'],
                 fields['M31'], fields['M32'], fields['M33'], fields['M34'],
@@ -379,7 +379,7 @@ class Matrix(object):
         Arguments:
             matrix (numpy.matrix): A 4x4 matrix object.
         Returns:
-            Matrix: A new Matrix object.
+            DOMMatrix: A new DOMMatrix object.
         """
         if matrix is None or (not isinstance(matrix, np.matrix)):
             raise TypeError('Expected numpy.matrix, got {}'.format(
@@ -387,7 +387,7 @@ class Matrix(object):
         elif matrix.shape != (4, 4):
             raise ValueError('Expected 4x4 matrix, got {}'.format(
                 matrix.tolist()))
-        m = Matrix()
+        m = DOMMatrix()
         m._matrix = np.matrix.copy(matrix)
         if ((m.m13 or m.m14 or m.m23 or m.m24 or m.m31 or m.m32
              or m.m34 or m.m43)
@@ -460,7 +460,7 @@ class Matrix(object):
         The current matrix is not modified.
 
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
         m = copy.deepcopy(self)
         m.invert_self()
@@ -470,7 +470,7 @@ class Matrix(object):
         """Inverts the current matrix.
 
         Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         self._matrix = self._matrix.getI()
         return self
@@ -481,9 +481,9 @@ class Matrix(object):
         The current matrix is not modified.
 
         Arguments:
-            other (Matrix): A matrix to be multiplied.
+            other (DOMMatrix): A matrix to be multiplied.
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
         m = self * other
         return m
@@ -492,9 +492,9 @@ class Matrix(object):
         """Post-multiplies the other matrix on the current matrix.
 
         Arguments:
-            other (Matrix): A matrix to be multiplied.
+            other (DOMMatrix): A matrix to be multiplied.
         Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         self._matrix *= other._matrix
         if not other._is2d:
@@ -529,7 +529,7 @@ class Matrix(object):
             rot_y (float, optional): The y-axis rotation angle in degrees.
             rot_z (float, optional): The z-axis rotation angle in degrees.
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
         m = copy.deepcopy(self)
         m.rotate_self(rot_x, rot_y, rot_z)
@@ -595,7 +595,7 @@ class Matrix(object):
             rot_y (float, optional): The y-axis rotation angle in degrees.
             rot_z (float, optional): The z-axis rotation angle in degrees.
         Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         if rot_z != 0:
             self.rotate_axis_angle_self(0, 0, 1, rot_z)
@@ -624,7 +624,7 @@ class Matrix(object):
             origin_y (float, optional): The translation amount in Y.
             origin_z (float, optional): The translation amount in Z.
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
         m = copy.deepcopy(self)
         m.scale_self(scale_x, scale_y, scale_z, origin_x, origin_y, origin_z)
@@ -643,7 +643,7 @@ class Matrix(object):
             origin_y (float, optional): The translation amount in Y.
             origin_z (float, optional): The translation amount in Z.
       Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         if scale_y is None:
             scale_y = scale_x
@@ -692,7 +692,7 @@ class Matrix(object):
         Arguments:
             angle (float): The skew angle in degrees.
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
         m = copy.deepcopy(self)
         m.skewx_self(angle)
@@ -704,7 +704,7 @@ class Matrix(object):
         Arguments:
             angle (float): The skew angle in degrees.
         Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         m = matrix2d(1, 0, math.tan(math.radians(angle)), 1, 0, 0)
         self._matrix *= m
@@ -718,7 +718,7 @@ class Matrix(object):
         Arguments:
             angle (float): The skew angle in degrees.
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
         m = copy.deepcopy(self)
         m.skewy_self(angle)
@@ -730,7 +730,7 @@ class Matrix(object):
         Arguments:
             angle (float): The skew angle in degrees.
         Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         m = matrix2d(1, math.tan(math.radians(angle)), 0, 1, 0, 0)
         self._matrix *= m
@@ -805,7 +805,7 @@ class Matrix(object):
             ty (float, optional): The translation amount in Y.
             tz (float, optional): The translation amount in Z.
         Returns:
-            Matrix: The resulting matrix.
+            DOMMatrix: The resulting matrix.
         """
         m = copy.deepcopy(self)
         m.translate_self(tx, ty, tz)
@@ -820,7 +820,7 @@ class Matrix(object):
             ty (float, optional): The translation amount in Y.
             tz (float, optional): The translation amount in Z.
         Returns:
-            Matrix: Returns itself.
+            DOMMatrix: Returns itself.
         """
         if tx == 0 and ty == 0 and tz == 0:
             return self

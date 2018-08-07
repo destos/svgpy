@@ -17,7 +17,7 @@ import copy
 import re
 
 from .formatter import format_number_sequence
-from .matrix import Matrix
+from .geometry.matrix import DOMMatrix
 
 
 class SVGTransform(object):
@@ -68,7 +68,7 @@ class SVGTransform(object):
         """Matrix: The current matrix or None."""
         if self._transform_type is None or self._values is None:
             return None
-        matrix = Matrix()
+        matrix = DOMMatrix()
         if self._transform_type == SVGTransform.TRANSFORM_MATRIX:
             matrix.set_matrix(*self._values)
         elif self._transform_type == SVGTransform.TRANSFORM_ROTATE:
@@ -106,11 +106,11 @@ class SVGTransform(object):
         """Constructs a new SVGTransform initialized with the Matrix matrix.
 
         Arguments:
-            matrix (Matrix): A Matrix object.
+            matrix (DOMMatrix): A Matrix object.
         Returns:
             SVGTransform: A new SVGTransform object.
         """
-        if matrix is None or (not isinstance(matrix, Matrix)):
+        if matrix is None or (not isinstance(matrix, DOMMatrix)):
             raise TypeError('Expected Matrix, got {}'.format(type(matrix)))
         elif not matrix.is2d:
             raise ValueError('Expected 2d Matrix')
@@ -320,11 +320,11 @@ class SVGTransformList(list):
         """Returns the matrix of this transformation.
 
         Returns:
-            Matrix: A new Matrix object or None.
+            DOMMatrix: A new Matrix object or None.
         """
         if len(self) == 0:
             return None
-        matrix = Matrix()
+        matrix = DOMMatrix()
         for transform in iter(self):
             if not isinstance(transform, SVGTransform):
                 raise TypeError('Expected Transform, got {}'.format(

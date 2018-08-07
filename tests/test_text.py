@@ -413,7 +413,7 @@ class TextTestCase(unittest.TestCase):
 
     def test_font_face01(self):
         from svgpy.freetype import FreeType
-        from svgpy import Matrix
+        from svgpy import DOMMatrix
 
         parser = SVGParser()
         root = parser.create_element('svg')
@@ -434,7 +434,7 @@ class TextTestCase(unittest.TestCase):
         bbox = face.glyph.outline.get_bbox()
         self.assertTrue(bbox.isvalid(), msg=repr(bbox))
 
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.rotate_self(rot_z=45)
         matrix.translate_self(10)
         path_data = PathParser.fromglyph(face, matrix)

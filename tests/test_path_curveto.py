@@ -5,7 +5,7 @@ import unittest
 
 sys.path.extend(['.', '..'])
 
-from svgpy import Matrix, PathParser, SVGPathSegment, formatter
+from svgpy import DOMMatrix, PathParser, SVGPathSegment, formatter
 from svgpy.path import PathSegment
 
 places = 0
@@ -56,7 +56,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: cubic01.html
         d = 'M100,200 C100,100 250,100 250,200 S400,300 400,200'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -95,7 +95,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: cubic02.html
         d = 'M100,200 C100,100 400,100 400,200'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -125,7 +125,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: cubic02.html
         d = 'M100,500 C25,400 475,400 400,500'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -155,7 +155,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: cubic02.html
         d = 'M100,800 C175,700 325,700 400,800'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -185,7 +185,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: cubic02.html
         d = 'M600,200 C675,100 975,100 900,200'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -215,7 +215,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: cubic02.html
         d = 'M600,500 C600,350 900,650 900,500'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -255,7 +255,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: cubic02.html
         d = 'M600,800 C625,700 725,700 750,800 S875,900 900,800'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -406,7 +406,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
 
         # "M600,800 C625,700 725,700 750,800 775,900 875,900 900,800"
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -468,7 +468,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         d = \
             "M100,200 C120,100 155,100 175,200 S225,300 245,200 300,100 320,200"
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -631,7 +631,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: quad01.html
         d = 'M200,300 Q400,50 600,300 T1000,300'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -716,7 +716,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: quad01.html
         d = 'M200,300 Q400,50 600,300 T1000,300 1400,300'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)
@@ -779,7 +779,7 @@ class PathCurvetoTestCase(unittest.TestCase):
         # See also: quad01.html
         d = 'm200,300 q200,-250 400,0 t400,0 400,0'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(-50, 50)
         transformed = PathParser.transform(path_data, matrix)
         d2 = PathParser.tostring(transformed)

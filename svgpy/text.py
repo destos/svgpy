@@ -19,10 +19,10 @@ from .base import SVGElement, SVGGraphicsElement, SVGPathDataSettings
 from .core import CSSUtils, Font, SVGLength
 from .dom import Element, Node
 from .freetype import FreeType
+from .geometry.matrix import DOMMatrix
 from .harfbuzz import HBBuffer, HBDirection, HBFeature, HBFTFont, HBLanguage, \
     HBScript
 from .icu import UBiDi, UBreakIterator, ULocale
-from .matrix import Matrix
 from .opentype import features_from_style, iso639_codes_from_language_tag
 from .path import PathParser
 from .rect import Rect
@@ -316,7 +316,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         current_x = start_x
         current_y = start_y
         rotate = 0
-        matrix = Matrix()
+        matrix = DOMMatrix()
         path_data_list = list()
         advance_list = list()
         text_bbox = Rect()

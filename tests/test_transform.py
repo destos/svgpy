@@ -7,7 +7,7 @@ import numpy as np
 
 sys.path.extend(['.', '..'])
 
-from svgpy import Matrix, SVGTransform, SVGTransformList, formatter
+from svgpy import DOMMatrix, SVGTransform, SVGTransformList, formatter
 
 
 class TransformListTestCase(unittest.TestCase):
@@ -31,7 +31,7 @@ class TransformListTestCase(unittest.TestCase):
         t = SVGTransform('matrix', 1, 2, 3, 4, 5, 6)
         self.assertEqual(SVGTransform.TRANSFORM_MATRIX, t.type)
         self.assertEqual('matrix(1 2 3 4 5 6)', t.tostring())
-        self.assertTrue(t.matrix == Matrix(1, 2, 3, 4, 5, 6))
+        self.assertTrue(t.matrix == DOMMatrix(1, 2, 3, 4, 5, 6))
         self.assertTrue((t.matrix.matrix == np.matrix(
             [[1, 3, 0, 5],
              [2, 4, 0, 6],
@@ -43,13 +43,13 @@ class TransformListTestCase(unittest.TestCase):
         t.set_matrix(-1, 1.2, 3, -1.4, 5, 1.6)
         self.assertEqual(SVGTransform.TRANSFORM_MATRIX, t.type)
         self.assertEqual('matrix(-1 1.2 3 -1.4 5 1.6)', t.tostring())
-        self.assertTrue(t.matrix == Matrix(-1, 1.2, 3, -1.4, 5, 1.6))
+        self.assertTrue(t.matrix == DOMMatrix(-1, 1.2, 3, -1.4, 5, 1.6))
 
     def test_transform_rotate(self):
         r = -30
         cx = 24
         cy = 16
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(cx, cy)
         m.rotate_self(rot_z=r)
         m.translate_self(-cx, -cy)
@@ -61,7 +61,7 @@ class TransformListTestCase(unittest.TestCase):
 
         cx = 12.3456
         cy = -0
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(cx, cy)
         m.rotate_self(rot_z=r)
         m.translate_self(-cx, -cy)
@@ -74,7 +74,7 @@ class TransformListTestCase(unittest.TestCase):
 
         cx = -0
         cy = -0
-        m = Matrix()
+        m = DOMMatrix()
         m.rotate_self(rot_z=r)
 
         t = SVGTransform()
@@ -86,7 +86,7 @@ class TransformListTestCase(unittest.TestCase):
     def test_transform_scale(self):
         sx = 1.5
         sy = 1.5
-        m = Matrix()
+        m = DOMMatrix()
         m.scale_self(sx, sy)
 
         t = SVGTransform('scale', sx, sy)
@@ -95,7 +95,7 @@ class TransformListTestCase(unittest.TestCase):
         self.assertTrue(t.matrix == m)
 
         sy = -0
-        m = Matrix()
+        m = DOMMatrix()
         m.scale_self(sx, sy)
 
         t = SVGTransform()
@@ -106,7 +106,7 @@ class TransformListTestCase(unittest.TestCase):
 
     def test_transform_skewx(self):
         a = 190.0001
-        m = Matrix()
+        m = DOMMatrix()
         m.skewx_self(a)
 
         t = SVGTransform('skewX', a)
@@ -115,7 +115,7 @@ class TransformListTestCase(unittest.TestCase):
         self.assertTrue(t.matrix == m)
 
         a = -120.4567
-        m = Matrix()
+        m = DOMMatrix()
         m.skewx_self(a)
 
         t = SVGTransform()
@@ -126,7 +126,7 @@ class TransformListTestCase(unittest.TestCase):
 
     def test_transform_skewy(self):
         a = 190.0001
-        m = Matrix()
+        m = DOMMatrix()
         m.skewy_self(a)
 
         t = SVGTransform('skewY', a)
@@ -135,7 +135,7 @@ class TransformListTestCase(unittest.TestCase):
         self.assertTrue(t.matrix == m)
 
         a = -120.4567
-        m = Matrix()
+        m = DOMMatrix()
         m.skewy_self(a)
 
         t = SVGTransform()
@@ -147,7 +147,7 @@ class TransformListTestCase(unittest.TestCase):
     def test_transform_translate(self):
         tx = 100
         ty = -100
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(tx, ty)
 
         t = SVGTransform('translate', tx, ty)
@@ -157,7 +157,7 @@ class TransformListTestCase(unittest.TestCase):
 
         tx = -1.5
         ty = -0
-        m = Matrix()
+        m = DOMMatrix()
         m.translate_self(tx, ty)
 
         t = SVGTransform()
@@ -184,7 +184,7 @@ class TransformListTestCase(unittest.TestCase):
         t = transform_list.consolidate()
         self.assertEqual(1, len(transform_list))
         self.assertEqual(transform_list[0], t)
-        m = Matrix(
+        m = DOMMatrix(
             0.8660254037844387, 0.49999999999999994, -0.49999999999999994,
             0.8660254037844387, 50, 30)
         self.assertEqual(SVGTransform.TRANSFORM_MATRIX, t.type)

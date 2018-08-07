@@ -6,7 +6,7 @@ import unittest
 
 sys.path.extend(['.', '..'])
 
-from svgpy import Matrix, PathParser, SVGPathSegment, formatter
+from svgpy import DOMMatrix, PathParser, SVGPathSegment, formatter
 from svgpy.path import get_angle, Ellipse
 
 places = 0
@@ -730,7 +730,7 @@ class PathArcTestCase(unittest.TestCase):
         # Mm Aa Hh Zz
         d = 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.rotate_self(rot_z=45)
         transformed = PathParser.transform(path_data, matrix)
         exp = PathParser.tostring(transformed)
@@ -743,7 +743,7 @@ class PathArcTestCase(unittest.TestCase):
         # Mm Aa Hh Zz
         d = 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.rotate_self(rot_z=90)
         transformed = PathParser.transform(path_data, matrix)
         exp = PathParser.tostring(transformed)
@@ -755,7 +755,7 @@ class PathArcTestCase(unittest.TestCase):
         # Mm Aa Hh Zz
         d = 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'
         path_data = PathParser.parse(d)
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.rotate_self(rot_z=135)
         transformed = PathParser.transform(path_data, matrix)
         exp = PathParser.tostring(transformed)

@@ -19,7 +19,7 @@ from .core import SVGLength
 from .dom import Element, ElementCSSInlineStyle
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
-from .matrix import Matrix
+from .geometry.matrix import DOMMatrix
 from .path import PathParser
 from .rect import Rect
 from .screen import Screen
@@ -314,10 +314,10 @@ class SVGGraphicsElement(SVGElement):
         """Returns the current transformation matrix (CTM).
 
         Returns:
-            Matrix: The current transformation matrix (CTM).
+            DOMMatrix: The current transformation matrix (CTM).
         """
         roots = list()
-        ctm = Matrix()
+        ctm = DOMMatrix()
         farthest = self.get_farthest_svg_element()
         if farthest is None:
             return ctm
@@ -341,7 +341,7 @@ class SVGGraphicsElement(SVGElement):
         if viewport_type == SVGElement.FARTHEST_VIEWPORT:
             scale = farthest.current_scale
             tx, ty = farthest.current_translate
-            ctm *= Matrix(scale, 0, 0, scale, tx, ty)
+            ctm *= DOMMatrix(scale, 0, 0, scale, tx, ty)
         for root in roots:
             vtm = root.get_viewport_transformation_matrix(recursive=False)
             ctm *= vtm
@@ -401,7 +401,7 @@ class SVGGraphicsElement(SVGElement):
         viewport's coordinate system.
 
         Returns:
-            Matrix: The current transformation matrix (CTM).
+            DOMMatrix: The current transformation matrix (CTM).
         """
         ctm = self._get_ctm(SVGElement.NEAREST_VIEWPORT)
         return ctm
@@ -432,7 +432,7 @@ class SVGGraphicsElement(SVGElement):
         system of the SVG viewport for the SVG document fragment.
 
         Returns:
-            Matrix: The current transformation matrix (CTM).
+            DOMMatrix: The current transformation matrix (CTM).
         """
         ctm = self._get_ctm(SVGElement.FARTHEST_VIEWPORT)
         return ctm
@@ -456,9 +456,9 @@ class SVGGraphicsElement(SVGElement):
         """Returns the transformation matrix of an SVG viewport.
 
         Returns:
-            Matrix: The transformation matrix.
+            DOMMatrix: The transformation matrix.
         """
-        ctm = Matrix()
+        ctm = DOMMatrix()
         ex, ey, ew, eh = self.get_viewport_size(recursive)
         view_box = self.get_view_box(recursive)
         if view_box is None:

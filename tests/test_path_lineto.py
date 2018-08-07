@@ -5,7 +5,7 @@ import unittest
 
 sys.path.extend(['.', '..'])
 
-from svgpy import Matrix, PathParser, SVGPathSegment, formatter
+from svgpy import DOMMatrix, PathParser, SVGPathSegment, formatter
 
 places = 0
 delta = 1
@@ -51,7 +51,7 @@ class PathLinetoTestCase(unittest.TestCase):
         d = 'M150,10 B36 h47 b72 h47 b72 h47 b72 h47 Z'
         path_data = PathParser.parse(d)
 
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix.translate_self(10, 10)
         transformed = PathParser.transform(path_data, matrix)
         d = PathParser.tostring(transformed)
@@ -65,7 +65,7 @@ class PathLinetoTestCase(unittest.TestCase):
         d = 'M150,10 B36 h47 b72 h47 b72 h47 b72 h47 Z'
         path_data = PathParser.parse(d)
 
-        matrix = Matrix()
+        matrix = DOMMatrix()
         matrix = matrix.flipy()
         transformed = PathParser.transform(path_data, matrix)
         d = PathParser.tostring(transformed)

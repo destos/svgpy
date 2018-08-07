@@ -12,7 +12,7 @@ from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
     SVGRectElement, SVGSVGElement, SVGTextElement
 from svgpy import Comment, Element, Font, \
     HTMLElement, \
-    Matrix, Node, PathParser, Rect, SVGLength, SVGParser, SVGPathSegment, \
+    DOMMatrix, Node, PathParser, Rect, SVGLength, SVGParser, SVGPathSegment, \
     SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, window, \
     formatter
 
@@ -3746,7 +3746,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # CTM = [1, 0, 0, 1, 0, 0]
         m = element.get_ctm()
-        expected = Matrix()
+        expected = DOMMatrix()
         self.assertEqual(expected, m)
 
         # id="svg01"
@@ -3759,7 +3759,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # CTM = [0.2, 0, 0, 0.2, 0, 0]
         m = element.get_ctm()
-        expected = Matrix(0.2, 0, 0, 0.2, 0, 0)
+        expected = DOMMatrix(0.2, 0, 0, 0.2, 0, 0)
         self.assertEqual(expected, m)
 
         # id="rect01"
@@ -3767,7 +3767,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # CTM = [0.2, 0, 0, 0.2, 0, 0]
         m = element.get_ctm()
-        expected = Matrix(0.2, 0, 0, 0.2, 0, 0)
+        expected = DOMMatrix(0.2, 0, 0, 0.2, 0, 0)
         self.assertEqual(expected, m)
 
         # id="svg02"
@@ -3780,7 +3780,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # CTM = [0.1, 0, 0, 0.2, 300, 0]
         m = element.get_ctm()
-        expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
+        expected = DOMMatrix(0.1, 0, 0, 0.2, 300, 0)
         self.assertEqual(expected, m)
 
         # id="rect02"
@@ -3788,7 +3788,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # CTM = [0.1, 0, 0, 0.2, 300, 0]
         m = element.get_ctm()
-        expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
+        expected = DOMMatrix(0.1, 0, 0, 0.2, 300, 0)
         self.assertEqual(expected, m)
 
     def test_view_box02(self):
@@ -3812,7 +3812,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(SVGZoomAndPan.ZOOMANDPAN_MAGNIFY, zap)
 
         ctm = element.get_ctm()
-        expected = Matrix(1, 0, 0, 1, 0, 0)
+        expected = DOMMatrix(1, 0, 0, 1, 0, 0)
         self.assertEqual(expected, ctm)
 
         screen_ctm = element.get_screen_ctm()
@@ -3834,7 +3834,7 @@ class BasicShapesTestCase(unittest.TestCase):
         element = root.get_element_by_id('svg01')
 
         ctm = element.get_ctm()
-        expected = Matrix(0.2, 0, 0, 0.2, 0, 0)
+        expected = DOMMatrix(0.2, 0, 0, 0.2, 0, 0)
         self.assertEqual(expected, ctm)
 
         screen_ctm = element.get_screen_ctm()
@@ -3860,7 +3860,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # element.current_translate = 100, 50
 
         ctm = element.get_ctm()
-        expected = Matrix(0.1, 0, 0, 0.2, 300, 0)
+        expected = DOMMatrix(0.1, 0, 0, 0.2, 300, 0)
         self.assertEqual(expected, ctm)
 
         screen_ctm = element.get_screen_ctm()
@@ -3903,7 +3903,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         # CTM = [0.75, 0, 0, 0.75, 0, 0]
         m = element.get_ctm()
-        expected = Matrix(0.75, 0, 0, 0.75, 0, 0)
+        expected = DOMMatrix(0.75, 0, 0, 0.75, 0, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_02(self):
@@ -3921,7 +3921,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [0.75, 0, 0, 0.75, 13.75, 0]
         element = root.get_element_by_id('xMidYMid_meet')
         m = element.get_ctm()
-        expected = Matrix(0.75, 0, 0, 0.75, 13.75, 0)
+        expected = DOMMatrix(0.75, 0, 0, 0.75, 13.75, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_03(self):
@@ -3939,7 +3939,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [0.75, 0, 0, 0.75, 27.5, 0]
         element = root.get_element_by_id('xMaxYMax_meet')
         m = element.get_ctm()
-        expected = Matrix(0.75, 0, 0, 0.75, 27.5, 0)
+        expected = DOMMatrix(0.75, 0, 0, 0.75, 27.5, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_04(self):
@@ -3957,7 +3957,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1, 0, 0, 1, 0, 0]
         element = root.get_element_by_id('xMinYMin_meet02')
         m = element.get_ctm()
-        expected = Matrix(1, 0, 0, 1, 0, 0)
+        expected = DOMMatrix(1, 0, 0, 1, 0, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_05(self):
@@ -3975,7 +3975,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1, 0, 0, 1, 0, 10]
         element = root.get_element_by_id('xMidYMid_meet02')
         m = element.get_ctm()
-        expected = Matrix(1, 0, 0, 1, 0, 10)
+        expected = DOMMatrix(1, 0, 0, 1, 0, 10)
         self.assertEqual(expected, m)
 
     def test_viewport01_06(self):
@@ -3993,7 +3993,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1, 0, 0, 1, 0, 20]
         element = root.get_element_by_id('xMaxYMax_meet02')
         m = element.get_ctm()
-        expected = Matrix(1, 0, 0, 1, 0, 20)
+        expected = DOMMatrix(1, 0, 0, 1, 0, 20)
         self.assertEqual(expected, m)
 
     def test_viewport01_07(self):
@@ -4011,7 +4011,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1.5, 0, 0, 1.5, 0, 0]
         element = root.get_element_by_id('xMinYMin_slice')
         m = element.get_ctm()
-        expected = Matrix(1.5, 0, 0, 1.5, 0, 0)
+        expected = DOMMatrix(1.5, 0, 0, 1.5, 0, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_08(self):
@@ -4029,7 +4029,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1.5, 0, 0, 1.5, -7.5, 0]
         element = root.get_element_by_id('xMidYMid_slice')
         m = element.get_ctm()
-        expected = Matrix(1.5, 0, 0, 1.5, -7.5, 0)
+        expected = DOMMatrix(1.5, 0, 0, 1.5, -7.5, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_09(self):
@@ -4047,7 +4047,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1.5, 0, 0, 1.5, -15, 0]
         element = root.get_element_by_id('xMaxYMax_slice')
         m = element.get_ctm()
-        expected = Matrix(1.5, 0, 0, 1.5, -15, 0)
+        expected = DOMMatrix(1.5, 0, 0, 1.5, -15, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_10(self):
@@ -4065,7 +4065,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # CTM = [1.6666666666666667, 0, 0, 1.6666666666666667, 0, 0]
         element = root.get_element_by_id('xMinYMin_slice02')
         m = element.get_ctm()
-        expected = Matrix(1.6666666666666667, 0, 0, 1.6666666666666667, 0, 0)
+        expected = DOMMatrix(1.6666666666666667, 0, 0, 1.6666666666666667, 0, 0)
         self.assertEqual(expected, m)
 
     def test_viewport01_11(self):
@@ -4084,8 +4084,8 @@ class BasicShapesTestCase(unittest.TestCase):
         #  1.6666666666666667, 0, -18.333333333333336]
         element = root.get_element_by_id('xMidYMid_slice02')
         m = element.get_ctm()
-        expected = Matrix(1.6666666666666667, 0, 0,
-                          1.6666666666666667, 0, -18.333333333333336)
+        expected = DOMMatrix(1.6666666666666667, 0, 0,
+                             1.6666666666666667, 0, -18.333333333333336)
         self.assertEqual(expected, m)
 
     def test_viewport01_12(self):
@@ -4104,8 +4104,8 @@ class BasicShapesTestCase(unittest.TestCase):
         #  1.6666666666666667, 0, -36.66666666666667]
         element = root.get_element_by_id('xMaxYMax_slice02')
         m = element.get_ctm()
-        expected = Matrix(1.6666666666666667, 0, 0,
-                          1.6666666666666667, 0, -36.66666666666667)
+        expected = DOMMatrix(1.6666666666666667, 0, 0,
+                             1.6666666666666667, 0, -36.66666666666667)
         self.assertEqual(expected, m)
 
     def test_viewport02(self):
