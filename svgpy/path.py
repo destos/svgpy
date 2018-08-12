@@ -941,21 +941,21 @@ class PathSegment(object):
                 t = start + i * increment
                 dx = math.cos(t)
                 dy = math.sin(t)
-                p1 = matrix.point(dx - control_length * dy,
-                                  dy + control_length * dx)
+                p1 = matrix.transform_point(dx - control_length * dy,
+                                            dy + control_length * dx)
 
                 # control point at the end of the curve
                 t += increment
                 dx = math.cos(t)
                 dy = math.sin(t)
-                p2 = matrix.point(dx + control_length * dy,
-                                  dy - control_length * dx)
+                p2 = matrix.transform_point(dx + control_length * dy,
+                                            dy - control_length * dx)
 
                 # end point of the curve
                 if i == segments - 1:
                     p3 = epx, -epy
                 else:
-                    p3 = matrix.point(dx, dy)
+                    p3 = matrix.transform_point(dx, dy)
 
                 path_data.append(SVGPathSegment('C',
                                                 p1[0], -p1[1],
@@ -1036,7 +1036,7 @@ class PathSegment(object):
             if bearing != 0:
                 matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
-                x, y = matrix.point(x, y)
+                x, y = matrix.transform_point(x, y)
                 x_axis_rotation += bearing
             x += cpx
             y += cpy
@@ -1051,9 +1051,9 @@ class PathSegment(object):
             if bearing != 0:
                 matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
-                x1, y1 = matrix.point(x1, y1)
-                x2, y2 = matrix.point(x2, y2)
-                x, y = matrix.point(x, y)
+                x1, y1 = matrix.transform_point(x1, y1)
+                x2, y2 = matrix.transform_point(x2, y2)
+                x, y = matrix.transform_point(x, y)
             x1 += cpx
             y1 += cpy
             x2 += cpx
@@ -1067,7 +1067,7 @@ class PathSegment(object):
             if bearing != 0:
                 matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
-                x, y = matrix.point(x, y)
+                x, y = matrix.transform_point(x, y)
             x += cpx
             y += cpy
             return SVGPathSegment('L', x, y)
@@ -1079,7 +1079,7 @@ class PathSegment(object):
             if bearing != 0:
                 matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
-                x, y = matrix.point(x, y)
+                x, y = matrix.transform_point(x, y)
             x += cpx
             y += cpy
             return SVGPathSegment(path_type, x, y)
@@ -1090,8 +1090,8 @@ class PathSegment(object):
             if bearing != 0:
                 matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
-                x2, y2 = matrix.point(x2, y2)
-                x, y = matrix.point(x, y)
+                x2, y2 = matrix.transform_point(x2, y2)
+                x, y = matrix.transform_point(x, y)
             x2 += cpx
             y2 += cpy
             x += cpx
@@ -1103,7 +1103,7 @@ class PathSegment(object):
             if bearing != 0:
                 matrix = DOMMatrix()
                 matrix.rotate_self(rot_z=bearing)
-                x, y = matrix.point(x, y)
+                x, y = matrix.transform_point(x, y)
             x += cpx
             y += cpy
             return SVGPathSegment('L', x, y)
@@ -1131,39 +1131,39 @@ class PathSegment(object):
         if path_type == 'A':
             # 'A'|'a' (rx,ry x-axis-rotation large-arc-flag sweep-flag x,y)+
             rx, ry, x_axis_rotation, fa, fs, x, y = abs_path_segment.values
-            x, y = matrix.point(x, y)
+            x, y = matrix.transform_point(x, y)
             # x_axis_rotation += matrix.get_angle()
             return SVGPathSegment('A', rx, ry, x_axis_rotation, fa, fs, x, y)
         elif path_type == 'C':
             # 'C'|'c' (x1,y1 x2,y2 x,y)+
             x1, y1, x2, y2, x, y = abs_path_segment.values
-            x1, y1 = matrix.point(x1, y1)
-            x2, y2 = matrix.point(x2, y2)
-            x, y = matrix.point(x, y)
+            x1, y1 = matrix.transform_point(x1, y1)
+            x2, y2 = matrix.transform_point(x2, y2)
+            x, y = matrix.transform_point(x, y)
             return SVGPathSegment('C', x1, y1, x2, y2, x, y)
         elif path_type == 'H':
             # 'H'|'h' x+
             x, y = abs_path_segment.values[0], cpy
-            x, y = matrix.point(x, y)
+            x, y = matrix.transform_point(x, y)
             return SVGPathSegment('L', x, y)
         elif path_type in 'LMT':
             # 'L'|'l' (x,y)+
             # 'M'|'m' (x,y)+
             # 'T'|'t' (x,y)+
             x, y = abs_path_segment.values
-            x, y = matrix.point(x, y)
+            x, y = matrix.transform_point(x, y)
             return SVGPathSegment(path_type, x, y)
         elif path_type in 'QS':
             # 'Q'|'q' (x1,y1 x,y)+
             # 'S'|'s' (x2,y2 x,y)+
             x2, y2, x, y = abs_path_segment.values
-            x2, y2 = matrix.point(x2, y2)
-            x, y = matrix.point(x, y)
+            x2, y2 = matrix.transform_point(x2, y2)
+            x, y = matrix.transform_point(x, y)
             return SVGPathSegment(path_type, x2, y2, x, y)
         elif path_type == 'V':
             # 'V'|'v' y+
             x, y = cpx, abs_path_segment.values[0]
-            x, y = matrix.point(x, y)
+            x, y = matrix.transform_point(x, y)
             return SVGPathSegment('L', x, y)
         raise NotImplementedError('Unsupported path type: ' + repr(path_type))
 

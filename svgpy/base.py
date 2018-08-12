@@ -341,7 +341,7 @@ class SVGGraphicsElement(SVGElement):
         if viewport_type == SVGElement.FARTHEST_VIEWPORT:
             scale = farthest.current_scale
             tx, ty = farthest.current_translate
-            ctm *= DOMMatrix(scale, 0, 0, scale, tx, ty)
+            ctm *= DOMMatrix([scale, 0, 0, scale, tx, ty])
         for root in roots:
             vtm = root.get_viewport_transformation_matrix(recursive=False)
             ctm *= vtm

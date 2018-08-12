@@ -66,7 +66,7 @@ class PathLinetoTestCase(unittest.TestCase):
         path_data = PathParser.parse(d)
 
         matrix = DOMMatrix()
-        matrix = matrix.flipy()
+        matrix = matrix.flip_y()
         transformed = PathParser.transform(path_data, matrix)
         d = PathParser.tostring(transformed)
         expected = \

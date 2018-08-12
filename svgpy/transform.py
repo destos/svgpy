@@ -68,10 +68,11 @@ class SVGTransform(object):
         """Matrix: The current matrix or None."""
         if self._transform_type is None or self._values is None:
             return None
+        elif self._transform_type == SVGTransform.TRANSFORM_MATRIX:
+            matrix = DOMMatrix.from_float_array(self._values)
+            return matrix
         matrix = DOMMatrix()
-        if self._transform_type == SVGTransform.TRANSFORM_MATRIX:
-            matrix.set_matrix(*self._values)
-        elif self._transform_type == SVGTransform.TRANSFORM_ROTATE:
+        if self._transform_type == SVGTransform.TRANSFORM_ROTATE:
             angle, cx, cy = self._values
             if cx != 0 or cy != 0:
                 matrix.translate_self(cx, cy)
@@ -81,9 +82,9 @@ class SVGTransform(object):
         elif self._transform_type == SVGTransform.TRANSFORM_SCALE:
             matrix.scale_self(*self._values)
         elif self._transform_type == SVGTransform.TRANSFORM_SKEWX:
-            matrix.skewx_self(*self._values)
+            matrix.skew_x_self(*self._values)
         elif self._transform_type == SVGTransform.TRANSFORM_SKEWY:
-            matrix.skewy_self(*self._values)
+            matrix.skew_y_self(*self._values)
         elif self._transform_type == SVGTransform.TRANSFORM_TRANSLATE:
             matrix.translate_self(*self._values)
         else:
@@ -224,7 +225,7 @@ class SVGTransform(object):
             if number_sequence[1] == '0':
                 del number_sequence[1]
         if delimiter is None or len(delimiter) == 0:
-            delimiter = ' '
+            delimiter = ', '
         return '{0}({1})'.format(self._transform_type,
                                  delimiter.join(number_sequence))
 

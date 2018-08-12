@@ -352,10 +352,10 @@ class Rect(object):
         y2 = y1
         x4 = x1
         y4 = y3
-        x1, y1 = matrix.point(x1, y1)
-        x2, y2 = matrix.point(x2, y2)
-        x3, y3 = matrix.point(x3, y3)
-        x4, y4 = matrix.point(x4, y4)
+        x1, y1 = matrix.transform_point(x1, y1)
+        x2, y2 = matrix.transform_point(x2, y2)
+        x3, y3 = matrix.transform_point(x3, y3)
+        x4, y4 = matrix.transform_point(x4, y4)
         x1 = min(x1, x2, x3, x4)
         y1 = min(y1, y2, y3, y4)
         x3 = max(x1, x2, x3, x4)

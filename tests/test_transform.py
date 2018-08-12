@@ -30,8 +30,8 @@ class TransformListTestCase(unittest.TestCase):
     def test_transform_matrix(self):
         t = SVGTransform('matrix', 1, 2, 3, 4, 5, 6)
         self.assertEqual(SVGTransform.TRANSFORM_MATRIX, t.type)
-        self.assertEqual('matrix(1 2 3 4 5 6)', t.tostring())
-        self.assertTrue(t.matrix == DOMMatrix(1, 2, 3, 4, 5, 6))
+        self.assertEqual('matrix(1, 2, 3, 4, 5, 6)', t.tostring())
+        self.assertTrue(t.matrix == DOMMatrix([1, 2, 3, 4, 5, 6]))
         self.assertTrue((t.matrix.matrix == np.matrix(
             [[1, 3, 0, 5],
              [2, 4, 0, 6],
@@ -42,8 +42,8 @@ class TransformListTestCase(unittest.TestCase):
         t = SVGTransform()
         t.set_matrix(-1, 1.2, 3, -1.4, 5, 1.6)
         self.assertEqual(SVGTransform.TRANSFORM_MATRIX, t.type)
-        self.assertEqual('matrix(-1 1.2 3 -1.4 5 1.6)', t.tostring())
-        self.assertTrue(t.matrix == DOMMatrix(-1, 1.2, 3, -1.4, 5, 1.6))
+        self.assertEqual('matrix(-1, 1.2, 3, -1.4, 5, 1.6)', t.tostring())
+        self.assertTrue(t.matrix == DOMMatrix([-1, 1.2, 3, -1.4, 5, 1.6]))
 
     def test_transform_rotate(self):
         r = -30
@@ -56,7 +56,7 @@ class TransformListTestCase(unittest.TestCase):
 
         t = SVGTransform('rotate', r, cx, cy)
         self.assertEqual(SVGTransform.TRANSFORM_ROTATE, t.type)
-        self.assertEqual('rotate(-30 24 16)', t.tostring())
+        self.assertEqual('rotate(-30, 24, 16)', t.tostring())
         self.assertTrue(t.matrix == m)
 
         cx = 12.3456
@@ -69,7 +69,7 @@ class TransformListTestCase(unittest.TestCase):
         t = SVGTransform()
         t.set_rotate(r, cx, cy)
         self.assertEqual(SVGTransform.TRANSFORM_ROTATE, t.type)
-        self.assertEqual('rotate(-30 12.346 0)', t.tostring())
+        self.assertEqual('rotate(-30, 12.346, 0)', t.tostring())
         self.assertTrue(t.matrix == m)
 
         cx = -0
@@ -101,13 +101,13 @@ class TransformListTestCase(unittest.TestCase):
         t = SVGTransform()
         t.set_scale(sx, sy)
         self.assertEqual(SVGTransform.TRANSFORM_SCALE, t.type)
-        self.assertEqual('scale(1.5 0)', t.tostring())
+        self.assertEqual('scale(1.5, 0)', t.tostring())
         self.assertTrue(t.matrix == m)
 
     def test_transform_skewx(self):
         a = 190.0001
         m = DOMMatrix()
-        m.skewx_self(a)
+        m.skew_x_self(a)
 
         t = SVGTransform('skewX', a)
         self.assertEqual(SVGTransform.TRANSFORM_SKEWX, t.type)
@@ -116,7 +116,7 @@ class TransformListTestCase(unittest.TestCase):
 
         a = -120.4567
         m = DOMMatrix()
-        m.skewx_self(a)
+        m.skew_x_self(a)
 
         t = SVGTransform()
         t.set_skewx(a)
@@ -127,7 +127,7 @@ class TransformListTestCase(unittest.TestCase):
     def test_transform_skewy(self):
         a = 190.0001
         m = DOMMatrix()
-        m.skewy_self(a)
+        m.skew_y_self(a)
 
         t = SVGTransform('skewY', a)
         self.assertEqual(SVGTransform.TRANSFORM_SKEWY, t.type)
@@ -136,7 +136,7 @@ class TransformListTestCase(unittest.TestCase):
 
         a = -120.4567
         m = DOMMatrix()
-        m.skewy_self(a)
+        m.skew_y_self(a)
 
         t = SVGTransform()
         t.set_skewy(a)
@@ -152,7 +152,7 @@ class TransformListTestCase(unittest.TestCase):
 
         t = SVGTransform('translate', tx, ty)
         self.assertEqual(SVGTransform.TRANSFORM_TRANSLATE, t.type)
-        self.assertEqual('translate(100 -100)', t.tostring())
+        self.assertEqual('translate(100, -100)', t.tostring())
         self.assertTrue(t.matrix == m)
 
         tx = -1.5
@@ -174,7 +174,7 @@ class TransformListTestCase(unittest.TestCase):
         self.assertTrue(isinstance(transform_list, SVGTransformList))
         self.assertEqual(4, len(transform_list))
         self.assertEqual(
-            'translate(50 30) rotate(30) skewY(30) translate(200 30)',
+            'translate(50, 30) rotate(30) skewY(30) translate(200, 30)',
             transform_list.tostring())
 
     def test_transform_list_consolidate(self):
@@ -184,9 +184,12 @@ class TransformListTestCase(unittest.TestCase):
         t = transform_list.consolidate()
         self.assertEqual(1, len(transform_list))
         self.assertEqual(transform_list[0], t)
-        m = DOMMatrix(
-            0.8660254037844387, 0.49999999999999994, -0.49999999999999994,
-            0.8660254037844387, 50, 30)
+        m = DOMMatrix([0.8660254037844387,
+                       0.49999999999999994,
+                       -0.49999999999999994,
+                       0.8660254037844387,
+                       50,
+                       30])
         self.assertEqual(SVGTransform.TRANSFORM_MATRIX, t.type)
         self.assertTrue(t.matrix == m)
 
@@ -207,19 +210,19 @@ class TransformListTestCase(unittest.TestCase):
         self.assertTrue(isinstance(transform_list, SVGTransformList))
         self.assertEqual(4, len(transform_list))
         self.assertEqual(
-            'translate(50 30) rotate(30) skewY(30) translate(200 30)',
+            'translate(50, 30) rotate(30) skewY(30) translate(200, 30)',
             transform_list.tostring())
 
     def test_transform_list_parse01(self):
         formatter.precision = 4
 
-        t = "matrix(0.88889 2.33334 3.55555 4.78787 5.00004 6.00006)" \
+        t = "matrix(0.88889, 2.33334, 3.55555, 4.78787, 5.00004, 6.00006)" \
             " rotate(25.11155 0.0 0.0) scale(2.22222 2.22222)" \
             " skewX(-36.11224) skewY(180.55564)" \
             " translate(-100.44444 0.0)"
         transform_list = SVGTransformList.parse(t)
         self.assertEqual(6, len(transform_list))
-        self.assertEqual('matrix(0.8889 2.3333 3.5556 4.7879 5 6.0001)',
+        self.assertEqual('matrix(0.8889, 2.3333, 3.5556, 4.7879, 5, 6.0001)',
                          transform_list[0].tostring())
         self.assertEqual('rotate(25.1116)',
                          transform_list[1].tostring())
@@ -236,11 +239,11 @@ class TransformListTestCase(unittest.TestCase):
         t = ' translate ( 1500e-2 .5e+2 ) scale ( .5,.25 ) rotate ( 45.0.5.7 ) '
         transform_list = SVGTransformList.parse(t)
         self.assertEqual(3, len(transform_list))
-        self.assertEqual('translate(15 50)',
+        self.assertEqual('translate(15, 50)',
                          transform_list[0].tostring())
-        self.assertEqual('scale(0.5 0.25)',
+        self.assertEqual('scale(0.5, 0.25)',
                          transform_list[1].tostring())
-        self.assertEqual('rotate(45 0.5 0.7)',
+        self.assertEqual('rotate(45, 0.5, 0.7)',
                          transform_list[2].tostring())
 
     def test_transform_list_parse03(self):
@@ -248,11 +251,11 @@ class TransformListTestCase(unittest.TestCase):
             "rotate\t(\t45.0.5.7\t)\n"
         transform_list = SVGTransformList.parse(t)
         self.assertEqual(3, len(transform_list))
-        self.assertEqual('translate(15 50)',
+        self.assertEqual('translate(15, 50)',
                          transform_list[0].tostring())
-        self.assertEqual('scale(0.5 0.25)',
+        self.assertEqual('scale(0.5, 0.25)',
                          transform_list[1].tostring())
-        self.assertEqual('rotate(45 0.5 0.7)',
+        self.assertEqual('rotate(45, 0.5, 0.7)',
                          transform_list[2].tostring())
 
 
