@@ -12,7 +12,7 @@ from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
     SVGRectElement, SVGSVGElement, SVGTextElement
 from svgpy import Comment, Element, Font, \
     HTMLElement, \
-    DOMMatrix, Node, PathParser, Rect, SVGLength, SVGParser, SVGPathSegment, \
+    DOMMatrix, Node, PathParser, DOMRect, SVGLength, SVGParser, SVGPathSegment, \
     SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, window, \
     formatter
 
@@ -511,7 +511,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('defs-1')
         bbox = element.get_bbox()
-        self.assertEqual(Rect(), bbox, msg=element)
+        self.assertEqual(DOMRect(), bbox, msg=element)
 
     def test_bbox01_02(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -521,7 +521,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('rect-1')
         bbox = element.get_bbox()
-        self.assertEqual(Rect(20, 20, 40, 40), bbox, msg=element.id)
+        self.assertEqual(DOMRect(20, 20, 40, 40), bbox, msg=element.id)
 
     def test_bbox01_03(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -531,7 +531,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('group-1')
         bbox = element.get_bbox()
-        self.assertEqual(Rect(30, 30, 40, 40), bbox, msg=element.id)
+        self.assertEqual(DOMRect(30, 30, 40, 40), bbox, msg=element.id)
 
     def test_bbox01_04(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -541,7 +541,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('use-1')
         bbox = element.get_bbox()
-        self.assertEqual(Rect(30, 30, 40, 40), bbox, msg=element.id)
+        self.assertEqual(DOMRect(30, 30, 40, 40), bbox, msg=element.id)
 
     def test_bbox01_05(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -551,7 +551,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('group-2')
         bbox = element.get_bbox()
-        self.assertEqual(Rect(10, 10, 100, 100), bbox, msg=element.id)
+        self.assertEqual(DOMRect(10, 10, 100, 100), bbox, msg=element.id)
 
     def test_bbox01_06(self):
         # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
@@ -561,7 +561,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         element = root.get_element_by_id('rect-2')
         bbox = element.get_bbox()
-        self.assertEqual(Rect(10, 10, 100, 100), bbox, msg=element.id)
+        self.assertEqual(DOMRect(10, 10, 100, 100), bbox, msg=element.id)
 
     def test_bbox02_01(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg

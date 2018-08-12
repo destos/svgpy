@@ -5,73 +5,73 @@ import unittest
 
 sys.path.extend(['.', '..'])
 
-from svgpy import Rect
+from svgpy import DOMRect
 
 
 class RectTestCase(unittest.TestCase):
     def test_eq01(self):
-        a = Rect()
-        b = Rect()
+        a = DOMRect()
+        b = DOMRect()
         f = a == b
         self.assertTrue(f)
 
     def test_eq02(self):
-        a = Rect(0, 0)
-        b = Rect()
+        a = DOMRect(0, 0)
+        b = DOMRect()
         f = a != b
         self.assertTrue(f)
 
     def test_eq03(self):
-        a = Rect()
-        b = Rect(0, 0)
+        a = DOMRect()
+        b = DOMRect(0, 0)
         f = a != b
         self.assertTrue(f)
 
     def test_eq04(self):
-        a = Rect(10, 20)
-        b = Rect(10, 20)
+        a = DOMRect(10, 20)
+        b = DOMRect(10, 20)
         f = a == b
         self.assertTrue(f)
 
     def test_eq05(self):
-        a = Rect(10, 20, 100, 200)
-        b = Rect(10, 20, 100, 200)
+        a = DOMRect(10, 20, 100, 200)
+        b = DOMRect(10, 20, 100, 200)
         f = a == b
         self.assertTrue(f)
 
     def test_eq06(self):
-        a = Rect(10, 20, 100, 200)
-        b = Rect(15, 20, 100, 200)
+        a = DOMRect(10, 20, 100, 200)
+        b = DOMRect(15, 20, 100, 200)
         f = a != b
         self.assertTrue(f)
 
     def test_eq07(self):
-        a = Rect(10, 20, 100, 200)
-        b = Rect(10, 25, 100, 200)
+        a = DOMRect(10, 20, 100, 200)
+        b = DOMRect(10, 25, 100, 200)
         f = a != b
         self.assertTrue(f)
 
     def test_eq08(self):
-        a = Rect(10, 20, 100, 200)
-        b = Rect(15, 25, 100, 200)
+        a = DOMRect(10, 20, 100, 200)
+        b = DOMRect(15, 25, 100, 200)
         f = a != b
         self.assertTrue(f)
 
     def test_eq09(self):
-        a = Rect(10, 20, 100, 200)
-        b = Rect(10, 20, 105, 200)
+        a = DOMRect(10, 20, 100, 200)
+        b = DOMRect(10, 20, 105, 200)
         f = a != b
         self.assertTrue(f)
 
     def test_eq10(self):
-        a = Rect(10, 20, 100, 200)
-        b = Rect(10, 20, 100, 205)
+        a = DOMRect(10, 20, 100, 200)
+        b = DOMRect(10, 20, 100, 205)
         f = a != b
         self.assertTrue(f)
 
     def test_eq11(self):
-        a = Rect(10, 20, 100, 200)
-        b = Rect(10, 20, 105, 205)
+        a = DOMRect(10, 20, 100, 200)
+        b = DOMRect(10, 20, 105, 205)
         f = a != b
         self.assertTrue(f)
 
@@ -81,8 +81,8 @@ class RectTestCase(unittest.TestCase):
         h = 20
         xa = 100
         ya = 100
-        a = Rect(xa, ya, w, h)
-        b = Rect()
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect()
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -99,8 +99,8 @@ class RectTestCase(unittest.TestCase):
         h = 20
         xb = 100
         yb = 100
-        a = Rect()
-        b = Rect(xb, yb, w, h)
+        a = DOMRect()
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = None
         expected_y = None
@@ -119,8 +119,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -139,8 +139,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -159,8 +159,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya - h
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -179,8 +179,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -199,8 +199,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa + w / 2
         expected_y = ya
@@ -219,8 +219,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -239,8 +239,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -259,8 +259,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -279,8 +279,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -299,8 +299,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa + w / 2
         expected_y = ya
@@ -319,8 +319,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -339,8 +339,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -359,8 +359,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya + h / 2
@@ -379,8 +379,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya + h
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -399,8 +399,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya + h / 2
@@ -419,8 +419,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa + w / 2
         expected_y = ya + h / 2
@@ -439,8 +439,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a & b
         expected_x = xa
         expected_y = ya
@@ -452,15 +452,15 @@ class RectTestCase(unittest.TestCase):
         self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_intersected_invalid_invalid(self):
-        a = Rect()
-        b = Rect()
+        a = DOMRect()
+        b = DOMRect()
         c = a.intersect(b)
         self.assertTrue(c.isempty())
         self.assertTrue(not c.isvalid())
 
     def test_intersected_invalid_valid(self):
-        a = Rect()
-        b = Rect(30, 50, 100, 200)
+        a = DOMRect()
+        b = DOMRect(30, 50, 100, 200)
         c = a.intersect(b)
         self.assertTrue(c.isempty())
         self.assertTrue(not c.isvalid())
@@ -469,8 +469,8 @@ class RectTestCase(unittest.TestCase):
         self.assertEqual((30, 50, 100, 200), (b.x, b.y, b.width, b.height))
 
     def test_intersected_valid_invalid(self):
-        a = Rect(30, 50, 100, 200)
-        b = Rect()
+        a = DOMRect(30, 50, 100, 200)
+        b = DOMRect()
         c = a.intersect(b)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
@@ -487,7 +487,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xb
         expected_y = yb
@@ -506,7 +506,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xb
         expected_y = yb
@@ -525,7 +525,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = yb
@@ -544,7 +544,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w + w / 2
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = yb
@@ -563,7 +563,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xb
         expected_y = ya
@@ -582,7 +582,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
@@ -601,7 +601,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w + w / 2
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
@@ -620,7 +620,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya + h + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xb
         expected_y = ya
@@ -639,7 +639,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya + h + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
@@ -658,7 +658,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya + h + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
@@ -677,7 +677,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya + h + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
@@ -696,7 +696,7 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w + w / 2
         yb = ya + h + h / 2
-        a = Rect(xa, ya, w, h)
+        a = DOMRect(xa, ya, w, h)
         c = a.unite(xb, yb)
         expected_x = xa
         expected_y = ya
@@ -715,8 +715,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = yb
@@ -735,8 +735,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = yb
@@ -755,8 +755,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya - h
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = yb
@@ -775,8 +775,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = yb
@@ -795,8 +795,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = yb
@@ -815,8 +815,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya - h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = yb
@@ -835,8 +835,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = ya
@@ -855,8 +855,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = ya
@@ -875,8 +875,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = ya
@@ -895,8 +895,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = ya
@@ -915,8 +915,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = ya
@@ -935,8 +935,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = ya
@@ -955,8 +955,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa - w / 2
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xb
         expected_y = ya
@@ -975,8 +975,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = ya
@@ -995,8 +995,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa
         yb = ya + h
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = ya
@@ -1015,8 +1015,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w / 2
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = ya
@@ -1035,8 +1035,8 @@ class RectTestCase(unittest.TestCase):
         ya = 100
         xb = xa + w
         yb = ya + h / 2
-        a = Rect(xa, ya, w, h)
-        b = Rect(xb, yb, w, h)
+        a = DOMRect(xa, ya, w, h)
+        b = DOMRect(xb, yb, w, h)
         c = a | b
         expected_x = xa
         expected_y = ya
@@ -1048,15 +1048,15 @@ class RectTestCase(unittest.TestCase):
         self.assertEqual(expected_h, c.height, msg=(a, b, c))
 
     def test_united_invalid_invalid(self):
-        a = Rect()
-        b = Rect()
+        a = DOMRect()
+        b = DOMRect()
         c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(c.isempty())
         self.assertTrue(not c.isvalid())
 
     def test_united_invalid_valid(self):
-        a = Rect()
-        b = Rect(30, 50, 100, 200)
+        a = DOMRect()
+        b = DOMRect(30, 50, 100, 200)
         c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())
@@ -1066,8 +1066,8 @@ class RectTestCase(unittest.TestCase):
         self.assertEqual((30, 50, 100, 200), (b.x, b.y, b.width, b.height))
 
     def test_united_valid_invalid(self):
-        a = Rect(30, 50, 100, 200)
-        b = Rect()
+        a = DOMRect(30, 50, 100, 200)
+        b = DOMRect()
         c = a.unite(b.x, b.y, b.width, b.height)
         self.assertTrue(not c.isempty())
         self.assertTrue(c.isvalid())

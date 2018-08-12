@@ -19,7 +19,7 @@ import math
 import numpy as np
 
 from ._ffi_api import dlopen, ffi
-from .rect import Rect
+from .geometry.rect import DOMRect
 
 lib = dlopen(ffi, ['freetype'])
 
@@ -181,10 +181,10 @@ class FTFace(object):
     @property
     def bbox(self):
         bbox = self._face.bbox
-        rect = Rect(bbox.xMin,
-                    bbox.yMin,
-                    bbox.xMax - bbox.xMin,
-                    bbox.yMax - bbox.yMin)
+        rect = DOMRect(bbox.xMin,
+                       bbox.yMin,
+                       bbox.xMax - bbox.xMin,
+                       bbox.yMax - bbox.yMin)
         return rect
 
     @property
@@ -821,10 +821,10 @@ class FTOutline(object):
         error = lib.FT_Outline_Get_BBox(ffi.addressof(self._outline), bbox)
         if error:
             raise RuntimeError('FT_Outline_Get_BBox() failed: ' + hex(error))
-        rect = Rect(bbox.xMin,
-                    bbox.yMin,
-                    bbox.xMax - bbox.xMin,
-                    bbox.yMax - bbox.yMin)
+        rect = DOMRect(bbox.xMin,
+                       bbox.yMin,
+                       bbox.xMax - bbox.xMin,
+                       bbox.yMax - bbox.yMin)
         return rect
 
     def get_cbox(self):
@@ -832,10 +832,10 @@ class FTOutline(object):
         error = lib.FT_Outline_Get_CBox(ffi.addressof(self._outline), bbox)
         if error:
             raise RuntimeError('FT_Outline_Get_CBox() failed: ' + hex(error))
-        rect = Rect(bbox.xMin,
-                    bbox.yMin,
-                    bbox.xMax - bbox.xMin,
-                    bbox.yMax - bbox.yMin)
+        rect = DOMRect(bbox.xMin,
+                       bbox.yMin,
+                       bbox.xMax - bbox.xMin,
+                       bbox.yMax - bbox.yMin)
         return rect
 
     def get_orientation(self):

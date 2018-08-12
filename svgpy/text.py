@@ -20,12 +20,12 @@ from .core import CSSUtils, Font, SVGLength
 from .dom import Element, Node
 from .freetype import FreeType
 from .geometry.matrix import DOMMatrix
+from .geometry.rect import DOMRect
 from .harfbuzz import HBBuffer, HBDirection, HBFeature, HBFTFont, HBLanguage, \
     HBScript
 from .icu import UBiDi, UBreakIterator, ULocale
 from .opentype import features_from_style, iso639_codes_from_language_tag
 from .path import PathParser
-from .rect import Rect
 
 
 class SVGTextContentElement(SVGGraphicsElement):
@@ -60,7 +60,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         Keyword Arguments:
             is_display (bool, optional):
         Returns:
-            list[list[int, str, dict, list[SVGPathSegment], list[float], Rect,
+            list[list[int, str, dict, list[SVGPathSegment], list[float], DOMRect,
                 SVGElement]]:
                 Returns a list of seven numbers <hash value of an element>,
                 <text for rendering>, <computed presentation properties>,
@@ -141,7 +141,7 @@ class SVGTextContentElement(SVGGraphicsElement):
             is_display (bool, optional):
             is_render (bool, optional):
         Returns:
-            list[list[int, str, dict, list[SVGPathSegment], list[float], Rect,
+            list[list[int, str, dict, list[SVGPathSegment], list[float], DOMRect,
                 SVGElement]]:
                 Returns a list of seven numbers <hash value of an element>,
                 <text for rendering>, <computed presentation properties>,
@@ -202,7 +202,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         Returns:
             list[SVGPathSegment]:
             list[float]:
-            Rect:
+            DOMRect:
             tuple[float, float]:
         """
 
@@ -319,7 +319,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         matrix = DOMMatrix()
         path_data_list = list()
         advance_list = list()
-        text_bbox = Rect()
+        text_bbox = DOMRect()
         metrics = face.size.metrics
         glyph_width = metrics.x_ppem
         glyph_height = metrics.height / 64
@@ -395,7 +395,7 @@ class SVGTextContentElement(SVGGraphicsElement):
 
                 # render line
                 line_path_data = list()
-                line_bbox = Rect()
+                line_bbox = DOMRect()
                 for info, position in zip(infos, positions):
                     if len(x_list) > 0:
                         x = x_list.pop(0)
@@ -427,25 +427,25 @@ class SVGTextContentElement(SVGGraphicsElement):
                         advance = position.x_advance / 64
                         if para_level == UBiDi.UBIDI_RTL:
                             x -= advance
-                        glyph_bbox = Rect(x,
-                                          y - glyph_height - descender,
-                                          advance,
-                                          glyph_height)
+                        glyph_bbox = DOMRect(x,
+                                             y - glyph_height - descender,
+                                             advance,
+                                             glyph_height)
                         x_advance = advance
                         y_advance = 0
                     else:
                         # TODO: fix bbox for vertical text.
                         advance = -position.y_advance / 64
                         if sideways:
-                            glyph_bbox = Rect(x,
-                                              y,
-                                              glyph_width,
-                                              position.x_advance / 64)
+                            glyph_bbox = DOMRect(x,
+                                                 y,
+                                                 glyph_width,
+                                                 position.x_advance / 64)
                         else:
-                            glyph_bbox = Rect(x,
-                                              y - advance + advance + y_offset,
-                                              glyph_width,
-                                              advance)
+                            glyph_bbox = DOMRect(x,
+                                                 y - advance + advance + y_offset,
+                                                 glyph_width,
+                                                 advance)
                         x_advance = 0
                         y_advance = advance
                     advance_list.append(advance)
@@ -508,9 +508,9 @@ class SVGTextContentElement(SVGGraphicsElement):
             options (SVGBoundingBoxOptions, optional): Reserved.
             _depth (int, optional): For internal use only.
         Returns:
-            Rect: The bounding box of the current element.
+            DOMRect: The bounding box of the current element.
         """
-        bbox = Rect()
+        bbox = DOMRect()
         chars_info = self._get_chars_info()
         if len(chars_info) == 0:
             return bbox

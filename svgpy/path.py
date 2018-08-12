@@ -25,7 +25,7 @@ from .core import SVGLength
 from .formatter import format_number_sequence, to_coordinate_pair_sequence
 from .freetype import FTMatrix
 from .geometry.matrix import DOMMatrix
-from .rect import Rect
+from .geometry.rect import DOMRect
 
 
 def get_angle(y, x):
@@ -70,7 +70,7 @@ class CubicBezierCurve(object):
             options (SVGBoundingBoxOptions, optional): Reserved.
             **extra: Reserved.
         Returns:
-            Rect: The bounding box of the cubic bezier curve.
+            DOMRect: The bounding box of the cubic bezier curve.
         """
         # TODO: implement the SVGBoundingBoxOptions option.
         x1, y1 = self._p0
@@ -91,7 +91,7 @@ class CubicBezierCurve(object):
         y = min(y_sequence)
         width = max(x_sequence) - x
         height = max(y_sequence) - y
-        return Rect(x, y, width, height)
+        return DOMRect(x, y, width, height)
 
     def get_coefficients(self):
         """Calculates the coefficients for a cubic polynomial equation."""
@@ -574,14 +574,14 @@ class PathSegment(object):
             y1 (float): The absolute y-coordinate of the control point at the
                 beginning of the curve for S/s/T/t commands.
         Returns:
-            Rect: The bounding box of the path segment.
+            DOMRect: The bounding box of the path segment.
         """
         # TODO: add the Catmull-Rom command ("R"|"r").
         if not path_segment.isvalid() or path_segment.type in 'BbZz':
-            return Rect()
+            return DOMRect()
         normalized = PathSegment.normalize(path_segment,
                                            cpx, cpy, bearing, **extra)
-        bbox = Rect()
+        bbox = DOMRect()
         for segment in normalized:
             path_type = segment.type
             if path_type == 'C':
@@ -605,18 +605,18 @@ class PathSegment(object):
                 if cpy is None:
                     cpy = 0
                 x, y = segment.values
-                bbox |= Rect(cpx, cpy, x - cpx, y - cpy).normalize()
+                bbox |= DOMRect(cpx, cpy, x - cpx, y - cpy).normalize()
                 cpx, cpy = x, y
             elif path_type == 'M':
                 # 'M'|'m' (x,y)+
                 x, y = segment.values
                 if cpx is None or cpy is None:
                     if bbox.isvalid():
-                        bbox |= Rect(x, y)
+                        bbox |= DOMRect(x, y)
                     else:
-                        bbox = Rect(x, y)
+                        bbox = DOMRect(x, y)
                 else:
-                    bbox |= Rect(cpx, cpy, x - cpx, y - cpy).normalize()
+                    bbox |= DOMRect(cpx, cpy, x - cpx, y - cpy).normalize()
                 cpx, cpy = x, y
         return bbox
 
@@ -1267,9 +1267,9 @@ class PathParser(object):
             options (SVGBoundingBoxOptions, optional): Reserved.
             **extra: Reserved.
         Returns:
-            Rect: The bounding box of the path.
+            DOMRect: The bounding box of the path.
         """
-        bbox = Rect()
+        bbox = DOMRect()
         start_x = None
         start_y = None
         cpx = None

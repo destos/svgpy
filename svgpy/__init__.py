@@ -24,8 +24,8 @@ from svgpy.core import Font, SVGLength
 from svgpy.dom import Comment, Element, Node
 from svgpy.element import SVGElementClassLookup, SVGParser
 from svgpy.geometry.matrix import DOMMatrix, DOMMatrixReadOnly
+from svgpy.geometry.rect import DOMRect
 from svgpy.path import PathParser, SVGPathSegment
-from svgpy.rect import Rect
 from svgpy.screen import Screen
 from svgpy.text import SVGTextContentElement, SVGTextPositioningElement
 from svgpy.transform import SVGTransform, SVGTransformList

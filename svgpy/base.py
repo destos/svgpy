@@ -20,8 +20,8 @@ from .dom import Element, ElementCSSInlineStyle
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
 from .geometry.matrix import DOMMatrix
+from .geometry.rect import DOMRect
 from .path import PathParser
-from .rect import Rect
 from .screen import Screen
 from .transform import SVGTransformList
 
@@ -368,11 +368,11 @@ class SVGGraphicsElement(SVGElement):
             options (SVGBoundingBoxOptions, optional): Reserved.
             _depth (int, optional): For internal use only.
         Returns:
-            Rect: The bounding box of the current element.
+            DOMRect: The bounding box of the current element.
         """
         # TODO: implement SVGBoundingBoxOptions option.
         _depth += 1
-        bbox = Rect()
+        bbox = DOMRect()
         if self.local_name in ['defs', 'symbol']:
             return bbox  # not rendered directly
         if self.iscontainer():

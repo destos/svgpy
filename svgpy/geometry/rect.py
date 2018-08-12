@@ -16,9 +16,9 @@
 import copy
 
 
-class Rect(object):
+class DOMRect(object):
     def __init__(self, x=None, y=None, width=0, height=0):
-        """Constructs a Rect object.
+        """Constructs a DOMRect object.
 
         Arguments:
             x (float, optional): The absolute x-coordinate of the rectangle's
@@ -34,12 +34,12 @@ class Rect(object):
         self._height = height
 
     def __and__(self, other):
-        if not isinstance(other, Rect):
+        if not isinstance(other, DOMRect):
             return NotImplemented
         return self.intersect(other)
 
     def __eq__(self, other):
-        if not isinstance(other, Rect):
+        if not isinstance(other, DOMRect):
             return NotImplemented
         elif self.x == other.x and self.y == other.y \
                 and self.width == other.width and self.height == other.height:
@@ -47,19 +47,19 @@ class Rect(object):
         return False
 
     def __iand__(self, other):
-        if not isinstance(other, Rect):
+        if not isinstance(other, DOMRect):
             return NotImplemented
         self.intersect_self(other)
         return self
 
     def __ior__(self, other):
-        if not isinstance(other, Rect):
+        if not isinstance(other, DOMRect):
             return NotImplemented
         self.unite_self(other.x, other.y, other.width, other.height)
         return self
 
     def __or__(self, other):
-        if not isinstance(other, Rect):
+        if not isinstance(other, DOMRect):
             return NotImplemented
         return self.unite(other.x, other.y, other.width, other.height)
 
@@ -99,7 +99,7 @@ class Rect(object):
     @property
     def left(self):
         """float: The x-coordinate of the rectangle's left edge.
-        Equivalent to Rect.x.
+        Equivalent to DOMRect.x.
         """
         return self._x
 
@@ -123,7 +123,7 @@ class Rect(object):
     @property
     def top(self):
         """float: The y-coordinate of the rectangle's top edge.
-        Equivalent to Rect.y.
+        Equivalent to DOMRect.y.
         """
         return self._y
 
@@ -143,7 +143,7 @@ class Rect(object):
     @property
     def x(self):
         """float: The x-coordinate of the rectangle's left edge.
-        Equivalent to Rect.left.
+        Equivalent to DOMRect.left.
         """
         return self.left
 
@@ -154,7 +154,7 @@ class Rect(object):
     @property
     def y(self):
         """float: The y-coordinate of the rectangle's top edge.
-        Equivalent to Rect.top.
+        Equivalent to DOMRect.top.
         """
         return self.top
 
@@ -204,8 +204,8 @@ class Rect(object):
     def fromjson(text):
         import ast
         fields = ast.literal_eval(text)
-        rect = Rect(fields['X'], fields['Y'],
-                    fields['Width'], fields['Height'])
+        rect = DOMRect(fields['X'], fields['Y'],
+                       fields['Width'], fields['Height'])
         return rect
 
     def get_coords(self):
@@ -234,8 +234,8 @@ class Rect(object):
     def intersect_self(self, other):
         """Computes the intersection of this rectangle and the given rectangle.
         """
-        if not isinstance(other, Rect):
-            raise TypeError('Expected Rect, got {}'.format(type(other)))
+        if not isinstance(other, DOMRect):
+            raise TypeError('Expected DOMRect, got {}'.format(type(other)))
         elif not self.isvalid() or not other.isvalid():
             return self
         elif other.contains(self.x, self.y, self.width, self.height):
@@ -308,7 +308,7 @@ class Rect(object):
         if height is not None and height < 0:
             y1, y2 = y2, y1
             height = y2 - y1
-        return Rect(x1, y1, width, height)
+        return DOMRect(x1, y1, width, height)
 
     def set_coords(self, x1, y1, x2, y2):
         self._x = x1
