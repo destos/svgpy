@@ -138,6 +138,9 @@ class DOMMatrixReadOnly(object):
             return NotImplemented
         return (self._matrix == other.matrix).all()
 
+    def __imul__(self, other):
+        return None
+
     def __mul__(self, other):
         if not isinstance(other, DOMMatrixReadOnly):
             return NotImplemented

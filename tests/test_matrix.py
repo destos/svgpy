@@ -2142,6 +2142,17 @@ class MatrixTestCase(unittest.TestCase):
         self.assertEqual(m43, o.m43)
         self.assertEqual(m44, o.m44)
 
+    def test_read_only_imul(self):
+        m = DOMMatrixReadOnly()
+        r = DOMMatrixReadOnly()
+        m *= r
+        self.assertIsNone(m)
+
+        m = DOMMatrixReadOnly()
+        r = DOMMatrix()
+        m *= r
+        self.assertIsNone(m)
+
     def test_read_only_rotate_axis_angle_x(self):
         m11 = 1
         m12 = 0
