@@ -24,6 +24,11 @@ from .geometry.rect import DOMRect
 lib = dlopen(ffi, ['freetype'])
 
 
+def matrix2d(a, b, c, d):
+    return np.matrix([[float(a), float(c)],
+                      [float(b), float(d)]])
+
+
 def ft_tag(c1, c2, c3, c4):
     return (ord(c1) << 24) | (ord(c2) << 16) | (ord(c3) << 8) | ord(c4)
 
@@ -941,12 +946,7 @@ class FTMatrix(object):
             xy = ft_matrix.xy / 0x10000
             yx = ft_matrix.yx / 0x10000
             yy = ft_matrix.yy / 0x10000
-        self._matrix = np.matrix([[xx, xy], [yx, yy]])
-
-    def __deepcopy__(self, memodict={}):
-        x = FTMatrix()
-        x._matrix = np.matrix.copy(self._matrix)
-        return x
+        self._matrix = matrix2d(xx, yx, xy, yy)
 
     def __eq__(self, other):
         if not isinstance(other, FTMatrix):
@@ -962,15 +962,20 @@ class FTMatrix(object):
     def __mul__(self, other):
         if not isinstance(other, FTMatrix):
             return NotImplemented
-        x = copy.deepcopy(self)
-        x.multiply_self(other)
-        return x
+        m = copy.deepcopy(self)
+        m.multiply_self(other)
+        return m
 
     def __repr__(self):
-        return repr(self.tolist())
+        return '<{}.{} object at {} {}>'.format(
+            type(self).__module__, type(self).__name__, hex(id(self)),
+            self._matrix.tolist())
 
     @property
     def a(self):
+        """float: The a component of the matrix.
+        Equivalent to FTMatrix.xx.
+        """
         return self._matrix[0, 0]
 
     @a.setter
@@ -979,6 +984,9 @@ class FTMatrix(object):
 
     @property
     def b(self):
+        """float: The b component of the matrix.
+        Equivalent to FTMatrix.yx.
+        """
         return self._matrix[0, 1]
 
     @b.setter
@@ -987,6 +995,9 @@ class FTMatrix(object):
 
     @property
     def c(self):
+        """float: The c component of the matrix.
+        Equivalent to FTMatrix.xy.
+        """
         return self._matrix[1, 0]
 
     @c.setter
@@ -995,6 +1006,9 @@ class FTMatrix(object):
 
     @property
     def d(self):
+        """float: The d component of the matrix.
+        Equivalent to FTMatrix.yy.
+        """
         return self._matrix[1, 1]
 
     @d.setter
@@ -1012,7 +1026,15 @@ class FTMatrix(object):
         return matrix
 
     @property
+    def matrix(self):
+        """numpy.matrix: The current matrix."""
+        return self._matrix
+
+    @property
     def xx(self):
+        """float: The xx component of the matrix.
+        Equivalent to FTMatrix.a.
+        """
         return self._matrix[0, 0]
 
     @xx.setter
@@ -1021,6 +1043,9 @@ class FTMatrix(object):
 
     @property
     def xy(self):
+        """float: The xy component of the matrix.
+        Equivalent to FTMatrix.c.
+        """
         return self._matrix[0, 1]
 
     @xy.setter
@@ -1029,6 +1054,9 @@ class FTMatrix(object):
 
     @property
     def yx(self):
+        """float: The yx component of the matrix.
+        Equivalent to FTMatrix.b.
+        """
         return self._matrix[1, 0]
 
     @yx.setter
@@ -1037,6 +1065,9 @@ class FTMatrix(object):
 
     @property
     def yy(self):
+        """float: The yy component of the matrix.
+        Equivalent to FTMatrix.d.
+        """
         return self._matrix[1, 1]
 
     @yy.setter
@@ -1049,10 +1080,10 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        self._matrix = np.matrix([[1.0, 0], [0, 1.0]])
+        self._matrix = matrix2d(1, 0, 0, 1)
         return self
 
-    def flipx(self):
+    def flip_x(self):
         """Post-multiplies the transformation [-1 0 0 1] on the current matrix
         and returns the resulting matrix.
         The current matrix is not modified.
@@ -1060,11 +1091,12 @@ class FTMatrix(object):
         Returns:
             FTMatrix: The resulting matrix.
         """
-        b = FTMatrix.fromarray([-1, 0, 0, 1])
-        x = self * b
-        return x
+        m = copy.deepcopy(self)
+        b = matrix2d(-1, 0, 0, 1)
+        m._matrix *= b
+        return m
 
-    def flipy(self):
+    def flip_y(self):
         """Post-multiplies the transformation [1 0 0 -1] on the current matrix
         and returns the resulting matrix.
         The current matrix is not modified.
@@ -1072,16 +1104,36 @@ class FTMatrix(object):
         Returns:
             FTMatrix: The resulting matrix.
         """
-        b = FTMatrix.fromarray([1, 0, 0, -1])
-        x = self * b
-        return x
+        m = copy.deepcopy(self)
+        b = matrix2d(1, 0, 0, -1)
+        m._matrix *= b
+        return m
 
     @staticmethod
-    def fromarray(array):
-        x = FTMatrix()
-        x._matrix = np.matrix([[float(array[0]), float(array[2])],
-                               [float(array[1]), float(array[3])]])
-        return x
+    def from_float_array(values):
+        """Creates a new FTMatrix object from a list of elements of the
+        matrix, and returns it.
+
+        Arguments:
+            values (list[float, ...]): A list of elements of the matrix.
+        Returns:
+            FTMatrix: A new FTMatrix object.
+        """
+        m = FTMatrix()
+        a, c, b, d = values
+        m._matrix = matrix2d(a, b, c, d)
+        return m
+
+    def inverse(self):
+        """Returns the inverse matrix.
+        The current matrix is not modified.
+
+        Returns:
+            FTMatrix: The resulting matrix.
+        """
+        m = copy.deepcopy(self)
+        m.invert_self()
+        return m
 
     def invert_self(self):
         """Inverts the current matrix.
@@ -1102,8 +1154,8 @@ class FTMatrix(object):
         Returns:
             FTMatrix: The resulting matrix.
         """
-        x = self * other
-        return x
+        m = self * other
+        return m
 
     def multiply_self(self, other):
         """Post-multiplies the other matrix on the current matrix.
@@ -1113,10 +1165,22 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        if not isinstance(other, FTMatrix):
-            raise TypeError('Expected FTMatrix, got {}'.format(type(other)))
         self._matrix *= other._matrix
         return self
+
+    def rotate(self, angle):
+        """Post-multiplies a rotation transformation on the current matrix and
+        returns the resulting matrix.
+        The current matrix is not modified.
+
+        Arguments:
+            angle (float): The rotation angle in degrees.
+        Returns:
+            FTMatrix: The resulting matrix.
+        """
+        m = copy.deepcopy(self)
+        m.rotate_self(angle)
+        return m
 
     def rotate_self(self, angle):
         """Post-multiplies a rotation transformation on the current matrix.
@@ -1126,27 +1190,58 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        cosa = math.cos(math.radians(angle))
-        sina = math.sin(math.radians(angle))
-        self._matrix *= np.matrix([[cosa, sina], [-sina, cosa]])
+        cos_a = math.cos(math.radians(angle))
+        sin_a = math.sin(math.radians(angle))
+        b = matrix2d(cos_a, -sin_a, sin_a, cos_a)
+        self._matrix *= b
         return self
 
-    def scale_self(self, sx, sy=None):
+    def scale(self, scale_x, scale_y=None):
+        """Post-multiplies a non-uniform scale transformation on the current
+        matrix and returns the resulting matrix.
+        The current matrix is not modified.
+
+        Arguments:
+            scale_x (float): The scale amount in X.
+            scale_y (float, optional): The scale amount in Y.
+        Returns:
+            FTMatrix: The resulting matrix.
+        """
+        m = copy.deepcopy(self)
+        m.scale_self(scale_x, scale_y)
+        return m
+
+    def scale_self(self, scale_x, scale_y=None):
         """Post-multiplies a non-uniform scale transformation on the current
         matrix.
 
         Arguments:
-            sx (float): The scale amount in X.
-            sy (float, optional): The scale amount in Y.
+            scale_x (float): The scale amount in X.
+            scale_y (float, optional): The scale amount in Y.
         Returns:
             FTMatrix: Returns itself.
         """
-        if sy is None:
-            sy = sx
-        self._matrix *= np.matrix([[float(sx), 0], [0, float(sy)]])
+        if scale_y is None:
+            scale_y = scale_x
+        b = matrix2d(scale_x, 0, 0, scale_y)
+        self._matrix *= b
         return self
 
-    def skewx_self(self, angle):
+    def skew_x(self, angle):
+        """Post-multiplies a skewX transformation on the current matrix and
+        returns the resulting matrix.
+        The current matrix is not modified.
+
+        Arguments:
+            angle (float): The skew angle in degrees.
+        Returns:
+            FTMatrix: The resulting matrix.
+        """
+        m = copy.deepcopy(self)
+        m.skew_x_self(angle)
+        return m
+
+    def skew_x_self(self, angle):
         """Post-multiplies a skewX transformation on the current matrix.
 
         Arguments:
@@ -1154,11 +1249,25 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        self._matrix *= np.matrix([[1.0, 0],
-                                   [math.tan(math.radians(angle)), 1.0]])
+        b = matrix2d(1, math.tan(math.radians(angle)), 0, 1)
+        self._matrix *= b
         return self
 
-    def skewy_self(self, angle):
+    def skew_y(self, angle):
+        """Post-multiplies a skewY transformation on the current matrix and
+        returns the resulting matrix.
+        The current matrix is not modified.
+
+        Arguments:
+            angle (float): The skew angle in degrees.
+        Returns:
+            FTMatrix: The resulting matrix.
+        """
+        m = copy.deepcopy(self)
+        m.skew_y_self(angle)
+        return m
+
+    def skew_y_self(self, angle):
         """Post-multiplies a skewY transformation on the current matrix.
 
         Arguments:
@@ -1166,9 +1275,12 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        self._matrix *= np.matrix([[1.0, math.tan(math.radians(angle))],
-                                   [0, 1.0]])
+        b = matrix2d(1, 0, math.tan(math.radians(angle)), 1)
+        self._matrix *= b
         return self
 
+    def to_float_array(self):
+        return [self.a, self.b, self.c, self.d]
+
     def tolist(self):
-        return self._matrix.tolist()
+        return self.to_float_array()

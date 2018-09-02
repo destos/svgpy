@@ -1238,7 +1238,7 @@ class PathParser(object):
         path_data = list()
         outline = face.glyph.outline
         transform = FTMatrix()
-        transform = transform.flipy()
+        transform = transform.flip_y()
         if matrix is not None:
             # convert from core.Matrix to freetype.FTMatrix
             other = FTMatrix()

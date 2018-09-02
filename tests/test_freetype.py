@@ -8,14 +8,71 @@ from pathlib import Path
 
 sys.path.extend(['.', '..'])
 
-from svgpy.freetype import FreeType, FTFace, ft_tag_to_string
-from svgpy.utils import load, normalize_url
+from svgpy.freetype import FreeType, FTFace, FTMatrix, ft_tag_to_string
+from svgpy.utils import load
 
 here = os.path.abspath(os.path.dirname(__file__))
 os.chdir(here)
 
 
 class FreeTypeTestCase(unittest.TestCase):
+    def test_matrix_init(self):
+        m = FTMatrix()
+        xx = 1
+        xy = 0
+        yx = 0
+        yy = 1
+        self.assertEqual(xx, m.xx)
+        self.assertEqual(xy, m.xy)
+        self.assertEqual(yx, m.yx)
+        self.assertEqual(yy, m.yy)
+
+        xx = a = 11
+        xy = b = 21
+        yx = c = 12
+        yy = d = 22
+        m.xx = xx
+        m.xy = xy
+        m.yx = yx
+        m.yy = yy
+        self.assertEqual(xx, m.xx)
+        self.assertEqual(xy, m.xy)
+        self.assertEqual(yx, m.yx)
+        self.assertEqual(yy, m.yy)
+        self.assertEqual(a, m.a)
+        self.assertEqual(b, m.b)
+        self.assertEqual(c, m.c)
+        self.assertEqual(d, m.d)
+
+        m = FTMatrix()
+        m.a = a
+        m.b = b
+        m.c = c
+        m.d = d
+        self.assertEqual(xx, m.xx)
+        self.assertEqual(xy, m.xy)
+        self.assertEqual(yx, m.yx)
+        self.assertEqual(yy, m.yy)
+        self.assertEqual(a, m.a)
+        self.assertEqual(b, m.b)
+        self.assertEqual(c, m.c)
+        self.assertEqual(d, m.d)
+
+    def test_matrix_from_float_array(self):
+        xx = a = 11
+        xy = b = 21
+        yx = c = 12
+        yy = d = 22
+        m = FTMatrix.from_float_array([a, b, c, d])
+        self.assertEqual(xx, m.xx)
+        self.assertEqual(xy, m.xy)
+        self.assertEqual(yx, m.yx)
+        self.assertEqual(yy, m.yy)
+        self.assertEqual(a, m.a)
+        self.assertEqual(b, m.b)
+        self.assertEqual(c, m.c)
+        self.assertEqual(d, m.d)
+
     def test_new_memory_face(self):
         path = os.path.join(here, 'fonts/dejavu/DejaVuSans.ttf')
         url = Path(path).as_uri()
