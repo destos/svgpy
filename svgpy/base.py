@@ -357,7 +357,7 @@ class SVGGraphicsElement(SVGElement):
                 break
             element = element.getparent()
         if len(transform_list) > 0:
-            matrix = transform_list.tomatrix()
+            matrix = transform_list.matrix
             ctm *= matrix
         return ctm
 
@@ -385,7 +385,7 @@ class SVGGraphicsElement(SVGElement):
             if _depth > 1:
                 transform_list = self.transform  # type: SVGTransformList
                 if transform_list is not None:
-                    matrix = transform_list.tomatrix()
+                    matrix = transform_list.matrix
                     bbox.transform_self(matrix)
         else:
             settings = SVGPathDataSettings()
@@ -444,11 +444,11 @@ class SVGGraphicsElement(SVGElement):
         if self.local_name == 'use':
             transform_list = self.instance_root.transform
             if transform_list is not None:
-                matrix = transform_list.tomatrix()
+                matrix = transform_list.matrix
                 path_data = PathParser.transform(path_data, matrix)
         transform_list = self.transform  # type: SVGTransformList
         if transform_list is not None:
-            matrix = transform_list.tomatrix()
+            matrix = transform_list.matrix
             path_data = PathParser.transform(path_data, matrix)
         return path_data
 

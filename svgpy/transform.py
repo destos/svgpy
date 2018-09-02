@@ -15,34 +15,45 @@
 
 import copy
 import re
+from collections.abc import MutableSequence
 
 from .formatter import format_number_sequence
-from .geometry.matrix import DOMMatrix
+from .geometry.matrix import DOMMatrix, DOMMatrixReadOnly
+
+
+_RE_TRANSFORM_LIST = re.compile(
+    r"(?P<transform>(?P<name>matrix|translate|scale|rotate|skewX|skewY)"
+    r"\s*\((?P<values>[^)]+)\))($|\s+|\s*,\s*)")
+
+_RE_NUMBER_SEQUENCE = re.compile(
+    r"(?P<number>[+-]?"
+    r"((\d+(\.\d*)?([Ee][+-]?\d+)?)|(\d*\.\d+([Ee][+-]?\d+)?)))"
+    r"(\s*,\s*|\s+)?")
 
 
 class SVGTransform(object):
     """Represents the transform function values."""
 
-    TRANSFORM_UNKNOWN = None
-    TRANSFORM_MATRIX = 'matrix'
-    TRANSFORM_TRANSLATE = 'translate'
-    TRANSFORM_SCALE = 'scale'
-    TRANSFORM_ROTATE = 'rotate'
-    TRANSFORM_SKEWX = 'skewX'
-    TRANSFORM_SKEWY = 'skewY'
+    SVG_TRANSFORM_UNKNOWN = None
+    SVG_TRANSFORM_MATRIX = 'matrix'
+    SVG_TRANSFORM_TRANSLATE = 'translate'
+    SVG_TRANSFORM_SCALE = 'scale'
+    SVG_TRANSFORM_ROTATE = 'rotate'
+    SVG_TRANSFORM_SKEWX = 'skewX'
+    SVG_TRANSFORM_SKEWY = 'skewY'
 
     def __init__(self, function_name=None, *values):
-        """Constructs a SVGTransform object.
+        """Constructs an SVGTransform object.
 
         Arguments:
             function_name (str, optional): The type of transform function.
             *values: The values of transform function.
         Examples:
-            >>> t = SVGTransform(SVGTransform.TRANSFORM_TRANSLATE, 100, -200)
+            >>> t = SVGTransform(SVGTransform.SVG_TRANSFORM_TRANSLATE, 100, -200)
             >>> t.tostring()
-            'translate(100 -200)'
-            >>> t.matrix.toarray()
-            [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 100.0, -200.0, 0.0, 1.0]
+            'translate(100, -200)'
+            >>> t.matrix.tolist()
+            [1.0, 0.0, 0.0, 1.0, 100.0, -200.0]
         """
         self._transform_type = None
         self._values = None
@@ -65,31 +76,31 @@ class SVGTransform(object):
 
     @property
     def matrix(self):
-        """Matrix: The current matrix or None."""
+        """DOMMatrix: The current matrix or None."""
         if self._transform_type is None or self._values is None:
             return None
-        elif self._transform_type == SVGTransform.TRANSFORM_MATRIX:
+        elif self._transform_type == SVGTransform.SVG_TRANSFORM_MATRIX:
             matrix = DOMMatrix.from_float_array(self._values)
             return matrix
         matrix = DOMMatrix()
-        if self._transform_type == SVGTransform.TRANSFORM_ROTATE:
+        if self._transform_type == SVGTransform.SVG_TRANSFORM_ROTATE:
             angle, cx, cy = self._values
             if cx != 0 or cy != 0:
                 matrix.translate_self(cx, cy)
             matrix.rotate_self(rot_z=angle)
             if cx != 0 or cy != 0:
                 matrix.translate_self(-cx, -cy)
-        elif self._transform_type == SVGTransform.TRANSFORM_SCALE:
+        elif self._transform_type == SVGTransform.SVG_TRANSFORM_SCALE:
             matrix.scale_self(*self._values)
-        elif self._transform_type == SVGTransform.TRANSFORM_SKEWX:
+        elif self._transform_type == SVGTransform.SVG_TRANSFORM_SKEWX:
             matrix.skew_x_self(*self._values)
-        elif self._transform_type == SVGTransform.TRANSFORM_SKEWY:
+        elif self._transform_type == SVGTransform.SVG_TRANSFORM_SKEWY:
             matrix.skew_y_self(*self._values)
-        elif self._transform_type == SVGTransform.TRANSFORM_TRANSLATE:
+        elif self._transform_type == SVGTransform.SVG_TRANSFORM_TRANSLATE:
             matrix.translate_self(*self._values)
         else:
-            raise NotImplementedError(
-                'Unknown transform type: {}'.format(self._transform_type))
+            raise NotImplementedError('Unknown transform type: {}'.format(
+                self._transform_type))
         return matrix
 
     @property
@@ -102,42 +113,7 @@ class SVGTransform(object):
         """tuple[float, ...]: The values of the transform function."""
         return self._values
 
-    @staticmethod
-    def frommatrix(matrix):
-        """Constructs a new SVGTransform initialized with the Matrix matrix.
-
-        Arguments:
-            matrix (DOMMatrix): A Matrix object.
-        Returns:
-            SVGTransform: A new SVGTransform object.
-        """
-        if matrix is None or (not isinstance(matrix, DOMMatrix)):
-            raise TypeError('Expected Matrix, got {}'.format(type(matrix)))
-        elif not matrix.is2d:
-            raise ValueError('Expected 2d Matrix')
-        transform = SVGTransform()
-        transform.set_matrix(matrix.a, matrix.b, matrix.c,
-                             matrix.d, matrix.e, matrix.f)
-        return transform
-
-    def set(self, function_name, *values):
-        if function_name == 'matrix':
-            self.set_matrix(*values)
-        elif function_name == 'rotate':
-            self.set_rotate(*values)
-        elif function_name == 'scale':
-            self.set_scale(*values)
-        elif function_name == 'skewX':
-            self.set_skewx(*values)
-        elif function_name == 'skewY':
-            self.set_skewy(*values)
-        elif function_name == 'translate':
-            self.set_translate(*values)
-        else:
-            raise NotImplementedError(
-                'Unknown transform type: {}'.format(function_name))
-
-    def set_matrix(self, a, b, c, d, e, f):
+    def _set_matrix(self, a, b, c, d, e, f):
         """Sets the transform function value is matrix(a b c d e f).
 
         Arguments:
@@ -148,24 +124,66 @@ class SVGTransform(object):
             e (float): The e component of the matrix.
             f (float): The f component of the matrix.
         """
-        self._transform_type = SVGTransform.TRANSFORM_MATRIX
-        self._values = (a, b, c, d, e, f)
+        self._transform_type = SVGTransform.SVG_TRANSFORM_MATRIX
+        self._values = a, b, c, d, e, f
         self._angle = 0
 
+    @staticmethod
+    def from_matrix(matrix):
+        """Creates a new SVGTransform initialized with the DOMMatrixReadOnly
+        matrix.
+
+        Arguments:
+            matrix (DOMMatrixReadOnly): A 2d matrix object.
+        Returns:
+            SVGTransform: A new SVGTransform object.
+        """
+        transform = SVGTransform()
+        transform.set_matrix(matrix)
+        return transform
+
+    def set(self, function_name, *values):
+        if function_name == SVGTransform.SVG_TRANSFORM_MATRIX:
+            self._set_matrix(*values)
+        elif function_name == SVGTransform.SVG_TRANSFORM_ROTATE:
+            self.set_rotate(*values)
+        elif function_name == SVGTransform.SVG_TRANSFORM_SCALE:
+            self.set_scale(*values)
+        elif function_name == SVGTransform.SVG_TRANSFORM_SKEWX:
+            self.set_skew_x(*values)
+        elif function_name == SVGTransform.SVG_TRANSFORM_SKEWY:
+            self.set_skew_y(*values)
+        elif function_name == SVGTransform.SVG_TRANSFORM_TRANSLATE:
+            self.set_translate(*values)
+        else:
+            raise NotImplementedError('Unknown transform type: {}'.format(
+                function_name))
+
+    def set_matrix(self, matrix):
+        """Sets the transform function value is matrix(a, b, c, d, e, f).
+
+        Arguments:
+            matrix (DOMMatrixReadOnly): The 2d matrix object.
+        """
+        if not matrix.is2d:
+            raise ValueError('Expected a 2d matrix')
+        values = matrix.tolist()
+        self._set_matrix(*values)
+
     def set_rotate(self, angle, cx=0, cy=0):
-        """Sets the transform function value is rotate(angle cx cy).
+        """Sets the transform function value is rotate(angle, cx, cy).
 
         Arguments:
             angle (float): The rotation angle in degrees.
             cx (float): The x-coordinate of center of rotation.
             cy (float): The y-coordinate of center of rotation.
         """
-        self._transform_type = SVGTransform.TRANSFORM_ROTATE
-        self._values = (angle, cx, cy)
+        self._transform_type = SVGTransform.SVG_TRANSFORM_ROTATE
+        self._values = angle, cx, cy
         self._angle = angle
 
     def set_scale(self, sx, sy=None):
-        """Sets the transform function value is scale(sx sy).
+        """Sets the transform function value is scale(sx, sy).
 
         Arguments:
             sx (float): The scale amount in X.
@@ -173,54 +191,54 @@ class SVGTransform(object):
         """
         if sy is None:
             sy = sx
-        self._transform_type = SVGTransform.TRANSFORM_SCALE
-        self._values = (sx, sy)
+        self._transform_type = SVGTransform.SVG_TRANSFORM_SCALE
+        self._values = sx, sy
         self._angle = 0
 
-    def set_skewx(self, angle):
+    def set_skew_x(self, angle):
         """Sets the transform function value is skewX(angle).
 
         Arguments:
             angle (float): The skew angle in degrees.
         """
-        self._transform_type = SVGTransform.TRANSFORM_SKEWX
+        self._transform_type = SVGTransform.SVG_TRANSFORM_SKEWX
         self._values = (angle,)
         self._angle = angle
 
-    def set_skewy(self, angle):
+    def set_skew_y(self, angle):
         """Sets the transform function value is skewY(angle).
 
         Arguments:
             angle (float): The skew angle in degrees.
         """
-        self._transform_type = SVGTransform.TRANSFORM_SKEWY
+        self._transform_type = SVGTransform.SVG_TRANSFORM_SKEWY
         self._values = (angle,)
         self._angle = angle
 
     def set_translate(self, tx, ty=0):
-        """Sets the transform function value is translate(tx ty).
+        """Sets the transform function value is translate(tx, ty).
 
         Arguments:
             tx (float): The translation amount in X.
             ty (float): The translation amount in Y.
         """
-        self._transform_type = SVGTransform.TRANSFORM_TRANSLATE
-        self._values = (tx, ty)
+        self._transform_type = SVGTransform.SVG_TRANSFORM_TRANSLATE
+        self._values = tx, ty
         self._angle = 0
 
     def tostring(self, delimiter=None):
         if self._transform_type is None or self._values is None:
             return ''
         number_sequence = format_number_sequence(self._values)
-        if self._transform_type == SVGTransform.TRANSFORM_ROTATE:
+        if self._transform_type == SVGTransform.SVG_TRANSFORM_ROTATE:
             # "rotate(a 0 0)" -> "rotate(a)"
             if number_sequence[1] == '0' and number_sequence[2] == '0':
                 del number_sequence[1:]
-        elif self._transform_type == SVGTransform.TRANSFORM_SCALE:
+        elif self._transform_type == SVGTransform.SVG_TRANSFORM_SCALE:
             # "scale(a a)" -> "scale(a)"
             if number_sequence[0] == number_sequence[1]:
                 del number_sequence[1]
-        elif self._transform_type == SVGTransform.TRANSFORM_TRANSLATE:
+        elif self._transform_type == SVGTransform.SVG_TRANSFORM_TRANSLATE:
             # "translate(a 0)" -> "translate(a)"
             if number_sequence[1] == '0':
                 del number_sequence[1]
@@ -230,99 +248,86 @@ class SVGTransform(object):
                                  delimiter.join(number_sequence))
 
 
-class SVGTransformList(list):
+class SVGTransformList(MutableSequence):
     """Represents a list of SVGTransform objects.
 
     Examples:
         >>> t = SVGTransformList()
-        >>> t.append(SVGTransform(SVGTransform.TRANSFORM_ROTATE, 9))
-        >>> t.append(SVGTransform(SVGTransform.TRANSFORM_SCALE, 0.33))
+        >>> t.append(SVGTransform(SVGTransform.SVG_TRANSFORM_ROTATE, 9))
+        >>> t.append(SVGTransform(SVGTransform.SVG_TRANSFORM_SCALE, 0.33))
+        >>> len(t)
+        2
         >>> t.tostring()
         'rotate(9) scale(0.33)'
-        >>> t.tomatrix().tostring()
-        'matrix(0.325937 0.051623 -0.051623 0.325937 0 0)'
+        >>> t.matrix.tostring()
+        'matrix(0.325937, 0.051623, -0.051623, 0.325937, 0, 0)'
         >>> t.consolidate()
+        >>> len(t)
+        1
         >>> t.tostring()
-        'matrix(0.325937 0.051623 -0.051623 0.325937 0 0)'
+        'matrix(0.325937, 0.051623, -0.051623, 0.325937, 0, 0)'
     """
 
-    RE_TRANSFORM_LIST = re.compile(
-        r"(?P<transform>(?P<name>matrix|translate|scale|rotate|skewX|skewY)"
-        r"\s*\((?P<values>[^)]+)\))($|\s+|\s*,\s*)")
+    def __init__(self, iterable=[]):
+        """Constructs the transform list.
 
-    RE_NUMBER_SEQUENCE = re.compile(
-        r"(?P<number>[+-]?"
-        r"((\d+(\.\d*)?([Ee][+-]?\d+)?)|(\d*\.\d+([Ee][+-]?\d+)?)))"
-        r"(\s*,\s*|\s+)?")
+        Arguments:
+            iterable (list[SVGTransform, ...], optional): The
+                transform list.
+        """
+        self._items = list()
+        self.extend(iterable)
 
     def __add__(self, other):
-        if not isinstance(other, SVGTransformList):
+        if not isinstance(other, (SVGTransformList, list, tuple)):
             return NotImplemented
         t = copy.deepcopy(self)
         t.extend(other)
         return t
 
+    def __delitem__(self, index):
+        del self._items[index]
+
+    def __getitem__(self, index):
+        return self._items[index]
+
     def __iadd__(self, other):
-        if not isinstance(other, SVGTransformList):
+        if not isinstance(other, (SVGTransformList, list, tuple)):
             return NotImplemented
         self.extend(other)
         return self
+
+    def __len__(self):
+        return len(self._items)
 
     def __repr__(self):
         return '[{}]'.format(
             ', '.join(['\'{}\''.format(x.tostring()) for x in self]))
 
-    def consolidate(self):
-        """Converts the transform list into an equivalent transformation
-        using a single transform function and returns it.
+    def __setitem__(self, index, item):
+        if isinstance(index, slice):
+            if not isinstance(item, (SVGTransformList, list, tuple)):
+                raise TypeError('Expected iterable, got {}'.format(
+                    type(item)))
+            for it in item:
+                if not isinstance(it, SVGTransform):
+                    raise TypeError('Expected SVGTransform, got {}'.format(
+                        type(it)))
+        elif not isinstance(item, SVGTransform):
+            raise TypeError('Expected SVGTransform, got {}'.format(
+                type(item)))
+        self._items[index] = item
 
-        Returns:
-            SVGTransform: A SVGTransform object or None.
+    @property
+    def length(self):
+        """int: The number of SVGTransform objects.
+        Same as SVGTransformList.number_of_items.
         """
-        if len(self) == 0:
-            return None
-        transform = self.totransform()
-        if transform is None:
-            return None
-        self.clear()
-        self.append(transform)
-        return transform
+        return self.__len__()
 
-    @staticmethod
-    def parse(text):
-        """Parses text into a list of SVGTransform objects and returns it.
-
-        Arguments:
-            text (str): A text to parse.
-        Returns:
-            list[SVGTransform]: A list of SVGTransform objects.
-        Examples:
-            >>> t = SVGTransformList.parse('translate(50 30) rotate(30)')
-            >>> len(t)
-            2
-            >>> for x in iter(t):
-            ...     print(x.tostring())
-            ...
-            translate(50 30)
-            rotate(30)
-        """
-        transform_list = SVGTransformList()
-        for it in SVGTransformList.RE_TRANSFORM_LIST.finditer(text.strip()):
-            function_name = it.group('name').strip()
-            number_sequence = list()
-            for it2 in SVGTransformList.RE_NUMBER_SEQUENCE.finditer(
-                    it.group('values').strip()):
-                number_sequence.append(float(it2.group('number')))
-            transform_list.append(SVGTransform(function_name,
-                                               *number_sequence))
-        return transform_list
-
-    def tomatrix(self):
-        """Returns the matrix of this transformation.
-
-        Returns:
-            DOMMatrix: A new Matrix object or None.
-        """
+    @property
+    def matrix(self):
+        """DOMMatrix: A new DOMMatrix object or None."""
         if len(self) == 0:
             return None
         matrix = DOMMatrix()
@@ -333,25 +338,186 @@ class SVGTransformList(list):
             matrix *= transform.matrix
         return matrix
 
-    def totransform(self):
-        """Converts the transform list into an equivalent transformation
-        using a single transform function and returns it.
-        The current transform list is not modified.
-
-        Returns:
-            SVGTransform: A new SVGTransform object or None.
+    @property
+    def number_of_items(self):
+        """int: The number of SVGTransform objects.
+        Same as SVGTransformList.length.
         """
-        matrix = self.tomatrix()
+        return self.__len__()
+
+    @property
+    def transform(self):
+        """SVGTransform: A new SVGTransform object or None."""
+        matrix = self.matrix
         if matrix is None:
             return None
-        transform = SVGTransform.frommatrix(matrix)
+        transform = SVGTransform.from_matrix(matrix)
         return transform
+
+    def append(self, item):
+        """Adds the SVGTransform object to the end of the transform list.
+        Same as SVGTransformList.append_item().
+
+        Arguments:
+            item (SVGTransform): The SVGTransform object to be added.
+        """
+        if not isinstance(item, SVGTransform):
+            raise TypeError('Expected SVGTransform, got {}'.format(
+                type(item)))
+        self._items.append(item)
+
+    def append_item(self, item):
+        """Adds the SVGTransform object to the end of the transform list.
+        Same as SVGTransformList.append().
+
+        Arguments:
+            item (SVGTransform): The SVGTransform object to be added.
+        Returns:
+            SVGTransform: The SVGTransform object to be added.
+        """
+        self.append(item)
+        return item
+
+    def consolidate(self):
+        """Converts the transform list into an equivalent transformation
+        using a single transform function and returns it.
+
+        Returns:
+            SVGTransform: An SVGTransform object or None.
+        """
+        if self.__len__() == 0:
+            return None
+        transform = self.transform
+        if transform is None:
+            return None
+        self.clear()
+        self.append(transform)
+        return transform
+
+    @staticmethod
+    def create_svg_transform_from_matrix(matrix):
+        """Creates a new SVGTransform initialized with the DOMMatrixReadOnly
+        matrix.
+
+        Arguments:
+            matrix (DOMMatrixReadOnly): A 2d matrix object.
+        Returns:
+            SVGTransform: A new SVGTransform object.
+        """
+        transform = SVGTransform.from_matrix(matrix)
+        return transform
+
+    def get_item(self, index):
+        """Gets the SVGTransform object from the transform list at the
+        specified position and returns it.
+
+        Arguments:
+            index (int): An index position of the transform list.
+        Returns:
+            SVGTransform: The SVGTransform object.
+        """
+        return self.__getitem__(index)
+
+    def initialize(self, item):
+        """Clears the transform list and adds a single SVGTransform object.
+
+        Arguments:
+            item (SVGTransform): The SVGTransform object to be added.
+        Returns:
+            SVGTransform: The SVGTransform object to be added.
+        """
+        self.clear()
+        self.append(item)
+        return item
+
+    def insert(self, index, item):
+        """Inserts the SVGTransform object into the transform list at the
+        specified position.
+        Same as SVGTransformList.insert_item_before().
+
+        Arguments:
+            index (int): An index position of the transform list.
+            item (SVGTransform): The SVGTransform object to be added.
+        """
+        if not isinstance(item, SVGTransform):
+            raise TypeError('Expected SVGTransform, got {}'.format(
+                type(item)))
+        self._items.insert(index, item)
+
+    def insert_item_before(self, item, index):
+        """Inserts the SVGTransform object into the transform list at the
+        specified position.
+        Same as SVGTransformList.insert().
+
+        Arguments:
+            item (SVGTransform): The SVGTransform object to be added.
+            index (int): An index position of the transform list.
+        Returns:
+            SVGTransform: The SVGTransform object to be added.
+        """
+        self.insert(index, item)
+        return item
+
+    @staticmethod
+    def parse(text):
+        """Parses a text into a list of SVGTransform objects and returns it.
+
+        Arguments:
+            text (str): A text to be parsed.
+        Returns:
+            SVGTransformList[SVGTransform, ...]: A list of SVGTransform
+                objects.
+        Examples:
+            >>> t = SVGTransformList.parse('translate(50 30) rotate(30)')
+            >>> len(t)
+            2
+            >>> for x in iter(t):
+            ...     print(x.tostring())
+            ...
+            translate(50, 30)
+            rotate(30)
+        """
+        transform_list = SVGTransformList()
+        for it in _RE_TRANSFORM_LIST.finditer(text.strip()):
+            function_name = it.group('name').strip()
+            number_sequence = list()
+            for it2 in _RE_NUMBER_SEQUENCE.finditer(
+                    it.group('values').strip()):
+                number_sequence.append(float(it2.group('number')))
+            transform_list.append(SVGTransform(function_name,
+                                               *number_sequence))
+        return transform_list
+
+    def remove_item(self, index):
+        """Removes the SVGTransform object from the transform list.
+
+        Arguments:
+            index (int): An index position of the transform list.
+        Returns:
+            SVGTransform: The SVGTransform object to be removed.
+        """
+        item = self.__getitem__(index)
+        self.__delitem__(index)
+        return item
+
+    def replace_item(self, item, index):
+        """Replaces an existing SVGTransform object in the transform list with
+        the new SVGTransform object.
+
+        Arguments:
+            item (SVGTransform): The SVGTransform object to be replaced.
+            index (int): An index position of the transform list.
+        Returns:
+            SVGTransform: The SVGTransform object to be replaced.
+        """
+        self.__setitem__(index, item)
+        return item
 
     def tostring(self, delimiter=None):
         items = list()
         for transform in iter(self):
             if not isinstance(transform, SVGTransform):
-                raise TypeError('Expected Transform, got {}'.format(
+                raise TypeError('Expected SVGTransform, got {}'.format(
                     type(transform)))
             items.append(transform.tostring(delimiter=delimiter))
         return ' '.join(items)

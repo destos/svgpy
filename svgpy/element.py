@@ -1137,7 +1137,7 @@ class SVGUseElement(SVGGraphicsElement, SVGURIReference):
                 transform.set_scale(sx, sy)
                 transform_list.append(transform)
         if len(transform_list) > 0:
-            matrix = transform_list.tomatrix()
+            matrix = transform_list.matrix
             path_data = PathParser.transform(path_data, matrix)
         return path_data
 
