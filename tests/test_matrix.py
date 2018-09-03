@@ -537,10 +537,10 @@ class MatrixTestCase(unittest.TestCase):
         self.assertEqual('matrix(1, 0, 0, 1, 0, 0)',
                          m.tostring())
         self.assertTrue(
-            (np.matrix([[1, 0, 0, 0],
-                        [0, 1, 0, 0],
-                        [0, 0, 1, 0],
-                        [0, 0, 0, 1]]) == m.matrix).all())
+            (np.array([[1, 0, 0, 0],
+                       [0, 1, 0, 0],
+                       [0, 0, 1, 0],
+                       [0, 0, 0, 1]]) == m.matrix).all())
 
     def test_init_3d(self):
         m = DOMMatrix(is2d=False)
@@ -595,10 +595,10 @@ class MatrixTestCase(unittest.TestCase):
             'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
             m.tostring())
         self.assertTrue(
-            (np.matrix([[1, 0, 0, 0],
-                        [0, 1, 0, 0],
-                        [0, 0, 1, 0],
-                        [0, 0, 0, 1]]) == m.matrix).all())
+            (np.array([[1, 0, 0, 0],
+                       [0, 1, 0, 0],
+                       [0, 0, 1, 0],
+                       [0, 0, 0, 1]]) == m.matrix).all())
 
     def test_init_from_array_2d(self):
         a = 11
@@ -738,10 +738,10 @@ class MatrixTestCase(unittest.TestCase):
     def test_matrix2d(self):
         m = matrix2d(1, 2, 3, 4, 5, 6)
         self.assertTrue(
-            (np.matrix([[1, 3, 0, 5],
-                        [2, 4, 0, 6],
-                        [0, 0, 1, 0],
-                        [0, 0, 0, 1]]) == m).all())
+            (np.array([[1, 3, 0, 5],
+                       [2, 4, 0, 6],
+                       [0, 0, 1, 0],
+                       [0, 0, 0, 1]]) == m).all())
 
     def test_matrix3d(self):
         m = matrix3d(1, 2, 3, 4,
@@ -749,10 +749,10 @@ class MatrixTestCase(unittest.TestCase):
                      9, 10, 11, 12,
                      13, 14, 15, 16)
         self.assertTrue(
-            (np.matrix([[1, 5, 9, 13],
-                        [2, 6, 10, 14],
-                        [3, 7, 11, 15],
-                        [4, 8, 12, 16]]) == m).all())
+            (np.array([[1, 5, 9, 13],
+                       [2, 6, 10, 14],
+                       [3, 7, 11, 15],
+                       [4, 8, 12, 16]]) == m).all())
 
     def test_mul(self):
         m = DOMMatrix()
@@ -3344,10 +3344,10 @@ class MatrixTestCase(unittest.TestCase):
         self.assertEqual(id(o), id(m))
         tx, ty = m.get_translate()
         self.assertEqual((12, 16), (tx, ty))
-        src = np.matrix([[1, 0, 0, 12],
-                         [0, 1, 0, 16],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]])
+        src = np.array([[1, 0, 0, 12],
+                        [0, 1, 0, 16],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1]])
         self.assertTrue((src == m.matrix).all())
 
         x, y = m.transform_point(0, 0)
@@ -3360,20 +3360,22 @@ class MatrixTestCase(unittest.TestCase):
         tx, ty = m.get_translate()
         self.assertEqual((12 + 4, 16 + 5), (tx, ty))
 
-        src = np.matrix([[1, 0, 0, 4],
-                         [0, 1, 0, 5],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]]) * src
+        src = np.dot(np.array([[1, 0, 0, 4],
+                               [0, 1, 0, 5],
+                               [0, 0, 1, 0],
+                               [0, 0, 0, 1]]),
+                     src)
         self.assertTrue((src == m.matrix).all())
 
         m.translate_self(-24)
         tx, ty = m.get_translate()
         self.assertEqual((12 + 4 - 24, 16 + 5 + 0), (tx, ty))
 
-        src = np.matrix([[1, 0, 0, -24],
-                         [0, 1, 0, 0],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]]) * src
+        src = np.dot(np.array([[1, 0, 0, -24],
+                               [0, 1, 0, 0],
+                               [0, 0, 1, 0],
+                               [0, 0, 0, 1]]),
+                     src)
         self.assertTrue((src == m.matrix).all())
 
     def test_translate_self_3d(self):

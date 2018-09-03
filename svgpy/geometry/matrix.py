@@ -41,12 +41,12 @@ def matrix2d(a, b, c, d, e, f):
         e (float): The e component of the matrix.
         f (float): The f component of the matrix.
     Returns:
-        numpy.matrix: A 4x4 matrix object.
+        numpy.array: A 4x4 matrix object.
     """
-    return np.matrix([[float(a), float(c), float(0), float(e)],
-                      [float(b), float(d), float(0), float(f)],
-                      [float(0), float(0), float(1), float(0)],
-                      [float(0), float(0), float(0), float(1)]])
+    return np.array([[float(a), float(c), float(0), float(e)],
+                     [float(b), float(d), float(0), float(f)],
+                     [float(0), float(0), float(1), float(0)],
+                     [float(0), float(0), float(0), float(1)]])
 
 
 def matrix3d(m11, m12, m13, m14,
@@ -73,12 +73,12 @@ def matrix3d(m11, m12, m13, m14,
         m43 (float): The m43 component of the matrix.
         m44 (float): The m44 component of the matrix.
     Returns:
-        numpy.matrix: A 4x4 matrix object.
+        numpy.array: A 4x4 matrix object.
     """
-    return np.matrix([[float(m11), float(m21), float(m31), float(m41)],
-                      [float(m12), float(m22), float(m32), float(m42)],
-                      [float(m13), float(m23), float(m33), float(m43)],
-                      [float(m14), float(m24), float(m34), float(m44)]])
+    return np.array([[float(m11), float(m21), float(m31), float(m41)],
+                     [float(m12), float(m22), float(m32), float(m42)],
+                     [float(m13), float(m23), float(m33), float(m43)],
+                     [float(m14), float(m24), float(m34), float(m44)]])
 
 
 class DOMMatrixReadOnly(object):
@@ -288,7 +288,7 @@ class DOMMatrixReadOnly(object):
 
     @property
     def matrix(self):
-        """numpy.matrix: The current matrix."""
+        """numpy.array: The current matrix."""
         return self._matrix
 
     def _init_from_array(self, values):
@@ -694,8 +694,8 @@ class DOMMatrixReadOnly(object):
         Returns:
              tuple[float, ...]: The resulting coordinates.
         """
-        pt = np.matrix([[float(x)], [float(y)], [float(z)], [float(w)]])
-        pt = self._matrix * pt
+        pt = np.array([[float(x)], [float(y)], [float(z)], [float(w)]])
+        pt = np.dot(self._matrix, pt)
         if self._is2d and z == 0 and w == 1:
             return pt.item(0), pt.item(1)
         return pt.item(0), pt.item(1), pt.item(2), pt.item(3)
@@ -922,7 +922,7 @@ class DOMMatrix(DOMMatrixReadOnly):
         Returns:
             DOMMatrix: Returns itself.
         """
-        self._matrix = self._matrix.getI()
+        self._matrix = np.linalg.inv(self._matrix)
         return self
 
     def multiply_self(self, other):
@@ -933,7 +933,7 @@ class DOMMatrix(DOMMatrixReadOnly):
         Returns:
             DOMMatrix: Returns itself.
         """
-        self._matrix *= other._matrix
+        self._matrix = np.dot(self._matrix, other._matrix)
         if not other._is2d:
             self._is2d = False
         return self
@@ -989,7 +989,7 @@ class DOMMatrix(DOMMatrixReadOnly):
                          m21, m22, m23, m24,
                          m31, m32, m33, m34,
                          m41, m42, m43, m44)
-        self._matrix *= r
+        self._matrix = np.dot(self._matrix, r)
         if x != 0 or y != 0:
             self._is2d = False
         return self
@@ -1042,11 +1042,11 @@ class DOMMatrix(DOMMatrixReadOnly):
             return self
         if origin_x != 0 or origin_y != 0 or origin_z != 0:
             self.translate_self(origin_x, origin_y, origin_z)
-        m = np.matrix([[scale_x, 0, 0, 0],
-                       [0, scale_y, 0, 0],
-                       [0, 0, scale_z, 0],
-                       [0, 0, 0, 1]])
-        self._matrix *= m
+        m = matrix3d(scale_x, 0, 0, 0,
+                     0, scale_y, 0, 0,
+                     0, 0, scale_z, 0,
+                     0, 0, 0, 1)
+        self._matrix = np.dot(self._matrix, m)
         if scale_z != 1 or origin_z != 0:
             self._is2d = False
         if origin_x != 0 or origin_y != 0 or origin_z != 0:
@@ -1066,7 +1066,7 @@ class DOMMatrix(DOMMatrixReadOnly):
             DOMMatrix: Returns itself.
         """
         m = matrix2d(1, 0, math.tan(math.radians(angle)), 1, 0, 0)
-        self._matrix *= m
+        self._matrix = np.dot(self._matrix, m)
         return self
 
     def skew_y_self(self, angle):
@@ -1078,7 +1078,7 @@ class DOMMatrix(DOMMatrixReadOnly):
             DOMMatrix: Returns itself.
         """
         m = matrix2d(1, math.tan(math.radians(angle)), 0, 1, 0, 0)
-        self._matrix *= m
+        self._matrix = np.dot(self._matrix, m)
         return self
 
     def translate_self(self, tx=0, ty=0, tz=0):
@@ -1094,11 +1094,11 @@ class DOMMatrix(DOMMatrixReadOnly):
         """
         if tx == 0 and ty == 0 and tz == 0:
             return self
-        m = np.matrix([[1, 0, 0, tx],
-                       [0, 1, 0, ty],
-                       [0, 0, 1, tz],
-                       [0, 0, 0, 1]])
-        self._matrix *= m
+        m = matrix3d(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     tx, ty, tz, 1)
+        self._matrix = np.dot(self._matrix, m)
         if tz != 0:
             self._is2d = False
         return self

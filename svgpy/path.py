@@ -253,12 +253,12 @@ class Ellipse(object):
         angle = angle % 360
         angle = -angle
         t = math.radians(angle)
-        p = np.matrix([[math.cos(r), -math.sin(r)],
-                       [math.sin(r), math.cos(r)]]).dot(
-            np.matrix([[self._rx * math.cos(t)],
-                       [self._ry * math.sin(t)]]))
-        p += np.matrix([[self._cx],
-                        [self._cy]])
+        p = np.array([[math.cos(r), -math.sin(r)],
+                      [math.sin(r), math.cos(r)]]).dot(
+            np.array([[self._rx * math.cos(t)],
+                      [self._ry * math.sin(t)]]))
+        p += np.array([[self._cx],
+                       [self._cy]])
         return p.item(0), p.item(1)
 
 
@@ -690,10 +690,10 @@ class PathSegment(object):
         r = math.radians(x_axis_rotation)
 
         # compute (x1',y1') [SVG1.1 F.6.5.1]
-        p = np.matrix([[math.cos(r), math.sin(r)],
-                       [-math.sin(r), math.cos(r)]]).dot(
-            np.matrix([[(cpx - epx) / 2],
-                       [(cpy - epy) / 2]]))
+        p = np.array([[math.cos(r), math.sin(r)],
+                      [-math.sin(r), math.cos(r)]]).dot(
+            np.array([[(cpx - epx) / 2],
+                      [(cpy - epy) / 2]]))
         x1p = p.item(0)
         y1p = p.item(1)
 
@@ -713,17 +713,17 @@ class PathSegment(object):
         f = math.sqrt(max(fp, 0))
         if fa == fs:
             f = -f
-        cp = f * np.matrix([[rx * y1p / ry],
-                            [-ry * x1p / rx]])
+        cp = f * np.array([[rx * y1p / ry],
+                           [-ry * x1p / rx]])
         cxp = cp.item(0)
         cyp = cp.item(1)
 
         # compute (cx,cy) from (cx',cy') [SVG1.1 F.6.5.3]
-        c = np.matrix([[math.cos(r), -math.sin(r)],
-                       [math.sin(r), math.cos(r)]]).dot(
-            np.matrix([[cxp], [cyp]]))
-        c += np.matrix([[(cpx + epx) / 2],
-                        [(cpy + epy) / 2]])
+        c = np.array([[math.cos(r), -math.sin(r)],
+                      [math.sin(r), math.cos(r)]]).dot(
+            np.array([[cxp], [cyp]]))
+        c += np.array([[(cpx + epx) / 2],
+                       [(cpy + epy) / 2]])
         cx = c.item(0)
         cy = c.item(1)
 
@@ -1203,8 +1203,8 @@ class PathParser(object):
         and returns it.
 
         Arguments:
-            face (FTFace):
-            matrix (Matrix, optional):
+            face (FTFace): The FTFace object.
+            matrix (DOMMatrixReadOnly, optional): The transformation matrix.
         Returns:
             list[SVGPathSegment]: A list of path segments.
         """
@@ -1240,7 +1240,7 @@ class PathParser(object):
         transform = FTMatrix()
         transform = transform.flip_y()
         if matrix is not None:
-            # convert from core.Matrix to freetype.FTMatrix
+            # convert from DOMMatrixReadOnly to FTMatrix
             other = FTMatrix()
             other.a = matrix.a
             other.b = matrix.b

@@ -25,8 +25,8 @@ lib = dlopen(ffi, ['freetype'])
 
 
 def matrix2d(a, b, c, d):
-    return np.matrix([[float(a), float(c)],
-                      [float(b), float(d)]])
+    return np.array([[float(a), float(c)],
+                     [float(b), float(d)]])
 
 
 def ft_tag(c1, c2, c3, c4):
@@ -1027,7 +1027,7 @@ class FTMatrix(object):
 
     @property
     def matrix(self):
-        """numpy.matrix: The current matrix."""
+        """numpy.array: The current matrix."""
         return self._matrix
 
     @property
@@ -1093,7 +1093,7 @@ class FTMatrix(object):
         """
         m = copy.deepcopy(self)
         b = matrix2d(-1, 0, 0, 1)
-        m._matrix *= b
+        m._matrix = np.dot(m._matrix, b)
         return m
 
     def flip_y(self):
@@ -1106,7 +1106,7 @@ class FTMatrix(object):
         """
         m = copy.deepcopy(self)
         b = matrix2d(1, 0, 0, -1)
-        m._matrix *= b
+        m._matrix = np.dot(m._matrix, b)
         return m
 
     @staticmethod
@@ -1141,7 +1141,7 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        self._matrix = self._matrix.getI()
+        self._matrix = np.linalg.inv(self._matrix)
         return self
 
     def multiply(self, other):
@@ -1165,7 +1165,7 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        self._matrix *= other._matrix
+        self._matrix = np.dot(self._matrix, other._matrix)
         return self
 
     def rotate(self, angle):
@@ -1193,7 +1193,7 @@ class FTMatrix(object):
         cos_a = math.cos(math.radians(angle))
         sin_a = math.sin(math.radians(angle))
         b = matrix2d(cos_a, -sin_a, sin_a, cos_a)
-        self._matrix *= b
+        self._matrix = np.dot(self._matrix, b)
         return self
 
     def scale(self, scale_x, scale_y=None):
@@ -1224,7 +1224,7 @@ class FTMatrix(object):
         if scale_y is None:
             scale_y = scale_x
         b = matrix2d(scale_x, 0, 0, scale_y)
-        self._matrix *= b
+        self._matrix = np.dot(self._matrix, b)
         return self
 
     def skew_x(self, angle):
@@ -1250,7 +1250,7 @@ class FTMatrix(object):
             FTMatrix: Returns itself.
         """
         b = matrix2d(1, math.tan(math.radians(angle)), 0, 1)
-        self._matrix *= b
+        self._matrix = np.dot(self._matrix, b)
         return self
 
     def skew_y(self, angle):
@@ -1276,7 +1276,7 @@ class FTMatrix(object):
             FTMatrix: Returns itself.
         """
         b = matrix2d(1, 0, math.tan(math.radians(angle)), 1)
-        self._matrix *= b
+        self._matrix = np.dot(self._matrix, b)
         return self
 
     def to_float_array(self):

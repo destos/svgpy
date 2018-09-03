@@ -16,8 +16,8 @@ class TransformTestCase(unittest.TestCase):
 
     def test_transform_init(self):
         t = SVGTransform()
-        self.assertEqual(t.type, SVGTransform.SVG_TRANSFORM_UNKNOWN)
-        self.assertEqual(t.tostring(), '')
+        self.assertEqual(SVGTransform.SVG_TRANSFORM_UNKNOWN, t.type)
+        self.assertEqual('', t.tostring())
         self.assertIsNone(t.matrix)
 
     def test_transform_init_not_implemented_error(self):
@@ -32,19 +32,18 @@ class TransformTestCase(unittest.TestCase):
         self.assertEqual(SVGTransform.SVG_TRANSFORM_MATRIX, t.type)
         self.assertEqual('matrix(1, 2, 3, 4, 5, 6)', t.tostring())
         self.assertTrue(t.matrix == DOMMatrix([1, 2, 3, 4, 5, 6]))
-        self.assertTrue((t.matrix.matrix == np.matrix(
+        self.assertTrue((np.array(
             [[1, 3, 0, 5],
              [2, 4, 0, 6],
              [0, 0, 1, 0],
-             [0, 0, 0, 1]]
-        )).all())
+             [0, 0, 0, 1]]) == t.matrix.matrix).all())
 
         t = SVGTransform()
         matrix = DOMMatrix([-1, 1.2, 3, -1.4, 5, 1.6])
         t.set_matrix(matrix)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_MATRIX, t.type)
         self.assertEqual('matrix(-1, 1.2, 3, -1.4, 5, 1.6)', t.tostring())
-        self.assertTrue(t.matrix == DOMMatrix([-1, 1.2, 3, -1.4, 5, 1.6]))
+        self.assertTrue(DOMMatrix([-1, 1.2, 3, -1.4, 5, 1.6]) == t.matrix)
         self.assertEqual(0, t.angle)
 
         t = SVGTransform()
