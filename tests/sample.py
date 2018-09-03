@@ -62,7 +62,7 @@ def main():
 
         if isinstance(element, SVGGraphicsElement):
             ctm = element.get_ctm()
-            print('- ctm: {}'.format(ctm.toarray()))
+            print('- ctm: {}'.format(ctm.tolist()))
             bbox = element.get_bbox()
             print('- bbox: x: {}, y: {}, width: {}, height: {}'.format(
                 bbox.x, bbox.y, bbox.width, bbox.height))
@@ -70,6 +70,8 @@ def main():
         if isinstance(element, SVGGeometryElement):
             print('- geometry: {}'.format(element.get_computed_geometry()))
             print('- total length: {:g}'.format(element.get_total_length()))
+
+        print()
 
 
 if __name__ == '__main__':
