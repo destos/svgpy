@@ -1249,7 +1249,7 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        b = matrix2d(1, math.tan(math.radians(angle)), 0, 1)
+        b = matrix2d(1, 0, -math.tan(math.radians(angle)), 1)
         self._matrix = np.dot(self._matrix, b)
         return self
 
@@ -1275,7 +1275,7 @@ class FTMatrix(object):
         Returns:
             FTMatrix: Returns itself.
         """
-        b = matrix2d(1, 0, math.tan(math.radians(angle)), 1)
+        b = matrix2d(1, -math.tan(math.radians(angle)), 0, 1)
         self._matrix = np.dot(self._matrix, b)
         return self
 
