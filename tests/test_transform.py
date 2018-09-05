@@ -21,17 +21,17 @@ class TransformTestCase(unittest.TestCase):
         self.assertIsNone(t.matrix)
 
     def test_transform_init_not_implemented_error(self):
-        self.assertRaises(NotImplementedError,
+        self.assertRaises(ValueError,
                           lambda: SVGTransform('unknown', 1))
 
-        self.assertRaises(NotImplementedError,
+        self.assertRaises(ValueError,
                           lambda: SVGTransform('unknown'))
 
     def test_transform_set_matrix(self):
-        t = SVGTransform('matrix', 1, 2, 3, 4, 5, 6)
+        t = SVGTransform(SVGTransform.SVG_TRANSFORM_MATRIX, 1, 2, 3, 4, 5, 6)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_MATRIX, t.type)
         self.assertEqual('matrix(1, 2, 3, 4, 5, 6)', t.tostring())
-        self.assertTrue(t.matrix == DOMMatrix([1, 2, 3, 4, 5, 6]))
+        self.assertTrue(DOMMatrix([1, 2, 3, 4, 5, 6]) == t.matrix)
         self.assertTrue((np.array(
             [[1, 3, 0, 5],
              [2, 4, 0, 6],
@@ -61,10 +61,10 @@ class TransformTestCase(unittest.TestCase):
         m.rotate_self(rot_z=r)
         m.translate_self(-cx, -cy)
 
-        t = SVGTransform('rotate', r, cx, cy)
+        t = SVGTransform(SVGTransform.SVG_TRANSFORM_ROTATE, r, cx, cy)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_ROTATE, t.type)
         self.assertEqual('rotate(-30, 24, 16)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(r, t.angle)
 
         cx = 12.3456
@@ -78,7 +78,7 @@ class TransformTestCase(unittest.TestCase):
         t.set_rotate(r, cx, cy)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_ROTATE, t.type)
         self.assertEqual('rotate(-30, 12.346, 0)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(r, t.angle)
 
         cx = -0
@@ -90,7 +90,7 @@ class TransformTestCase(unittest.TestCase):
         t.set_rotate(r, cx, cy)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_ROTATE, t.type)
         self.assertEqual('rotate(-30)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(r, t.angle)
 
     def test_transform_set_scale(self):
@@ -99,10 +99,10 @@ class TransformTestCase(unittest.TestCase):
         m = DOMMatrix()
         m.scale_self(sx, sy)
 
-        t = SVGTransform('scale', sx, sy)
+        t = SVGTransform(SVGTransform.SVG_TRANSFORM_SCALE, sx, sy)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_SCALE, t.type)
         self.assertEqual('scale(1.5)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(0, t.angle)
 
         sy = -0
@@ -113,7 +113,7 @@ class TransformTestCase(unittest.TestCase):
         t.set_scale(sx, sy)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_SCALE, t.type)
         self.assertEqual('scale(1.5, 0)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(0, t.angle)
 
     def test_transform_set_skew_x(self):
@@ -121,10 +121,10 @@ class TransformTestCase(unittest.TestCase):
         m = DOMMatrix()
         m.skew_x_self(a)
 
-        t = SVGTransform('skewX', a)
+        t = SVGTransform(SVGTransform.SVG_TRANSFORM_SKEWX, a)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_SKEWX, t.type)
         self.assertEqual('skewX(190)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(a, t.angle)
 
         a = -120.4567
@@ -135,7 +135,7 @@ class TransformTestCase(unittest.TestCase):
         t.set_skew_x(a)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_SKEWX, t.type)
         self.assertEqual('skewX(-120.457)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(a, t.angle)
 
     def test_transform_set_skew_y(self):
@@ -143,10 +143,10 @@ class TransformTestCase(unittest.TestCase):
         m = DOMMatrix()
         m.skew_y_self(a)
 
-        t = SVGTransform('skewY', a)
+        t = SVGTransform(SVGTransform.SVG_TRANSFORM_SKEWY, a)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_SKEWY, t.type)
         self.assertEqual('skewY(190)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(a, t.angle)
 
         a = -120.4567
@@ -157,7 +157,7 @@ class TransformTestCase(unittest.TestCase):
         t.set_skew_y(a)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_SKEWY, t.type)
         self.assertEqual('skewY(-120.457)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(a, t.angle)
 
     def test_transform_set_translate(self):
@@ -166,10 +166,10 @@ class TransformTestCase(unittest.TestCase):
         m = DOMMatrix()
         m.translate_self(tx, ty)
 
-        t = SVGTransform('translate', tx, ty)
+        t = SVGTransform(SVGTransform.SVG_TRANSFORM_TRANSLATE, tx, ty)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_TRANSLATE, t.type)
         self.assertEqual('translate(100, -100)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(0, t.angle)
 
         tx = -1.5
@@ -181,7 +181,7 @@ class TransformTestCase(unittest.TestCase):
         t.set_translate(tx, ty)
         self.assertEqual(SVGTransform.SVG_TRANSFORM_TRANSLATE, t.type)
         self.assertEqual('translate(-1.5)', t.tostring())
-        self.assertTrue(t.matrix == m)
+        self.assertTrue(m == t.matrix)
         self.assertEqual(0, t.angle)
 
 

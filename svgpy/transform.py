@@ -34,19 +34,19 @@ _RE_NUMBER_SEQUENCE = re.compile(
 class SVGTransform(object):
     """Represents the transform function values."""
 
-    SVG_TRANSFORM_UNKNOWN = None
-    SVG_TRANSFORM_MATRIX = 'matrix'
-    SVG_TRANSFORM_TRANSLATE = 'translate'
-    SVG_TRANSFORM_SCALE = 'scale'
-    SVG_TRANSFORM_ROTATE = 'rotate'
-    SVG_TRANSFORM_SKEWX = 'skewX'
-    SVG_TRANSFORM_SKEWY = 'skewY'
+    SVG_TRANSFORM_UNKNOWN = 0
+    SVG_TRANSFORM_MATRIX = 1
+    SVG_TRANSFORM_TRANSLATE = 2
+    SVG_TRANSFORM_SCALE = 3
+    SVG_TRANSFORM_ROTATE = 4
+    SVG_TRANSFORM_SKEWX = 5
+    SVG_TRANSFORM_SKEWY = 6
 
-    def __init__(self, function_name=None, *values):
+    def __init__(self, transform_type=None, *values):
         """Constructs an SVGTransform object.
 
         Arguments:
-            function_name (str, optional): The type of transform function.
+            transform_type (int, optional): The type of transform function.
             *values: The values of transform function.
         Examples:
             >>> t = SVGTransform(SVGTransform.SVG_TRANSFORM_TRANSLATE, 100, -200)
@@ -55,17 +55,16 @@ class SVGTransform(object):
             >>> t.matrix.tolist()
             [1.0, 0.0, 0.0, 1.0, 100.0, -200.0]
         """
-        self._transform_type = None
+        self._transform_type = SVGTransform.SVG_TRANSFORM_UNKNOWN
         self._values = None
         self._angle = 0
-        if function_name is not None:
-            self.set(function_name, *values)
+        if transform_type is not None:
+            self.set(transform_type, *values)
 
     def __repr__(self):
-        return '<{}.{} object at {} ({}{})>'.format(
+        return '<{}.{} object at {} {{{}, {}}}>'.format(
             type(self).__module__, type(self).__name__, hex(id(self)),
-            self._transform_type,
-            self._values if self._values is not None else '')
+            self._transform_type, repr(self._values))
 
     @property
     def angle(self):
@@ -77,7 +76,8 @@ class SVGTransform(object):
     @property
     def matrix(self):
         """DOMMatrix: The current matrix or None."""
-        if self._transform_type is None or self._values is None:
+        if (self._transform_type == SVGTransform.SVG_TRANSFORM_UNKNOWN
+                or self._values is None):
             return None
         elif self._transform_type == SVGTransform.SVG_TRANSFORM_MATRIX:
             matrix = DOMMatrix.from_float_array(self._values)
@@ -105,7 +105,7 @@ class SVGTransform(object):
 
     @property
     def type(self):
-        """str: The type of the transform function."""
+        """int: The type of the transform function."""
         return self._transform_type
 
     @property
@@ -142,22 +142,24 @@ class SVGTransform(object):
         transform.set_matrix(matrix)
         return transform
 
-    def set(self, function_name, *values):
-        if function_name == SVGTransform.SVG_TRANSFORM_MATRIX:
+    def set(self, transform_type, *values):
+        if transform_type == SVGTransform.SVG_TRANSFORM_MATRIX:
             self._set_matrix(*values)
-        elif function_name == SVGTransform.SVG_TRANSFORM_ROTATE:
+        elif transform_type == SVGTransform.SVG_TRANSFORM_ROTATE:
             self.set_rotate(*values)
-        elif function_name == SVGTransform.SVG_TRANSFORM_SCALE:
+        elif transform_type == SVGTransform.SVG_TRANSFORM_SCALE:
             self.set_scale(*values)
-        elif function_name == SVGTransform.SVG_TRANSFORM_SKEWX:
+        elif transform_type == SVGTransform.SVG_TRANSFORM_SKEWX:
             self.set_skew_x(*values)
-        elif function_name == SVGTransform.SVG_TRANSFORM_SKEWY:
+        elif transform_type == SVGTransform.SVG_TRANSFORM_SKEWY:
             self.set_skew_y(*values)
-        elif function_name == SVGTransform.SVG_TRANSFORM_TRANSLATE:
+        elif transform_type == SVGTransform.SVG_TRANSFORM_TRANSLATE:
             self.set_translate(*values)
+        elif transform_type == SVGTransform.SVG_TRANSFORM_UNKNOWN:
+            self.set_unknown()
         else:
-            raise NotImplementedError('Unknown transform type: {}'.format(
-                function_name))
+            raise ValueError('Unknown transform type: {}'.format(
+                repr(transform_type)))
 
     def set_matrix(self, matrix):
         """Sets the transform function value is matrix(a, b, c, d, e, f).
@@ -226,8 +228,14 @@ class SVGTransform(object):
         self._values = tx, ty
         self._angle = 0
 
+    def set_unknown(self):
+        self._transform_type = SVGTransform.SVG_TRANSFORM_UNKNOWN
+        self._values = None
+        self._angle = 0
+
     def tostring(self, delimiter=None):
-        if self._transform_type is None or self._values is None:
+        function_name = _FUNCTION_NAME_MAP.get(self._transform_type)
+        if function_name is None or self._values is None:
             return ''
         number_sequence = format_number_sequence(self._values)
         if self._transform_type == SVGTransform.SVG_TRANSFORM_ROTATE:
@@ -244,7 +252,7 @@ class SVGTransform(object):
                 del number_sequence[1]
         if delimiter is None or len(delimiter) == 0:
             delimiter = ', '
-        return '{0}({1})'.format(self._transform_type,
+        return '{0}({1})'.format(function_name,
                                  delimiter.join(number_sequence))
 
 
@@ -484,7 +492,10 @@ class SVGTransformList(MutableSequence):
             for it2 in _RE_NUMBER_SEQUENCE.finditer(
                     it.group('values').strip()):
                 number_sequence.append(float(it2.group('number')))
-            transform_list.append(SVGTransform(function_name,
+            transform_type = _TRANSFORM_TYPE_MAP.get(
+                function_name,
+                SVGTransform.SVG_TRANSFORM_UNKNOWN)
+            transform_list.append(SVGTransform(transform_type,
                                                *number_sequence))
         return transform_list
 
@@ -521,3 +532,15 @@ class SVGTransformList(MutableSequence):
                     type(transform)))
             items.append(transform.tostring(delimiter=delimiter))
         return ' '.join(items)
+
+
+_FUNCTION_NAME_MAP = {
+    SVGTransform.SVG_TRANSFORM_MATRIX: 'matrix',
+    SVGTransform.SVG_TRANSFORM_TRANSLATE: 'translate',
+    SVGTransform.SVG_TRANSFORM_SCALE: 'scale',
+    SVGTransform.SVG_TRANSFORM_ROTATE: 'rotate',
+    SVGTransform.SVG_TRANSFORM_SKEWX: 'skewX',
+    SVGTransform.SVG_TRANSFORM_SKEWY: 'skewY',
+}
+
+_TRANSFORM_TYPE_MAP = dict((v, k) for k, v in _FUNCTION_NAME_MAP.items())
