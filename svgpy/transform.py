@@ -276,15 +276,28 @@ class SVGTransformList(MutableSequence):
         'matrix(0.325937, 0.051623, -0.051623, 0.325937, 0, 0)'
     """
 
-    def __init__(self, iterable=[]):
+    def __init__(self, iterable=None):
         """Constructs the transform list.
 
         Arguments:
-            iterable (list[SVGTransform, ...], optional): The
+            iterable (list[SVGTransform], str, optional): The
                 transform list.
+        Examples:
+            >>> t = SVGTransformList()
+            >>> len(t)
+            0
+            >>> t = SVGTransformList('rotate(9) scale(0.33)')
+            >>> len(t)
+            2
+            >>> t
+            ['rotate(9)', 'scale(0.33)']
         """
         self._items = list()
-        self.extend(iterable)
+        if iterable is not None:
+            if isinstance(iterable, str):
+                self.extend(SVGTransformList.parse(iterable))
+            else:
+                self.extend(iterable)
 
     def __add__(self, other):
         if not isinstance(other, (SVGTransformList, list, tuple)):
@@ -335,13 +348,15 @@ class SVGTransformList(MutableSequence):
 
     @property
     def matrix(self):
-        """DOMMatrix: A new DOMMatrix object or None."""
+        """DOMMatrix: The current matrix or None.
+        This is a read-only attribute.
+        """
         if len(self) == 0:
             return None
         matrix = DOMMatrix()
         for transform in iter(self):
             if not isinstance(transform, SVGTransform):
-                raise TypeError('Expected Transform, got {}'.format(
+                raise TypeError('Expected SVGTransform, got {}'.format(
                     type(transform)))
             matrix *= transform.matrix
         return matrix
