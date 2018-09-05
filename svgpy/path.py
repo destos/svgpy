@@ -1198,7 +1198,7 @@ class PathParser(object):
     }
 
     @staticmethod
-    def fromglyph(face, matrix=None):
+    def from_glyph(face, matrix=None):
         """Creates a list of path segments from specified glyph outlines
         and returns it.
 

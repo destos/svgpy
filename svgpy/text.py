@@ -470,7 +470,7 @@ class SVGTextContentElement(SVGGraphicsElement):
                         glyph.embolden()
                     if force_oblique:
                         glyph.oblique()
-                    path_data = PathParser.fromglyph(face, matrix)
+                    path_data = PathParser.from_glyph(face, matrix)
                     if len(path_data) > 0:
                         line_path_data += path_data
 

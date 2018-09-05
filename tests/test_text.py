@@ -437,7 +437,7 @@ class TextTestCase(unittest.TestCase):
         matrix = DOMMatrix()
         matrix.rotate_self(rot_z=45)
         matrix.translate_self(10)
-        path_data = PathParser.fromglyph(face, matrix)
+        path_data = PathParser.from_glyph(face, matrix)
         self.assertTrue(len(path_data) > 0)
         normalized = PathParser.normalize(path_data)
         rect = PathParser.get_bbox(normalized)
