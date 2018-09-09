@@ -348,6 +348,22 @@ class ParentNode(ABC):
         raise NotImplementedError
 
 
+class NonDocumentTypeChildNode(ABC):
+    """Represents the DOM NonDocumentTypeChildNode."""
+
+    @property
+    @abstractmethod
+    def next_element_sibling(self):
+        """Element: The first following sibling element or None."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def previous_element_sibling(self):
+        """Element: The first preceding sibling element or None."""
+        raise NotImplementedError
+
+
 class Node(ABC):
     """Represents the DOM Node."""
 
@@ -481,7 +497,7 @@ class Node(ABC):
         raise NotImplementedError
 
 
-class CharacterData(Node):
+class CharacterData(Node, NonDocumentTypeChildNode):
     """Represents the DOM CharacterData."""
 
     @property
@@ -517,6 +533,15 @@ class Comment(etree.CommentBase, CharacterData):
         self.text = data
 
     @property
+    def next_element_sibling(self):
+        """Element: The first following sibling element or None."""
+        nodes = self.itersiblings()
+        for node in nodes:
+            if node.node_type == Node.ELEMENT_NODE:
+                return node
+        return None
+
+    @property
     def node_name(self):
         """str: '#comment'."""
         return '#comment'
@@ -539,6 +564,15 @@ class Comment(etree.CommentBase, CharacterData):
     def parent_node(self):
         """Node: A parent node."""
         return self.getparent()
+
+    @property
+    def previous_element_sibling(self):
+        """Element: The first preceding sibling element or None."""
+        nodes = self.itersiblings(preceding=True)
+        for node in nodes:
+            if node.node_type == Node.ELEMENT_NODE:
+                return node
+        return None
 
     @property
     def text_content(self):
@@ -658,7 +692,7 @@ class Comment(etree.CommentBase, CharacterData):
         return etree.tostring(self, **kwargs)
 
 
-class Element(etree.ElementBase, Node, ParentNode):
+class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
     """Represents the DOM Element."""
 
     SVG_NAMESPACE_URI = 'http://www.w3.org/2000/svg'
@@ -763,6 +797,15 @@ class Element(etree.ElementBase, Node, ParentNode):
         return self.nsmap.get(self.prefix)
 
     @property
+    def next_element_sibling(self):
+        """Element: The first following sibling element or None."""
+        nodes = self.itersiblings()
+        for node in nodes:
+            if node.node_type == Node.ELEMENT_NODE:
+                return node
+        return None
+
+    @property
     def node_name(self):
         """str: Same as Element.tag_name."""
         return self.tag_name
@@ -785,6 +828,15 @@ class Element(etree.ElementBase, Node, ParentNode):
     def parent_node(self):
         """Node: A parent node."""
         return self.getparent()
+
+    @property
+    def previous_element_sibling(self):
+        """Element: The first preceding sibling element or None."""
+        nodes = self.itersiblings(preceding=True)
+        for node in nodes:
+            if node.node_type == Node.ELEMENT_NODE:
+                return node
+        return None
 
     @property
     def qname(self):

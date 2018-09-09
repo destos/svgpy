@@ -12,7 +12,7 @@ from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
     SVGRectElement, SVGSVGElement, SVGTextElement
 from svgpy import Comment, Element, Font, \
     HTMLElement, \
-    DOMMatrix, Node, PathParser, DOMRect, SVGLength, SVGParser, SVGPathSegment, \
+    DOMMatrix, Node, PathParser, DOMRect, SVGLength, SVGParser, \
     SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, window, \
     formatter
 
@@ -575,7 +575,8 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
         self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
         self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
 
     def test_bbox02_02(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -589,7 +590,8 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
         self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
         self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
 
     def test_bbox02_03(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -603,7 +605,8 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(-38.899, bbox.x, msg=element.id, delta=delta)
         self.assertAlmostEqual(-38.899, bbox.y, msg=element.id, delta=delta)
         self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
 
     def test_bbox02_04(self):
         # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
@@ -631,7 +634,8 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
         self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
         self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
 
     def test_circle00_length(self):
         # circle: initial value
@@ -796,6 +800,40 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(expected, comment.text_content)
         expected = '<!--' + expected + '-->'
         self.assertEqual(expected, comment.tostring().decode())
+
+    def test_comment_next_element_sibling(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+
+        desc = parser.create_element('desc')
+        root.append(desc)
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        rect = parser.create_element('rect')
+        rect.id = 'border'
+        root.append(rect)
+        path = parser.create_element('path')
+        root.append(path)
+
+        e = comment.next_element_sibling
+        self.assertEqual(rect, e)
+
+    def test_comment_previous_element_sibling(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+
+        desc = parser.create_element('desc')
+        root.append(desc)
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        rect = parser.create_element('rect')
+        rect.id = 'border'
+        root.append(rect)
+        path = parser.create_element('path')
+        root.append(path)
+
+        e = comment.previous_element_sibling
+        self.assertEqual(desc, e)
 
     def test_computed_style02(self):
         # See also: Units.html
@@ -1614,7 +1652,8 @@ class BasicShapesTestCase(unittest.TestCase):
                    "<text/></svg>"
         self.assertEqual(expected, root.tostring().decode())
 
-        lang = attributes.setdefault_ns(Element.XML_NAMESPACE_URI, 'lang', 'en')
+        lang = attributes.setdefault_ns(Element.XML_NAMESPACE_URI, 'lang',
+                                        'en')
         expected = 'en'
         self.assertEqual(expected, lang)
         self.assertTrue(attributes.has_ns(Element.XML_NAMESPACE_URI, 'lang'))
@@ -2032,9 +2071,9 @@ class BasicShapesTestCase(unittest.TestCase):
 
         parent = root.get_element_by_id('gtop')
         video = parent.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
-                                           'video')
+                                             'video')
         source = video.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
-                                           'source')
+                                             'source')
         tag = '{{{}}}video'.format(Element.XHTML_NAMESPACE_URI)
         self.assertEqual(tag, video.tag)
         tag = '{{{}}}source'.format(Element.XHTML_NAMESPACE_URI)
@@ -2261,7 +2300,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'source')
         source = audio.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
-                                           'source')
+                                             'source')
         self.assertTrue(isinstance(source, HTMLElement))
         self.assertEqual(tag, source.tag)
         self.assertEqual('html:source', source.tag_name)
@@ -2322,6 +2361,58 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual('rect', rect.tag_name)
         self.assertEqual('rect', rect.local_name)
         self.assertEqual('http://www.w3.org/2000/svg', rect.namespace_uri)
+
+    def test_element_next_element_sibling(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+
+        desc = parser.create_element('desc')
+        root.append(desc)
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        rect = parser.create_element('rect')
+        rect.id = 'border'
+        root.append(rect)
+        path = parser.create_element('path')
+        root.append(path)
+
+        e = root.next_element_sibling
+        self.assertIsNone(e)
+
+        e = desc.next_element_sibling
+        self.assertEqual(rect, e)
+
+        e = rect.next_element_sibling
+        self.assertEqual(path, e)
+
+        e = path.next_element_sibling
+        self.assertIsNone(e)
+
+    def test_element_previous_element_sibling(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+
+        desc = parser.create_element('desc')
+        root.append(desc)
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        rect = parser.create_element('rect')
+        rect.id = 'border'
+        root.append(rect)
+        path = parser.create_element('path')
+        root.append(path)
+
+        e = root.previous_element_sibling
+        self.assertIsNone(e)
+
+        e = desc.previous_element_sibling
+        self.assertIsNone(e)
+
+        e = rect.previous_element_sibling
+        self.assertEqual(desc, e)
+
+        e = path.previous_element_sibling
+        self.assertEqual(rect, e)
 
     def test_ellipse01_length(self):
         # ellipse: initial value
@@ -2940,7 +3031,7 @@ class BasicShapesTestCase(unittest.TestCase):
         parser = SVGParser()
         polygon = parser.create_element('polygon')
         polygon.attributes.update({
-            'points': "350,75 379,161 469,161 397,215 423,301 350,250" 
+            'points': "350,75 379,161 469,161 397,215 423,301 350,250"
                       " 277,301 303,215 231,161 321,161",
         })
 
@@ -3152,7 +3243,7 @@ class BasicShapesTestCase(unittest.TestCase):
         parser = SVGParser()
         polyline = parser.create_element('polyline')
         polyline.attributes.update({
-            'points': "350,75 379,161 469,161 397,215 423,301 350,250" 
+            'points': "350,75 379,161 469,161 397,215 423,301 350,250"
                       " 277,301 303,215 231,161 321,161",
         })
 
