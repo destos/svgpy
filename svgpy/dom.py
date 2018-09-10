@@ -14,7 +14,6 @@
 
 
 import re
-import warnings
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
 
@@ -1447,66 +1446,6 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
     def istransformable(self):
         """Returns True if this element is transformable element."""
         return self.local_name in Element.TRANSFORMABLE_ELEMENTS
-
-    def make_sub_element(self,
-                         tag, index=None, attrib=None, nsmap=None, **_extra):
-        """*[DEPRECATED]*
-        Same as Element.create_sub_element().
-
-        Arguments:
-            tag (str): A tag of an element to be created.
-            index (int, optional): If specified, inserts a sub-element at the
-                given position in this element.
-            attrib (dict, optional): A dictionary of an element's attributes.
-            nsmap (dict, optional): A map of a namespace prefix to the URI.
-            **_extra: See lxml.etree._Element.makeelement() and
-                lxml.etree._BaseParser.makeelement().
-        Returns:
-            Element: A new element.
-        """
-        # TODO: Remove Element.make_sub_element().
-        warnings.warn(
-            'instead use {}.{}.'.format(type(self).__name__,
-                                        'create_sub_element()'),
-            DeprecationWarning,
-            stacklevel=2)
-        return self.create_sub_element(tag,
-                                       index=index,
-                                       attrib=attrib,
-                                       nsmap=nsmap,
-                                       **_extra)
-
-    def make_sub_element_ns(self,
-                            namespace_uri, local_name, index=None, attrib=None,
-                            nsmap=None, **_extra):
-        """*[DEPRECATED]*
-        Same as Element.create_sub_element_ns().
-
-        Arguments:
-            namespace_uri (str, None): The namespace URI to associated with the
-                element.
-            local_name (str): A local name of an element to be created.
-            index (int, optional): If specified, inserts a sub-element at the
-                given position in this element.
-            attrib (dict, optional): A dictionary of an element's attributes.
-            nsmap (dict, optional): A map of a namespace prefix to the URI.
-            **_extra: See lxml.etree._Element.makeelement() and
-                lxml.etree._BaseParser.makeelement().
-        Returns:
-            Element: A new element.
-        """
-        # TODO: Remove Element.make_sub_element_ns().
-        warnings.warn(
-            'instead use {}.{}.'.format(type(self).__name__,
-                                        'create_sub_element_ns()'),
-            DeprecationWarning,
-            stacklevel=2)
-        return self.create_sub_element_ns(namespace_uri,
-                                          local_name,
-                                          index=index,
-                                          attrib=attrib,
-                                          nsmap=nsmap,
-                                          **_extra)
 
     def prepend(self, node):
         """Inserts a sub-node before the first child node.

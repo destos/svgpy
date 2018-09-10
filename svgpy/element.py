@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-import warnings
-
 from lxml import etree
 
 from .base import HTMLElement, \
@@ -26,9 +24,9 @@ from .core import CSSUtils, SVGLength
 from .dom import Comment, Element, LinkStyle, ProcessingInstruction
 from .path import PathParser, SVGPathSegment
 from .text import SVGTextContentElement, SVGTextPositioningElement
+from .transform import SVGTransform, SVGTransformList
 from .utils import get_element_by_id, get_elements_by_class_name, \
     get_elements_by_tag_name, get_elements_by_tag_name_ns
-from .transform import SVGTransform, SVGTransformList
 
 
 class HTMLAudioElement(HTMLMediaElement):
@@ -1338,73 +1336,6 @@ class SVGParser(object):
         """
         root = etree.fromstring(text, parser=self._parser)
         return root
-
-    def make_comment(self, text):
-        """*[DEPRECATED]*
-        Same as SVGParser.create_comment().
-
-        Arguments:
-            text (str): A string of the comment.
-        Returns:
-            Comment: A new comment.
-        """
-        # TODO: Remove SVGParser.make_comment().
-        warnings.warn(
-            'instead use {}.{}.'.format(type(self).__name__,
-                                        'create_comment()'),
-            DeprecationWarning,
-            stacklevel=2)
-        return self.create_comment(text)
-
-    def make_element(self, tag, attrib=None, nsmap=None, **_extra):
-        """*[DEPRECATED]*
-        Same as SVGParser.create_element().
-
-        Arguments:
-            tag (str): A tag of an element to be created.
-            attrib (dict, optional): A dictionary of an element's attributes.
-            nsmap (dict, optional): A map of a namespace prefix to the URI.
-            **_extra: See lxml.etree._Element.makeelement() and
-                lxml.etree._BaseParser.makeelement().
-        Returns:
-            Element: A new element.
-        """
-        # TODO: Remove SVGParser.make_element().
-        warnings.warn(
-            'instead use {}.{}.'.format(type(self).__name__,
-                                        'create_element()'),
-            DeprecationWarning,
-            stacklevel=2)
-        return self.create_element(tag, attrib=attrib, nsmap=nsmap, **_extra)
-
-    def make_element_ns(self,
-                        namespace_uri, local_name, attrib=None, nsmap=None,
-                        **_extra):
-        """*[DEPRECATED]*
-        Same as SVGParser.create_element_ns().
-
-        Arguments:
-            namespace_uri (str): The namespace URI to associated with the
-                element.
-            local_name (str): A local name of an element to be created.
-            attrib (dict, optional): A dictionary of an element's attributes.
-            nsmap (dict, optional): A map of a namespace prefix to the URI.
-            **_extra: See lxml.etree._Element.makeelement() and
-                lxml.etree._BaseParser.makeelement().
-        Returns:
-            Element: A new element.
-        """
-        # TODO: Remove SVGParser.make_element_ns().
-        warnings.warn(
-            'instead use {}.{}.'.format(type(self).__name__,
-                                        'create_element_ns()'),
-            DeprecationWarning,
-            stacklevel=2)
-        return self.create_element_ns(namespace_uri,
-                                      local_name,
-                                      attrib=attrib,
-                                      nsmap=nsmap,
-                                      **_extra)
 
     def parse(self, source):
         """Parses the source into an ElementTree object, and returns it.
