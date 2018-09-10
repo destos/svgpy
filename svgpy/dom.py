@@ -1671,6 +1671,15 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         self.text = data
 
     @property
+    def next_element_sibling(self):
+        """Element: The first following sibling element or None."""
+        nodes = self.itersiblings()
+        for node in nodes:
+            if node.node_type == Node.ELEMENT_NODE:
+                return node
+        return None
+
+    @property
     def node_name(self):
         """str: A string appropriate for the type of node."""
         return self.target
@@ -1693,6 +1702,15 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
     def parent_node(self):
         """Node: A parent node."""
         return self.getparent()
+
+    @property
+    def previous_element_sibling(self):
+        """Element: The first preceding sibling element or None."""
+        nodes = self.itersiblings(preceding=True)
+        for node in nodes:
+            if node.node_type == Node.ELEMENT_NODE:
+                return node
+        return None
 
     @property
     def text_content(self):
