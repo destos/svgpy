@@ -27,19 +27,24 @@ from .transform import SVGTransformList
 
 
 class HTMLElement(ElementCSSInlineStyle):
+    """Represents the [HTML] HTMLElement."""
     pass
 
 
 class HTMLHyperlinkElementUtils(object):
+    """Represents the [HTML] HTMLHyperlinkElementUtils."""
     # TODO: implement the HTMLHyperlinkElementUtils.
     pass
 
 
 class HTMLMediaElement(HTMLElement):
+    """Represents the [HTML] HTMLMediaElement."""
     pass
 
 
 class SVGAnimatedPoints(Element):
+    """Represents the [SVG2] SVGAnimatedPoints."""
+
     @property
     def points(self):
         """list[tuple[float, float]]: A list of coordinates pair.
@@ -76,6 +81,8 @@ class SVGAnimatedPoints(Element):
 
 
 class SVGBoundingBoxOptions(object):
+    """Represents the [SVG2] SVGBoundingBoxOptions."""
+
     def __init__(self):
         self.fill = True
         self.stroke = False
@@ -84,6 +91,8 @@ class SVGBoundingBoxOptions(object):
 
 
 class SVGElement(ElementCSSInlineStyle):
+    """Represents the [SVG2] SVGElement."""
+
     NEAREST_VIEWPORT = 0
     FARTHEST_VIEWPORT = 1
 
@@ -291,6 +300,8 @@ class SVGElement(ElementCSSInlineStyle):
 
 
 class SVGGraphicsElement(SVGElement):
+    """Represents the [SVG2] SVGGraphicsElement."""
+
     @property
     def transform(self):
         """SVGTransformList: The computed value of the 'transform' property.
@@ -502,6 +513,8 @@ class SVGGraphicsElement(SVGElement):
 
 
 class SVGFitToViewBox(Element):
+    """Represents the [SVG2] SVGFitToViewBox."""
+
     @property
     def preserve_aspect_ratio(self):
         """SVGPreserveAspectRatio: The value of the 'preserveAspectRatio'
@@ -542,6 +555,8 @@ class SVGFitToViewBox(Element):
 
 
 class SVGGeometryElement(SVGGraphicsElement):
+    """Represents the [SVG2] SVGGeometryElement."""
+
     def get_path_data(self, settings=None):
         """Returns a list of path segments that corresponds to the path data.
 
@@ -571,6 +586,8 @@ class SVGGeometryElement(SVGGraphicsElement):
 
 
 class SVGPathData(Element):
+    """Represents the [SVG2] SVGPathData."""
+
     def set_path_data(self, path_data):
         if path_data is None or len(path_data) == 0:
             d = 'none'
@@ -580,11 +597,15 @@ class SVGPathData(Element):
 
 
 class SVGPathDataSettings(object):
+    """Represents the [SVG2] SVGPathDataSettings."""
+
     def __init__(self):
         self.normalize = False
 
 
 class SVGPreserveAspectRatio(object):
+    """Represents the [SVG2] SVGPreserveAspectRatio."""
+
     ALIGN_NONE = 'none'
     ALIGN_XMINYMIN = 'xMinYMin'
     ALIGN_XMIDYMIN = 'xMidYMin'
@@ -667,6 +688,8 @@ class SVGPreserveAspectRatio(object):
 
 
 class SVGURIReference(Element):
+    """Represents the [SVG2] SVGURIReference."""
+
     @property
     def href(self):
         attributes = self.attributes
@@ -677,6 +700,8 @@ class SVGURIReference(Element):
 
 
 class SVGGradientElement(SVGElement, SVGURIReference):
+    """Represents the [SVG2] SVGGradientElement."""
+
     SPREADMETHOD_UNKNOWN = 0
     SPREADMETHOD_PAD = 1
     SPREADMETHOD_REFLECT = 2
@@ -684,6 +709,8 @@ class SVGGradientElement(SVGElement, SVGURIReference):
 
 
 class SVGZoomAndPan(Element):
+    """Represents the [SVG2] SVGZoomAndPan."""
+
     ZOOMANDPAN_UNKNOWN = 0
     ZOOMANDPAN_DISABLE = 1
     ZOOMANDPAN_MAGNIFY = 2

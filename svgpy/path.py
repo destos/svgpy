@@ -436,8 +436,7 @@ class SVGPathSegment(object):
                         float(x2), float(y2),
                         float(x), float(y))
 
-    def set_elliptical_arc_abs(self,
-                               rx, ry, x_axis_rotation, large_arc_flag,
+    def set_elliptical_arc_abs(self, rx, ry, x_axis_rotation, large_arc_flag,
                                sweep_flag, x, y):
         self._path_type = 'A'
         self._values = (float(rx),
@@ -448,8 +447,7 @@ class SVGPathSegment(object):
                         float(x),
                         float(y))
 
-    def set_elliptical_arc_rel(self,
-                               rx, ry, x_axis_rotation, large_arc_flag,
+    def set_elliptical_arc_rel(self, rx, ry, x_axis_rotation, large_arc_flag,
                                sweep_flag, x, y):
         self._path_type = 'a'
         self._values = (float(rx),

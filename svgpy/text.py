@@ -29,6 +29,8 @@ from .path import PathParser
 
 
 class SVGTextContentElement(SVGGraphicsElement):
+    """Represents the [SVG2] SVGTextContentElement."""
+
     _CHARS_ID = 0
     _CHARS_TEXT = 1
     _CHARS_STYLE = 2
@@ -141,8 +143,8 @@ class SVGTextContentElement(SVGGraphicsElement):
             is_display (bool, optional):
             is_render (bool, optional):
         Returns:
-            list[list[int, str, dict, list[SVGPathSegment], list[float], DOMRect,
-                SVGElement]]:
+            list[list[int, str, dict, list[SVGPathSegment], list[float],
+                DOMRect, SVGElement]]:
                 Returns a list of seven numbers <hash value of an element>,
                 <text for rendering>, <computed presentation properties>,
                 <list of path segments>, <list of advance measure>,
@@ -719,4 +721,5 @@ class SVGTextContentElement(SVGGraphicsElement):
 
 
 class SVGTextPositioningElement(SVGTextContentElement):
+    """Represents the [SVG2] SVGTextPositioningElement."""
     pass

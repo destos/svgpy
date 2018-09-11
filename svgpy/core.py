@@ -735,9 +735,8 @@ class Font(object):
         self._face.load_char('x', FreeType.FT_LOAD_NO_BITMAP)
         return self._face.glyph.metrics.height / 64
 
-    def set_point_size(self,
-                       width, height,
-                       hori_resolution=0, vert_resolution=0):
+    def set_point_size(self, width, height, hori_resolution=0,
+                       vert_resolution=0):
         self._face.request_size(FreeType.FT_SIZE_REQUEST_TYPE_NOMINAL,
                                 width, height,
                                 hori_resolution, vert_resolution)

@@ -390,8 +390,7 @@ class FTFace(object):
         if error:
             raise RuntimeError('FT_Reference_Face() failed: ' + hex(error))
 
-    def request_size(self,
-                     size_request_type, width, height,
+    def request_size(self, size_request_type, width, height,
                      hori_resolution=0, vert_resolution=0):
         size_request = ffi.new('FT_Size_Request')
         size_request.type = size_request_type
@@ -413,8 +412,7 @@ class FTFace(object):
         if error:
             raise RuntimeError('FT_Select_Size() failed: ' + hex(error))
 
-    def set_char_size(self,
-                      char_width, char_height,
+    def set_char_size(self, char_width, char_height,
                       horz_resolution=0, vert_resolution=0):
         error = lib.FT_Set_Char_Size(self._face,
                                      char_width,
@@ -781,10 +779,8 @@ class FTOutline(object):
         tags = ffi.string(self._outline.tags)
         return list(tags)
 
-    def decompose(self,
-                  move_to_func, line_to_func, conic_to_func, cubic_to_func,
-                  shift=0, delta=0,
-                  user=None):
+    def decompose(self, move_to_func, line_to_func, conic_to_func,
+                  cubic_to_func, shift=0, delta=0, user=None):
         @ffi.callback('int(FT_Vector *, void *)')
         def _move_to(to, _):
             move_to_func(to.x, to.y, user)

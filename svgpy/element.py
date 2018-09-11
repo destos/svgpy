@@ -30,22 +30,22 @@ from .utils import get_element_by_id, get_elements_by_class_name, \
 
 
 class HTMLAudioElement(HTMLMediaElement):
-    """Represents the HTML <audio> element."""
+    """Represents the [HTML] <audio> element."""
     pass
 
 
 class HTMLCanvasElement(HTMLElement):
-    """Represents the HTML <canvas> element."""
+    """Represents the [HTML] <canvas> element."""
     pass
 
 
 class HTMLIFrameElement(HTMLElement):
-    """Represents the HTML <iframe> element."""
+    """Represents the [HTML] <iframe> element."""
     pass
 
 
 class HTMLLinkElement(HTMLElement, LinkStyle):
-    """Represents the HTML <link> element."""
+    """Represents the [HTML] <link> element."""
 
     @property
     def as_(self):
@@ -151,21 +151,21 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
 
 class HTMLVideoElement(HTMLMediaElement):
-    """Represents the HTML <video> element."""
+    """Represents the [HTML] <video> element."""
     pass
 
 
-class SVGAElement(SVGGraphicsElement,
-                  SVGURIReference, HTMLHyperlinkElementUtils):
+class SVGAElement(SVGGraphicsElement, SVGURIReference,
+                  HTMLHyperlinkElementUtils):
     # TODO: implement the SVGAElement.
-    """Represents the SVG <a> element."""
+    """Represents the [SVG2] <a> element."""
 
     def get_path_data(self, settings=None):
         return []
 
 
 class SVGCircleElement(SVGGeometryElement):
-    """Represents the SVG <circle> element."""
+    """Represents the [SVG2] <circle> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -242,12 +242,12 @@ class SVGCircleElement(SVGGeometryElement):
 
 class SVGClipPathElement(SVGElement):
     # TODO: implement the SVGClipPathElement.
-    """Represents the SVG <clipPath> element."""
+    """Represents the [SVG2] <clipPath> element."""
     pass
 
 
 class SVGDefsElement(SVGGraphicsElement):
-    """Represents the SVG <defs> element."""
+    """Represents the [SVG2] <defs> element."""
 
     def get_path_data(self, settings=None):
         """Returns a list of path segments that corresponds to the path data.
@@ -263,12 +263,12 @@ class SVGDefsElement(SVGGraphicsElement):
 
 
 class SVGDescElement(SVGElement):
-    """Represents the SVG <desc> element."""
+    """Represents the [SVG2] <desc> element."""
     pass
 
 
 class SVGEllipseElement(SVGGeometryElement):
-    """Represents the SVG <ellipse> element."""
+    """Represents the [SVG2] <ellipse> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -368,12 +368,12 @@ class SVGEllipseElement(SVGGeometryElement):
 
 class SVGForeignObjectElement(SVGGraphicsElement):
     # TODO: implement the SVGForeignObjectElement.
-    """Represents the SVG <foreignObject> element."""
+    """Represents the [SVG2] <foreignObject> element."""
     pass
 
 
 class SVGGElement(SVGGraphicsElement):
-    """Represents the SVG <g> element."""
+    """Represents the [SVG2] <g> element."""
 
     def get_path_data(self, settings=None):
         """Returns a list of path segments that corresponds to the path data.
@@ -389,28 +389,28 @@ class SVGGElement(SVGGraphicsElement):
 
 
 class SVGHatchElement(SVGElement):
-    """Represents the SVG <hatch> element."""
+    """Represents the [SVG2] <hatch> element."""
     pass
 
 
 class SVGHatchpathElement(SVGElement):
-    """Represents the SVG <hatchpath> element."""
+    """Represents the [SVG2] <hatchpath> element."""
     pass
 
 
 class SVGImageElement(SVGGraphicsElement, SVGURIReference):
     # TODO: implement the SVGImageElement.
-    """Represents the SVG <image> element."""
+    """Represents the [SVG2] <image> element."""
     pass
 
 
 class SVGLinearGradientElement(SVGGradientElement):
-    """Represents the SVG <linearGradient> element."""
+    """Represents the [SVG2] <linearGradient> element."""
     pass
 
 
 class SVGLineElement(SVGGeometryElement):
-    """Represents the SVG <line> element."""
+    """Represents the [SVG2] <line> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -473,40 +473,40 @@ class SVGLineElement(SVGGeometryElement):
 
 class SVGMarkerElement(SVGGraphicsElement):
     # TODO: implement the SVGMarkerElement.
-    """Represents the SVG <marker> element."""
+    """Represents the [SVG2] <marker> element."""
     pass
 
 
 class SVGMeshElement(SVGGeometryElement):
     # TODO: implement the SVGMeshElement.
-    """Represents the SVG <mesh> element."""
+    """Represents the [SVG2] <mesh> element."""
 
     def get_path_data(self, settings=None):
         return []
 
 
 class SVGMeshGradientElement(SVGGradientElement):
-    """Represents the SVG <mesh> element."""
+    """Represents the [SVG2] <mesh> element."""
     pass
 
 
 class SVGMeshpatchElement(SVGElement):
-    """Represents the SVG <meshpatch> element."""
+    """Represents the [SVG2] <meshpatch> element."""
     pass
 
 
 class SVGMeshrowElement(SVGElement):
-    """Represents the SVG <meshrow> element."""
+    """Represents the [SVG2] <meshrow> element."""
     pass
 
 
 class SVGMetadataElement(SVGElement):
-    """Represents the SVG <metadata> element."""
+    """Represents the [SVG2] <metadata> element."""
     pass
 
 
 class SVGPathElement(SVGGeometryElement, SVGPathData):
-    """Represents the SVG <path> element."""
+    """Represents the [SVG2] <path> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -549,7 +549,7 @@ class SVGPathElement(SVGGeometryElement, SVGPathData):
 
 class SVGPatternElement(SVGGraphicsElement, SVGFitToViewBox, SVGURIReference):
     # TODO: implement the SVGPatternElement.
-    """Represents the SVG <pattern> element."""
+    """Represents the [SVG2] <pattern> element."""
 
     def get_path_data(self, settings=None):
         """Returns a list of path segments that corresponds to the path data.
@@ -565,7 +565,7 @@ class SVGPatternElement(SVGGraphicsElement, SVGFitToViewBox, SVGURIReference):
 
 
 class SVGPolygonElement(SVGGeometryElement, SVGAnimatedPoints):
-    """Represents the SVG <polygon> element."""
+    """Represents the [SVG2] <polygon> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -602,7 +602,7 @@ class SVGPolygonElement(SVGGeometryElement, SVGAnimatedPoints):
 
 
 class SVGPolylineElement(SVGGeometryElement, SVGAnimatedPoints):
-    """Represents the SVG <polyline> element."""
+    """Represents the [SVG2] <polyline> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -638,12 +638,12 @@ class SVGPolylineElement(SVGGeometryElement, SVGAnimatedPoints):
 
 
 class SVGRadialGradientElement(SVGGradientElement):
-    """Represents the SVG <radialGradient> element."""
+    """Represents the [SVG2] <radialGradient> element."""
     pass
 
 
 class SVGRectElement(SVGGeometryElement):
-    """Represents the SVG <rect> element."""
+    """Represents the [SVG2] <rect> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -796,22 +796,22 @@ class SVGRectElement(SVGGeometryElement):
 
 
 class SVGScriptElement(SVGElement, SVGURIReference):
-    """Represents the SVG <script> element."""
+    """Represents the [SVG2] <script> element."""
     pass
 
 
 class SVGSolidcolorElement(SVGElement):
-    """Represents the SVG <solidcolor> element."""
+    """Represents the [SVG2] <solidcolor> element."""
     pass
 
 
 class SVGStopElement(SVGElement):
-    """Represents the SVG <stop> element."""
+    """Represents the [SVG2] <stop> element."""
     pass
 
 
 class SVGStyleElement(SVGElement, LinkStyle):
-    """Represents the SVG <style> element."""
+    """Represents the [SVG2] <style> element."""
 
     @property
     def media(self):
@@ -839,7 +839,7 @@ class SVGStyleElement(SVGElement, LinkStyle):
 
 
 class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
-    """Represents the SVG <svg> element."""
+    """Represents the [SVG2] <svg> element."""
 
     def _init(self):
         super()._init()
@@ -936,8 +936,8 @@ class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
                                         namespaces=namespaces,
                                         include_self=True)
 
-    def get_elements_by_tag_name_ns(self,
-                                    namespace, local_name, namespaces=None):
+    def get_elements_by_tag_name_ns(self, namespace, local_name,
+                                    namespaces=None):
         """Reimplemented from Element.get_elements_by_tag_name_ns().
 
         Finds all matching sub-elements, by the namespace URI and the local
@@ -972,13 +972,13 @@ class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
 
 class SVGSwitchElement(SVGGraphicsElement):
     # TODO: implement the SVGSwitchElement.
-    """Represents the SVG <switch> element."""
+    """Represents the [SVG2] <switch> element."""
     pass
 
 
 class SVGSymbolElement(SVGGraphicsElement, SVGFitToViewBox):
     # TODO: implement the SVGSymbolElement.
-    """Represents the SVG <symbol> element."""
+    """Represents the [SVG2] <symbol> element."""
 
     def get_computed_geometry(self):
         geometry = dict()
@@ -1020,28 +1020,28 @@ class SVGSymbolElement(SVGGraphicsElement, SVGFitToViewBox):
 
 
 class SVGTextElement(SVGTextPositioningElement):
-    """Represents the SVG <text> element."""
+    """Represents the [SVG2] <text> element."""
     pass
 
 
 class SVGTextPathElement(SVGTextContentElement):
     # TODO: implement the SVGTextPathElement.
-    """Represents the SVG <textPath> element."""
+    """Represents the [SVG2] <textPath> element."""
     pass
 
 
 class SVGTitleElement(SVGElement):
-    """Represents the SVG <title> element."""
+    """Represents the [SVG2] <title> element."""
     pass
 
 
 class SVGTSpanElement(SVGTextPositioningElement):
-    """Represents the SVG <tspan> element."""
+    """Represents the [SVG2] <tspan> element."""
     pass
 
 
 class SVGUseElement(SVGGraphicsElement, SVGURIReference):
-    """Represents the SVG <use> element."""
+    """Represents the [SVG2] <use> element."""
 
     @property
     def instance_root(self):
@@ -1142,7 +1142,7 @@ class SVGUseElement(SVGGraphicsElement, SVGURIReference):
 
 class SVGViewElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
     # TODO: implement the SVGViewElement.
-    """Represents the SVG <view> element."""
+    """Represents the [SVG2] <view> element."""
     pass
 
 
@@ -1264,9 +1264,8 @@ class SVGParser(object):
                                            **_extra)
         return element
 
-    def create_element_ns(self,
-                          namespace, qualified_name, attrib=None, nsmap=None,
-                          **_extra):
+    def create_element_ns(self, namespace, qualified_name, attrib=None,
+                          nsmap=None, **_extra):
         """Creates a new element instance with the specified namespace URI,
         and returns it.
         See also SVGParser.create_element(), Document.create_element(),
@@ -1307,13 +1306,13 @@ class SVGParser(object):
         return element
 
     def create_processing_instruction(self, target, data=None):
-        """Creates a new ProcessingInstruction node, and returns it.
+        """Creates a new processing instruction instance, and returns it.
 
         Arguments:
             target (str): The target of this processing instruction.
             data (str, optional): The content of this processing instruction.
         Returns:
-            ProcessingInstruction: A new ProcessingInstruction node.
+            ProcessingInstruction: A new processing instruction.
         Examples:
             >>> from svgpy import SVGParser
             >>> parser = SVGParser()

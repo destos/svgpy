@@ -49,8 +49,8 @@ class CSSRule(object):
     SUPPORTS_RULE = 12
     FONT_FEATURE_VALUES_RULE = 14
 
-    def __init__(self,
-                 rule, rule_type, parent_style_sheet=None, parent_rule=None):
+    def __init__(self, rule, rule_type, parent_style_sheet=None,
+                 parent_rule=None):
         """Constructs a CSSRule object.
 
         Arguments:
@@ -95,6 +95,15 @@ class CSSGroupingRule(CSSRule):
 
     def __init__(self, rule, rule_type, parent_style_sheet=None,
                  parent_rule=None):
+        """Constructs a CSSGroupingRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            rule_type (int): The CSS rule type.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          rule_type,
                          parent_style_sheet=parent_style_sheet,
@@ -140,6 +149,15 @@ class CSSConditionRule(CSSGroupingRule, ABC):
 
     def __init__(self, rule, rule_type, parent_style_sheet=None,
                  parent_rule=None):
+        """Constructs a CSSConditionRule object.
+
+        Arguments:
+            rule: A parsed CSS at-rule object.
+            rule_type (int): The CSS rule type.
+            parent_style_sheet (CSSStyleSheet, optional): The parent CSS style
+                sheet.
+            parent_rule (CSSRule, optional): The parent CSS rule.
+        """
         super().__init__(rule,
                          rule_type,
                          parent_style_sheet=parent_style_sheet,
@@ -192,7 +210,12 @@ class MediaList(MutableSequence):
         self._items = [x.strip() for x in media_text.split(',')]
 
     def append(self, item):
-        """Same as append_medium()."""
+        """Adds the media query to the collection of media queries.
+        Same as append_medium().
+
+        Arguments:
+            item (str): The media query to be added.
+        """
         self.append_medium(item)
 
     def append_medium(self, item):
@@ -223,25 +246,20 @@ class MediaList(MutableSequence):
 
     def item(self, index):
         """Returns a serialization of the media query in the collection of
-        media queries given by index, or None, if index is greater than or
-        equal to the number of media queries in the collection of media
-        queries.
+        media queries given by index.
 
         Arguments:
             index (int): An index position of the collection of media queries.
         Returns:
             str: The media query.
         """
-        if index < 0 or index >= len(self):
-            return None
         return self.__getitem__(index)
 
 
 class StyleSheet(object):
     """Represents an abstract, base style sheet."""
 
-    def __init__(self,
-                 type_=None, href=None, owner_node=None,
+    def __init__(self, type_=None, href=None, owner_node=None,
                  parent_style_sheet=None, title=None, media=None,
                  disabled=False):
         """Constructs a StyleSheet object.
@@ -330,7 +348,8 @@ class CSSFontFaceRule(CSSRule):
     @property
     def style(self):
         """CSSStyleDeclaration: A CSS declaration block associated with the
-        at-rule."""
+        at-rule.
+        """
         return self._style
 
 
@@ -361,13 +380,13 @@ class CSSFontFeatureValuesRule(CSSRule):
 
     def __repr__(self):
         return repr((type(self).__name__, {
-            'font-family': self.font_family,
-            '@annotation': self.annotation,
-            '@character-variant': self.character_variant,
-            '@ornaments': self.ornaments,
-            '@styleset': self.styleset,
-            '@stylistic': self.stylistic,
-            '@swash': self.swash,
+            'font_family': self.font_family,
+            'annotation': self.annotation,
+            'character_variant': self.character_variant,
+            'ornaments': self.ornaments,
+            'styleset': self.styleset,
+            'stylistic': self.stylistic,
+            'swash': self.swash,
         }))
 
     def _parse_content(self, content):
@@ -415,33 +434,33 @@ class CSSFontFeatureValuesRule(CSSRule):
 
     @property
     def annotation(self):
-        """CaseInsensitiveMapping: A '@annotation' feature values."""
+        """CaseInsensitiveMapping: The '@annotation' feature values."""
         return self._annotation
 
     @property
     def character_variant(self):
-        """CaseInsensitiveMapping: A '@character-variant' feature values.
+        """CaseInsensitiveMapping: The '@character-variant' feature values.
         """
         return self._character_variant
 
     @property
     def ornaments(self):
-        """CaseInsensitiveMapping: A '@ornaments' feature values."""
+        """CaseInsensitiveMapping: The '@ornaments' feature values."""
         return self._ornaments
 
     @property
     def styleset(self):
-        """CaseInsensitiveMapping: A '@styleset' feature values."""
+        """CaseInsensitiveMapping: The '@styleset' feature values."""
         return self._styleset
 
     @property
     def stylistic(self):
-        """CaseInsensitiveMapping: A '@stylistic' feature values."""
+        """CaseInsensitiveMapping: The '@stylistic' feature values."""
         return self._stylistic
 
     @property
     def swash(self):
-        """CaseInsensitiveMapping: A '@swash' feature values."""
+        """CaseInsensitiveMapping: The '@swash' feature values."""
         return self._swash
 
 
@@ -470,7 +489,7 @@ class CSSImportRule(CSSRule):
         return repr((type(self).__name__, {
             'href': self.href,
             'media': self.media,
-            'styleSheet': self._style_sheet,
+            'style_sheet': self.style_sheet,
         }))
 
     def _parse_prelude(self, prelude):
@@ -549,12 +568,14 @@ class CSSMediaRule(CSSConditionRule):
     def __repr__(self):
         return repr((type(self).__name__, {
             'media': self.media,
-            'cssRules': self.css_rules,
+            'css_rules': self.css_rules,
         }))
 
     @property
     def condition_text(self):
-        """str: Same as media.media_text."""
+        """str: A serialization of the collection of media queries.
+        Same as media.media_text.
+        """
         return self._media.media_text
 
     @condition_text.setter
@@ -589,7 +610,7 @@ class CSSNamespaceRule(CSSRule):
 
     def __repr__(self):
         return repr((type(self).__name__, {
-            'namespaceURI': self.namespace_uri,
+            'namespace_uri': self.namespace_uri,
             'prefix': self.prefix,
         }))
 
@@ -794,7 +815,8 @@ class CSSStyleRule(CSSRule):
     @property
     def style(self):
         """CSSStyleDeclaration: A CSS declaration block associated with the
-        at-rule."""
+        at-rule.
+        """
         return self._style
 
 
@@ -817,7 +839,7 @@ class CSSStyleSheet(StyleSheet):
             'href': self.href,
             'media': self.media,
             'title': self.title,
-            'cssRules': self.css_rules,
+            'css_rules': self.css_rules,
         }))
 
     @property
@@ -859,8 +881,8 @@ class CSSStyleSheet(StyleSheet):
 
 class CSSParser(object):
     @classmethod
-    def fromstring(cls,
-                   stylesheet, parent_style_sheet=None, parent_rule=None):
+    def fromstring(cls, stylesheet, parent_style_sheet=None,
+                   parent_rule=None):
         """Parses the CSS style sheet or fragment from a string.
 
         Arguments:
@@ -887,8 +909,7 @@ class CSSParser(object):
             return []
 
     @classmethod
-    def parse(cls,
-              url, owner_node=None, parent_style_sheet=None,
+    def parse(cls, url, owner_node=None, parent_style_sheet=None,
               parent_rule=None, encoding=None):
         """Parses the CSS style sheet.
 

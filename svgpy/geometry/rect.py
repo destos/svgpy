@@ -14,7 +14,7 @@
 
 
 class DOMRectReadOnly(object):
-    """Represents the GEOMETRY DOMRectReadOnly."""
+    """Represents the [geometry] DOMRectReadOnly."""
 
     def __init__(self, x=None, y=None, width=0, height=0):
         """Constructs a DOMRectReadOnly object.
@@ -128,6 +128,7 @@ class DOMRectReadOnly(object):
     def adjust(self, dx1, dy1, dx2, dy2):
         """Adds dx1, dy1, dx2 and dy2 respectively to the existing coordinates
         of the rectangle.
+        The current rectangle is not modified.
 
         Arguments:
             dx1 (float): The amount to inflate this Rectangle's left edge.
@@ -208,6 +209,7 @@ class DOMRectReadOnly(object):
 
     def intersect(self, other):
         """Returns the intersection of this rectangle and the given rectangle.
+        The current rectangle is not modified.
 
         Arguments:
             other (DOMRectReadOnly): A rectangle to be intersected.
@@ -240,6 +242,7 @@ class DOMRectReadOnly(object):
 
     def normalize(self):
         """Returns a normalized rectangle.
+        The current rectangle is not modified.
 
         Returns:
             DOMRect: The resulting rectangle.
@@ -304,6 +307,7 @@ class DOMRectReadOnly(object):
     def unite(self, x, y, width=0, height=0):
         """Returns the bounding rectangle of this rectangle and the given
         rectangle.
+        The current rectangle is not modified.
 
         Arguments:
             x (float): The absolute x-coordinate of the rectangle's left edge.
@@ -319,7 +323,7 @@ class DOMRectReadOnly(object):
 
 
 class DOMRect(DOMRectReadOnly):
-    """Represents the GEOMETRY DOMRect."""
+    """Represents the [geometry] DOMRect."""
 
     def __init__(self, x=None, y=None, width=0, height=0):
         """Constructs a DOMRect object.

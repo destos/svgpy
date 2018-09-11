@@ -66,11 +66,10 @@ class BrowsingContext(object):
 
 
 class Document(Node, NonElementParentNode, ParentNode):
-    """Represents the DOM Document."""
+    """Represents the [DOM] Document."""
 
-    def __init__(self,
-                 content_type=None, default_view=None, document_element=None,
-                 implementation=None):
+    def __init__(self, content_type=None, default_view=None,
+                 document_element=None, implementation=None):
         """Constructs a Document object.
 
         Arguments:
@@ -238,7 +237,7 @@ class Document(Node, NonElementParentNode, ParentNode):
         Arguments:
             node (Node): A node to be added.
         Returns:
-            Node: An appended node.
+            Node: A node to be added.
         """
         self.append(node)
         return node
@@ -253,7 +252,7 @@ class Document(Node, NonElementParentNode, ParentNode):
             Comment: A new comment.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document.')
+            raise ValueError('The object is in the wrong document')
         parser = self._implementation.parser
         comment = parser.create_comment(data)
         return comment
@@ -272,7 +271,7 @@ class Document(Node, NonElementParentNode, ParentNode):
             Element: A new element.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document.')
+            raise ValueError('The object is in the wrong document')
         parser = self._implementation.parser
         element = parser.create_element_ns(None,
                                            local_name,
@@ -281,9 +280,8 @@ class Document(Node, NonElementParentNode, ParentNode):
                                            **_extra)
         return element
 
-    def create_element_ns(self,
-                          namespace, qualified_name, attrib=None, nsmap=None,
-                          **_extra):
+    def create_element_ns(self, namespace, qualified_name, attrib=None,
+                          nsmap=None, **_extra):
         """Creates a new element instance with the specified namespace URI,
         and returns it.
         See also SVGParser.create_element_ns().
@@ -300,7 +298,7 @@ class Document(Node, NonElementParentNode, ParentNode):
             Element: A new element.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document.')
+            raise ValueError('The object is in the wrong document')
         parser = self._implementation.parser
         element = parser.create_element_ns(namespace,
                                            qualified_name,
@@ -310,16 +308,16 @@ class Document(Node, NonElementParentNode, ParentNode):
         return element
 
     def create_processing_instruction(self, target, data=None):
-        """Creates a new ProcessingInstruction node, and returns it.
+        """Creates a new processing instruction, and returns it.
 
         Arguments:
             target (str): The target of this processing instruction.
             data (str, optional): The content of this processing instruction.
         Returns:
-            ProcessingInstruction: A new ProcessingInstruction node.
+            ProcessingInstruction: A new processing instruction.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document.')
+            raise ValueError('The object is in the wrong document')
         parser = self._implementation.parser
         pi = parser.create_processing_instruction(target, data)
         return pi
@@ -377,8 +375,8 @@ class Document(Node, NonElementParentNode, ParentNode):
                                         namespaces=namespaces,
                                         include_self=True)
 
-    def get_elements_by_tag_name_ns(self,
-                                    namespace, local_name, namespaces=None):
+    def get_elements_by_tag_name_ns(self, namespace, local_name,
+                                    namespaces=None):
         """Finds all matching sub-elements, by the namespace URI and the local
         name.
 
@@ -417,7 +415,7 @@ class Document(Node, NonElementParentNode, ParentNode):
             node (Node): A node to be inserted.
             child (Node, None): A reference child node.
         Returns:
-            Node: A inserted node.
+            Node: A node to be inserted.
         """
         if child is None:
             return self.append_child(node)
@@ -427,7 +425,7 @@ class Document(Node, NonElementParentNode, ParentNode):
                 or child not in siblings
                 or node.node_type == Node.ELEMENT_NODE):
             raise ValueError(
-                'The operation would yield an incorrect node tree.')
+                'The operation would yield an incorrect node tree')
         child.addprevious(node)
         return node
 
@@ -474,12 +472,12 @@ class Document(Node, NonElementParentNode, ParentNode):
         Arguments:
             child (Node): A node to be removed.
         Returns:
-            Node: A removed node.
+            Node: A node to be removed.
         """
         root = self._document_element
         if root is None:
             raise ValueError(
-                'The operation would yield an incorrect node tree.')
+                'The operation would yield an incorrect node tree')
         elif child == root:
             self._set_owner_document(root, remove=True)
             self._document_element = None
@@ -499,12 +497,12 @@ class Document(Node, NonElementParentNode, ParentNode):
             node (Node): A node to be replaced.
             child (Node, None): A reference child node.
         Returns:
-            Node: A replaced node.
+            Node: A node to be replaced.
         """
         root = self._document_element
         if root is None:
             raise ValueError(
-                'The operation would yield an incorrect node tree.')
+                'The operation would yield an incorrect node tree')
         elif child == root:
             self.remove_child(root)
             self.append_child(node)
@@ -550,7 +548,9 @@ class Document(Node, NonElementParentNode, ParentNode):
             root.append_child(child)
 
     def writeln(self, text):
-        """Same as Document.write().
+        """Parses an SVG document or fragment from a string, and adds to the
+        current document.
+        Same as Document.write().
 
         Arguments:
             text (str): An SVG document or fragment.
@@ -559,11 +559,10 @@ class Document(Node, NonElementParentNode, ParentNode):
 
 
 class DOMImplementation(ABC):
-    """Represents the DOM DOMImplementation."""
+    """Represents the [DOM] DOMImplementation."""
 
     @abstractmethod
-    def create_document(self,
-                        namespace, qualified_name=None, doctype=None,
+    def create_document(self, namespace, qualified_name=None, doctype=None,
                         nsmap=None, **extra):
         """Creates a new XML document instance, and returns it.
 
@@ -591,7 +590,7 @@ def _mql_compare(left, right, user_data):
 
 
 class MediaQueryList(object):
-    """Represents the CSSOM-VIEW MediaQueryList."""
+    """Represents the [cssom-view] MediaQueryList."""
 
     def __init__(self, browsing_context, query):
         """Constructs a MediaQueryList object.
@@ -667,8 +666,7 @@ class SVGDOMImplementation(DOMImplementation):
         """SVGParser: An SVG parser object."""
         return self._parser
 
-    def create_document(self,
-                        namespace, qualified_name=None, doctype=None,
+    def create_document(self, namespace, qualified_name=None, doctype=None,
                         nsmap=None, **extra):
         """Creates a new XML document instance, and returns it.
 
@@ -738,7 +736,7 @@ class SVGDOMImplementation(DOMImplementation):
 
 
 class Window(object):
-    """Represents the Window."""
+    """Represents the [HTML] Window."""
 
     def __init__(self, implementation):
         """Constructs a Window object.
@@ -833,7 +831,7 @@ class Window(object):
 
 
 class XMLDocument(Document):
-    """Represents the DOM XMLDocument."""
+    """Represents the [DOM] XMLDocument."""
     pass
 
 

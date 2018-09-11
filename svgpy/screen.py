@@ -14,7 +14,7 @@
 
 
 class Screen(object):
-    """Represents the CSSOM-VIEW Screen."""
+    """Represents the [cssom-view] Screen."""
 
     DEFAULT_HORIZONTAL_RESOLUTION = 96
     DEFAULT_VERTICAL_RESOLUTION = 96

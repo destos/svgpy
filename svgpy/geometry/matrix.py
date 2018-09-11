@@ -82,14 +82,13 @@ def matrix3d(m11, m12, m13, m14,
 
 
 class DOMMatrixReadOnly(object):
-    """Represents the GEOMETRY DOMMatrixReadOnly."""
+    """Represents the [geometry] DOMMatrixReadOnly."""
 
     def __init__(self, values=None, **init):
         """Constructs a DOMMatrixReadOnly object.
 
         Arguments:
-            values (list[float, ...], optional): A list of elements of the
-                matrix.
+            values (list[float], optional): A list of elements of the matrix.
             **init (optional): See below.
         Keyword Arguments:
             a (float): The a component of a 2d matrix.
@@ -445,7 +444,7 @@ class DOMMatrixReadOnly(object):
         the matrix, and returns it.
 
         Arguments:
-            values (list[float, ...]): A list of elements of the matrix.
+            values (list[float]): A list of elements of the matrix.
         Returns:
             DOMMatrixReadOnly: A new DOMMatrixReadOnly object.
         """
@@ -540,7 +539,7 @@ class DOMMatrixReadOnly(object):
         The current matrix is not modified.
 
         Arguments:
-            other (DOMMatrix): A matrix to be multiplied.
+            other (DOMMatrixReadOnly): A matrix to be multiplied.
         Returns:
             DOMMatrix: The resulting matrix.
         """
@@ -719,14 +718,13 @@ class DOMMatrixReadOnly(object):
 
 class DOMMatrix(DOMMatrixReadOnly):
     # TODO: implement DOMMatrix.setMatrixValue().
-    """Represents a 3d (4x4) matrix."""
+    """Represents the [geometry] DOMMatrix."""
 
     def __init__(self, values=None, **init):
         """Constructs a DOMMatrix object.
 
         Arguments:
-            values (list[float, ...], optional): A list of elements of the
-                matrix.
+            values (list[float], optional): A list of elements of the matrix.
             **init (optional): See below.
         Keyword Arguments:
             a (float): The a component of a 2d matrix.
@@ -756,7 +754,7 @@ class DOMMatrix(DOMMatrixReadOnly):
         super().__init__(values, **init)
 
     def __imul__(self, other):
-        if not isinstance(other, DOMMatrix):
+        if not isinstance(other, DOMMatrixReadOnly):
             return NotImplemented
         self.multiply_self(other)
         return self
@@ -896,7 +894,7 @@ class DOMMatrix(DOMMatrixReadOnly):
         matrix, and returns it.
 
         Arguments:
-            values (list[float, ...]): A list of elements of the matrix.
+            values (list[float]): A list of elements of the matrix.
         Returns:
             DOMMatrix: A new DOMMatrix object.
         """
@@ -929,7 +927,7 @@ class DOMMatrix(DOMMatrixReadOnly):
         """Post-multiplies the other matrix on the current matrix.
 
         Arguments:
-            other (DOMMatrix): A matrix to be multiplied.
+            other (DOMMatrixReadOnly): A matrix to be multiplied.
         Returns:
             DOMMatrix: Returns itself.
         """

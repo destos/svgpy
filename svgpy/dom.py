@@ -295,7 +295,7 @@ class Attrib(MutableMapping):
 
 
 class ParentNode(ABC):
-    """Represents the DOM ParentNode."""
+    """Represents the [DOM] ParentNode."""
 
     @property
     def child_element_count(self):
@@ -348,7 +348,7 @@ class ParentNode(ABC):
 
 
 class NonDocumentTypeChildNode(ABC):
-    """Represents the DOM NonDocumentTypeChildNode."""
+    """Represents the [DOM] NonDocumentTypeChildNode."""
 
     @property
     @abstractmethod
@@ -364,7 +364,7 @@ class NonDocumentTypeChildNode(ABC):
 
 
 class Node(ABC):
-    """Represents the DOM Node."""
+    """Represents the [DOM] Node."""
 
     ELEMENT_NODE = 1
     PROCESSING_INSTRUCTION_NODE = 7
@@ -435,7 +435,7 @@ class Node(ABC):
         Arguments:
             node (Node): A node to be added.
         Returns:
-            Node: An appended node.
+            Node: A node to be added.
         """
         raise NotImplementedError
 
@@ -456,7 +456,7 @@ class Node(ABC):
             node (Node): A node to be inserted.
             child (Node, None): A reference child node.
         Returns:
-            Node: A inserted node.
+            Node: A node to be inserted.
         """
         raise NotImplementedError
 
@@ -467,7 +467,7 @@ class Node(ABC):
         Arguments:
             child (Node): A node to be removed.
         Returns:
-            Node: A removed node.
+            Node: A node to be removed.
         """
         raise NotImplementedError
 
@@ -479,7 +479,7 @@ class Node(ABC):
             node (Node): A node to be replaced.
             child (Node, None): A reference child node.
         Returns:
-            Node: A replaced node.
+            Node: A node to be replaced.
         """
         raise NotImplementedError
 
@@ -497,7 +497,7 @@ class Node(ABC):
 
 
 class CharacterData(Node, NonDocumentTypeChildNode):
-    """Represents the DOM CharacterData."""
+    """Represents the [DOM] CharacterData."""
 
     @property
     @abstractmethod
@@ -517,7 +517,7 @@ class CharacterData(Node, NonDocumentTypeChildNode):
 
 
 class Comment(etree.CommentBase, CharacterData):
-    """Represents the DOM Comment."""
+    """Represents the [DOM] Comment."""
 
     def _init(self):
         Node.__init__(self)
@@ -611,9 +611,9 @@ class Comment(etree.CommentBase, CharacterData):
         Arguments:
             node (Node): A node to be added.
         Returns:
-            Node: An appended node.
+            Node: A node to be added.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def extend(self, elements):
         """Reimplemented from lxml.etree.CommentBase.extend().
@@ -639,9 +639,9 @@ class Comment(etree.CommentBase, CharacterData):
             node (Node): A node to be inserted.
             child (Node, None): A reference child node.
         Returns:
-            Node: A inserted node.
+            Node: A node to be inserted.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def remove(self, element):
         """Reimplemented from lxml.etree.CommentBase.remove().
@@ -649,7 +649,7 @@ class Comment(etree.CommentBase, CharacterData):
         Removes a matching subelement. Unlike the find methods, this method
         compares elements based on identity, not on tag value or contents.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -657,16 +657,16 @@ class Comment(etree.CommentBase, CharacterData):
         Arguments:
             child (Node): A node to be removed.
         Returns:
-            Node: A removed node.
+            Node: A node to be removed.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def replace(self, old_element, new_element):
         """Reimplemented from lxml.etree.CommentBase.replace().
 
         Replaces a subelement with the element passed as second argument.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def replace_child(self, node, child):
         """Replaces a child with node.
@@ -675,9 +675,9 @@ class Comment(etree.CommentBase, CharacterData):
             node (Node): A node to be replaced.
             child (Node, None): A reference child node.
         Returns:
-            Node: A replaced node.
+            Node: A node to be replaced.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def tostring(self, **kwargs):
         """Serializes a comment to an encoded string representation of its
@@ -692,7 +692,7 @@ class Comment(etree.CommentBase, CharacterData):
 
 
 class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
-    """Represents the DOM Element."""
+    """Represents the [DOM] Element."""
 
     SVG_NAMESPACE_URI = 'http://www.w3.org/2000/svg'
     XHTML_NAMESPACE_URI = 'http://www.w3.org/1999/xhtml'
@@ -783,8 +783,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         return self.attributes.get('id')
 
     @id.setter
-    def id(self, ident):
-        self.attributes.set('id', ident)
+    def id(self, element_id):
+        self.attributes.set('id', element_id)
 
     @property
     def local_name(self):
@@ -931,14 +931,13 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Arguments:
             node (Node): A node to be added.
         Returns:
-            Node: An appended node.
+            Node: A node to be added.
         """
         self.append(node)
         return node
 
-    def create_sub_element(self,
-                           local_name, index=None, attrib=None, nsmap=None,
-                           **_extra):
+    def create_sub_element(self, local_name, index=None, attrib=None,
+                           nsmap=None, **_extra):
         """Creates a sub-element instance, and adds to the end of this element.
         See also Element.create_sub_element_ns(), Document.create_element(),
         Document.create_element_ns(), SVGParser.create_element() and
@@ -965,8 +964,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             self.append(element)
         return element
 
-    def create_sub_element_ns(self,
-                              namespace, local_name, index=None,
+    def create_sub_element_ns(self, namespace, local_name, index=None,
                               attrib=None, nsmap=None, **_extra):
         """Creates a sub-element instance with the specified namespace URI,
         and adds to the end of this element.
@@ -1345,8 +1343,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
                                         qualified_name,
                                         namespaces=namespaces)
 
-    def get_elements_by_tag_name_ns(self,
-                                    namespace, local_name, namespaces=None):
+    def get_elements_by_tag_name_ns(self, namespace, local_name,
+                                    namespaces=None):
         """Finds all matching sub-elements, by the namespace URI and the local
         name.
 
@@ -1409,12 +1407,12 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             node (Node): A node to be inserted.
             child (Node, None): A reference child node.
         Returns:
-            Node: A inserted node.
+            Node: A node to be inserted.
         """
         if child is None:
             return self.append_child(node)
         elif child not in self:
-            raise ValueError('The object can not be found here.')
+            raise ValueError('The object can not be found here')
         else:
             child.addprevious(node)
         return node
@@ -1470,7 +1468,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         compares elements based on identity, not on tag value or contents.
         """
         if element not in self:
-            raise ValueError('The object can not be found here.')
+            raise ValueError('The object can not be found here')
         self._set_owner_document(element, remove=True)
         super().remove(element)
 
@@ -1497,7 +1495,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Arguments:
             child (Node): A node to be removed.
         Returns:
-            Node: A removed node.
+            Node: A node to be removed.
         """
         self.remove(child)
         return child
@@ -1508,7 +1506,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Replaces a subelement with the element passed as second argument.
         """
         if old_element not in self:
-            raise ValueError('The object can not be found here.')
+            raise ValueError('The object can not be found here')
         self._set_owner_document(new_element)
         self._set_owner_document(old_element, remove=True)
         super().replace(old_element, new_element)
@@ -1520,7 +1518,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             node (Node): A node to be replaced.
             child (Node, None): A reference child node.
         Returns:
-            Node: A replaced node.
+            Node: A node to be replaced.
         """
         self.replace(child, node)
         return node
@@ -1557,7 +1555,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
 
 class ElementCSSInlineStyle(Element):
-    """Represents the CSSOM ElementCSSInlineStyle."""
+    """Represents the [cssom] ElementCSSInlineStyle."""
 
     @property
     def style(self):
@@ -1567,7 +1565,7 @@ class ElementCSSInlineStyle(Element):
 
 
 class LinkStyle(Element):
-    """Represents the CSSOM LinkStyle."""
+    """Represents the [cssom] LinkStyle."""
 
     @property
     def sheet(self):
@@ -1577,7 +1575,7 @@ class LinkStyle(Element):
 
 
 class NonElementParentNode(ABC):
-    """Represents the DOM NonElementParentNode."""
+    """Represents the [DOM] NonElementParentNode."""
 
     @abstractmethod
     def get_element_by_id(self, element_id, namespaces=None):
@@ -1595,7 +1593,7 @@ class NonElementParentNode(ABC):
 
 
 class ProcessingInstruction(etree.PIBase, CharacterData):
-    """Represents the DOM ProcessingInstruction."""
+    """Represents the [DOM] ProcessingInstruction."""
 
     def _init(self):
         Node.__init__(self)
@@ -1666,9 +1664,9 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         Arguments:
             node (Node): A node to be added.
         Returns:
-            Node: An appended node.
+            Node: A node to be added.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
@@ -1685,9 +1683,9 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
             node (Node): A node to be inserted.
             child (Node, None): A reference child node.
         Returns:
-            Node: A inserted node.
+            Node: A node to be inserted.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -1695,9 +1693,9 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         Arguments:
             child (Node): A node to be removed.
         Returns:
-            Node: A removed node.
+            Node: A node to be removed.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def replace_child(self, node, child):
         """Replaces a child with node.
@@ -1706,9 +1704,9 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
             node (Node): A node to be replaced.
             child (Node, None): A reference child node.
         Returns:
-            Node: A replaced node.
+            Node: A node to be replaced.
         """
-        raise ValueError('The operation would yield an incorrect node tree.')
+        raise ValueError('The operation would yield an incorrect node tree')
 
     def tostring(self, **kwargs):
         """Serializes a processing instruction to an encoded string

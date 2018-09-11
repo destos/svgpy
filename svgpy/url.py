@@ -56,7 +56,7 @@ def quote_numeric_character_references(query, quote_via=None, safe=''):
 
 
 class Location(object):
-    """Represents the Location."""
+    """Represents the [HTML] Location."""
 
     def __init__(self, browsing_context=None):
         """Constructs a Location object.
@@ -211,7 +211,7 @@ class Location(object):
 
 
 class URL(object):
-    """Represents the URL."""
+    """Represents the [URL] URL."""
 
     def __init__(self, url, base=None):
         """Constructs an URL object.
@@ -588,7 +588,7 @@ class URL(object):
 
 
 class URLSearchParams(MutableMapping):
-    """Represents the URLSearchParams."""
+    """Represents the [URL] URLSearchParams."""
 
     def __init__(self, *args, **kwargs):
         self._data = dict()
