@@ -10,7 +10,7 @@ sys.path.extend(['.', '..'])
 from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
     SVGCircleElement, SVGGElement, SVGPathElement, SVGPolylineElement, \
     SVGRectElement, SVGSVGElement, SVGTextElement
-from svgpy import Comment, Element, Font, \
+from svgpy import Attr, Comment, Element, Font, \
     HTMLElement, \
     DOMMatrix, Node, PathParser, DOMRect, SVGLength, SVGParser, \
     SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, window, \
@@ -503,141 +503,201 @@ class BasicShapesTestCase(unittest.TestCase):
     def setUp(self):
         formatter.precision = 3
 
-    def test_bbox01_01(self):
-        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+    def test_attr00(self):
+        qualified_name = 'name'
+        value = None
+        # attr = Attr(qualified_name)
+        self.assertRaises(ValueError, lambda: Attr(qualified_name, value))
+
+        value = 'white'
+        attr = Attr(qualified_name, value)
         parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_BBOX01))
-        root = tree.getroot()
+        node = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'g')
+        self.assertRaises(ValueError, lambda: attr.append_child(node))
+        self.assertRaises(ValueError, lambda: attr.insert_before(node, None))
+        self.assertRaises(ValueError, lambda: attr.remove_child(node))
+        self.assertRaises(ValueError, lambda: attr.replace_child(node, None))
+        self.assertIsNone(attr.get_root_node())
 
-        element = root.get_element_by_id('defs-1')
-        bbox = element.get_bbox()
-        self.assertEqual(DOMRect(), bbox, msg=element)
+    def test_attr01(self):
+        qualified_name = 'name'
+        value = 'white'
+        local_name = qualified_name
+        attr = Attr(qualified_name, value)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(qualified_name, attr.name)
+        self.assertEqual(qualified_name, attr.node_name)
+        self.assertEqual(Element.ATTRIBUTE_NODE, attr.node_type)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertIsNone(attr.owner_document)
+        self.assertIsNone(attr.owner_element)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
 
-    def test_bbox01_02(self):
-        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        value = 'silver'
+        attr.value = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+
+        value = 'gray'
+        attr.node_value = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+
+        value = 'black'
+        attr.text_content = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+
+    def test_attr02(self):
         parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_BBOX01))
-        root = tree.getroot()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'svg')
+        qualified_name = 'name'
+        value = 'white'
+        local_name = qualified_name
+        root.set(qualified_name, value)
 
-        element = root.get_element_by_id('rect-1')
-        bbox = element.get_bbox()
-        self.assertEqual(DOMRect(20, 20, 40, 40), bbox, msg=element.id)
+        attr = Attr(qualified_name, owner_element=root)
+        self.assertIsNone(attr.namespace_uri)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(qualified_name, attr.name)
+        self.assertEqual(qualified_name, attr.node_name)
+        self.assertEqual(Element.ATTRIBUTE_NODE, attr.node_type)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+        self.assertIsNone(attr.owner_document)
+        self.assertEqual(root, attr.owner_element)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
 
-    def test_bbox01_03(self):
-        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        value = 'silver'
+        attr.value = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+        value = 'gray'
+        attr.node_value = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+        value = 'black'
+        attr.text_content = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+        value = 'red'
+        root.set(qualified_name, value)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+    def test_attr03(self):
+        # prefix:local_name
         parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_BBOX01))
-        root = tree.getroot()
+        namespace = 'http://example.com/namespace'
+        prefix = 'ex'
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'svg',
+                                        nsmap={
+                                            prefix: namespace,
+                                        })
+        local_name = 'name'
+        qualified_name = '{{{}}}{}'.format(namespace, local_name)
+        value = 'white'
+        root.set(qualified_name, value)
 
-        element = root.get_element_by_id('group-1')
-        bbox = element.get_bbox()
-        self.assertEqual(DOMRect(30, 30, 40, 40), bbox, msg=element.id)
+        attr = Attr(qualified_name, owner_element=root)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertEqual(prefix, attr.prefix)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(qualified_name, attr.name)
+        self.assertEqual(qualified_name, attr.node_name)
+        self.assertEqual(Element.ATTRIBUTE_NODE, attr.node_type)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+        self.assertIsNone(attr.owner_document)
+        self.assertEqual(root, attr.owner_element)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
 
-    def test_bbox01_04(self):
-        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        value = 'silver'
+        attr.value = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+        value = 'gray'
+        attr.node_value = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+        value = 'black'
+        attr.text_content = value
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+        value = 'red'
+        root.set(qualified_name, value)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(value, attr.tostring().decode())
+        self.assertEqual(value, root.get(qualified_name))
+
+    def test_circle_get_bbox01(self):
         parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_BBOX01))
-        root = tree.getroot()
+        circle = parser.create_element('circle')
+        circle.attributes.update({
+            'cx': '200',
+            'cy': '300',
+            'r': '100',
+        })
 
-        element = root.get_element_by_id('use-1')
-        bbox = element.get_bbox()
-        self.assertEqual(DOMRect(30, 30, 40, 40), bbox, msg=element.id)
+        bbox = circle.get_bbox()
+        self.assertEqual(200 - 100, bbox.x)
+        self.assertEqual(300 - 100, bbox.y)
+        self.assertEqual(100 * 2, bbox.width)
+        self.assertEqual(100 * 2, bbox.height)
 
-    def test_bbox01_05(self):
-        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_BBOX01))
-        root = tree.getroot()
-
-        element = root.get_element_by_id('group-2')
-        bbox = element.get_bbox()
-        self.assertEqual(DOMRect(10, 10, 100, 100), bbox, msg=element.id)
-
-    def test_bbox01_06(self):
-        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_BBOX01))
-        root = tree.getroot()
-
-        element = root.get_element_by_id('rect-2')
-        bbox = element.get_bbox()
-        self.assertEqual(DOMRect(10, 10, 100, 100), bbox, msg=element.id)
-
-    def test_bbox02_01(self):
-        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
-        # See also svg.svg
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_SVG))
-        root = tree.getroot()
-
-        element = root
-        bbox = element.get_bbox()
-        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
-        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
-                               delta=delta)
-
-    def test_bbox02_02(self):
-        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
-        # See also svg.svg
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_SVG))
-        root = tree.getroot()
-
-        element = root.get_element_by_id('gtop')
-        bbox = element.get_bbox()
-        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
-        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
-                               delta=delta)
-
-    def test_bbox02_03(self):
-        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
-        # See also svg.svg
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_SVG))
-        root = tree.getroot()
-
-        element = root.get_element_by_id('svgstar')
-        bbox = element.get_bbox()
-        self.assertAlmostEqual(-38.899, bbox.x, msg=element.id, delta=delta)
-        self.assertAlmostEqual(-38.899, bbox.y, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
-                               delta=delta)
-
-    def test_bbox02_04(self):
-        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
-        # See also svg.svg
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_SVG))
-        root = tree.getroot()
-
-        element = root.get_element_by_id('svgbar')
-        bbox = element.get_bbox()
-        self.assertAlmostEqual(-38.899, bbox.x, msg=element.id, delta=delta)
-        self.assertAlmostEqual(-7, bbox.y, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(14, bbox.height, msg=element.id, delta=delta)
-
-    def test_bbox02_08(self):
-        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
-        # See also svg.svg
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_SVG))
-        root = tree.getroot()
-
-        element = root.get_element_by_id('usetop')
-        bbox = element.get_bbox()
-        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
-        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
-        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
-                               delta=delta)
-
-    def test_circle00_length(self):
+    def test_circle_get_total_length00(self):
         # circle: initial value
         parser = SVGParser()
         circle = parser.create_element('circle')
@@ -654,22 +714,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 0
         self.assertAlmostEqual(expected, n)
 
-    def test_circle01_bbox(self):
-        parser = SVGParser()
-        circle = parser.create_element('circle')
-        circle.attributes.update({
-            'cx': '200',
-            'cy': '300',
-            'r': '100',
-        })
-
-        bbox = circle.get_bbox()
-        self.assertEqual(200 - 100, bbox.x)
-        self.assertEqual(300 - 100, bbox.y)
-        self.assertEqual(100 * 2, bbox.width)
-        self.assertEqual(100 * 2, bbox.height)
-
-    def test_circle02_length(self):
+    def test_circle_get_total_length02(self):
         # See also: circle01.html
         parser = SVGParser()
         root = parser.create_element('svg')
@@ -703,30 +748,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 2 * math.pi * r
         self.assertAlmostEqual(expected, n)
 
-    def test_circle02_normalize(self):
-        # See also: circle01.html
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        circle = root.create_sub_element('circle')
-        circle.attributes.update({
-            'cx': '600',
-            'cy': '200',
-            'r': '100',
-        })
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        path_data = circle.get_path_data(settings)
-        exp = PathParser.tostring(path_data)
-        expected = \
-            "M700,200" \
-            " C700,255.228 655.228,300 600,300 544.772,300" \
-            " 500,255.228 500,200 500,144.772 544.772,100" \
-            " 600,100 655.228,100 700,144.772 700,200 Z"
-        self.assertEqual(expected, exp)
-
-    def test_circle03_length(self):
+    def test_circle_get_total_length03(self):
         # circle: viewport-relative length
         # See also: circle01.html
         parser = SVGParser()
@@ -765,41 +787,28 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 561.9851784832581
         self.assertAlmostEqual(expected, n, places=places)
 
-    def test_comment(self):
+    def test_circle_normalize02(self):
+        # See also: circle01.html
         parser = SVGParser()
-        expected = 'Comment'
-        comment = parser.create_comment(expected)
-        self.assertIsInstance(comment, Comment)
-        self.assertEqual(8, Node.COMMENT_NODE)
-        self.assertEqual(8, comment.node_type)
-        self.assertEqual('#comment', comment.node_name)
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
+        root = parser.create_element('svg')
 
-        comment.data = None
-        self.assertEqual('', comment.data)
-        self.assertEqual('', comment.node_value)
-        self.assertEqual('', comment.text_content)
-        self.assertEqual('', comment.tostring().decode())
+        circle = root.create_sub_element('circle')
+        circle.attributes.update({
+            'cx': '600',
+            'cy': '200',
+            'r': '100',
+        })
 
-        expected = 'node_value'
-        comment.node_value = expected
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
-
-        expected = 'text_content'
-        comment.text_content = expected
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        path_data = circle.get_path_data(settings)
+        exp = PathParser.tostring(path_data)
+        expected = \
+            "M700,200" \
+            " C700,255.228 655.228,300 600,300 544.772,300" \
+            " 500,255.228 500,200 500,144.772 544.772,100" \
+            " 600,100 655.228,100 700,144.772 700,200 Z"
+        self.assertEqual(expected, exp)
 
     def test_comment_next_element_sibling(self):
         parser = SVGParser()
@@ -835,685 +844,144 @@ class BasicShapesTestCase(unittest.TestCase):
         e = comment.previous_element_sibling
         self.assertEqual(desc, e)
 
-    def test_computed_style02(self):
-        # See also: Units.html
-        # Relative units
-        # Default font size: 16px
+    def test_create_comment(self):
         parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_UNITS))
-        root = tree.getroot()
+        expected = 'Comment'
+        comment = parser.create_comment(expected)
+        self.assertIsInstance(comment, Comment)
+        self.assertEqual(8, Node.COMMENT_NODE)
+        self.assertEqual(8, comment.node_type)
+        self.assertEqual('#comment', comment.node_name)
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring().decode())
 
-        rect = root.get_element_by_id('rect_rel_01')
-        style = rect.get_computed_style()
-        self.assertEqual(['Verdana'], style['font-family'], msg=style)
-        self.assertEqual(150, style['font-size'], msg=style)
-        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
-        self.assertEqual(0, style['x'], msg=style)
-        self.assertEqual(400, style['y'], msg=style)
-        self.assertEqual(375, style['width'], msg=style)
-        self.assertEqual(187.5, style['height'], msg=style)
-        self.assertEqual(0, style['rx'], msg=style)
-        self.assertEqual(0, style['ry'], msg=style)
-        self.assertAlmostEqual(37.5, style['stroke-width'], msg=style,
-                               places=places)
+        comment.data = None
+        self.assertEqual('', comment.data)
+        self.assertEqual('', comment.node_value)
+        self.assertEqual('', comment.text_content)
+        self.assertEqual('', comment.tostring().decode())
 
-        rect = root.get_element_by_id('rect_rel_03')
-        style = rect.get_computed_style()
-        self.assertEqual(['Verdana'], style['font-family'], msg=style)
-        self.assertEqual(150, style['font-size'], msg=style)
-        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
-        self.assertEqual(0, style['x'], msg=style)
-        self.assertEqual(600, style['y'], msg=style)
-        self.assertEqual(375, style['width'], msg=style)
-        self.assertEqual(187.5, style['height'], msg=style)
-        self.assertEqual(0, style['rx'], msg=style)
-        self.assertEqual(0, style['ry'], msg=style)
-        self.assertAlmostEqual(37.5, style['stroke-width'], msg=style,
-                               places=places)
+        expected = 'node_value'
+        comment.node_value = expected
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring().decode())
 
-    def test_computed_style03(self):
-        # See also: Units.html
-        # Percentages units
-        # Default font size: 16px
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_UNITS))
-        root = tree.getroot()
+        expected = 'text_content'
+        comment.text_content = expected
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring().decode())
 
-        rect = root.get_element_by_id('rect_per_01')
-        style = rect.get_computed_style()
-        self.assertEqual(['Verdana'], style['font-family'], msg=style)
-        self.assertEqual(150, style['font-size'], msg=style)
-        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
-        self.assertEqual(0, style['x'], msg=style)
-        self.assertEqual(400, style['y'], msg=style)
-        self.assertEqual(400, style['width'], msg=style)
-        self.assertEqual(200, style['height'], msg=style)
-        self.assertEqual(0, style['rx'], msg=style)
-        self.assertEqual(0, style['ry'], msg=style)
-        self.assertAlmostEqual(31.62, style['stroke-width'], msg=style,
-                               places=places)
-
-        rect = root.get_element_by_id('rect_per_03')
-        style = rect.get_computed_style()
-        # print(sorted(style.items()))
-        self.assertEqual(['Verdana'], style['font-family'], msg=style)
-        self.assertEqual(150, style['font-size'], msg=style)
-        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
-        self.assertEqual(0, style['x'], msg=style)
-        self.assertEqual(600, style['y'], msg=style)
-        self.assertEqual(400, style['width'], msg=style)
-        self.assertEqual(200, style['height'], msg=style)
-        self.assertEqual(0, style['rx'], msg=style)
-        self.assertEqual(0, style['ry'], msg=style)
-        self.assertAlmostEqual(31.62, style['stroke-width'], msg=style,
-                               places=places)
-
-    def test_computed_style04(self):
+    def test_create_sub_element(self):
         parser = SVGParser()
         root = parser.create_element('svg')
-        group = root.create_sub_element('g')
-        group.attributes.set_style({
-            'fill': 'red',
-            'stroke': 'blue',
-            'stroke-width': '1',
-        })
-        rect = group.create_sub_element('rect')
-        rect.attributes.update({
-            'fill': 'white',
-            'stroke-width': '5',
-        })
+        _ = root.create_sub_element('rect')
+        _ = root.create_sub_element('ellipse')
+        _ = root.create_sub_element('circle', index=1)
+        # rect > circle > ellipse
+        expected = \
+            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
+            "<rect/><circle/><ellipse/>" \
+            "</svg>"
+        self.assertEqual(expected, root.tostring().decode())
 
-        self.assertEqual(
-            {
-                'style': 'fill: red; stroke-width: 1; stroke: blue;',
-            },
-            group.attributes)
-        self.assertEqual(
-            {
-                'fill': 'white',
-                'stroke-width': '5',
-            },
-            rect.attributes)
-        css_style = rect.get_computed_style()
-        self.assertEqual('white', css_style.get('fill'))
-        self.assertEqual('blue', css_style.get('stroke'))
-        self.assertEqual(5, css_style.get('stroke-width'))
+    def test_create_sub_element_html(self):
+        parser = SVGParser()
+        nsmap = {
+            None: Element.SVG_NAMESPACE_URI,
+            'html': Element.XHTML_NAMESPACE_URI
+        }
+        root = parser.create_element('svg', nsmap=nsmap)
+        self.assertTrue(isinstance(root, SVGSVGElement))
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
-    def test_computed_style05(self):
+        video = root.create_sub_element('video')
+        self.assertTrue(isinstance(video, HTMLVideoElement))
+        self.assertEqual('video', video.tag_name)
+        self.assertEqual('video', video.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', video.namespace_uri)
+
+        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'audio')
+        audio = root.create_sub_element(tag)
+        self.assertTrue(isinstance(audio, HTMLAudioElement))
+        self.assertEqual(tag, audio.tag)
+        self.assertEqual('html:audio', audio.tag_name)
+        self.assertEqual('audio', audio.local_name)
+        self.assertEqual('http://www.w3.org/1999/xhtml', audio.namespace_uri)
+
+        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'source')
+        source = audio.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+                                             'source')
+        self.assertTrue(isinstance(source, HTMLElement))
+        self.assertEqual(tag, source.tag)
+        self.assertEqual('html:source', source.tag_name)
+        self.assertEqual('source', source.local_name)
+        self.assertEqual('http://www.w3.org/1999/xhtml', source.namespace_uri)
+
+    def test_create_sub_element_svg01(self):
         parser = SVGParser()
         root = parser.create_element('svg')
-        group = root.create_sub_element('g')
-        group.attributes.update({
-            'fill': 'white',
-            'stroke-width': '5',
-        })
-        rect = group.create_sub_element('rect')
-        rect.attributes.set_style({
-            'fill': 'red',
-            'stroke': 'blue',
-            'stroke-width': '1',
-        })
+        self.assertTrue(isinstance(root, SVGSVGElement))
+        self.assertEqual('svg', root.tag)
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
-        self.assertEqual(
-            {
-                'fill': 'white',
-                'stroke-width': '5',
-            },
-            group.attributes)
-        self.assertEqual(
-            {
-                'style': 'fill: red; stroke-width: 1; stroke: blue;',
-            },
-            rect.attributes)
-        css_style = rect.get_computed_style()
-        self.assertEqual('red', css_style.get('fill'))
-        self.assertEqual('blue', css_style.get('stroke'))
-        self.assertEqual(1, css_style.get('stroke-width'))
+        g = root.create_sub_element('g')
+        self.assertTrue(isinstance(g, SVGGElement))
 
-    def test_computed_style06(self):
+        path = g.create_sub_element('path')
+        self.assertTrue(isinstance(path, SVGPathElement))
+
+        rect = g.create_sub_element('rect', index=0)
+        self.assertTrue(isinstance(rect, SVGRectElement))
+
+        # svg > g > (rect, path)
+        expected = \
+            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
+            "<g><rect/><path/></g>" \
+            "</svg>"
+        self.assertEqual(expected, root.tostring().decode())
+
+    def test_create_sub_element_svg02(self):
         parser = SVGParser()
-        root = parser.create_element('svg')
-        group = root.create_sub_element('g')
-        group.attributes.set_style({
-            'fill': 'red',
-            'stroke': 'blue',
-            'stroke-width': '1',
-        })
-        rect = group.create_sub_element('rect')
-        rect.attributes.set_style({
-            'fill': 'white',
-            'stroke-width': '5',
-        })
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        self.assertTrue(isinstance(root, SVGSVGElement))
+        self.assertEqual('{http://www.w3.org/2000/svg}svg', root.tag)
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
 
-        self.assertEqual(
-            {
-                'style': 'fill: red; stroke-width: 1; stroke: blue;',
-            },
-            group.attributes)
-        self.assertEqual(
-            {
-                'style': 'fill: white; stroke-width: 5;',
-            },
-            rect.attributes)
-        css_style = rect.get_computed_style()
-        self.assertEqual('white', css_style.get('fill'))
-        self.assertEqual('blue', css_style.get('stroke'))
-        self.assertEqual(5, css_style.get('stroke-width'))
+        g = root.create_sub_element('g')
+        self.assertTrue(isinstance(g, SVGGElement))
+        self.assertEqual('g', g.tag)
+        self.assertEqual('g', g.tag_name)
+        self.assertEqual('g', g.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', g.namespace_uri)
 
-    def test_ctm01(self):
-        # nested svg
-        # See also: nestedsvg01.html
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        root.attributes.update({
-            'id': 'svg01',
-            'width': '10cm',
-            'height': '4cm',
-            'viewBox': '0 0 400 400',
-        })
+        path = g.create_sub_element_ns('http://www.w3.org/2000/svg', 'path')
+        self.assertTrue(isinstance(path, SVGPathElement))
+        self.assertEqual('{http://www.w3.org/2000/svg}path', path.tag)
+        self.assertEqual('path', path.tag_name)
+        self.assertEqual('path', path.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', path.namespace_uri)
 
-        rect01 = root.create_sub_element('rect')
-        rect01.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-        })
-
-        svg02 = root.create_sub_element('svg')
-        svg02.attributes.update({
-            'id': 'svg02',
-            'x': '1cm',
-            'y': '1cm',
-        })
-
-        rect02 = svg02.create_sub_element('rect')
-        rect02.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-        })
-
-        svg03 = svg02.create_sub_element('svg')
-        svg03.attributes.update({
-            'id': 'svg03',
-            'x': '40',
-            'y': '40',
-            'width': '80',
-            'height': '80',
-        })
-
-        rect03 = svg03.create_sub_element('rect')
-        rect03.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-        })
-
-        ctm = root.get_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 113.3828125
-        f = 0
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-
-        screen_ctm = root.get_screen_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 121.3828125 - 8
-        f = 8 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = rect01.get_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 113.3828125
-        f = 0
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-
-        screen_ctm = rect01.get_screen_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 121.3828125 - 8
-        f = 8 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = svg02.get_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 127.6667695902288
-        f = 14.283957090228796
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-
-        screen_ctm = svg02.get_screen_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 135.6667695902288 - 8
-        f = 22.283957090228796 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = rect02.get_ctm()
-        a = 1
-        b = 0
-        c = 0
-        d = 1
-        e = 37.7952766418457
-        f = 37.7952766418457
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-
-        screen_ctm = rect02.get_screen_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 135.6667695902288 - 8
-        f = 22.283957090228796 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = svg03.get_ctm()
-        a = 1
-        b = 0
-        c = 0
-        d = 1
-        e = 77.7952766418457
-        f = 77.7952766418457
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-
-        screen_ctm = svg03.get_screen_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 150.7839570902288 - 8
-        f = 37.401144590228796 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = rect03.get_ctm()
-        a = 1
-        b = 0
-        c = 0
-        d = 1
-        e = 40
-        f = 40
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-
-        screen_ctm = rect03.get_screen_ctm()
-        a = 0.3779296875
-        b = 0
-        c = 0
-        d = 0.3779296875
-        e = 150.7839570902288 - 8
-        f = 37.401144590228796 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-    def test_ctm02(self):
-        # nested svg
-        # See also: nestedsvg02.html
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        root.attributes.update({
-            'id': 'svg01',
-            'width': '400',
-            'height': '200',
-            'viewBox': '0 0 400 400',
-        })
-        root.current_scale = 1.2
-
-        rect01 = root.create_sub_element('rect')
-        rect01.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-        })
-
-        svg02 = root.create_sub_element('svg')
-        svg02.attributes.update({
-            'id': 'svg02',
-            'x': '30',
-            'y': '40',
-        })
-
-        rect02 = svg02.create_sub_element('rect')
-        rect02.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-        })
-
-        svg03 = svg02.create_sub_element('svg')
-        svg03.attributes.update({
-            'id': 'svg03',
-            'x': '30',
-            'y': '40',
-            'width': '100',
-            'height': '80',
-        })
-
-        rect03 = svg03.create_sub_element('rect')
-        rect03.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-        })
-
-        # [0.5, 0, 0, 0.5, 100, 0]
-        # [0.6, 0, 0, 0.6, 128, 8]
-        ctm = root.get_ctm()
-        screen_ctm = root.get_screen_ctm()
-        expected = 'matrix(0.5, 0, 0, 0.5, 100, 0)'
-        self.assertEqual(expected, ctm.tostring())
-        expected = 'matrix(0.6, 0, 0, 0.6, 120, 0)'
-        self.assertEqual(expected, screen_ctm.tostring())
-
-        # [0.5, 0, 0, 0.5, 100, 0]
-        # [0.6, 0, 0, 0.6, 128, 8]
-        ctm = rect01.get_ctm()
-        screen_ctm = rect01.get_screen_ctm()
-        expected = 'matrix(0.5, 0, 0, 0.5, 100, 0)'
-        self.assertEqual(expected, ctm.tostring())
-        expected = 'matrix(0.6, 0, 0, 0.6, 120, 0)'
-        self.assertEqual(expected, screen_ctm.tostring())
-
-        # [0.5, 0, 0, 0.5, 115, 20]
-        # [0.6, 0, 0, 0.6, 146, 32]
-        ctm = svg02.get_ctm()
-        screen_ctm = svg02.get_screen_ctm()
-        expected = 'matrix(0.5, 0, 0, 0.5, 115, 20)'
-        self.assertEqual(expected, ctm.tostring())
-        expected = 'matrix(0.6, 0, 0, 0.6, 138, 24)'
-        self.assertEqual(expected, screen_ctm.tostring())
-
-        # [1, 0, 0, 1, 30, 40]
-        # [0.6, 0, 0, 0.6, 146, 32]
-        ctm = rect02.get_ctm()
-        screen_ctm = rect02.get_screen_ctm()
-        expected = 'matrix(1, 0, 0, 1, 30, 40)'
-        self.assertEqual(expected, ctm.tostring())
-        expected = 'matrix(0.6, 0, 0, 0.6, 138, 24)'
-        self.assertEqual(expected, screen_ctm.tostring())
-
-        # [1, 0, 0, 1, 60, 80]
-        # [0.6, 0, 0, 0.6, 164, 56]
-        ctm = svg03.get_ctm()
-        screen_ctm = svg03.get_screen_ctm()
-        expected = 'matrix(1, 0, 0, 1, 60, 80)'
-        self.assertEqual(expected, ctm.tostring())
-        expected = 'matrix(0.6, 0, 0, 0.6, 156, 48)'
-        self.assertEqual(expected, screen_ctm.tostring())
-
-        # [1, 0, 0, 1, 30, 40]
-        # [0.6, 0, 0, 0.6, 164, 56]
-        ctm = rect03.get_ctm()
-        screen_ctm = rect03.get_screen_ctm()
-        expected = 'matrix(1, 0, 0, 1, 30, 40)'
-        self.assertEqual(expected, ctm.tostring())
-        expected = 'matrix(0.6, 0, 0, 0.6, 156, 48)'
-        self.assertEqual(expected, screen_ctm.tostring())
-
-    def test_ctm03(self):
-        # nested svg
-        # See also: nestedsvg03.html
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        root.attributes.update({
-            'id': 'svg01',
-            'width': '400',
-            'height': '200',
-            'viewBox': '0 0 400 400',
-        })
-        root.current_scale = 0.8
-
-        rect01 = root.create_sub_element('rect')
-        rect01.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-            'transform': 'translate(30) rotate(15)',
-        })
-
-        svg02 = root.create_sub_element('svg')
-        svg02.attributes.update({
-            'id': 'svg02',
-            'x': '30',
-            'y': '40',
-        })
-
-        rect02 = svg02.create_sub_element('rect')
-        rect02.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-            'transform': 'translate(30) rotate(15)',
-        })
-
-        svg03 = svg02.create_sub_element('svg')
-        svg03.attributes.update({
-            'id': 'svg03',
-            'x': '30',
-            'y': '40',
-            'width': '100',
-            'height': '80',
-        })
-
-        rect03 = svg03.create_sub_element('rect')
-        rect03.attributes.update({
-            'x': '1',
-            'y': '1',
-            'width': '100',
-            'height': '100',
-            'transform': 'translate(30) rotate(15)',
-        })
-
-        ctm = root.get_ctm()
-        screen_ctm = root.get_screen_ctm()
-        expected = 'matrix(0.5, 0, 0, 0.5, 100, 0)'
-        self.assertEqual(expected, ctm.tostring())
-        a = 0.4000000059604645
-        b = 0
-        c = 0
-        d = 0.4000000059604645
-        e = 88.0000011920929 - 8
-        f = 8 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = rect01.get_ctm()
-        screen_ctm = rect01.get_screen_ctm()
-        a = 0.48296291314453416
-        b = 0.12940952255126037
-        c = -0.12940952255126037
-        d = 0.48296291314453416
-        e = 115
-        f = 0
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-        a = 0.3863703362729939
-        b = 0.10352761958369001
-        c = -0.10352761958369001
-        d = 0.3863703362729939
-        e = 100.00000137090683 - 8
-        f = 8 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = svg02.get_ctm()
-        screen_ctm = svg02.get_screen_ctm()
-        expected = 'matrix(0.5, 0, 0, 0.5, 115, 20)'
-        self.assertEqual(expected, ctm.tostring())
-        a = 0.4000000059604645
-        b = 0
-        c = 0
-        d = 0.4000000059604645
-        e = 100.00000137090683 - 8
-        f = 24.00000023841858 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = rect02.get_ctm()
-        screen_ctm = rect02.get_screen_ctm()
-        a = 0.9659258262890683
-        b = 0.25881904510252074
-        c = -0.25881904510252074
-        d = 0.9659258262890683
-        e = 60
-        f = 40
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-        a = 0.3863703362729939
-        b = 0.10352761958369001
-        c = -0.10352761958369001
-        d = 0.3863703362729939
-        e = 112.00000154972076 - 8
-        f = 24.00000023841858 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = svg03.get_ctm()
-        screen_ctm = svg03.get_screen_ctm()
-        expected = 'matrix(1, 0, 0, 1, 60, 80)'
-        self.assertEqual(expected, ctm.tostring())
-        a = 0.4000000059604645
-        b = 0
-        c = 0
-        d = 0.4000000059604645
-        e = 112.00000154972076 - 8
-        f = 40.00000047683716 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
-
-        ctm = rect03.get_ctm()
-        screen_ctm = rect03.get_screen_ctm()
-        a = 0.9659258262890683
-        b = 0.25881904510252074
-        c = -0.25881904510252074
-        d = 0.9659258262890683
-        e = 60
-        f = 40
-        self.assertAlmostEqual(a, ctm.a, places=places)
-        self.assertAlmostEqual(b, ctm.b, places=places)
-        self.assertAlmostEqual(c, ctm.c, places=places)
-        self.assertAlmostEqual(d, ctm.d, places=places)
-        self.assertAlmostEqual(e, ctm.e, places=places)
-        self.assertAlmostEqual(f, ctm.f, places=places)
-        a = 0.3863703362729939
-        b = 0.10352761958369001
-        c = -0.10352761958369001
-        d = 0.3863703362729939
-        e = 124.0000017285347 - 8
-        f = 40.00000047683716 - 8
-        self.assertAlmostEqual(a, screen_ctm.a, places=places)
-        self.assertAlmostEqual(b, screen_ctm.b, places=places)
-        self.assertAlmostEqual(c, screen_ctm.c, places=places)
-        self.assertAlmostEqual(d, screen_ctm.d, places=places)
-        self.assertAlmostEqual(e, screen_ctm.e, places=places)
-        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+        rect = g.create_sub_element_ns(None, 'rect', index=0)
+        self.assertTrue(isinstance(rect, SVGRectElement))
+        self.assertEqual('rect', rect.tag)
+        self.assertEqual('rect', rect.tag_name)
+        self.assertEqual('rect', rect.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', rect.namespace_uri)
 
     def test_element_attributes(self):
         parser = SVGParser()
@@ -1679,6 +1147,93 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(not text.has_attribute_ns(None, 'lang'))
         self.assertTrue(not text.has_attribute_ns(Element.XML_NAMESPACE_URI,
                                                   'lang'))
+
+    def test_element_class_list01(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_CUBIC01))
+        root = tree.getroot()
+
+        class_name = root.class_name
+        self.assertIsNone(class_name)
+
+        class_list = root.class_list
+        self.assertEqual([], class_list)
+
+    def test_element_class_list02(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_CUBIC01))
+        root = tree.getroot()
+
+        root.class_name = 'Border'
+        class_name = root.class_name
+        self.assertEqual('Border', class_name)
+
+        class_list = root.class_list
+        self.assertEqual(['Border'], class_list)
+
+    def test_element_class_list03(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_CUBIC01))
+        root = tree.getroot()
+
+        root.class_name = 'Border Label'
+        class_name = root.class_name
+        self.assertEqual('Border Label', class_name)
+
+        class_list = root.class_list
+        self.assertEqual(['Border', 'Label'], class_list)
+
+    def test_element_next_element_sibling(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+
+        desc = parser.create_element('desc')
+        root.append(desc)
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        rect = parser.create_element('rect')
+        rect.id = 'border'
+        root.append(rect)
+        path = parser.create_element('path')
+        root.append(path)
+
+        e = root.next_element_sibling
+        self.assertIsNone(e)
+
+        e = desc.next_element_sibling
+        self.assertEqual(rect, e)
+
+        e = rect.next_element_sibling
+        self.assertEqual(path, e)
+
+        e = path.next_element_sibling
+        self.assertIsNone(e)
+
+    def test_element_previous_element_sibling(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+
+        desc = parser.create_element('desc')
+        root.append(desc)
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        rect = parser.create_element('rect')
+        rect.id = 'border'
+        root.append(rect)
+        path = parser.create_element('path')
+        root.append(path)
+
+        e = root.previous_element_sibling
+        self.assertIsNone(e)
+
+        e = desc.previous_element_sibling
+        self.assertIsNone(e)
+
+        e = rect.previous_element_sibling
+        self.assertEqual(desc, e)
+
+        e = path.previous_element_sibling
+        self.assertEqual(rect, e)
 
     def test_element_style_attribute(self):
         parser = SVGParser()
@@ -1909,42 +1464,1086 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
         self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
-    def test_element_class_list01(self):
+    def test_ellipse_get_bbox08(self):
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+        ellipse.attributes.update({
+            'cx': '200',
+            'cy': '300',
+            'rx': '100',
+            'ry': '200',
+        })
+
+        bbox = ellipse.get_bbox()
+        self.assertEqual(200 - 100, bbox.x)
+        self.assertEqual(300 - 200, bbox.y)
+        self.assertEqual(100 * 2, bbox.width)
+        self.assertEqual(200 * 2, bbox.height)
+
+    def test_ellipse_get_total_length01(self):
+        # ellipse: initial value
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        path_data = ellipse.get_path_data()
+        self.assertEqual(0, len(path_data))
+
+        n = ellipse.get_total_length()
+        self.assertEqual(0, n)
+
+    def test_ellipse_get_total_length02(self):
+        # ellipse: rx = 0
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        ellipse.attributes.update({
+            'cx': '0',
+            'cy': '0',
+            'rx': '0',
+            'ry': '100',
+        })
+
+        path_data = ellipse.get_path_data()
+        self.assertEqual(0, len(path_data))
+
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        path_data = ellipse.get_path_data(settings)
+        self.assertEqual(0, len(path_data))
+
+        n = ellipse.get_total_length()
+        self.assertEqual(0, n)
+
+    def test_ellipse_get_total_length03(self):
+        # ellipse: ry = 0
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        ellipse.attributes.update({
+            'cx': '0',
+            'cy': '0',
+            'rx': '100',
+            'ry': '0',
+        })
+
+        path_data = ellipse.get_path_data()
+        self.assertEqual(0, len(path_data))
+
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        path_data = ellipse.get_path_data(settings)
+        self.assertEqual(0, len(path_data))
+
+        n = ellipse.get_total_length()
+        self.assertEqual(0, n)
+
+    def test_ellipse_get_total_length04(self):
+        # ellipse: rx = ry
+        # See also: circle01.html
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        ellipse.attributes.update({
+            'cx': '600',
+            'cy': '200',
+            'rx': '100',
+            'ry': '100',
+        })
+
+        path_data = ellipse.get_path_data()
+        d = PathParser.tostring(path_data)
+        expected = "M700,200" \
+                   " A100,100 0 0 1 600,300" \
+                   " 100,100 0 0 1 500,200" \
+                   " 100,100 0 0 1 600,100" \
+                   " 100,100 0 0 1 700,200 Z"
+        self.assertEqual(6, len(path_data))
+        self.assertEqual(expected, d, msg=d)
+
+        n = ellipse.get_total_length()
+        expected = 2 * math.pi * 100
+        self.assertAlmostEqual(expected, n)
+
+    def test_ellipse_get_total_length05(self):
+        # ellipse: rx > ry
+        # See also: ellipse01.html
+        # id="ellipse1"
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        ellipse.attributes.update({
+            'cx': '0',
+            'cy': '0',
+            'rx': '250',
+            'ry': '100',
+        })
+
+        # id="path1"
+        path_data = ellipse.get_path_data()
+        d = PathParser.tostring(path_data)
+        expected = "M250,0" \
+                   " A250,100 0 0 1 0,100" \
+                   " 250,100 0 0 1 -250,0" \
+                   " 250,100 0 0 1 0,-100" \
+                   " 250,100 0 0 1 250,0 Z"
+        self.assertEqual(6, len(path_data))
+        self.assertEqual(expected, d, msg=d)
+
+    def test_ellipse_get_total_length06(self):
+        # ellipse: ry > rx
+        # See also: ellipse01.html
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        ellipse.attributes.update({
+            'cx': '0',
+            'cy': '0',
+            'rx': '100',
+            'ry': '250',
+        })
+
+        # id="path2"
+        path_data = ellipse.get_path_data()
+        d = PathParser.tostring(path_data)
+        expected = "M100,0" \
+                   " A100,250 0 0 1 0,250" \
+                   " 100,250 0 0 1 -100,0" \
+                   " 100,250 0 0 1 0,-250" \
+                   " 100,250 0 0 1 100,0 Z"
+        self.assertEqual(6, len(path_data))
+        self.assertEqual(expected, d, msg=d)
+
+        n = ellipse.get_total_length()
+        # expected = 1150.8154296875  # firefox
+        expected = 1150.818115234375
+        self.assertAlmostEqual(expected, n, places=places)
+
+    def test_ellipse_get_total_length07(self):
+        # ellipse: viewport-percentage length
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        root.attributes.update({
+            'width': '1250',
+            'height': '400',
+        })
+
+        ellipse = root.create_sub_element('ellipse')
+        ellipse.attributes.update({
+            'cx': '0',
+            'cy': '0',
+            'rx': '20%',  # 1250 * 0.2 = 250
+            'ry': '25%',  # 400 * 0.25 = 100
+        })
+
+        style = ellipse.get_computed_style()
+        self.assertEqual(0, style['cx'])
+        self.assertEqual(0, style['cy'])
+        self.assertEqual(250, style['rx'])
+        self.assertEqual(100, style['ry'])
+
+        path_data = ellipse.get_path_data()
+        d = PathParser.tostring(path_data)
+        expected = "M250,0" \
+                   " A250,100 0 0 1 0,100" \
+                   " 250,100 0 0 1 -250,0" \
+                   " 250,100 0 0 1 0,-100" \
+                   " 250,100 0 0 1 250,0 Z"
+        self.assertEqual(expected, d, msg=d)
+
+        n = ellipse.get_total_length()
+        # expected = 1150.816162109375  # firefox
+        expected = 1150.81787109375
+        self.assertAlmostEqual(expected, n, places=places)
+
+    def test_ellipse_normalize04(self):
+        # ellipse: rx = ry
+        # See also: circle01.html
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        ellipse.attributes.update({
+            'cx': '600',
+            'cy': '200',
+            'rx': '100',
+            'ry': '100',
+        })
+
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        path_data = ellipse.get_path_data(settings)
+        d = PathParser.tostring(path_data)
+        expected = "M700,200" \
+                   " C700,255.228 655.228,300 600,300" \
+                   " 544.772,300 500,255.228 500,200" \
+                   " 500,144.772 544.772,100 600,100" \
+                   " 655.228,100 700,144.772 700,200 Z"
+        self.assertEqual(expected, d, msg=d)
+
+    def test_ellipse_normalize05(self):
+        # ellipse: rx > ry
+        # See also: ellipse01.html
+        # id="ellipse1"
+        parser = SVGParser()
+        ellipse = parser.create_element('ellipse')
+
+        ellipse.attributes.update({
+            'cx': '0',
+            'cy': '0',
+            'rx': '250',
+            'ry': '100',
+        })
+
+        # id="path1n"
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        path_data = ellipse.get_path_data(settings)
+        d = PathParser.tostring(path_data)
+        expected = "M250,0" \
+                   " C250,55.228 138.071,100 0,100" \
+                   " -138.071,100 -250,55.228 -250,0" \
+                   " -250,-55.228 -138.071,-100 0,-100" \
+                   " 138.071,-100 250,-55.228 250,0 Z"
+        self.assertEqual(expected, d, msg=d)
+
+        n = ellipse.get_total_length()
+        # expected = 1150.816162109375  # firefox
+        expected = 1150.81787109375
+        self.assertAlmostEqual(expected, n, places=places)
+
+    def test_get_bbox01_01(self):
+        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_BBOX01))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('defs-1')
+        bbox = element.get_bbox()
+        self.assertEqual(DOMRect(), bbox, msg=element)
+
+    def test_get_bbox01_02(self):
+        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_BBOX01))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('rect-1')
+        bbox = element.get_bbox()
+        self.assertEqual(DOMRect(20, 20, 40, 40), bbox, msg=element.id)
+
+    def test_get_bbox01_03(self):
+        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_BBOX01))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('group-1')
+        bbox = element.get_bbox()
+        self.assertEqual(DOMRect(30, 30, 40, 40), bbox, msg=element.id)
+
+    def test_get_bbox01_04(self):
+        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_BBOX01))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('use-1')
+        bbox = element.get_bbox()
+        self.assertEqual(DOMRect(30, 30, 40, 40), bbox, msg=element.id)
+
+    def test_get_bbox01_05(self):
+        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_BBOX01))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('group-2')
+        bbox = element.get_bbox()
+        self.assertEqual(DOMRect(10, 10, 100, 100), bbox, msg=element.id)
+
+    def test_get_bbox01_06(self):
+        # See https://svgwg.org/svg2-draft/coords.html#BoundingBoxes
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_BBOX01))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('rect-2')
+        bbox = element.get_bbox()
+        self.assertEqual(DOMRect(10, 10, 100, 100), bbox, msg=element.id)
+
+    def test_get_bbox02_01(self):
+        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
+        # See also svg.svg
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_SVG))
+        root = tree.getroot()
+
+        element = root
+        bbox = element.get_bbox()
+        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
+
+    def test_get_bbox02_02(self):
+        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
+        # See also svg.svg
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_SVG))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('gtop')
+        bbox = element.get_bbox()
+        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
+
+    def test_get_bbox02_03(self):
+        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
+        # See also svg.svg
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_SVG))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('svgstar')
+        bbox = element.get_bbox()
+        self.assertAlmostEqual(-38.899, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(-38.899, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
+
+    def test_get_bbox02_04(self):
+        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
+        # See also svg.svg
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_SVG))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('svgbar')
+        bbox = element.get_bbox()
+        self.assertAlmostEqual(-38.899, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(-7, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(14, bbox.height, msg=element.id, delta=delta)
+
+    def test_get_bbox02_08(self):
+        # from https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/svg.svg
+        # See also svg.svg
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_SVG))
+        root = tree.getroot()
+
+        element = root.get_element_by_id('usetop')
+        bbox = element.get_bbox()
+        self.assertAlmostEqual(11.101, bbox.x, msg=element.id, delta=delta)
+        self.assertAlmostEqual(11.101, bbox.y, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.width, msg=element.id, delta=delta)
+        self.assertAlmostEqual(77.798, bbox.height, msg=element.id,
+                               delta=delta)
+
+    def test_get_computed_style02(self):
+        # See also: Units.html
+        # Relative units
+        # Default font size: 16px
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_UNITS))
+        root = tree.getroot()
+
+        rect = root.get_element_by_id('rect_rel_01')
+        style = rect.get_computed_style()
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(400, style['y'], msg=style)
+        self.assertEqual(375, style['width'], msg=style)
+        self.assertEqual(187.5, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(37.5, style['stroke-width'], msg=style,
+                               places=places)
+
+        rect = root.get_element_by_id('rect_rel_03')
+        style = rect.get_computed_style()
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(600, style['y'], msg=style)
+        self.assertEqual(375, style['width'], msg=style)
+        self.assertEqual(187.5, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(37.5, style['stroke-width'], msg=style,
+                               places=places)
+
+    def test_get_computed_style03(self):
+        # See also: Units.html
+        # Percentages units
+        # Default font size: 16px
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_UNITS))
+        root = tree.getroot()
+
+        rect = root.get_element_by_id('rect_per_01')
+        style = rect.get_computed_style()
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(400, style['y'], msg=style)
+        self.assertEqual(400, style['width'], msg=style)
+        self.assertEqual(200, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(31.62, style['stroke-width'], msg=style,
+                               places=places)
+
+        rect = root.get_element_by_id('rect_per_03')
+        style = rect.get_computed_style()
+        # print(sorted(style.items()))
+        self.assertEqual(['Verdana'], style['font-family'], msg=style)
+        self.assertEqual(150, style['font-size'], msg=style)
+        self.assertEqual(Font.WEIGHT_NORMAL, style['font-weight'], msg=style)
+        self.assertEqual(0, style['x'], msg=style)
+        self.assertEqual(600, style['y'], msg=style)
+        self.assertEqual(400, style['width'], msg=style)
+        self.assertEqual(200, style['height'], msg=style)
+        self.assertEqual(0, style['rx'], msg=style)
+        self.assertEqual(0, style['ry'], msg=style)
+        self.assertAlmostEqual(31.62, style['stroke-width'], msg=style,
+                               places=places)
+
+    def test_get_computed_style04(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        group.attributes.set_style({
+            'fill': 'red',
+            'stroke': 'blue',
+            'stroke-width': '1',
+        })
+        rect = group.create_sub_element('rect')
+        rect.attributes.update({
+            'fill': 'white',
+            'stroke-width': '5',
+        })
+
+        self.assertEqual(
+            {
+                'style': 'fill: red; stroke-width: 1; stroke: blue;',
+            },
+            group.attributes)
+        self.assertEqual(
+            {
+                'fill': 'white',
+                'stroke-width': '5',
+            },
+            rect.attributes)
+        css_style = rect.get_computed_style()
+        self.assertEqual('white', css_style.get('fill'))
+        self.assertEqual('blue', css_style.get('stroke'))
+        self.assertEqual(5, css_style.get('stroke-width'))
+
+    def test_get_computed_style05(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        group.attributes.update({
+            'fill': 'white',
+            'stroke-width': '5',
+        })
+        rect = group.create_sub_element('rect')
+        rect.attributes.set_style({
+            'fill': 'red',
+            'stroke': 'blue',
+            'stroke-width': '1',
+        })
+
+        self.assertEqual(
+            {
+                'fill': 'white',
+                'stroke-width': '5',
+            },
+            group.attributes)
+        self.assertEqual(
+            {
+                'style': 'fill: red; stroke-width: 1; stroke: blue;',
+            },
+            rect.attributes)
+        css_style = rect.get_computed_style()
+        self.assertEqual('red', css_style.get('fill'))
+        self.assertEqual('blue', css_style.get('stroke'))
+        self.assertEqual(1, css_style.get('stroke-width'))
+
+    def test_get_computed_style06(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        group = root.create_sub_element('g')
+        group.attributes.set_style({
+            'fill': 'red',
+            'stroke': 'blue',
+            'stroke-width': '1',
+        })
+        rect = group.create_sub_element('rect')
+        rect.attributes.set_style({
+            'fill': 'white',
+            'stroke-width': '5',
+        })
+
+        self.assertEqual(
+            {
+                'style': 'fill: red; stroke-width: 1; stroke: blue;',
+            },
+            group.attributes)
+        self.assertEqual(
+            {
+                'style': 'fill: white; stroke-width: 5;',
+            },
+            rect.attributes)
+        css_style = rect.get_computed_style()
+        self.assertEqual('white', css_style.get('fill'))
+        self.assertEqual('blue', css_style.get('stroke'))
+        self.assertEqual(5, css_style.get('stroke-width'))
+
+    def test_get_ctm01(self):
+        # nested svg
+        # See also: nestedsvg01.html
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        root.attributes.update({
+            'id': 'svg01',
+            'width': '10cm',
+            'height': '4cm',
+            'viewBox': '0 0 400 400',
+        })
+
+        rect01 = root.create_sub_element('rect')
+        rect01.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg02 = root.create_sub_element('svg')
+        svg02.attributes.update({
+            'id': 'svg02',
+            'x': '1cm',
+            'y': '1cm',
+        })
+
+        rect02 = svg02.create_sub_element('rect')
+        rect02.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg03 = svg02.create_sub_element('svg')
+        svg03.attributes.update({
+            'id': 'svg03',
+            'x': '40',
+            'y': '40',
+            'width': '80',
+            'height': '80',
+        })
+
+        rect03 = svg03.create_sub_element('rect')
+        rect03.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        ctm = root.get_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 113.3828125
+        f = 0
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = root.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 121.3828125 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect01.get_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 113.3828125
+        f = 0
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = rect01.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 121.3828125 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg02.get_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 127.6667695902288
+        f = 14.283957090228796
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = svg02.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 135.6667695902288 - 8
+        f = 22.283957090228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect02.get_ctm()
+        a = 1
+        b = 0
+        c = 0
+        d = 1
+        e = 37.7952766418457
+        f = 37.7952766418457
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = rect02.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 135.6667695902288 - 8
+        f = 22.283957090228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg03.get_ctm()
+        a = 1
+        b = 0
+        c = 0
+        d = 1
+        e = 77.7952766418457
+        f = 77.7952766418457
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = svg03.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 150.7839570902288 - 8
+        f = 37.401144590228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect03.get_ctm()
+        a = 1
+        b = 0
+        c = 0
+        d = 1
+        e = 40
+        f = 40
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+
+        screen_ctm = rect03.get_screen_ctm()
+        a = 0.3779296875
+        b = 0
+        c = 0
+        d = 0.3779296875
+        e = 150.7839570902288 - 8
+        f = 37.401144590228796 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+    def test_get_ctm02(self):
+        # nested svg
+        # See also: nestedsvg02.html
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        root.attributes.update({
+            'id': 'svg01',
+            'width': '400',
+            'height': '200',
+            'viewBox': '0 0 400 400',
+        })
+        root.current_scale = 1.2
+
+        rect01 = root.create_sub_element('rect')
+        rect01.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg02 = root.create_sub_element('svg')
+        svg02.attributes.update({
+            'id': 'svg02',
+            'x': '30',
+            'y': '40',
+        })
+
+        rect02 = svg02.create_sub_element('rect')
+        rect02.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        svg03 = svg02.create_sub_element('svg')
+        svg03.attributes.update({
+            'id': 'svg03',
+            'x': '30',
+            'y': '40',
+            'width': '100',
+            'height': '80',
+        })
+
+        rect03 = svg03.create_sub_element('rect')
+        rect03.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+        })
+
+        # [0.5, 0, 0, 0.5, 100, 0]
+        # [0.6, 0, 0, 0.6, 128, 8]
+        ctm = root.get_ctm()
+        screen_ctm = root.get_screen_ctm()
+        expected = 'matrix(0.5, 0, 0, 0.5, 100, 0)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6, 0, 0, 0.6, 120, 0)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [0.5, 0, 0, 0.5, 100, 0]
+        # [0.6, 0, 0, 0.6, 128, 8]
+        ctm = rect01.get_ctm()
+        screen_ctm = rect01.get_screen_ctm()
+        expected = 'matrix(0.5, 0, 0, 0.5, 100, 0)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6, 0, 0, 0.6, 120, 0)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [0.5, 0, 0, 0.5, 115, 20]
+        # [0.6, 0, 0, 0.6, 146, 32]
+        ctm = svg02.get_ctm()
+        screen_ctm = svg02.get_screen_ctm()
+        expected = 'matrix(0.5, 0, 0, 0.5, 115, 20)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6, 0, 0, 0.6, 138, 24)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [1, 0, 0, 1, 30, 40]
+        # [0.6, 0, 0, 0.6, 146, 32]
+        ctm = rect02.get_ctm()
+        screen_ctm = rect02.get_screen_ctm()
+        expected = 'matrix(1, 0, 0, 1, 30, 40)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6, 0, 0, 0.6, 138, 24)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [1, 0, 0, 1, 60, 80]
+        # [0.6, 0, 0, 0.6, 164, 56]
+        ctm = svg03.get_ctm()
+        screen_ctm = svg03.get_screen_ctm()
+        expected = 'matrix(1, 0, 0, 1, 60, 80)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6, 0, 0, 0.6, 156, 48)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+        # [1, 0, 0, 1, 30, 40]
+        # [0.6, 0, 0, 0.6, 164, 56]
+        ctm = rect03.get_ctm()
+        screen_ctm = rect03.get_screen_ctm()
+        expected = 'matrix(1, 0, 0, 1, 30, 40)'
+        self.assertEqual(expected, ctm.tostring())
+        expected = 'matrix(0.6, 0, 0, 0.6, 156, 48)'
+        self.assertEqual(expected, screen_ctm.tostring())
+
+    def test_get_ctm03(self):
+        # nested svg
+        # See also: nestedsvg03.html
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        root.attributes.update({
+            'id': 'svg01',
+            'width': '400',
+            'height': '200',
+            'viewBox': '0 0 400 400',
+        })
+        root.current_scale = 0.8
+
+        rect01 = root.create_sub_element('rect')
+        rect01.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+            'transform': 'translate(30) rotate(15)',
+        })
+
+        svg02 = root.create_sub_element('svg')
+        svg02.attributes.update({
+            'id': 'svg02',
+            'x': '30',
+            'y': '40',
+        })
+
+        rect02 = svg02.create_sub_element('rect')
+        rect02.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+            'transform': 'translate(30) rotate(15)',
+        })
+
+        svg03 = svg02.create_sub_element('svg')
+        svg03.attributes.update({
+            'id': 'svg03',
+            'x': '30',
+            'y': '40',
+            'width': '100',
+            'height': '80',
+        })
+
+        rect03 = svg03.create_sub_element('rect')
+        rect03.attributes.update({
+            'x': '1',
+            'y': '1',
+            'width': '100',
+            'height': '100',
+            'transform': 'translate(30) rotate(15)',
+        })
+
+        ctm = root.get_ctm()
+        screen_ctm = root.get_screen_ctm()
+        expected = 'matrix(0.5, 0, 0, 0.5, 100, 0)'
+        self.assertEqual(expected, ctm.tostring())
+        a = 0.4000000059604645
+        b = 0
+        c = 0
+        d = 0.4000000059604645
+        e = 88.0000011920929 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect01.get_ctm()
+        screen_ctm = rect01.get_screen_ctm()
+        a = 0.48296291314453416
+        b = 0.12940952255126037
+        c = -0.12940952255126037
+        d = 0.48296291314453416
+        e = 115
+        f = 0
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+        a = 0.3863703362729939
+        b = 0.10352761958369001
+        c = -0.10352761958369001
+        d = 0.3863703362729939
+        e = 100.00000137090683 - 8
+        f = 8 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg02.get_ctm()
+        screen_ctm = svg02.get_screen_ctm()
+        expected = 'matrix(0.5, 0, 0, 0.5, 115, 20)'
+        self.assertEqual(expected, ctm.tostring())
+        a = 0.4000000059604645
+        b = 0
+        c = 0
+        d = 0.4000000059604645
+        e = 100.00000137090683 - 8
+        f = 24.00000023841858 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect02.get_ctm()
+        screen_ctm = rect02.get_screen_ctm()
+        a = 0.9659258262890683
+        b = 0.25881904510252074
+        c = -0.25881904510252074
+        d = 0.9659258262890683
+        e = 60
+        f = 40
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+        a = 0.3863703362729939
+        b = 0.10352761958369001
+        c = -0.10352761958369001
+        d = 0.3863703362729939
+        e = 112.00000154972076 - 8
+        f = 24.00000023841858 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = svg03.get_ctm()
+        screen_ctm = svg03.get_screen_ctm()
+        expected = 'matrix(1, 0, 0, 1, 60, 80)'
+        self.assertEqual(expected, ctm.tostring())
+        a = 0.4000000059604645
+        b = 0
+        c = 0
+        d = 0.4000000059604645
+        e = 112.00000154972076 - 8
+        f = 40.00000047683716 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+        ctm = rect03.get_ctm()
+        screen_ctm = rect03.get_screen_ctm()
+        a = 0.9659258262890683
+        b = 0.25881904510252074
+        c = -0.25881904510252074
+        d = 0.9659258262890683
+        e = 60
+        f = 40
+        self.assertAlmostEqual(a, ctm.a, places=places)
+        self.assertAlmostEqual(b, ctm.b, places=places)
+        self.assertAlmostEqual(c, ctm.c, places=places)
+        self.assertAlmostEqual(d, ctm.d, places=places)
+        self.assertAlmostEqual(e, ctm.e, places=places)
+        self.assertAlmostEqual(f, ctm.f, places=places)
+        a = 0.3863703362729939
+        b = 0.10352761958369001
+        c = -0.10352761958369001
+        d = 0.3863703362729939
+        e = 124.0000017285347 - 8
+        f = 40.00000047683716 - 8
+        self.assertAlmostEqual(a, screen_ctm.a, places=places)
+        self.assertAlmostEqual(b, screen_ctm.b, places=places)
+        self.assertAlmostEqual(c, screen_ctm.c, places=places)
+        self.assertAlmostEqual(d, screen_ctm.d, places=places)
+        self.assertAlmostEqual(e, screen_ctm.e, places=places)
+        self.assertAlmostEqual(f, screen_ctm.f, places=places)
+
+    def test_get_element_by_id(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_CUBIC01))
         root = tree.getroot()
 
-        class_name = root.class_name
-        self.assertIsNone(class_name)
+        # found
+        root.id = 'root'
+        element = root.get_element_by_id('root')
+        self.assertEqual(root, element)
 
-        class_list = root.class_list
-        self.assertEqual([], class_list)
+        # not found
+        element = root.get_element_by_id('dummy')
+        self.assertIsNone(element)
 
-    def test_element_class_list02(self):
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_CUBIC01))
-        root = tree.getroot()
+        # found
+        element = root.get_element_by_id('path01')
+        self.assertIsNotNone(element)
+        self.assertEqual('path', element.local_name)
 
-        root.class_name = 'Border'
-        class_name = root.class_name
-        self.assertEqual('Border', class_name)
-
-        class_list = root.class_list
-        self.assertEqual(['Border'], class_list)
-
-    def test_element_class_list03(self):
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_CUBIC01))
-        root = tree.getroot()
-
-        root.class_name = 'Border Label'
-        class_name = root.class_name
-        self.assertEqual('Border Label', class_name)
-
-        class_list = root.class_list
-        self.assertEqual(['Border', 'Label'], class_list)
-
-    def test_element_find_by_class_names01(self):
+    def test_get_elements_by_class_names01(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_CUBIC01))
         root = tree.getroot()
@@ -1980,7 +2579,7 @@ class BasicShapesTestCase(unittest.TestCase):
         elements = root.get_elements_by_class_name('Connect SamplePath')
         self.assertEqual(0, len(elements))
 
-    def test_element_find_by_class_names02(self):
+    def test_get_elements_by_class_names02(self):
         parser = SVGParser()
         root = parser.create_element('svg')
         circle = root.create_sub_element('circle')
@@ -2015,7 +2614,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue('polygon' in node_names)
         self.assertTrue('rect' in node_names)
 
-    def test_element_find_by_local_name(self):
+    def test_get_elements_by_local_name(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_CUBIC01))
         root = tree.getroot()
@@ -2038,26 +2637,7 @@ class BasicShapesTestCase(unittest.TestCase):
             namespaces={'svg': Element.SVG_NAMESPACE_URI})
         self.assertEqual(3, len(elements))
 
-    def test_element_find_by_id(self):
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_CUBIC01))
-        root = tree.getroot()
-
-        # found
-        root.id = 'root'
-        element = root.get_element_by_id('root')
-        self.assertEqual(root, element)
-
-        # not found
-        element = root.get_element_by_id('dummy')
-        self.assertIsNone(element)
-
-        # found
-        element = root.get_element_by_id('path01')
-        self.assertIsNotNone(element)
-        self.assertEqual('path', element.local_name)
-
-    def test_element_find_by_tag_name(self):
+    def test_get_elements_by_tag_name(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_SVG))
         root = tree.getroot()
@@ -2116,7 +2696,7 @@ class BasicShapesTestCase(unittest.TestCase):
         tags = [x.tag_name for x in elements]
         self.assertEqual(1, tags.count('html:video'))
 
-    def test_element_find_by_tag_name_ns(self):
+    def test_get_elements_by_tag_name_ns(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_SVG))
         root = tree.getroot()
@@ -2225,442 +2805,7 @@ class BasicShapesTestCase(unittest.TestCase):
         elements = parent.get_elements_by_tag_name_ns(namespace, local_name)
         self.assertEqual(0, len(elements))
 
-    def test_element_isdisplay(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        group = root.create_sub_element(
-            'group',
-            attrib={'display': 'none'}
-        )
-        text = group.create_sub_element(
-            'text',
-            attrib={'display': 'inline'}
-        )
-
-        display = root.isdisplay()  # inline
-        self.assertTrue(display)
-
-        display = group.isdisplay()  # inline > none
-        self.assertTrue(not display)
-
-        display = text.isdisplay()  # inline > none > none
-        self.assertTrue(not display)
-
-    def test_element_iter(self):
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_ROTATE_SCALE))
-        root = tree.getroot()
-
-        for element in root:
-            if element.node_type == Node.COMMENT_NODE:
-                self.assertIsInstance(element, Comment)
-                self.assertEqual('#comment', element.node_name)
-                self.assertIsNotNone(element.data)
-            else:
-                self.assertEqual(Node.ELEMENT_NODE, element.node_type)
-
-    def test_element_create_sub_element(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        _ = root.create_sub_element('rect')
-        _ = root.create_sub_element('ellipse')
-        _ = root.create_sub_element('circle', index=1)
-        # rect > circle > ellipse
-        expected = \
-            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-            "<rect/><circle/><ellipse/>" \
-            "</svg>"
-        self.assertEqual(expected, root.tostring().decode())
-
-    def test_element_create_sub_element_html(self):
-        parser = SVGParser()
-        nsmap = {
-            None: Element.SVG_NAMESPACE_URI,
-            'html': Element.XHTML_NAMESPACE_URI
-        }
-        root = parser.create_element('svg', nsmap=nsmap)
-        self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual('svg', root.tag_name)
-        self.assertEqual('svg', root.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
-
-        video = root.create_sub_element('video')
-        self.assertTrue(isinstance(video, HTMLVideoElement))
-        self.assertEqual('video', video.tag_name)
-        self.assertEqual('video', video.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', video.namespace_uri)
-
-        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'audio')
-        audio = root.create_sub_element(tag)
-        self.assertTrue(isinstance(audio, HTMLAudioElement))
-        self.assertEqual(tag, audio.tag)
-        self.assertEqual('html:audio', audio.tag_name)
-        self.assertEqual('audio', audio.local_name)
-        self.assertEqual('http://www.w3.org/1999/xhtml', audio.namespace_uri)
-
-        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'source')
-        source = audio.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
-                                             'source')
-        self.assertTrue(isinstance(source, HTMLElement))
-        self.assertEqual(tag, source.tag)
-        self.assertEqual('html:source', source.tag_name)
-        self.assertEqual('source', source.local_name)
-        self.assertEqual('http://www.w3.org/1999/xhtml', source.namespace_uri)
-
-    def test_element_create_sub_element_svg01(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual('svg', root.tag)
-        self.assertEqual('svg', root.tag_name)
-        self.assertEqual('svg', root.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
-
-        g = root.create_sub_element('g')
-        self.assertTrue(isinstance(g, SVGGElement))
-
-        path = g.create_sub_element('path')
-        self.assertTrue(isinstance(path, SVGPathElement))
-
-        rect = g.create_sub_element('rect', index=0)
-        self.assertTrue(isinstance(rect, SVGRectElement))
-
-        # svg > g > (rect, path)
-        expected = \
-            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-            "<g><rect/><path/></g>" \
-            "</svg>"
-        self.assertEqual(expected, root.tostring().decode())
-
-    def test_element_create_sub_element_svg02(self):
-        parser = SVGParser()
-        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual('{http://www.w3.org/2000/svg}svg', root.tag)
-        self.assertEqual('svg', root.tag_name)
-        self.assertEqual('svg', root.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
-
-        g = root.create_sub_element('g')
-        self.assertTrue(isinstance(g, SVGGElement))
-        self.assertEqual('g', g.tag)
-        self.assertEqual('g', g.tag_name)
-        self.assertEqual('g', g.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', g.namespace_uri)
-
-        path = g.create_sub_element_ns('http://www.w3.org/2000/svg', 'path')
-        self.assertTrue(isinstance(path, SVGPathElement))
-        self.assertEqual('{http://www.w3.org/2000/svg}path', path.tag)
-        self.assertEqual('path', path.tag_name)
-        self.assertEqual('path', path.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', path.namespace_uri)
-
-        rect = g.create_sub_element_ns(None, 'rect', index=0)
-        self.assertTrue(isinstance(rect, SVGRectElement))
-        self.assertEqual('rect', rect.tag)
-        self.assertEqual('rect', rect.tag_name)
-        self.assertEqual('rect', rect.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', rect.namespace_uri)
-
-    def test_element_next_element_sibling(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        desc = parser.create_element('desc')
-        root.append(desc)
-        comment = parser.create_comment('comment')
-        root.append(comment)
-        rect = parser.create_element('rect')
-        rect.id = 'border'
-        root.append(rect)
-        path = parser.create_element('path')
-        root.append(path)
-
-        e = root.next_element_sibling
-        self.assertIsNone(e)
-
-        e = desc.next_element_sibling
-        self.assertEqual(rect, e)
-
-        e = rect.next_element_sibling
-        self.assertEqual(path, e)
-
-        e = path.next_element_sibling
-        self.assertIsNone(e)
-
-    def test_element_previous_element_sibling(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        desc = parser.create_element('desc')
-        root.append(desc)
-        comment = parser.create_comment('comment')
-        root.append(comment)
-        rect = parser.create_element('rect')
-        rect.id = 'border'
-        root.append(rect)
-        path = parser.create_element('path')
-        root.append(path)
-
-        e = root.previous_element_sibling
-        self.assertIsNone(e)
-
-        e = desc.previous_element_sibling
-        self.assertIsNone(e)
-
-        e = rect.previous_element_sibling
-        self.assertEqual(desc, e)
-
-        e = path.previous_element_sibling
-        self.assertEqual(rect, e)
-
-    def test_ellipse01_length(self):
-        # ellipse: initial value
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        path_data = ellipse.get_path_data()
-        self.assertEqual(0, len(path_data))
-
-        n = ellipse.get_total_length()
-        self.assertEqual(0, n)
-
-    def test_ellipse02_length(self):
-        # ellipse: rx = 0
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        ellipse.attributes.update({
-            'cx': '0',
-            'cy': '0',
-            'rx': '0',
-            'ry': '100',
-        })
-
-        path_data = ellipse.get_path_data()
-        self.assertEqual(0, len(path_data))
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        path_data = ellipse.get_path_data(settings)
-        self.assertEqual(0, len(path_data))
-
-        n = ellipse.get_total_length()
-        self.assertEqual(0, n)
-
-    def test_ellipse03_length(self):
-        # ellipse: ry = 0
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        ellipse.attributes.update({
-            'cx': '0',
-            'cy': '0',
-            'rx': '100',
-            'ry': '0',
-        })
-
-        path_data = ellipse.get_path_data()
-        self.assertEqual(0, len(path_data))
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        path_data = ellipse.get_path_data(settings)
-        self.assertEqual(0, len(path_data))
-
-        n = ellipse.get_total_length()
-        self.assertEqual(0, n)
-
-    def test_ellipse04_length(self):
-        # ellipse: rx = ry
-        # See also: circle01.html
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        ellipse.attributes.update({
-            'cx': '600',
-            'cy': '200',
-            'rx': '100',
-            'ry': '100',
-        })
-
-        path_data = ellipse.get_path_data()
-        d = PathParser.tostring(path_data)
-        expected = "M700,200" \
-                   " A100,100 0 0 1 600,300" \
-                   " 100,100 0 0 1 500,200" \
-                   " 100,100 0 0 1 600,100" \
-                   " 100,100 0 0 1 700,200 Z"
-        self.assertEqual(6, len(path_data))
-        self.assertEqual(expected, d, msg=d)
-
-        n = ellipse.get_total_length()
-        expected = 2 * math.pi * 100
-        self.assertAlmostEqual(expected, n)
-
-    def test_ellipse04_normalize(self):
-        # ellipse: rx = ry
-        # See also: circle01.html
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        ellipse.attributes.update({
-            'cx': '600',
-            'cy': '200',
-            'rx': '100',
-            'ry': '100',
-        })
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        path_data = ellipse.get_path_data(settings)
-        d = PathParser.tostring(path_data)
-        expected = "M700,200" \
-                   " C700,255.228 655.228,300 600,300" \
-                   " 544.772,300 500,255.228 500,200" \
-                   " 500,144.772 544.772,100 600,100" \
-                   " 655.228,100 700,144.772 700,200 Z"
-        self.assertEqual(expected, d, msg=d)
-
-    def test_ellipse05_length(self):
-        # ellipse: rx > ry
-        # See also: ellipse01.html
-        # id="ellipse1"
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        ellipse.attributes.update({
-            'cx': '0',
-            'cy': '0',
-            'rx': '250',
-            'ry': '100',
-        })
-
-        # id="path1"
-        path_data = ellipse.get_path_data()
-        d = PathParser.tostring(path_data)
-        expected = "M250,0" \
-                   " A250,100 0 0 1 0,100" \
-                   " 250,100 0 0 1 -250,0" \
-                   " 250,100 0 0 1 0,-100" \
-                   " 250,100 0 0 1 250,0 Z"
-        self.assertEqual(6, len(path_data))
-        self.assertEqual(expected, d, msg=d)
-
-    def test_ellipse05_normalize(self):
-        # ellipse: rx > ry
-        # See also: ellipse01.html
-        # id="ellipse1"
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        ellipse.attributes.update({
-            'cx': '0',
-            'cy': '0',
-            'rx': '250',
-            'ry': '100',
-        })
-
-        # id="path1n"
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        path_data = ellipse.get_path_data(settings)
-        d = PathParser.tostring(path_data)
-        expected = "M250,0" \
-                   " C250,55.228 138.071,100 0,100" \
-                   " -138.071,100 -250,55.228 -250,0" \
-                   " -250,-55.228 -138.071,-100 0,-100" \
-                   " 138.071,-100 250,-55.228 250,0 Z"
-        self.assertEqual(expected, d, msg=d)
-
-        n = ellipse.get_total_length()
-        # expected = 1150.816162109375  # firefox
-        expected = 1150.81787109375
-        self.assertAlmostEqual(expected, n, places=places)
-
-    def test_ellipse06_length(self):
-        # ellipse: ry > rx
-        # See also: ellipse01.html
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-
-        ellipse.attributes.update({
-            'cx': '0',
-            'cy': '0',
-            'rx': '100',
-            'ry': '250',
-        })
-
-        # id="path2"
-        path_data = ellipse.get_path_data()
-        d = PathParser.tostring(path_data)
-        expected = "M100,0" \
-                   " A100,250 0 0 1 0,250" \
-                   " 100,250 0 0 1 -100,0" \
-                   " 100,250 0 0 1 0,-250" \
-                   " 100,250 0 0 1 100,0 Z"
-        self.assertEqual(6, len(path_data))
-        self.assertEqual(expected, d, msg=d)
-
-        n = ellipse.get_total_length()
-        # expected = 1150.8154296875  # firefox
-        expected = 1150.818115234375
-        self.assertAlmostEqual(expected, n, places=places)
-
-    def test_ellipse07_length(self):
-        # ellipse: viewport-percentage length
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        root.attributes.update({
-            'width': '1250',
-            'height': '400',
-        })
-
-        ellipse = root.create_sub_element('ellipse')
-        ellipse.attributes.update({
-            'cx': '0',
-            'cy': '0',
-            'rx': '20%',  # 1250 * 0.2 = 250
-            'ry': '25%',  # 400 * 0.25 = 100
-        })
-
-        style = ellipse.get_computed_style()
-        self.assertEqual(0, style['cx'])
-        self.assertEqual(0, style['cy'])
-        self.assertEqual(250, style['rx'])
-        self.assertEqual(100, style['ry'])
-
-        path_data = ellipse.get_path_data()
-        d = PathParser.tostring(path_data)
-        expected = "M250,0" \
-                   " A250,100 0 0 1 0,100" \
-                   " 250,100 0 0 1 -250,0" \
-                   " 250,100 0 0 1 0,-100" \
-                   " 250,100 0 0 1 250,0 Z"
-        self.assertEqual(expected, d, msg=d)
-
-        n = ellipse.get_total_length()
-        # expected = 1150.816162109375  # firefox
-        expected = 1150.81787109375
-        self.assertAlmostEqual(expected, n, places=places)
-
-    def test_ellipse08_bbox(self):
-        parser = SVGParser()
-        ellipse = parser.create_element('ellipse')
-        ellipse.attributes.update({
-            'cx': '200',
-            'cy': '300',
-            'rx': '100',
-            'ry': '200',
-        })
-
-        bbox = ellipse.get_bbox()
-        self.assertEqual(200 - 100, bbox.x)
-        self.assertEqual(300 - 200, bbox.y)
-        self.assertEqual(100 * 2, bbox.width)
-        self.assertEqual(200 * 2, bbox.height)
-
-    def test_group_ctm(self):
+    def test_group_get_ctm(self):
         # See also: RotateScale.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ROTATE_SCALE))
@@ -2683,7 +2828,57 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 'matrix(0.866, 0.5, -0.5, 0.866, 50, 30)'
         self.assertEqual(expected, exp)
 
-    def test_line01_length(self):
+    def test_isdisplay(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        group = root.create_sub_element(
+            'group',
+            attrib={'display': 'none'}
+        )
+        text = group.create_sub_element(
+            'text',
+            attrib={'display': 'inline'}
+        )
+
+        display = root.isdisplay()  # inline
+        self.assertTrue(display)
+
+        display = group.isdisplay()  # inline > none
+        self.assertTrue(not display)
+
+        display = text.isdisplay()  # inline > none > none
+        self.assertTrue(not display)
+
+    def test_iter(self):
+        parser = SVGParser()
+        tree = parser.parse(StringIO(SVG_ROTATE_SCALE))
+        root = tree.getroot()
+
+        for element in root:
+            if element.node_type == Node.COMMENT_NODE:
+                self.assertIsInstance(element, Comment)
+                self.assertEqual('#comment', element.node_name)
+                self.assertIsNotNone(element.data)
+            else:
+                self.assertEqual(Node.ELEMENT_NODE, element.node_type)
+
+    def test_line_get_bbox(self):
+        parser = SVGParser()
+        line = parser.create_element('line')
+        line.attributes.update({
+            'x1': '100',
+            'y1': '200',
+            'x2': '300',
+            'y2': '400',
+        })
+
+        bbox = line.get_bbox()
+        self.assertEqual(100, bbox.x)
+        self.assertEqual(200, bbox.y)
+        self.assertEqual(300 - 100, bbox.width)
+        self.assertEqual(400 - 200, bbox.height)
+
+    def test_line_get_total_length01(self):
         parser = SVGParser()
         line = parser.create_element('line')
 
@@ -2698,7 +2893,7 @@ class BasicShapesTestCase(unittest.TestCase):
         n = line.get_total_length()
         self.assertEqual(0, n)
 
-    def test_line02_length(self):
+    def test_line_get_total_length02(self):
         # horizontal line
         parser = SVGParser()
         line = parser.create_element('line')
@@ -2720,7 +2915,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 100
         self.assertEqual(expected, n)
 
-    def test_line03_length(self):
+    def test_line_get_total_length03(self):
         # vertical line
         parser = SVGParser()
         line = parser.create_element('line')
@@ -2742,7 +2937,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 200
         self.assertEqual(expected, n)
 
-    def test_line04_length(self):
+    def test_line_get_total_length04(self):
         parser = SVGParser()
         line = parser.create_element('line')
         line.attributes.update({
@@ -2763,7 +2958,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = math.sqrt((100 - -100) ** 2 + (100 - -100) ** 2)
         self.assertEqual(expected, n)
 
-    def test_line05_length(self):
+    def test_line_get_total_length05(self):
         parser = SVGParser()
         line = parser.create_element('line')
         line.attributes.update({
@@ -2783,22 +2978,6 @@ class BasicShapesTestCase(unittest.TestCase):
         n = line.get_total_length()
         expected = math.sqrt((-100 - 100) ** 2 + (-200 - 200) ** 2)
         self.assertEqual(expected, n)
-
-    def test_line06_bbox(self):
-        parser = SVGParser()
-        line = parser.create_element('line')
-        line.attributes.update({
-            'x1': '100',
-            'y1': '200',
-            'x2': '300',
-            'y2': '400',
-        })
-
-        bbox = line.get_bbox()
-        self.assertEqual(100, bbox.x)
-        self.assertEqual(200, bbox.y)
-        self.assertEqual(300 - 100, bbox.width)
-        self.assertEqual(400 - 200, bbox.height)
 
     def test_parser_from_string(self):
         parser = SVGParser()
@@ -2888,7 +3067,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertTrue(isinstance(root[19], SVGTextElement))
 
     # @unittest.expectedFailure
-    def test_path01_ctm(self):
+    def test_path_get_ctm01(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -2912,7 +3091,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(f, ctm.f, places=places)
 
     # @unittest.expectedFailure
-    def test_path02_ctm(self):
+    def test_path_get_ctm02(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -2936,7 +3115,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(f, ctm.f, places=places)
 
     # @unittest.expectedFailure
-    def test_path03_ctm(self):
+    def test_path_get_ctm03(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -2960,7 +3139,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(f, ctm.f, places=places)
 
     # @unittest.expectedFailure
-    def test_path04_ctm(self):
+    def test_path_get_ctm04(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -2983,7 +3162,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertAlmostEqual(e, ctm.e, places=places)
         self.assertAlmostEqual(f, ctm.f, places=places)
 
-    def test_path01_length(self):
+    def test_path_get_total_length01(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -2994,7 +3173,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 121.12298583984375
         self.assertAlmostEqual(expected, n, delta=delta)
 
-    def test_path02_length(self):
+    def test_path_get_total_length02(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -3005,7 +3184,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 121.12297821044922
         self.assertAlmostEqual(expected, n, delta=delta)
 
-    def test_path03_length(self):
+    def test_path_get_total_length03(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -3016,7 +3195,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 363.36895751953125
         self.assertAlmostEqual(expected, n, delta=delta)
 
-    def test_path04_length(self):
+    def test_path_get_total_length04(self):
         # See also: arcs02.html
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_ARCS02))
@@ -3027,7 +3206,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 363.3689880371094
         self.assertAlmostEqual(expected, n, delta=delta)
 
-    def test_polygon01_bbox(self):
+    def test_polygon_get_bbox(self):
         parser = SVGParser()
         polygon = parser.create_element('polygon')
         polygon.attributes.update({
@@ -3041,7 +3220,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(469 - 231, bbox.width)
         self.assertEqual(301 - 75, bbox.height)
 
-    def test_polygon02_length(self):
+    def test_polygon_get_total_length02(self):
         # See also: polygon01.html
         parser = SVGParser()
         polygon = parser.create_element('polygon')
@@ -3091,25 +3270,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 899.3055419921875
         self.assertAlmostEqual(expected, n, places=places)
 
-    def test_polygon02_normalize(self):
-        # See also: polygon01.html
-        parser = SVGParser()
-        polygon = parser.create_element('polygon')
-        points = \
-            "350,75 379,161 469,161 397,215 423,301 350,250" \
-            " 277,301 303,215 231,161 321,161"
-        polygon.attributes.set('points', points)
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        normalized = polygon.get_path_data(settings)
-        exp = PathParser.tostring(normalized)
-        expected = \
-            "M350,75 L379,161 469,161 397,215 423,301 350,250 277,301" \
-            " 303,215 231,161 321,161 Z"
-        self.assertEqual(expected, exp)
-
-    def test_polygon03_length(self):
+    def test_polygon_get_total_length03(self):
         # See also: polygon01.html
         parser = SVGParser()
         polygon = parser.create_element('polygon')
@@ -3152,7 +3313,39 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 749.1731567382812
         self.assertAlmostEqual(expected, n, places=places)
 
-    def test_polyline01_length(self):
+    def test_polygon_normalize(self):
+        # See also: polygon01.html
+        parser = SVGParser()
+        polygon = parser.create_element('polygon')
+        points = \
+            "350,75 379,161 469,161 397,215 423,301 350,250" \
+            " 277,301 303,215 231,161 321,161"
+        polygon.attributes.set('points', points)
+
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        normalized = polygon.get_path_data(settings)
+        exp = PathParser.tostring(normalized)
+        expected = \
+            "M350,75 L379,161 469,161 397,215 423,301 350,250 277,301" \
+            " 303,215 231,161 321,161 Z"
+        self.assertEqual(expected, exp)
+
+    def test_polyline_get_bbox(self):
+        parser = SVGParser()
+        polyline = parser.create_element('polyline')
+        polyline.attributes.update({
+            'points': "350,75 379,161 469,161 397,215 423,301 350,250"
+                      " 277,301 303,215 231,161 321,161",
+        })
+
+        bbox = polyline.get_bbox()
+        self.assertEqual(231, bbox.x)
+        self.assertEqual(75, bbox.y)
+        self.assertEqual(469 - 231, bbox.width)
+        self.assertEqual(301 - 75, bbox.height)
+
+    def test_polyline_get_total_length01(self):
         parser = SVGParser()
         polyline = parser.create_element('polyline')
 
@@ -3164,7 +3357,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 0
         self.assertEqual(expected, n)
 
-    def test_polyline02_length(self):
+    def test_polyline_get_total_length02(self):
         # See also: polyline01.html
         parser = SVGParser()
         polyline = parser.create_element('polyline')
@@ -3200,7 +3393,22 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 3100
         self.assertEqual(expected, n)
 
-    def test_polyline02_normalize(self):
+    def test_polyline_get_total_length03(self):
+        # See also: triangle01.html
+        parser = SVGParser()
+        polyline = parser.create_element('polyline')
+        pts = [(100, 100), (300, 100), (200, 300), (100, 100)]
+        polyline.points = pts
+
+        points = polyline.attributes.get('points')
+        expected = '100,100 300,100 200,300 100,100'
+        self.assertEqual(expected, points)
+
+        n = polyline.get_total_length()
+        expected = 647.213623046875
+        self.assertAlmostEqual(expected, n, places=places)
+
+    def test_polyline_normalize(self):
         # See also: polyline01.html
         parser = SVGParser()
         polyline = parser.create_element('polyline')
@@ -3223,35 +3431,6 @@ class BasicShapesTestCase(unittest.TestCase):
             " 450,250 450,375 550,375 550,175 650,175 650,375 750,375" \
             " 750,100 850,100 850,375 950,375 950,25 1050,25 1050,375 1150,375"
         self.assertEqual(expected, exp)
-
-    def test_polyline03_length(self):
-        # See also: triangle01.html
-        parser = SVGParser()
-        polyline = parser.create_element('polyline')
-        pts = [(100, 100), (300, 100), (200, 300), (100, 100)]
-        polyline.points = pts
-
-        points = polyline.attributes.get('points')
-        expected = '100,100 300,100 200,300 100,100'
-        self.assertEqual(expected, points)
-
-        n = polyline.get_total_length()
-        expected = 647.213623046875
-        self.assertAlmostEqual(expected, n, places=places)
-
-    def test_polyline04_bbox(self):
-        parser = SVGParser()
-        polyline = parser.create_element('polyline')
-        polyline.attributes.update({
-            'points': "350,75 379,161 469,161 397,215 423,301 350,250"
-                      " 277,301 303,215 231,161 321,161",
-        })
-
-        bbox = polyline.get_bbox()
-        self.assertEqual(231, bbox.x)
-        self.assertEqual(75, bbox.y)
-        self.assertEqual(469 - 231, bbox.width)
-        self.assertEqual(301 - 75, bbox.height)
 
     def test_preserve_aspect_ratio01(self):
         par = SVGPreserveAspectRatio()  # -> xMidYMid meet
@@ -3319,7 +3498,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertIsNone(par.meet_or_slice)
         self.assertEqual('none', par.tostring())
 
-    def test_rect01_bbox(self):
+    def test_rect_get_bbox01(self):
         parser = SVGParser()
         rect = parser.create_element('rect')
         rect.attributes.update({
@@ -3337,7 +3516,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(400, bbox.width)
         self.assertEqual(200, bbox.height)
 
-    def test_rect02_bbox(self):
+    def test_rect_get_bbox02(self):
         parser = SVGParser()
         rect = parser.create_element('rect')
         rect.attributes.update({
@@ -3353,7 +3532,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(29, bbox.width)
         self.assertEqual(39, bbox.height)
 
-    def test_rect03_length(self):
+    def test_rect_get_total_length03(self):
         # initial value
         # x: 0
         # y: 0
@@ -3375,7 +3554,7 @@ class BasicShapesTestCase(unittest.TestCase):
         n = rect.get_total_length()
         self.assertEqual(0, n)
 
-    def test_rect04_length(self):
+    def test_rect_get_total_length04(self):
         # square rectangle
         # x: 20
         # y: 10
@@ -3402,31 +3581,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # (100 + 120) * 2 = 440
         self.assertEqual(440, n)
 
-    def test_rect04_normalize(self):
-        # square rectangle
-        # x: 20
-        # y: 10
-        # width: 100
-        # height: 120
-        # rx: auto => 0
-        # ry: auto => 0
-        parser = SVGParser()
-        rect = parser.create_element('rect')
-        rect.attributes.update({
-            'x': '20',
-            'y': '10',
-            'width': '100',
-            'height': '120',
-        })
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        normalized = rect.get_path_data(settings)
-        exp = PathParser.tostring(normalized)
-        expected = 'M20,10 L120,10 120,130 20,130 20,10 Z'
-        self.assertEqual(expected, exp)
-
-    def test_rect05_length(self):
+    def test_rect_get_total_length05(self):
         # See also: rect02.html
         # ry = rx
         # x: 100
@@ -3462,38 +3617,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 1114.2037353515625  # chrome
         self.assertAlmostEqual(expected, n, places=places)
 
-    def test_rect05_normalize(self):
-        # See also: rect02.html
-        # ry = rx
-        # x: 100
-        # y: 100
-        # width: 400
-        # height: 200
-        # rx: 50
-        # ry: auto => 50
-        parser = SVGParser()
-        rect = parser.create_element('rect')
-        rect.attributes.update({
-            'x': '100',
-            'y': '100',
-            'width': '400',
-            'height': '200',
-            'rx': '50',
-        })
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        normalized = rect.get_path_data(settings)
-        exp = PathParser.tostring(normalized)
-        expected = \
-            "M150,100" \
-            " L450,100 C477.614,100 500,122.386 500,150" \
-            " L500,250 C500,277.614 477.614,300 450,300" \
-            " L150,300 C122.386,300 100,277.614 100,250" \
-            " L100,150 C100,122.386 122.386,100 150,100 Z"
-        self.assertEqual(expected, exp)
-
-    def test_rect06_length(self):
+    def test_rect_get_total_length06(self):
         # See also: rect02.html
         # ry < rx
         # x: 0
@@ -3528,39 +3652,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 1142.2459716796875  # chrome
         self.assertAlmostEqual(expected, n, places=places)
 
-    def test_rect06_normalize(self):
-        # See also: rect02.html
-        # ry < rx
-        # x: 0
-        # y: 0
-        # width: 400
-        # height: 200
-        # rx: 50
-        # ry: 25
-        parser = SVGParser()
-        rect = parser.create_element('rect')
-        rect.attributes.update({
-            'x': '0',
-            'y': '0',
-            'width': '400',
-            'height': '200',
-            'rx': '50',
-            'ry': '25'
-        })
-
-        settings = SVGPathDataSettings()
-        settings.normalize = True
-        normalized = rect.get_path_data(settings)
-        exp = PathParser.tostring(normalized)
-        expected = \
-            "M50,0" \
-            " L350,0 C377.614,0 400,11.193 400,25" \
-            " L400,175 C400,188.807 377.614,200 350,200" \
-            " L50,200 C22.386,200 0,188.807 0,175" \
-            " L0,25 C0,11.193 22.386,0 50,0 Z"
-        self.assertEqual(expected, exp)
-
-    def test_rect07_length(self):
+    def test_rect_get_total_length07(self):
         # See also: rect02.html
         # rx = 'auto', ry = 'auto' -> square corners
         # x: 150
@@ -3591,7 +3683,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 1200
         self.assertEqual(expected, n)
 
-    def test_rect08_length(self):
+    def test_rect_get_total_length08(self):
         # rx = length value, ry = 'auto' => ry = rx
         # x: 150
         # y: 150
@@ -3627,7 +3719,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 1114.2037353515625  # chrome
         self.assertAlmostEqual(expected, n, places=places)
 
-    def test_rect09_length(self):
+    def test_rect_get_total_length09(self):
         # rx = 'auto', ry = length value => rx = ry
         # x: 150
         # y: 150
@@ -3663,7 +3755,7 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 1114.2037353515625  # chrome
         self.assertAlmostEqual(expected, n, places=places)
 
-    def test_rect10_length(self):
+    def test_rect_get_total_length10(self):
         # rx = percentage value, ry = 'auto' => ry = rx
         # x: 150
         # y: 150
@@ -3703,7 +3795,7 @@ class BasicShapesTestCase(unittest.TestCase):
             " V200 A50,50 0 0 1 200,150 Z"
         self.assertEqual(expected, d)
 
-    def test_rect11_length(self):
+    def test_rect_get_total_length11(self):
         # x: 150
         # y: 150
         # width: 25(%) => 1600 * 25% = 400(px)
@@ -3733,6 +3825,93 @@ class BasicShapesTestCase(unittest.TestCase):
         # arc length: 968.8438541327044183204(px)
         expected = 968.8438541327044183204
         self.assertAlmostEqual(expected, n, places=places)
+
+    def test_rect_normalize04(self):
+        # square rectangle
+        # x: 20
+        # y: 10
+        # width: 100
+        # height: 120
+        # rx: auto => 0
+        # ry: auto => 0
+        parser = SVGParser()
+        rect = parser.create_element('rect')
+        rect.attributes.update({
+            'x': '20',
+            'y': '10',
+            'width': '100',
+            'height': '120',
+        })
+
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        normalized = rect.get_path_data(settings)
+        exp = PathParser.tostring(normalized)
+        expected = 'M20,10 L120,10 120,130 20,130 20,10 Z'
+        self.assertEqual(expected, exp)
+
+    def test_rect_normalize05(self):
+        # See also: rect02.html
+        # ry = rx
+        # x: 100
+        # y: 100
+        # width: 400
+        # height: 200
+        # rx: 50
+        # ry: auto => 50
+        parser = SVGParser()
+        rect = parser.create_element('rect')
+        rect.attributes.update({
+            'x': '100',
+            'y': '100',
+            'width': '400',
+            'height': '200',
+            'rx': '50',
+        })
+
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        normalized = rect.get_path_data(settings)
+        exp = PathParser.tostring(normalized)
+        expected = \
+            "M150,100" \
+            " L450,100 C477.614,100 500,122.386 500,150" \
+            " L500,250 C500,277.614 477.614,300 450,300" \
+            " L150,300 C122.386,300 100,277.614 100,250" \
+            " L100,150 C100,122.386 122.386,100 150,100 Z"
+        self.assertEqual(expected, exp)
+
+    def test_rect_normalize06(self):
+        # See also: rect02.html
+        # ry < rx
+        # x: 0
+        # y: 0
+        # width: 400
+        # height: 200
+        # rx: 50
+        # ry: 25
+        parser = SVGParser()
+        rect = parser.create_element('rect')
+        rect.attributes.update({
+            'x': '0',
+            'y': '0',
+            'width': '400',
+            'height': '200',
+            'rx': '50',
+            'ry': '25'
+        })
+
+        settings = SVGPathDataSettings()
+        settings.normalize = True
+        normalized = rect.get_path_data(settings)
+        exp = PathParser.tostring(normalized)
+        expected = \
+            "M50,0" \
+            " L350,0 C377.614,0 400,11.193 400,25" \
+            " L400,175 C400,188.807 377.614,200 350,200" \
+            " L50,200 C22.386,200 0,188.807 0,175" \
+            " L0,25 C0,11.193 22.386,0 50,0 Z"
+        self.assertEqual(expected, exp)
 
     def test_svg(self):
         # nested svg

@@ -27,6 +27,10 @@ from .utils import get_elements_by_class_name, get_elements_by_tag_name, \
     get_elements_by_tag_name_ns
 
 
+_RE_ATTR_QUALIFIED_NAME = re.compile(
+    r'{(?P<namespace>[^}]+)}(?P<local_name>.+)')
+
+
 def dict_to_style(d):
     if d is None:
         return ''
@@ -367,6 +371,7 @@ class Node(ABC):
     """Represents the [DOM] Node."""
 
     ELEMENT_NODE = 1
+    ATTRIBUTE_NODE = 2
     PROCESSING_INSTRUCTION_NODE = 7
     COMMENT_NODE = 8
     DOCUMENT_NODE = 9
@@ -494,6 +499,175 @@ class Node(ABC):
             bytes: An XML document.
         """
         raise NotImplementedError
+
+
+class Attr(Node):
+    """Represents the [DOM] Attr."""
+
+    def __init__(self, qualified_name, value=None, owner_element=None):
+        """Constructs an Attr object.
+
+        Arguments:
+            qualified_name (str): The qualified name of the attribute.
+            value (str, optional): The attribute's value.
+            owner_element (Element, optional): The element that is associated
+                with the attribute.
+        """
+        super().__init__()
+        if value is None and owner_element is None:
+            raise ValueError("Expected 'value' or 'owner_element'")
+        self._qualified_name = self._local_name = qualified_name
+        self._namespace_uri = None
+        self._prefix = None
+        self._value = value
+        self._owner_element = owner_element
+        matched = _RE_ATTR_QUALIFIED_NAME.match(qualified_name)
+        if matched is not None:
+            self._namespace_uri = matched.group('namespace')
+            self._local_name = matched.group('local_name')
+            if owner_element is not None:
+                for prefix, namespace in owner_element.nsmap.items():
+                    if namespace == self._namespace_uri:
+                        self._prefix = prefix
+                        break
+
+    @property
+    def local_name(self):
+        """str: The local name of the attribute."""
+        return self._local_name
+
+    @property
+    def name(self):
+        """str: The qualified name of the attribute."""
+        return self._qualified_name
+
+    @property
+    def namespace_uri(self):
+        """str: The namespace URI of the attribute."""
+        return self._namespace_uri
+
+    @property
+    def node_name(self):
+        """str: The qualified name of the attribute.
+        Same as Attr.name.
+        """
+        return self.name
+
+    @property
+    def node_type(self):
+        """int: The type of node."""
+        return Node.ATTRIBUTE_NODE
+
+    @property
+    def node_value(self):
+        """str: The attribute's value.
+        Same sa Attr.value.
+        """
+        return self.value
+
+    @node_value.setter
+    def node_value(self, value):
+        self.value = value
+
+    @property
+    def owner_element(self):
+        """Element: The element that is associated with the attribute."""
+        return self._owner_element
+
+    @property
+    def parent_node(self):
+        """Node: A parent node."""
+        return None
+
+    @property
+    def prefix(self):
+        """str: The namespace prefix of the attribute."""
+        return self._prefix
+
+    @property
+    def text_content(self):
+        """str: The attribute's value.
+        Same sa Attr.value.
+        """
+        return self.value
+
+    @text_content.setter
+    def text_content(self, value):
+        self.value = value
+
+    @property
+    def value(self):
+        """str: The attribute's value."""
+        if self._owner_element is not None:
+            return self._owner_element.get(self._qualified_name)
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self._owner_element is not None:
+            self._owner_element.set(self._qualified_name, value)
+        else:
+            self._value = value
+
+    def append_child(self, node):
+        """Adds a node to the end of this node.
+
+        Arguments:
+            node (Node): A node to be added.
+        Returns:
+            Node: A node to be added.
+        """
+        raise ValueError('The operation would yield an incorrect node tree')
+
+    def get_root_node(self):
+        """Returns a root node of the document that contains this node.
+
+        Returns:
+            Node: A root node.
+        """
+        return None
+
+    def insert_before(self, node, child):
+        """Inserts a node into a parent before a child.
+
+        Arguments:
+            node (Node): A node to be inserted.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A node to be inserted.
+        """
+        raise ValueError('The operation would yield an incorrect node tree')
+
+    def remove_child(self, child):
+        """Removes a child node from this node.
+
+        Arguments:
+            child (Node): A node to be removed.
+        Returns:
+            Node: A node to be removed.
+        """
+        raise ValueError('The operation would yield an incorrect node tree')
+
+    def replace_child(self, node, child):
+        """Replaces a child with node.
+
+        Arguments:
+            node (Node): A node to be replaced.
+            child (Node, None): A reference child node.
+        Returns:
+            Node: A node to be replaced.
+        """
+        raise ValueError('The operation would yield an incorrect node tree')
+
+    def tostring(self, **kwargs):
+        """Serializes the attribute's value to a string.
+
+        Arguments:
+            **kwargs: Reserved.
+        Returns:
+            bytes: An attribute.
+        """
+        return self.value.encode()
 
 
 class CharacterData(Node, NonDocumentTypeChildNode):
