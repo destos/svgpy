@@ -15,7 +15,7 @@
 
 import re
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, MutableSequence
 
 from lxml import cssselect, etree
 
@@ -26,6 +26,8 @@ from .style import get_css_rules, get_css_style, \
 from .utils import get_elements_by_class_name, get_elements_by_tag_name, \
     get_elements_by_tag_name_ns
 
+
+_ASCII_WHITESPACE = '\t\n\f\r\x20'
 
 _RE_ATTR_QUALIFIED_NAME = re.compile(
     r'{(?P<namespace>[^}]+)}(?P<local_name>.+)')
@@ -296,6 +298,177 @@ class Attrib(MutableMapping):
         style = self.get_style({})
         style.update(other)
         self.set_style(style)
+
+
+class DOMTokenList(MutableSequence):
+    # FIXME: implement DOMTokenList.supports().
+    """Represents the [DOM] DOMTokenList."""
+
+    def __init__(self, owner_element, local_name):
+        """Constructs a DOMTokenList object.
+
+        Arguments:
+            owner_element (Element): The element that is associated with the
+                attribute.
+            local_name (str): The local name of the attribute.
+        """
+        self._owner_element = owner_element
+        self._local_name = local_name
+        value = owner_element.get(local_name, '')
+        tokens = value.split()
+        self._tokens = list(tokens)
+
+    def __delitem__(self, index):
+        del self._tokens[index]
+        self._update_attribute()
+
+    def __getitem__(self, index):
+        return self._tokens[index]
+
+    def __len__(self):
+        return len(self._tokens)
+
+    def __repr__(self):
+        return repr(self._tokens)
+
+    def __setitem__(self, index, value):
+        if isinstance(value, str):
+            if value in self._tokens:
+                return
+        elif isinstance(value, list):
+            for token in list(value):
+                if token in self._tokens:
+                    value.remove(token)
+            if len(value) == 0:
+                return
+        else:
+            raise TypeError('Expected str or list[str], got {}'.format(
+                type(value)))
+        self._tokens[index] = value
+        self._update_attribute()
+
+    @property
+    def length(self):
+        """int: The token set's size."""
+        return self.__len__()
+
+    @property
+    def value(self):
+        """str: The attribute's value."""
+        return ' '.join(self._tokens)
+
+    def _update_attribute(self):
+        value = self.value
+        if (len(value) == 0
+                and self._local_name in self._owner_element.attrib):
+            del self._owner_element.attrib[self._local_name]
+        else:
+            self._owner_element.set(self._local_name, value)
+
+    def _validate_token(self, token):
+        _ = self
+        if len(token) == 0:
+            raise ValueError('Unexpected empty string')
+        elif any(ch in token for ch in _ASCII_WHITESPACE):
+            raise ValueError('Invalid token: ' + repr(token))
+        return True
+
+    def _validate_tokens(self, tokens):
+        for token in tokens:
+            self._validate_token(token)
+        return True
+
+    def add(self, *tokens):
+        """Adds tokens to the end of this token set.
+
+        Arguments:
+            *tokens (str, ...): The tokens to be added.
+        """
+        self._validate_tokens(tokens)
+        self.extend(tokens)
+
+    def contains(self, token):
+        """Returns True if this token set contains token `token`, and False
+        otherwise.
+
+        Arguments:
+            token (str): The token.
+        Returns:
+            bool: Returns True if this token set contains token, and False
+                otherwise.
+        """
+        return token in self._tokens
+
+    def insert(self, index, token):
+        """Inserts `token` at the given position `index` in this token set.
+
+        Arguments:
+            index (int): An index position of the token set.
+            token (str): The token to be inserted.
+        """
+        self._validate_token(token)
+        self[index:index] = [token]
+
+    def item(self, index):
+        """Returns the token at index position `index` in the token set.
+
+        Arguments:
+            index (int): An index position of the token set.
+        Returns:
+            str: The token.
+        """
+        return self.__getitem__(index)
+
+    def remove(self, *tokens):
+        """Removes tokens in this token set.
+
+        Arguments:
+            *tokens (str, ...): The tokens to be removed.
+        """
+        self._validate_tokens(tokens)
+        for token in tokens:
+            if token not in self._tokens:
+                continue
+            super().remove(token)
+
+    def replace(self, token, new_token):
+        """Replaces `token` with `new_token`.
+
+        Arguments:
+            token (str): The token to be replaced.
+            new_token (str): The new token.
+        Returns:
+            bool: Returns True if `token` was replaced with `new_token`, and
+                False otherwise.
+        """
+        self._validate_tokens([token, new_token])
+        if token not in self._tokens or new_token in self._tokens:
+            return False
+        index = self._tokens.index(token)
+        self.__setitem__(index, new_token)
+        return True
+
+    def toggle(self, token, force=None):
+        """If `force` is not given, "toggles" `token`, removing it if it’s
+        present and adding it if it’s not present. If `force` is True, adds
+        token (same as add()). If `force` is False, removes token (same as
+        remove()).
+
+        Arguments:
+            token (str): The token to be added or removed.
+            force (bool, optional): The toggle flag.
+        Returns:
+            bool: Returns True if `token` is now present, and False otherwise.
+        """
+        if token in self._tokens:
+            if force in [None, False]:
+                self.remove(token)
+                return False
+            return True
+        elif force in [None, True]:
+            self.add(token)
+            return True
+        return False
 
 
 class ParentNode(ABC):
