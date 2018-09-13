@@ -1109,11 +1109,9 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
     @property
     def class_list(self):
-        """list[str]: A list of classes."""
-        classes = self.class_name
-        if classes is None:
-            return []
-        return classes.split()
+        """DOMTokenList: A list of classes."""
+        tokens = DOMTokenList(self, 'class')
+        return tokens
 
     @property
     def class_name(self):

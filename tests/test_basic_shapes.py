@@ -1466,23 +1466,39 @@ class BasicShapesTestCase(unittest.TestCase):
         tree = parser.parse(StringIO(SVG_CUBIC01))
         root = tree.getroot()
 
-        class_name = root.class_name
-        self.assertIsNone(class_name)
-
+        self.assertIsNone(root.get('class'))
+        self.assertIsNone(root.class_name)
         class_list = root.class_list
-        self.assertEqual([], class_list)
+        self.assertEqual(0, len(class_list))
+
+        class_list.add('Border')
+        self.assertEqual('Border', root.get('class'))
+        self.assertEqual('Border', root.class_name)
+
+        class_list.replace('Border', 'Label')
+        self.assertEqual('Label', root.get('class'))
+        self.assertEqual('Label', root.class_name)
+
+        class_list.toggle('Label')
+        self.assertIsNone(root.get('class'))
+        self.assertIsNone(root.class_name)
 
     def test_element_class_list02(self):
         parser = SVGParser()
         tree = parser.parse(StringIO(SVG_CUBIC01))
         root = tree.getroot()
 
-        root.class_name = 'Border'
-        class_name = root.class_name
-        self.assertEqual('Border', class_name)
-
+        self.assertIsNone(root.get('class'))
+        self.assertIsNone(root.class_name)
         class_list = root.class_list
-        self.assertEqual(['Border'], class_list)
+        self.assertEqual(0, len(class_list))
+
+        root.class_name = 'Border'
+        self.assertEqual('Border', root.class_name)
+        self.assertEqual('Border', root.get('class'))
+        class_list = root.class_list
+        self.assertEqual(1, len(class_list))
+        self.assertEqual('Border', class_list[0])
 
     def test_element_class_list03(self):
         parser = SVGParser()
@@ -1490,11 +1506,24 @@ class BasicShapesTestCase(unittest.TestCase):
         root = tree.getroot()
 
         root.class_name = 'Border Label'
-        class_name = root.class_name
-        self.assertEqual('Border Label', class_name)
-
+        self.assertEqual('Border Label', root.class_name)
+        self.assertEqual('Border Label', root.get('class'))
         class_list = root.class_list
-        self.assertEqual(['Border', 'Label'], class_list)
+        self.assertEqual(2, len(class_list))
+        self.assertEqual('Border', class_list[0])
+        self.assertEqual('Label', class_list[1])
+
+        rect = root.get_elements_by_tag_name_ns(Element.SVG_NAMESPACE_URI,
+                                                'rect')[0]
+        self.assertEqual('Border', rect.get('class'))
+        self.assertEqual('Border', rect.class_name)
+        class_list = rect.class_list
+        self.assertEqual(1, len(class_list))
+        self.assertEqual('Border', class_list[0])
+        class_list.remove('Border')
+        self.assertEqual(0, len(class_list))
+        self.assertIsNone(rect.get('class'))
+        self.assertIsNone(rect.class_name)
 
     def test_element_next_element_sibling(self):
         parser = SVGParser()
