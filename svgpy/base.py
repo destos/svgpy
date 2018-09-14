@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from .core import SVGLength
 from .dom import Element, ElementCSSInlineStyle
@@ -26,9 +26,31 @@ from .screen import Screen
 from .transform import SVGTransformList
 
 
-class HTMLElement(ElementCSSInlineStyle):
-    """Represents the [HTML] HTMLElement."""
+class HTMLOrSVGElement(ABC):
+    """Represents the [HTML] HTMLOrSVGElement."""
     pass
+
+
+class HTMLElement(ElementCSSInlineStyle, HTMLOrSVGElement):
+    """Represents the [HTML] HTMLElement."""
+
+    @property
+    def lang(self):
+        """str: The lang content attribute in no namespace.."""
+        return self.attributes.get('lang', '')
+
+    @lang.setter
+    def lang(self, value):
+        self.attributes.set('lang', value)
+
+    @property
+    def title(self):
+        """str: The title of the link, or the CSS style sheet set name."""
+        return self.attributes.get('title', '')
+
+    @title.setter
+    def title(self, value):
+        self.attributes.set('title', value)
 
 
 class HTMLHyperlinkElementUtils(object):
@@ -90,7 +112,7 @@ class SVGBoundingBoxOptions(object):
         self.clipped = False
 
 
-class SVGElement(ElementCSSInlineStyle):
+class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
     """Represents the [SVG2] SVGElement."""
 
     NEAREST_VIEWPORT = 0

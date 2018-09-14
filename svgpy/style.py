@@ -86,7 +86,8 @@ def flatten_css_rules(element, css_rules):
                     continue
                 mql = win.match_media(media)
                 if not mql.matches:
-                    logger.debug('media not matched: {}'.format(repr(media)))
+                    logger.debug('media not matched: media={}'.format(
+                        repr(media)))
                     continue
             flattened.extend(
                 flatten_css_rules(element, css_rule.style_sheet.css_rules))
@@ -99,7 +100,8 @@ def flatten_css_rules(element, css_rules):
                     continue
                 mql = win.match_media(media)
                 if not mql.matches:
-                    logger.debug('media not matched: {}'.format(repr(media)))
+                    logger.debug('media not matched: media={}'.format(
+                        repr(media)))
                     continue
             flattened.extend(
                 flatten_css_rules(element, css_rule.css_rules))
@@ -152,23 +154,27 @@ def get_css_style_sheet_from_element(element, doc=None):
 
     if local_name == 'link':
         rel_list = element.rel_list
-        if 'stylesheet' not in rel_list or 'alternate' in rel_list:
-            logger.debug('not a style sheet: {}: relList: {}'.format(
-                element, repr(rel_list)))
+        as_ = element.as_
+        if ('alternate' in rel_list
+                or ('stylesheet' not in rel_list
+                    and not ('preload' in rel_list and as_ == 'style'))
+                or ('preload' in rel_list and as_ != 'style')):
+            logger.debug('not a style sheet: {} rel={} as={}'.format(
+                element, repr(rel_list), repr(as_)))
             return None  # TODO: support alternative style sheet.
         href = element.href
         if href is None or href[0] == '#':
-            logger.debug('invalid URL: {}: href: {}'.format(
+            logger.debug('invalid URL: {} href={}'.format(
                 element, repr(href)))
             return None
         media = element.media
-        if media != 'all':
+        if media not in ['', 'all']:
             if win is None:
                 logger.debug('no active window: {}'.format(element))
                 return None
             mql = win.match_media(media)
             if not mql.matches:
-                logger.debug('media not matched: {}: {}'.format(
+                logger.debug('media not matched: {} media={}'.format(
                     element, repr(media)))
                 return None
         url = normalize_url(href, base_url)
@@ -178,19 +184,19 @@ def get_css_style_sheet_from_element(element, doc=None):
     else:  # 'style'
         if element.type != 'text/css' or element.text is None:
             logger.debug(
-                'not a style sheet: {}: type: {}: size = {}'.format(
+                'not a style sheet: {} type={} size={}'.format(
                     element,
                     repr(element.type),
                     0 if element.text is None else len(element.text)))
             return None
         media = element.media
-        if media != 'all':
+        if media not in ['', 'all']:
             if win is None:
                 logger.debug('no active window: {}'.format(element))
                 return None
             mql = win.match_media(media)
             if not mql.matches:
-                logger.debug('media not matched: {}: {}'.format(
+                logger.debug('media not matched: {} media={}'.format(
                     element, repr(media)))
                 return None
         css_style_sheet = CSSStyleSheet(type_=element.type,
@@ -240,14 +246,15 @@ def get_css_style_sheets_from_xml_stylesheet(root):
                 or element.get('alternate', '') == 'yes'):
             logger.debug('not a style sheet: {}'.format(element))
             continue  # TODO: support alternative style sheet.
-        media = element.get('media', 'all')
-        if media != 'all':
+        media = element.get('media', '')
+        if media not in ['', 'all']:
             if win is None:
                 logger.debug('no active window: {}'.format(root))
                 continue
             mql = win.match_media(media)
             if not mql.matches:
-                logger.debug('media not matched: {}'.format(repr(media)))
+                logger.debug('media not matched: media={}'.format(
+                    repr(media)))
                 continue
         encoding = element.get('charset')
         url = normalize_url(href, base_url)

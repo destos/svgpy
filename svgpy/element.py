@@ -21,7 +21,8 @@ from .base import HTMLElement, \
     SVGGeometryElement, SVGGraphicsElement, SVGGradientElement, \
     SVGPathData, SVGPathDataSettings, SVGURIReference, SVGZoomAndPan
 from .core import CSSUtils, SVGLength
-from .dom import Comment, Element, LinkStyle, ProcessingInstruction
+from .dom import Comment, DOMTokenList, Element, LinkStyle, \
+    ProcessingInstruction
 from .path import PathParser, SVGPathSegment
 from .text import SVGTextContentElement, SVGTextPositioningElement
 from .transform import SVGTransform, SVGTransformList
@@ -49,6 +50,9 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def as_(self):
+        """str: The potential destination for a preload request
+        (for rel="preload" and rel="modulepreload").
+        """
         return self.attributes.get('as', '')
 
     @as_.setter
@@ -56,15 +60,8 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
         self.attributes.set('as', value)
 
     @property
-    def color(self):
-        return self.attributes.get('color')
-
-    @color.setter
-    def color(self, value):
-        self.attributes.set('color', value)
-
-    @property
     def cross_origin(self):
+        """str: How the element handles crossorigin requests."""
         return self.attributes.get('crossorigin')
 
     @cross_origin.setter
@@ -73,7 +70,8 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def href(self):
-        return self.attributes.get('href')
+        """str: The address of the hyperlink."""
+        return self.attributes.get('href', '')
 
     @href.setter
     def href(self, value):
@@ -81,7 +79,8 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def hreflang(self):
-        return self.attributes.get('hreflang')
+        """str: The language of the linked resource."""
+        return self.attributes.get('hreflang', '')
 
     @hreflang.setter
     def hreflang(self, value):
@@ -89,7 +88,9 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def integrity(self):
-        return self.attributes.get('integrity')
+        """str: The integrity metadata used in Subresource Integrity checks.
+        """
+        return self.attributes.get('integrity', '')
 
     @integrity.setter
     def integrity(self, value):
@@ -97,7 +98,8 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def media(self):
-        return self.attributes.get('media', 'all')
+        """str: The applicable media."""
+        return self.attributes.get('media', '')
 
     @media.setter
     def media(self, value):
@@ -105,7 +107,8 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def referrer_policy(self):
-        return self.attributes.get('referrerpolicy')
+        """str: The referrer policy for fetches initiated by the element."""
+        return self.attributes.get('referrerpolicy', '')
 
     @referrer_policy.setter
     def referrer_policy(self, value):
@@ -113,7 +116,10 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def rel(self):
-        return self.attributes.get('rel')
+        """str: The relationship between the document containing the hyperlink
+        and the destination resource.
+        """
+        return self.attributes.get('rel', '')
 
     @rel.setter
     def rel(self, value):
@@ -121,29 +127,22 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
 
     @property
     def rel_list(self):
-        rel = self.rel
-        if rel is None:
-            return []
-        return rel.split()
+        """DOMTokenList: Reflects the 'rel' attribute, as a list of tokens."""
+        tokens = DOMTokenList(self, 'rel')
+        return tokens
 
     @property
     def sizes(self):
-        sizes = self.attributes.get('sizes')
-        if sizes is None:
-            return []
-        return sizes.split()
-
-    @property
-    def title(self):
-        return self.attributes.get('title')
-
-    @title.setter
-    def title(self, value):
-        self.attributes.set('title', value)
+        """DOMTokenList: The sizes of the icons (for rel="icon"), as a list of
+        tokens.
+        """
+        tokens = DOMTokenList(self, 'sizes')
+        return tokens
 
     @property
     def type(self):
-        return self.attributes.get('type')
+        """str: The hint for the type of the referenced resource."""
+        return self.attributes.get('type', '')
 
     @type.setter
     def type(self, value):

@@ -993,7 +993,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(0, s.length)
         self.assertEqual('', s.value)
 
-        root.set('class', 'id0 id2 id3')
+        root.set(attr_name, 'id0 id2 id3')
         s = DOMTokenList(root, attr_name)
         self.assertEqual(3, len(s))
         self.assertEqual(3, s.length)
@@ -1469,6 +1469,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertIsNone(root.get('class'))
         self.assertIsNone(root.class_name)
         class_list = root.class_list
+        self.assertIsInstance(class_list, DOMTokenList)
         self.assertEqual(0, len(class_list))
 
         class_list.add('Border')
@@ -1491,6 +1492,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertIsNone(root.get('class'))
         self.assertIsNone(root.class_name)
         class_list = root.class_list
+        self.assertIsInstance(class_list, DOMTokenList)
         self.assertEqual(0, len(class_list))
 
         root.class_name = 'Border'
@@ -1509,6 +1511,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual('Border Label', root.class_name)
         self.assertEqual('Border Label', root.get('class'))
         class_list = root.class_list
+        self.assertIsInstance(class_list, DOMTokenList)
         self.assertEqual(2, len(class_list))
         self.assertEqual('Border', class_list[0])
         self.assertEqual('Label', class_list[1])
