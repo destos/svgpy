@@ -16,7 +16,6 @@
 import re
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
-
 from lxml import cssselect, etree
 
 from .core import CSSUtils, Font, SVGLength
@@ -25,7 +24,6 @@ from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
 from .utils import get_elements_by_class_name, get_elements_by_tag_name, \
     get_elements_by_tag_name_ns
-
 
 _ASCII_WHITESPACE = '\t\n\f\r\x20'
 
@@ -471,75 +469,6 @@ class DOMTokenList(MutableSequence):
         return False
 
 
-class ParentNode(ABC):
-    """Represents the [DOM] ParentNode."""
-
-    @property
-    def child_element_count(self):
-        """int: The number of the child elements."""
-        return len(self.children)
-
-    @property
-    @abstractmethod
-    def children(self):
-        """list[Element]: A list of the child elements, in document order."""
-        raise NotImplementedError
-
-    @property
-    def first_element_child(self):
-        """Element: The first child element or None."""
-        children = self.children
-        return children[0] if len(children) > 0 else None
-
-    @property
-    def last_element_child(self):
-        """Element: The last child element or None."""
-        children = self.children
-        return children[-1] if len(children) > 0 else None
-
-    @abstractmethod
-    def append(self, node):
-        """Inserts a sub-node after the last child node.
-
-        Arguments:
-            node (Node): A node to be added.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def prepend(self, node):
-        """Inserts a sub-node before the first child node.
-
-        Arguments:
-            node (Node): A node to be added.
-        """
-        raise NotImplementedError
-
-    def query_selector(self, selectors):
-        elements = self.query_selector_all(selectors)
-        return elements[0] if len(elements) > 0 else None
-
-    @abstractmethod
-    def query_selector_all(self, selectors):
-        raise NotImplementedError
-
-
-class NonDocumentTypeChildNode(ABC):
-    """Represents the [DOM] NonDocumentTypeChildNode."""
-
-    @property
-    @abstractmethod
-    def next_element_sibling(self):
-        """Element: The first following sibling element or None."""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def previous_element_sibling(self):
-        """Element: The first preceding sibling element or None."""
-        raise NotImplementedError
-
-
 class Node(ABC):
     """Represents the [DOM] Node."""
 
@@ -671,6 +600,93 @@ class Node(ABC):
         Returns:
             bytes: An XML document.
         """
+        raise NotImplementedError
+
+
+class NonDocumentTypeChildNode(ABC):
+    """Represents the [DOM] NonDocumentTypeChildNode."""
+
+    @property
+    @abstractmethod
+    def next_element_sibling(self):
+        """Element: The first following sibling element or None."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def previous_element_sibling(self):
+        """Element: The first preceding sibling element or None."""
+        raise NotImplementedError
+
+
+class NonElementParentNode(ABC):
+    """Represents the [DOM] NonElementParentNode."""
+
+    @abstractmethod
+    def get_element_by_id(self, element_id, namespaces=None):
+        """Finds the first matching sub-element, by id.
+
+        Arguments:
+            element_id (str): The id of the element.
+            namespaces (dict, optional): The XPath prefixes in the path
+                expression.
+        Returns:
+            Element: The first matching sub-element. Returns None if there is
+                no such element.
+        """
+        raise NotImplementedError
+
+
+class ParentNode(ABC):
+    """Represents the [DOM] ParentNode."""
+
+    @property
+    def child_element_count(self):
+        """int: The number of the child elements."""
+        return len(self.children)
+
+    @property
+    @abstractmethod
+    def children(self):
+        """list[Element]: A list of the child elements, in document order."""
+        raise NotImplementedError
+
+    @property
+    def first_element_child(self):
+        """Element: The first child element or None."""
+        children = self.children
+        return children[0] if len(children) > 0 else None
+
+    @property
+    def last_element_child(self):
+        """Element: The last child element or None."""
+        children = self.children
+        return children[-1] if len(children) > 0 else None
+
+    @abstractmethod
+    def append(self, node):
+        """Inserts a sub-node after the last child node.
+
+        Arguments:
+            node (Node): A node to be added.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def prepend(self, node):
+        """Inserts a sub-node before the first child node.
+
+        Arguments:
+            node (Node): A node to be added.
+        """
+        raise NotImplementedError
+
+    def query_selector(self, selectors):
+        elements = self.query_selector_all(selectors)
+        return elements[0] if len(elements) > 0 else None
+
+    @abstractmethod
+    def query_selector_all(self, selectors):
         raise NotImplementedError
 
 
@@ -1917,24 +1933,6 @@ class LinkStyle(Element):
         """StyleSheet: An associated CSS style sheet."""
         css_style_sheet = get_css_style_sheet_from_element(self)
         return css_style_sheet
-
-
-class NonElementParentNode(ABC):
-    """Represents the [DOM] NonElementParentNode."""
-
-    @abstractmethod
-    def get_element_by_id(self, element_id, namespaces=None):
-        """Finds the first matching sub-element, by id.
-
-        Arguments:
-            element_id (str): The id of the element.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
-        Returns:
-            Element: The first matching sub-element. Returns None if there is
-                no such element.
-        """
-        raise NotImplementedError
 
 
 class ProcessingInstruction(etree.PIBase, CharacterData):
