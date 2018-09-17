@@ -15,12 +15,18 @@
 
 import base64
 import os
+import re
 from collections.abc import MutableMapping
 from pathlib import PurePath
 from urllib.parse import unquote
 from urllib.request import urlopen
 
 from .url import Location, URL
+
+_ASCII_WHITESPACE = '\t\n\f\r\x20'
+
+_RE_QUALIFIED_NAME = re.compile(
+    r'{(?P<namespace>[^}]*)}(?P<local_name>.*)')
 
 
 def get_content_type(headers):
@@ -144,6 +150,12 @@ def get_elements_by_tag_name_ns(element, namespace, local_name,
                          local_name=local_name)
 
 
+def is_ascii_whitespace(value):
+    if any(ch in value for ch in _ASCII_WHITESPACE):
+        return True
+    return False
+
+
 def load(src, encoding=None, **kwargs):
     if isinstance(src, URL):
         url = src
@@ -236,3 +248,67 @@ class CaseInsensitiveMapping(MutableMapping):
     @staticmethod
     def _key(key):
         return key.lower() if isinstance(key, str) else key
+
+
+class QualifiedName(object):
+    """Utility class for the qualified name."""
+
+    def __init__(self, namespace, qualified_name):
+        """Constructs a QualifiedName object.
+
+        Arguments:
+            namespace (str, None): The namespace URI.
+            qualified_name (str): The qualified name or the local part of the
+                qualified name.
+        """
+        if namespace is not None:
+            if len(namespace) == 0:
+                namespace = None
+            elif is_ascii_whitespace(namespace):
+                raise ValueError('Invalid character: ' + repr(namespace))
+        if is_ascii_whitespace(qualified_name):
+            raise ValueError('Invalid character: ' + repr(qualified_name))
+        matched = _RE_QUALIFIED_NAME.match(qualified_name)
+        if matched is None:
+            self._namespace = namespace
+            self._local_name = qualified_name
+            if self._namespace is None:
+                self._qualified_name = qualified_name
+            else:
+                self._qualified_name = '{{{0}}}{1}'.format(self._namespace,
+                                                           self._local_name)
+        else:
+            self._namespace = matched.group('namespace')
+            if len(self._namespace) == 0:
+                raise ValueError('Missing namespace')
+            if (namespace is not None
+                    and self._namespace is not None
+                    and namespace != self._namespace):
+                raise ValueError('Namespace did not match: '
+                                 + repr((namespace, self._namespace)))
+            self._local_name = matched.group('local_name')
+            if len(self._local_name) == 0:
+                raise ValueError('Missing local name')
+            self._qualified_name = qualified_name
+
+    def __repr__(self):
+        return repr({
+            'namespace': self.namespace,
+            'local_name': self.local_name,
+            'value': self.value,
+        })
+
+    @property
+    def local_name(self):
+        """str: The local part of the qualified name."""
+        return self._local_name
+
+    @property
+    def namespace(self):
+        """str: The namespace URI or None."""
+        return self._namespace
+
+    @property
+    def value(self):
+        """str: The qualified name."""
+        return self._qualified_name

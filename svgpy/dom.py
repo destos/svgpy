@@ -22,13 +22,8 @@ from .core import CSSUtils, Font, SVGLength
 from .css import CSSStyleDeclaration
 from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
-from .utils import get_elements_by_class_name, get_elements_by_tag_name, \
-    get_elements_by_tag_name_ns
-
-_ASCII_WHITESPACE = '\t\n\f\r\x20'
-
-_RE_ATTR_QUALIFIED_NAME = re.compile(
-    r'{(?P<namespace>[^}]+)}(?P<local_name>.+)')
+from .utils import QualifiedName, get_elements_by_class_name, \
+    get_elements_by_tag_name, get_elements_by_tag_name_ns, is_ascii_whitespace
 
 
 def dict_to_style(d):
@@ -367,7 +362,7 @@ class DOMTokenList(MutableSequence):
         _ = self
         if len(token) == 0:
             raise ValueError('Unexpected empty string')
-        elif any(ch in token for ch in _ASCII_WHITESPACE):
+        elif is_ascii_whitespace(token):
             raise ValueError('Invalid token: ' + repr(token))
         return True
 
@@ -467,6 +462,195 @@ class DOMTokenList(MutableSequence):
             self.add(token)
             return True
         return False
+
+
+class NamedNodeMap(MutableMapping):
+    """Represents the [DOM] NamedNodeMap."""
+
+    def __init__(self, owner_element):
+        """Constructs a NamedNodeMap object.
+
+        Arguments:
+            owner_element (Element): An element that is associated with the
+                attributes.
+        """
+        self._owner_element = owner_element
+        self._attrib = owner_element.attrib  # type: dict
+        self._attr_map = dict()
+        for name in self._attrib:
+            self._attr_map[name] = Attr(name, owner_element=owner_element)
+
+    def __delitem__(self, name):
+        """Removes an attribute with the specified `name`.
+
+        Arguments:
+            name (str): The qualified name of the attribute.
+        """
+        attr = self._attr_map.pop(name, None)
+        if attr is not None:
+            attr.detach()
+        del self._attrib[name]
+
+    def __getitem__(self, name):
+        """Gets an attribute with the specified `name`.
+
+        Arguments:
+            name (str): The qualified name of the attribute.
+        Returns:
+            Attr: An attribute object.
+        """
+        if name not in self._attrib:
+            attr = self._attr_map.pop(name, None)
+            if attr is not None:
+                attr.detach()
+            raise KeyError(name)
+        return self._set_default_named_item(name)
+
+    def __iter__(self):
+        for name in self._attrib:
+            attr = self._set_default_named_item(name)
+            yield attr
+
+    def __len__(self):
+        return len(self._attrib)
+
+    def __repr__(self):
+        return repr(self._attrib)
+
+    def __setitem__(self, name, value):
+        """Sets an attribute with the specified `name`.
+
+        Arguments:
+            name (str): The qualified name of the attribute.
+            value (Attr, str): An attribute object or an attribute's value.
+        """
+        if isinstance(value, str):
+            if len(value) == 0:
+                if name in self._attrib:
+                    self.__delitem__(name)
+                return
+            self._attrib[name] = value
+            self._set_default_named_item(name)
+        elif isinstance(value, Attr):
+            if name != value.name:
+                raise ValueError('Name did not match: '
+                                 + repr((name, value.name)))
+            elif value.owner_element is not None:
+                if value.owner_element != self._owner_element:
+                    raise ValueError('Element already in use')
+                return  # already exist
+            elif len(value.value) == 0:
+                if name in self._attrib:
+                    self.__delitem__(name)
+                return
+            old_attr = self._attr_map.get(name)
+            if old_attr is not None:
+                old_attr.detach()
+            value.attach(self._owner_element)
+            self._attr_map[name] = value  # replace or add it
+        else:
+            raise TypeError('Expected Attr or str, got ' + repr(type(value)))
+
+    @property
+    def length(self):
+        """int: The attribute list's size."""
+        return self.__len__()
+
+    def _set_default_named_item(self, name):
+        attr = self._attr_map.get(name)
+        if attr is not None and name not in self._attrib:
+            attr.detach()
+            del self._attr_map[name]
+            return None
+        elif attr is None and name in self._attrib:
+            self._attr_map[name] = attr = Attr(
+                name,
+                owner_element=self._owner_element)
+        return attr
+
+    def get_named_item(self, qualified_name):
+        """Gets an attribute given the qualified name.
+
+        Arguments:
+            qualified_name (str): The qualified name of the attribute.
+        Returns:
+            Attr: An attribute object or None.
+        """
+        return self.get(qualified_name)
+
+    def get_named_item_ns(self, namespace, local_name):
+        """Gets an attribute given the namespace URI and local name.
+
+        Arguments:
+            namespace (str, None): The namespace URI of the attribute.
+            local_name (str): The local name of the attribute.
+        Returns:
+            Attr: An attribute object or None.
+        """
+        qualified_name = QualifiedName(namespace, local_name)
+        return self.get_named_item(qualified_name.value)
+
+    def item(self, index):
+        """Returns the attribute list[`index`].
+
+        Arguments:
+            index (int): An index position of the attribute list.
+        Returns:
+            Attr: An attribute object or None.
+        """
+        keys = list(self._attrib.keys())
+        try:
+            name = keys[index]
+            return self.__getitem__(name)
+        except IndexError:
+            return None
+
+    def remove_named_item(self, qualified_name):
+        """Removes an attribute given the qualified name.
+
+        Arguments:
+            qualified_name (str): The qualified name of the attribute.
+        Returns:
+            Attr: An attribute object to be removed.
+        """
+        attr = self.get(qualified_name)
+        self.__delitem__(qualified_name)
+        return attr
+
+    def remove_named_item_ns(self, namespace, local_name):
+        """Removes an attribute given the namespace URI and local name.
+
+        Arguments:
+            namespace (str, None): The namespace URI of the attribute.
+            local_name (str): The local name of the attribute.
+        Returns:
+            Attr: An attribute object to be removed.
+        """
+        qualified_name = QualifiedName(namespace, local_name)
+        return self.remove_named_item(qualified_name.value)
+
+    def set_named_item(self, attr):
+        """Sets an attribute given `attr`.
+
+        Arguments:
+            attr (Attr): An attribute to be replaced or added.
+        Returns:
+            Attr: An attribute object to be removed or None.
+        """
+        old_attr = self.get(attr.name)
+        self.__setitem__(attr.name, attr)
+        return old_attr
+
+    def set_named_item_ns(self, attr):
+        """Sets an attribute given `attr`.
+        Same as NamedNodeMap.set_named_item().
+
+        Arguments:
+            attr (Attr): An attribute to be replaced or added.
+        Returns:
+            Attr: An attribute object to be removed.
+        """
+        return self.set_named_item(attr)
 
 
 class Node(ABC):
@@ -705,20 +889,28 @@ class Attr(Node):
         super().__init__()
         if value is None and owner_element is None:
             raise ValueError("Expected 'value' or 'owner_element'")
-        self._qualified_name = self._local_name = qualified_name
-        self._namespace_uri = None
+        name = QualifiedName(None, qualified_name)
+        self._qualified_name = name.value
+        self._local_name = name.local_name
+        self._namespace_uri = name.namespace
         self._prefix = None
         self._value = value
         self._owner_element = owner_element
-        matched = _RE_ATTR_QUALIFIED_NAME.match(qualified_name)
-        if matched is not None:
-            self._namespace_uri = matched.group('namespace')
-            self._local_name = matched.group('local_name')
-            if owner_element is not None:
-                for prefix, namespace in owner_element.nsmap.items():
-                    if namespace == self._namespace_uri:
-                        self._prefix = prefix
-                        break
+        if owner_element is not None and self._namespace_uri is not None:
+            for prefix, namespace in owner_element.nsmap.items():
+                if namespace == self._namespace_uri:
+                    self._prefix = prefix
+                    break
+
+    def __repr__(self):
+        return repr({
+            'name': self.name,
+            'namespace_uri': self.namespace_uri,
+            'local_name': self.local_name,
+            'prefix': self.prefix,
+            'value': self.value,
+            'owner_element': self.owner_element,
+        })
 
     @property
     def local_name(self):
@@ -732,7 +924,7 @@ class Attr(Node):
 
     @property
     def namespace_uri(self):
-        """str: The namespace URI of the attribute."""
+        """str: The namespace URI of the attribute or None."""
         return self._namespace_uri
 
     @property
@@ -770,7 +962,7 @@ class Attr(Node):
 
     @property
     def prefix(self):
-        """str: The namespace prefix of the attribute."""
+        """str: The namespace prefix of the attribute or None."""
         return self._prefix
 
     @property
@@ -807,6 +999,37 @@ class Attr(Node):
             Node: A node to be added.
         """
         raise ValueError('The operation would yield an incorrect node tree')
+
+    def attach(self, owner_node):
+        """Attaches an element to an attribute object.
+
+        Arguments:
+            owner_node (Node): An element that is associated with the
+                attribute.
+        Returns:
+            bool: Returns True if successful; otherwise False.
+        """
+        if owner_node is None or self._owner_element is not None:
+            return False
+        new_value = self._value
+        self._value = None
+        self._owner_element = owner_node
+        if new_value is not None:
+            self.value = new_value
+        return True
+
+    def detach(self):
+        """Detaches an element from an attribute object.
+
+        Returns:
+            Node: An element to be detached.
+        """
+        if self._owner_element is None:
+            return None
+        self._value = self.value
+        owner_element = self._owner_element
+        self._owner_element = None
+        return owner_element
 
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
@@ -854,7 +1077,7 @@ class Attr(Node):
         Arguments:
             **kwargs: Reserved.
         Returns:
-            bytes: An attribute.
+            bytes: An attribute's value.
         """
         return self.value.encode()
 
@@ -1355,11 +1578,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
               <html:video/>
             </svg>
         """
-        if namespace is not None:
-            tag = '{{{0}}}{1}'.format(namespace, local_name)
-        else:
-            tag = local_name
-        element = self.create_sub_element(tag,
+        qualified_name = QualifiedName(namespace, local_name)
+        element = self.create_sub_element(qualified_name.value,
                                           index=index,
                                           attrib=attrib,
                                           nsmap=nsmap,

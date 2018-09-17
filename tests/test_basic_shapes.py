@@ -10,9 +10,9 @@ sys.path.extend(['.', '..'])
 from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
     SVGCircleElement, SVGGElement, SVGPathElement, SVGPolylineElement, \
     SVGRectElement, SVGSVGElement, SVGTextElement
-from svgpy import Attr, Comment, DOMTokenList, Element, Font, \
-    HTMLElement, \
-    DOMMatrix, Node, PathParser, DOMRect, SVGLength, SVGParser, \
+from svgpy import Attr, Comment, DOMMatrix, DOMRect, DOMTokenList, Element, \
+    Font, HTMLElement, NamedNodeMap, \
+    Node, PathParser, SVGLength, SVGParser, \
     SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, window, \
     formatter
 
@@ -3323,6 +3323,341 @@ class BasicShapesTestCase(unittest.TestCase):
         n = line.get_total_length()
         expected = math.sqrt((-100 - 100) ** 2 + (-200 - 200) ** 2)
         self.assertEqual(expected, n)
+
+    def test_named_node_map(self):
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+
+        attributes = NamedNodeMap(root)
+        self.assertEqual(0, len(attributes))
+        self.assertEqual(0, attributes.length)
+        self.assertEqual(0, len(root.keys()))
+
+        # fill="none" stroke="black" stroke-width="1"
+        fill = 'none'
+        stroke = 'black'
+        stroke_width = '1'
+        attributes['fill'] = fill
+        attributes['stroke'] = stroke
+        attributes['stroke-width'] = stroke_width
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+        self.assertEqual(fill, root.get('fill'))
+        self.assertEqual(stroke, root.get('stroke'))
+        self.assertEqual(stroke_width, root.get('stroke-width'))
+
+        attributes = NamedNodeMap(root)
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+        self.assertEqual(fill, root.get('fill'))
+        self.assertEqual(stroke, root.get('stroke'))
+        self.assertEqual(stroke_width, root.get('stroke-width'))
+
+        attr = attributes['fill']
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(root, attr.owner_element)
+        self.assertEqual('fill', attr.name)
+        self.assertEqual(fill, attr.value)
+
+        attr = attributes.get('fill', Attr('fill', ''))
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(fill, attr.value)
+        self.assertNotEqual('', attr.value)
+
+        attr = attributes.get('background', Attr('background', ''))
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual('', attr.value)
+
+        # fill="silver" stroke="black" stroke-width="1"
+        fill = 'silver'
+        attributes['fill'].value = fill
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+        self.assertEqual(fill, root.get('fill'))
+        self.assertEqual(stroke, root.get('stroke'))
+        self.assertEqual(stroke_width, root.get('stroke-width'))
+
+        # fill="white" stroke="black" stroke-width="1"
+        fill = 'white'
+        attr = Attr('fill', fill)
+        attributes['fill'] = attr
+        self.assertEqual(root, attr.owner_element)
+        self.assertEqual('fill', attr.name)
+        self.assertEqual(fill, attr.value)
+        self.assertEqual(fill, root.get('fill'))
+
+        attributes['fill'] = attr  # no effect
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+        self.assertEqual(root, attr.owner_element)
+        self.assertEqual(fill, root.get('fill'))
+        self.assertEqual(stroke, root.get('stroke'))
+        self.assertEqual(stroke_width, root.get('stroke-width'))
+
+        # fill="none" stroke="red" stroke-width="2"
+        fill = 'none'
+        stroke = 'red'
+        stroke_width = '2'
+        attributes.update({
+            'fill': fill,
+            'stroke': stroke,
+            'stroke-width': stroke_width,
+        })
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+        self.assertEqual(fill, root.get('fill'))
+        self.assertEqual(stroke, root.get('stroke'))
+        self.assertEqual(stroke_width, root.get('stroke-width'))
+
+        def _set_value(d, k, v):
+            d[k] = v
+
+        self.assertRaises(TypeError,
+                          lambda: _set_value(attributes, 'stroke-width', 1))
+
+        attr = Attr('color', 'blue')  # name not matched
+        self.assertRaises(ValueError,
+                          lambda: _set_value(attributes, 'fill', attr))
+
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        attr = Attr('fill', owner_element=group)  # element already in use
+        self.assertRaises(ValueError,
+                          lambda: _set_value(attributes, 'fill', attr))
+        self.assertEqual(group, attr.owner_element)
+
+        self.assertRaises(KeyError,
+                          lambda: attributes['background'])
+
+        self.assertRaises(KeyError,
+                          lambda: attributes.pop('background'))
+
+        # remove attributes
+        del attributes['fill']
+        attributes['stroke'] = ''
+        attributes['stroke-width'] = Attr('stroke-width', '')
+        self.assertEqual(0, len(attributes))
+        self.assertEqual(0, attributes.length)
+        self.assertEqual(0, len(root.keys()))
+
+    def test_named_node_map_get_named_item(self):
+        fill = 'white'
+        stroke = 'black'
+        stroke_width = '1'
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'g',
+                                        attrib={
+                                            'fill': fill,
+                                            'stroke': stroke,
+                                            'stroke-width': stroke_width,
+                                        })
+
+        attributes = NamedNodeMap(root)
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+
+        attr = attributes.get_named_item('fill')
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(root, attr.owner_element)
+        name = 'fill'
+        self.assertEqual(name, attr.name)
+        self.assertEqual(fill, attr.value)
+        attr.value = fill = 'none'
+        self.assertEqual(fill, root.get(name))
+        self.assertEqual(fill, attributes[name].value)
+
+        attr = attributes.get_named_item('style')  # not exist
+        self.assertIsNone(attr)
+
+        name = 'background'
+        background = 'gray'
+        root.set(name, background)
+        attr = attributes.get_named_item(name)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(root, attr.owner_element)
+        self.assertEqual(name, attr.name)
+        self.assertEqual(background, attr.value)
+
+    def test_named_node_map_get_named_item_ns(self):
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        namespace = Element.XML_NAMESPACE_URI
+        local_name = 'lang'
+        name = '{{{}}}{}'.format(namespace, local_name)
+        value = 'ja'
+        root.set(name, value)
+
+        attributes = NamedNodeMap(root)
+
+        attr = attributes.get_named_item_ns(namespace, local_name)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(root, attr.owner_element)
+        self.assertEqual(name, attr.name)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertEqual(local_name, attr.local_name)
+        attr.value = value = 'fr'
+        self.assertEqual(value, root.get(name))
+
+        attr = attributes.get_named_item_ns(namespace, 'space')  # not exist
+        self.assertIsNone(attr)
+
+    def test_named_node_map_item(self):
+        fill = 'white'
+        stroke = 'black'
+        stroke_width = '1'
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'g',
+                                        attrib={
+                                            'fill': fill,
+                                            'stroke': stroke,
+                                            'stroke-width': stroke_width,
+                                        })
+
+        attributes = NamedNodeMap(root)
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+
+        attr = attributes.item(0)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(root, attr.owner_element)
+        name = attr.name
+        value = attr.value
+        self.assertEqual(value, root.get(name))
+        attr.value = value = 'none'
+        self.assertEqual(value, root.get(name))
+        self.assertEqual(value, attributes[name].value)
+
+        attr = attributes.item(1)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(root, attr.owner_element)
+
+        attr = attributes.item(2)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(root, attr.owner_element)
+
+        attr = attributes.item(3)  # out of range
+        self.assertIsNone(attr)
+
+    def test_named_node_map_remove_named_item(self):
+        fill = 'white'
+        stroke = 'black'
+        stroke_width = '1'
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'g',
+                                        attrib={
+                                            'fill': fill,
+                                            'stroke': stroke,
+                                            'stroke-width': stroke_width,
+                                        })
+
+        attributes = NamedNodeMap(root)
+        self.assertEqual(3, len(attributes))
+        self.assertEqual(3, attributes.length)
+        self.assertEqual(3, len(root.keys()))
+
+        name = 'stroke'
+        attr = attributes.remove_named_item(name)
+        self.assertIsInstance(attr, Attr)
+        self.assertIsNone(attr.owner_element)
+        self.assertEqual(name, attr.name)
+        self.assertEqual(stroke, attr.value)
+        self.assertEqual(2, len(attributes))
+        self.assertEqual(2, attributes.length)
+        self.assertEqual(2, len(root.keys()))
+        self.assertTrue('fill' in root.attrib)
+        self.assertTrue('stroke' not in root.attrib)
+        self.assertTrue('stroke-width' in root.attrib)
+
+        # attr = attributes.remove_named_item('background')
+        self.assertRaises(KeyError,
+                          lambda: attributes.remove_named_item('background'))
+
+    def test_named_node_map_remove_named_item_ns(self):
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        namespace = Element.XML_NAMESPACE_URI
+        local_name = 'lang'
+        name = '{{{}}}{}'.format(namespace, local_name)
+        value = 'ja'
+        root.set(name, value)
+
+        attributes = NamedNodeMap(root)
+        self.assertEqual(1, len(attributes))
+        self.assertEqual(1, attributes.length)
+        self.assertEqual(1, len(root.keys()))
+
+        attr = attributes.remove_named_item_ns(namespace, local_name)
+        self.assertIsInstance(attr, Attr)
+        self.assertIsNone(attr.owner_element)
+        self.assertEqual(name, attr.name)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(0, len(attributes))
+        self.assertEqual(0, attributes.length)
+        self.assertEqual(0, len(root.keys()))
+
+        # attr = attributes.remove_named_item_ns(namespace, 'space')
+        self.assertRaises(KeyError,
+                          lambda: attributes.remove_named_item_ns(
+                              namespace, 'space'))
+
+    def test_named_node_map_set_named_item_ns(self):
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        namespace = Element.XML_NAMESPACE_URI
+        local_name = 'lang'
+        name = '{{{}}}{}'.format(namespace, local_name)
+        value = 'ja'
+
+        attributes = NamedNodeMap(root)
+        self.assertEqual(0, len(attributes))
+        self.assertEqual(0, attributes.length)
+        self.assertEqual(0, len(root.keys()))
+
+        attr = Attr(name, value)
+        self.assertIsNone(attr.owner_element)
+        old = attributes.set_named_item_ns(attr)
+        self.assertEqual(root, attr.owner_element)
+        self.assertEqual(name, attr.name)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, root.get(name))
+        self.assertEqual(1, len(attributes))
+        self.assertEqual(1, attributes.length)
+        self.assertEqual(1, len(root.keys()))
+        self.assertIsNone(old)
+
+        old_value = value
+        value = 'es'
+        attr = Attr(name, value)
+        self.assertIsNone(attr.owner_element)
+        old = attributes.set_named_item_ns(attr)
+        self.assertEqual(root, attr.owner_element)
+        self.assertEqual(name, attr.name)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(value, attr.value)
+        self.assertEqual(value, root.get(name))
+        self.assertEqual(1, len(attributes))
+        self.assertEqual(1, attributes.length)
+        self.assertEqual(1, len(root.keys()))
+        self.assertIsInstance(old, Attr)
+        self.assertIsNone(old.owner_element)
+        self.assertEqual(name, old.name)
+        self.assertEqual(namespace, old.namespace_uri)
+        self.assertEqual(local_name, old.local_name)
+        self.assertEqual(old_value, old.value)
 
     def test_parser_from_string(self):
         parser = SVGParser()

@@ -26,8 +26,9 @@ from .dom import Comment, DOMTokenList, Element, LinkStyle, \
 from .path import PathParser, SVGPathSegment
 from .text import SVGTextContentElement, SVGTextPositioningElement
 from .transform import SVGTransform, SVGTransformList
-from .utils import get_element_by_id, get_elements_by_class_name, \
-    get_elements_by_tag_name, get_elements_by_tag_name_ns
+from .utils import QualifiedName, get_element_by_id, \
+    get_elements_by_class_name, get_elements_by_tag_name, \
+    get_elements_by_tag_name_ns
 
 
 class HTMLAudioElement(HTMLMediaElement):
@@ -1294,11 +1295,8 @@ class SVGParser(object):
             >>> element.local_name
             'source'
         """
-        if namespace is not None:
-            tag = '{{{0}}}{1}'.format(namespace, qualified_name)
-        else:
-            tag = qualified_name
-        element = self.create_element(tag,
+        name = QualifiedName(namespace, qualified_name)
+        element = self.create_element(name.value,
                                       attrib=attrib,
                                       nsmap=nsmap,
                                       **_extra)
