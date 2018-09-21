@@ -502,6 +502,7 @@ delta = 1
 class BasicShapesTestCase(unittest.TestCase):
     def setUp(self):
         formatter.precision = 3
+        window.location = 'about:blank'
 
     def test_attr00(self):
         qualified_name = 'name'
@@ -518,7 +519,7 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertRaises(ValueError, lambda: attr.insert_before(node, None))
         self.assertRaises(ValueError, lambda: attr.remove_child(node))
         self.assertRaises(ValueError, lambda: attr.replace_child(node, None))
-        self.assertIsNone(attr.get_root_node())
+        self.assertEqual(attr, attr.get_root_node())
 
     def test_attr01(self):
         qualified_name = 'name'
@@ -810,6 +811,76 @@ class BasicShapesTestCase(unittest.TestCase):
             " 600,100 655.228,100 700,144.772 700,200 Z"
         self.assertEqual(expected, exp)
 
+    def test_comment_addnext(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        self.assertIsNone(c1.owner_document)
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        self.assertIsNone(group.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        c0 = doc.create_comment('#0')
+        root.append(c0)
+
+        c0.addnext(c1)
+        self.assertEqual(doc, c1.owner_document)
+
+        c0.addnext(group)
+        self.assertEqual(doc, group.owner_document)
+
+    def test_comment_addprevious(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        self.assertIsNone(c1.owner_document)
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        self.assertIsNone(group.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        c0 = doc.create_comment('#0')
+        root.append(c0)
+
+        c0.addprevious(c1)
+        self.assertEqual(doc, c1.owner_document)
+
+        c0.addprevious(group)
+        self.assertEqual(doc, group.owner_document)
+
+    def test_comment_append_child(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        c2 = parser.create_comment('#2')
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+
+        doc.append(c1)
+        self.assertRaises(ValueError,
+                          lambda: c1.append_child(c2))
+
+    def test_comment_extend(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        c2 = parser.create_comment('#2')
+        c3 = parser.create_comment('#3')
+        self.assertIsNone(c1.owner_document)
+        self.assertIsNone(c2.owner_document)
+        self.assertIsNone(c3.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        c0 = doc.create_comment('#0')
+        root.append(c0)
+        c0.extend([c1, c2, c3])  # no effect, no error
+        self.assertEqual(doc, c1.owner_document)
+        self.assertEqual(doc, c2.owner_document)
+        self.assertEqual(doc, c3.owner_document)
+
     def test_comment_next_element_sibling(self):
         parser = SVGParser()
         root = parser.create_element('svg')
@@ -844,144 +915,27 @@ class BasicShapesTestCase(unittest.TestCase):
         e = comment.previous_element_sibling
         self.assertEqual(desc, e)
 
-    def test_create_comment(self):
-        parser = SVGParser()
-        expected = 'Comment'
-        comment = parser.create_comment(expected)
-        self.assertIsInstance(comment, Comment)
-        self.assertEqual(8, Node.COMMENT_NODE)
-        self.assertEqual(8, comment.node_type)
-        self.assertEqual('#comment', comment.node_name)
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
+    def test_comment_remove(self):
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        c0 = doc.create_comment('#0')
+        root.append(c0)
 
-        comment.data = None
-        self.assertEqual('', comment.data)
-        self.assertEqual('', comment.node_value)
-        self.assertEqual('', comment.text_content)
-        self.assertEqual('', comment.tostring().decode())
+        self.assertRaises(ValueError,
+                          lambda: c0.remove(root))
 
-        expected = 'node_value'
-        comment.node_value = expected
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
+    def test_comment_replace(self):
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        c0 = doc.create_comment('#0')
+        root.append(c0)
+        c1 = doc.create_comment('#1')
+        c2 = doc.create_comment('#2')
 
-        expected = 'text_content'
-        comment.text_content = expected
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
-
-    def test_create_sub_element(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        _ = root.create_sub_element('rect')
-        _ = root.create_sub_element('ellipse')
-        _ = root.create_sub_element('circle', index=1)
-        # rect > circle > ellipse
-        expected = \
-            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-            "<rect/><circle/><ellipse/>" \
-            "</svg>"
-        self.assertEqual(expected, root.tostring().decode())
-
-    def test_create_sub_element_html(self):
-        parser = SVGParser()
-        nsmap = {
-            None: Element.SVG_NAMESPACE_URI,
-            'html': Element.XHTML_NAMESPACE_URI
-        }
-        root = parser.create_element('svg', nsmap=nsmap)
-        self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual('svg', root.tag_name)
-        self.assertEqual('svg', root.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
-
-        video = root.create_sub_element('video')
-        self.assertTrue(isinstance(video, HTMLVideoElement))
-        self.assertEqual('video', video.tag_name)
-        self.assertEqual('video', video.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', video.namespace_uri)
-
-        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'audio')
-        audio = root.create_sub_element(tag)
-        self.assertTrue(isinstance(audio, HTMLAudioElement))
-        self.assertEqual(tag, audio.tag)
-        self.assertEqual('html:audio', audio.tag_name)
-        self.assertEqual('audio', audio.local_name)
-        self.assertEqual('http://www.w3.org/1999/xhtml', audio.namespace_uri)
-
-        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'source')
-        source = audio.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
-                                             'source')
-        self.assertTrue(isinstance(source, HTMLElement))
-        self.assertEqual(tag, source.tag)
-        self.assertEqual('html:source', source.tag_name)
-        self.assertEqual('source', source.local_name)
-        self.assertEqual('http://www.w3.org/1999/xhtml', source.namespace_uri)
-
-    def test_create_sub_element_svg01(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual('svg', root.tag)
-        self.assertEqual('svg', root.tag_name)
-        self.assertEqual('svg', root.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
-
-        g = root.create_sub_element('g')
-        self.assertTrue(isinstance(g, SVGGElement))
-
-        path = g.create_sub_element('path')
-        self.assertTrue(isinstance(path, SVGPathElement))
-
-        rect = g.create_sub_element('rect', index=0)
-        self.assertTrue(isinstance(rect, SVGRectElement))
-
-        # svg > g > (rect, path)
-        expected = \
-            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-            "<g><rect/><path/></g>" \
-            "</svg>"
-        self.assertEqual(expected, root.tostring().decode())
-
-    def test_create_sub_element_svg02(self):
-        parser = SVGParser()
-        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        self.assertTrue(isinstance(root, SVGSVGElement))
-        self.assertEqual('{http://www.w3.org/2000/svg}svg', root.tag)
-        self.assertEqual('svg', root.tag_name)
-        self.assertEqual('svg', root.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
-
-        g = root.create_sub_element('g')
-        self.assertTrue(isinstance(g, SVGGElement))
-        self.assertEqual('g', g.tag)
-        self.assertEqual('g', g.tag_name)
-        self.assertEqual('g', g.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', g.namespace_uri)
-
-        path = g.create_sub_element_ns('http://www.w3.org/2000/svg', 'path')
-        self.assertTrue(isinstance(path, SVGPathElement))
-        self.assertEqual('{http://www.w3.org/2000/svg}path', path.tag)
-        self.assertEqual('path', path.tag_name)
-        self.assertEqual('path', path.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', path.namespace_uri)
-
-        rect = g.create_sub_element_ns(None, 'rect', index=0)
-        self.assertTrue(isinstance(rect, SVGRectElement))
-        self.assertEqual('rect', rect.tag)
-        self.assertEqual('rect', rect.tag_name)
-        self.assertEqual('rect', rect.local_name)
-        self.assertEqual('http://www.w3.org/2000/svg', rect.namespace_uri)
+        self.assertRaises(ValueError,
+                          lambda: c0.replace(c1, c2))
 
     def test_dom_token_list(self):
         parser = SVGParser()
@@ -1296,6 +1250,127 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual('id3', s.item(1))
         self.assertEqual('id1', s.item(2))
 
+    def test_element_addnext(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        self.assertIsNone(c1.owner_document)
+        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
+        self.assertIsNone(style.owner_document)
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertIsNone(group.owner_document)
+        self.assertIsNone(path.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        title = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'title')
+        root.append(title)
+        desc = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'desc')
+        root.append(desc)
+
+        title.addnext(c1)
+        self.assertEqual(doc, c1.owner_document)
+
+        desc.addnext(style)
+        self.assertEqual(doc, style.owner_document)
+
+        # <svg>
+        #   <title/>
+        #   <!--#1-->
+        #   <desc/>
+        #   <style/>
+        #   <group><path/></group>
+        # </svg>
+        style.addnext(group)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+        nodes = [e for e in root]
+        self.assertEqual([title, c1, desc, style, group], nodes)
+
+    def test_element_addprevious(self):
+        parser = SVGParser()
+        p1 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="1.css"')
+        self.assertIsNone(p1.owner_document)
+        c1 = parser.create_comment('#1')
+        self.assertIsNone(c1.owner_document)
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertIsNone(group.owner_document)
+        self.assertIsNone(path.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        rect = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'rect')
+        root.append(rect)
+
+        root.addprevious(p1)
+        self.assertEqual(doc, p1.owner_document)
+
+        rect.addprevious(group)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+        # <?xml-stylesheet href="1.css"?>
+        # <svg>
+        #   <!--#1-->
+        #   <group><path/></group>
+        #   <rect/>
+        # </svg>
+        group.addprevious(c1)
+        self.assertEqual(doc, c1.owner_document)
+        # print(doc.tostring())
+
+    def test_element_append(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertIsNone(c1.owner_document)
+        self.assertIsNone(group.owner_document)
+        self.assertIsNone(path.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+
+        root.append(c1)
+        self.assertEqual(doc, c1.owner_document)
+
+        # <svg>
+        #   <!--#1-->
+        #   <group><path/></group>
+        # </svg>
+        root.append(group)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+        # print(doc.tostring())
+
+    def test_element_append_child(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        self.assertIsNone(c1.owner_document)
+        self.assertIsNone(group.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+
+        node = root.append_child(c1)
+        self.assertEqual(c1, node)
+        self.assertEqual(doc, c1.owner_document)
+
+        node = root.append_child(group)
+        self.assertEqual(group, node)
+        self.assertEqual(doc, group.owner_document)
+
     def test_element_attributes(self):
         parser = SVGParser()
         root = parser.create_element('svg')
@@ -1467,7 +1542,7 @@ class BasicShapesTestCase(unittest.TestCase):
         root = tree.getroot()
 
         self.assertIsNone(root.get('class'))
-        self.assertIsNone(root.class_name)
+        self.assertEqual('', root.class_name)
         class_list = root.class_list
         self.assertIsInstance(class_list, DOMTokenList)
         self.assertEqual(0, len(class_list))
@@ -1482,7 +1557,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         class_list.toggle('Label')
         self.assertIsNone(root.get('class'))
-        self.assertIsNone(root.class_name)
+        self.assertEqual('', root.class_name)
 
     def test_element_class_list02(self):
         parser = SVGParser()
@@ -1490,7 +1565,7 @@ class BasicShapesTestCase(unittest.TestCase):
         root = tree.getroot()
 
         self.assertIsNone(root.get('class'))
-        self.assertIsNone(root.class_name)
+        self.assertEqual('', root.class_name)
         class_list = root.class_list
         self.assertIsInstance(class_list, DOMTokenList)
         self.assertEqual(0, len(class_list))
@@ -1526,7 +1601,110 @@ class BasicShapesTestCase(unittest.TestCase):
         class_list.remove('Border')
         self.assertEqual(0, len(class_list))
         self.assertIsNone(rect.get('class'))
-        self.assertIsNone(rect.class_name)
+        self.assertEqual('', rect.class_name)
+
+    def test_element_extend(self):
+        parser = SVGParser()
+        desc = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'desc')
+        comment = parser.create_comment('comment')
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertIsNone(desc.owner_document)
+        self.assertIsNone(comment.owner_document)
+        self.assertIsNone(group.owner_document)
+        self.assertIsNone(path.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        self.assertEqual(doc, root.owner_document)
+        doc.append(root)
+
+        root.extend([desc, comment, group])
+        self.assertEqual(doc, desc.owner_document)
+        self.assertEqual(doc, comment.owner_document)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+        # print(doc.tostring())
+
+    def test_element_id(self):
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'svg')
+        self.assertIsNone(root.get('id'))
+        self.assertEqual('', root.id)
+
+        value = 'id01'
+        root.id = value
+        self.assertEqual(value, root.get('id'))
+        self.assertEqual(value, root.id)
+
+    def test_element_namespace_uri(self):
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'svg')
+        self.assertEqual(Element.SVG_NAMESPACE_URI, root.namespace_uri)
+        self.assertIsNone(root.prefix)
+
+        nsmap = {
+            None: Element.SVG_NAMESPACE_URI,
+            'html': Element.XHTML_NAMESPACE_URI,
+        }
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+                                        'svg',
+                                        nsmap=nsmap)
+        self.assertEqual(Element.SVG_NAMESPACE_URI, root.namespace_uri)
+        self.assertIsNone(root.prefix)
+
+        video = parser.create_element_ns(Element.XHTML_NAMESPACE_URI,
+                                         'video',
+                                         nsmap=nsmap)
+        self.assertEqual(Element.XHTML_NAMESPACE_URI, video.namespace_uri)
+        self.assertEqual('html', video.prefix)
+
+    def test_element_insert(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
+        self.assertIsNone(c1.owner_document)
+        self.assertIsNone(style.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        root.append(group)
+
+        root.insert(0, style)
+        self.assertEqual(doc, style.owner_document)
+
+        root.insert(0, c1)
+        self.assertEqual(doc, c1.owner_document)
+
+    def test_element_insert_before(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
+        self.assertIsNone(c1.owner_document)
+        self.assertIsNone(style.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        root.append(group)
+
+        node = root.insert_before(style, group)
+        self.assertEqual(style, node)
+        self.assertEqual(doc, style.owner_document)
+
+        node = root.insert_before(c1, style)
+        self.assertEqual(c1, node)
+        self.assertEqual(doc, c1.owner_document)
+
+        children = [e for e in root]
+        self.assertEqual([c1, style, group], children)
+        # print(doc.tostring())
 
     def test_element_next_element_sibling(self):
         parser = SVGParser()
@@ -1579,6 +1757,88 @@ class BasicShapesTestCase(unittest.TestCase):
 
         e = path.previous_element_sibling
         self.assertEqual(rect, e)
+
+    def test_element_remove(self):
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        root.append(group)
+        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertTrue(group in root)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+        root.remove(group)
+        self.assertFalse(group in root)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+    def test_element_remove_child(self):
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        root.append(group)
+        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertTrue(group in root)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+        node = root.remove_child(group)
+        self.assertEqual(group, node)
+        self.assertTrue(group not in root)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+    def test_element_replace(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        self.assertIsNone(c1.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        root.append(group)
+        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertTrue(group in root)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+        root.replace(group, c1)
+        self.assertTrue(c1 in root)
+        self.assertTrue(group not in root)
+        self.assertEqual(doc, c1.owner_document)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+    def test_element_replace_child(self):
+        parser = SVGParser()
+        c1 = parser.create_comment('#1')
+        self.assertIsNone(c1.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        root.append(group)
+        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        self.assertTrue(group in root)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
+
+        node = root.replace_child(c1, group)
+        self.assertEqual(c1, node)
+        self.assertTrue(c1 in root)
+        self.assertTrue(group not in root)
+        self.assertEqual(doc, c1.owner_document)
+        self.assertEqual(doc, group.owner_document)
+        self.assertEqual(doc, path.owner_document)
 
     def test_element_style_attribute(self):
         parser = SVGParser()
@@ -2979,7 +3239,7 @@ class BasicShapesTestCase(unittest.TestCase):
 
         elements = root.get_elements_by_local_name(
             'path',
-            namespaces={'svg': Element.SVG_NAMESPACE_URI})
+            nsmap={'svg': Element.SVG_NAMESPACE_URI})
         self.assertEqual(3, len(elements))
 
     def test_get_elements_by_tag_name(self):
@@ -3659,6 +3919,145 @@ class BasicShapesTestCase(unittest.TestCase):
         self.assertEqual(local_name, old.local_name)
         self.assertEqual(old_value, old.value)
 
+    def test_parser_create_comment(self):
+        parser = SVGParser()
+        expected = 'Comment'
+        comment = parser.create_comment(expected)
+        self.assertIsInstance(comment, Comment)
+        self.assertEqual(8, Node.COMMENT_NODE)
+        self.assertEqual(8, comment.node_type)
+        self.assertEqual('#comment', comment.node_name)
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring().decode())
+
+        comment.data = None
+        self.assertEqual('', comment.data)
+        self.assertEqual('', comment.node_value)
+        self.assertEqual('', comment.text_content)
+        self.assertEqual('', comment.tostring().decode())
+
+        expected = 'node_value'
+        comment.node_value = expected
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring().decode())
+
+        expected = 'text_content'
+        comment.text_content = expected
+        self.assertEqual(expected, comment.data)
+        self.assertEqual(expected, comment.node_value)
+        self.assertEqual(expected, comment.text_content)
+        expected = '<!--' + expected + '-->'
+        self.assertEqual(expected, comment.tostring().decode())
+
+    def test_parser_create_sub_element(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        _ = root.create_sub_element('rect')
+        _ = root.create_sub_element('ellipse')
+        _ = root.create_sub_element('circle', index=1)
+        # rect > circle > ellipse
+        expected = \
+            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
+            "<rect/><circle/><ellipse/>" \
+            "</svg>"
+        self.assertEqual(expected, root.tostring().decode())
+
+    def test_parser_create_sub_element_html(self):
+        parser = SVGParser()
+        nsmap = {
+            None: Element.SVG_NAMESPACE_URI,
+            'html': Element.XHTML_NAMESPACE_URI
+        }
+        root = parser.create_element('svg', nsmap=nsmap)
+        self.assertTrue(isinstance(root, SVGSVGElement))
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
+
+        video = root.create_sub_element('video')
+        self.assertTrue(isinstance(video, HTMLVideoElement))
+        self.assertEqual('video', video.tag_name)
+        self.assertEqual('video', video.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', video.namespace_uri)
+
+        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'audio')
+        audio = root.create_sub_element(tag)
+        self.assertTrue(isinstance(audio, HTMLAudioElement))
+        self.assertEqual(tag, audio.tag)
+        self.assertEqual('html:audio', audio.tag_name)
+        self.assertEqual('audio', audio.local_name)
+        self.assertEqual('http://www.w3.org/1999/xhtml', audio.namespace_uri)
+
+        tag = '{{{}}}{}'.format(Element.XHTML_NAMESPACE_URI, 'source')
+        source = audio.create_sub_element_ns(Element.XHTML_NAMESPACE_URI,
+                                             'source')
+        self.assertTrue(isinstance(source, HTMLElement))
+        self.assertEqual(tag, source.tag)
+        self.assertEqual('html:source', source.tag_name)
+        self.assertEqual('source', source.local_name)
+        self.assertEqual('http://www.w3.org/1999/xhtml', source.namespace_uri)
+
+    def test_parser_create_sub_element_svg01(self):
+        parser = SVGParser()
+        root = parser.create_element('svg')
+        self.assertTrue(isinstance(root, SVGSVGElement))
+        self.assertEqual('svg', root.tag)
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
+
+        g = root.create_sub_element('g')
+        self.assertTrue(isinstance(g, SVGGElement))
+
+        path = g.create_sub_element('path')
+        self.assertTrue(isinstance(path, SVGPathElement))
+
+        rect = g.create_sub_element('rect', index=0)
+        self.assertTrue(isinstance(rect, SVGRectElement))
+
+        # svg > g > (rect, path)
+        expected = \
+            "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
+            "<g><rect/><path/></g>" \
+            "</svg>"
+        self.assertEqual(expected, root.tostring().decode())
+
+    def test_parser_create_sub_element_svg02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        self.assertTrue(isinstance(root, SVGSVGElement))
+        self.assertEqual('{http://www.w3.org/2000/svg}svg', root.tag)
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
+
+        g = root.create_sub_element('g')
+        self.assertTrue(isinstance(g, SVGGElement))
+        self.assertEqual('g', g.tag)
+        self.assertEqual('g', g.tag_name)
+        self.assertEqual('g', g.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', g.namespace_uri)
+
+        path = g.create_sub_element_ns('http://www.w3.org/2000/svg', 'path')
+        self.assertTrue(isinstance(path, SVGPathElement))
+        self.assertEqual('{http://www.w3.org/2000/svg}path', path.tag)
+        self.assertEqual('path', path.tag_name)
+        self.assertEqual('path', path.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', path.namespace_uri)
+
+        rect = g.create_sub_element_ns(None, 'rect', index=0)
+        self.assertTrue(isinstance(rect, SVGRectElement))
+        self.assertEqual('rect', rect.tag)
+        self.assertEqual('rect', rect.tag_name)
+        self.assertEqual('rect', rect.local_name)
+        self.assertEqual('http://www.w3.org/2000/svg', rect.namespace_uri)
+
     def test_parser_from_string(self):
         parser = SVGParser()
         root = parser.fromstring(SVG_CUBIC01)
@@ -3885,6 +4284,125 @@ class BasicShapesTestCase(unittest.TestCase):
         n = path.get_total_length()
         expected = 363.3689880371094
         self.assertAlmostEqual(expected, n, delta=delta)
+
+    def test_pi_addnext(self):
+        parser = SVGParser()
+        p1 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="1.css"')
+        self.assertIsNone(p1.owner_document)
+        c1 = parser.create_comment('c1')
+        self.assertIsNone(c1.owner_document)
+
+        # <?xml-stylesheet href="0.css"?>
+        # <svg>
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        p0 = doc.create_processing_instruction('xml-stylesheet',
+                                               'href="0.css"')
+        doc.insert_before(p0, root)
+
+        # <?xml-stylesheet href="0.css"?>
+        # <?xml-stylesheet href="1.css"?>
+        # <svg>
+        p0.addnext(p1)
+        self.assertEqual(doc, p1.owner_document)
+
+        # <?xml-stylesheet href="0.css"?>
+        # <?xml-stylesheet href="1.css"?>
+        # <!--c1-->
+        # <svg>
+        p1.addnext(c1)
+        self.assertEqual(doc, c1.owner_document)
+
+    def test_pi_addprevious(self):
+        parser = SVGParser()
+        p0 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="0.css"')
+        self.assertIsNone(p0.owner_document)
+        p1 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="1.css"')
+        self.assertIsNone(p1.owner_document)
+
+        # <?xml-stylesheet href="1.css"?>
+        # <svg>
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        doc.insert_before(p1, root)
+        self.assertEqual(doc, p1.owner_document)
+
+        # <?xml-stylesheet href="0.css"?>
+        # <?xml-stylesheet href="1.css"?>
+        # <svg>
+        p1.addprevious(p0)
+        self.assertEqual(doc, p0.owner_document)
+
+    def test_pi_append_child(self):
+        parser = SVGParser()
+        p1 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="1.css"')
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        p0 = doc.create_processing_instruction('xml-stylesheet',
+                                               'href="0.css"')
+        doc.insert_before(p0, root)
+        # print(doc.tostring())
+
+        self.assertRaises(ValueError,
+                          lambda: p0.append_child(p1))
+
+    def test_pi_extend(self):
+        parser = SVGParser()
+        p1 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="1.css"')
+        p2 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="2.css"')
+        p3 = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="3.css"')
+        self.assertIsNone(p1.owner_document)
+        self.assertIsNone(p2.owner_document)
+        self.assertIsNone(p3.owner_document)
+
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        p0 = doc.create_processing_instruction('xml-stylesheet',
+                                               'href="0.css"')
+        doc.insert_before(p0, root)
+        p0.extend([p1, p2, p3])  # no effect, no error
+        self.assertEqual(doc, p1.owner_document)
+        self.assertEqual(doc, p2.owner_document)
+        self.assertEqual(doc, p3.owner_document)
+        # print(doc.tostring())
+
+    def test_pi_remove(self):
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        p0 = doc.create_processing_instruction('xml-stylesheet',
+                                               'href="0.css"')
+        doc.insert_before(p0, root)
+
+        self.assertRaises(ValueError,
+                          lambda: p0.remove(root))
+
+    def test_pi_replace(self):
+        doc = window.document
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        p0 = doc.create_processing_instruction('xml-stylesheet',
+                                               'href="0.css"')
+        doc.insert_before(p0, root)
+        p1 = doc.create_processing_instruction('xml-stylesheet',
+                                               'href="1.css"')
+        p2 = doc.create_processing_instruction('xml-stylesheet',
+                                               'href="2.css"')
+
+        self.assertRaises(ValueError,
+                          lambda: p0.replace(p1, p2))
 
     def test_polygon_get_bbox(self):
         parser = SVGParser()

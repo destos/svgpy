@@ -21,7 +21,8 @@ from svgpy.base import \
     SVGPathData, SVGPathDataSettings, SVGPreserveAspectRatio, \
     SVGURIReference, SVGZoomAndPan
 from svgpy.core import Font, SVGLength
-from svgpy.dom import Attr, Comment, DOMTokenList, Element, NamedNodeMap, Node
+from svgpy.dom import Attr, Comment, DOMTokenList, Element, NamedNodeMap, \
+    Node, ProcessingInstruction
 from svgpy.element import SVGElementClassLookup, SVGParser
 from svgpy.geometry.matrix import DOMMatrix, DOMMatrixReadOnly
 from svgpy.geometry.rect import DOMRect, DOMRectReadOnly

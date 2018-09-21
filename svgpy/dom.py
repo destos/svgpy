@@ -488,7 +488,7 @@ class NamedNodeMap(MutableMapping):
         """
         attr = self._attr_map.pop(name, None)
         if attr is not None:
-            attr.detach()
+            attr.detach_element()
         del self._attrib[name]
 
     def __getitem__(self, name):
@@ -502,7 +502,7 @@ class NamedNodeMap(MutableMapping):
         if name not in self._attrib:
             attr = self._attr_map.pop(name, None)
             if attr is not None:
-                attr.detach()
+                attr.detach_element()
             raise KeyError(name)
         return self._set_default_named_item(name)
 
@@ -545,8 +545,8 @@ class NamedNodeMap(MutableMapping):
                 return
             old_attr = self._attr_map.get(name)
             if old_attr is not None:
-                old_attr.detach()
-            value.attach(self._owner_element)
+                old_attr.detach_element()
+            value.attach_element(self._owner_element)
             self._attr_map[name] = value  # replace or add it
         else:
             raise TypeError('Expected Attr or str, got ' + repr(type(value)))
@@ -559,7 +559,7 @@ class NamedNodeMap(MutableMapping):
     def _set_default_named_item(self, name):
         attr = self._attr_map.get(name)
         if attr is not None and name not in self._attrib:
-            attr.detach()
+            attr.detach_element()
             del self._attr_map[name]
             return None
         elif attr is None and name in self._attrib:
@@ -729,6 +729,29 @@ class Node(ABC):
             Node: A node to be added.
         """
         raise NotImplementedError
+
+    def attach_document(self, document):
+        """Attaches an associated document.
+
+        Arguments:
+            document (Document): A document that is associated with the node.
+        Returns:
+            bool: Returns True if successful; otherwise False.
+        """
+        if document is None:
+            return False
+        self._owner_document = document
+        return True
+
+    def detach_document(self):
+        """Detaches an associated document.
+
+        Returns:
+            Document: A document to be detached.
+        """
+        owner_document = self._owner_document
+        self._owner_document = None
+        return owner_document
 
     @abstractmethod
     def get_root_node(self):
@@ -1000,25 +1023,25 @@ class Attr(Node):
         """
         raise ValueError('The operation would yield an incorrect node tree')
 
-    def attach(self, owner_node):
+    def attach_element(self, element):
         """Attaches an element to an attribute object.
 
         Arguments:
-            owner_node (Node): An element that is associated with the
+            element (Element): An element that is associated with the
                 attribute.
         Returns:
             bool: Returns True if successful; otherwise False.
         """
-        if owner_node is None or self._owner_element is not None:
+        if element is None or self._owner_element is not None:
             return False
         new_value = self._value
         self._value = None
-        self._owner_element = owner_node
+        self._owner_element = element
         if new_value is not None:
             self.value = new_value
         return True
 
-    def detach(self):
+    def detach_element(self):
         """Detaches an element from an attribute object.
 
         Returns:
@@ -1037,7 +1060,7 @@ class Attr(Node):
         Returns:
             Node: A root node.
         """
-        return None
+        return self
 
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
@@ -1168,19 +1191,12 @@ class Comment(etree.CommentBase, CharacterData):
     def text_content(self, text):
         self.data = text
 
-    def _set_owner_document(self, node):
-        for it in node.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = self.owner_document
-
     def addnext(self, element):
         """Reimplemented from lxml.etree.CommentBase.addnext().
 
         Adds the element as a following sibling directly after this element.
         """
-        self._set_owner_document(element)
+        element.attach_document(self.owner_document)
         super().addnext(element)
 
     def addprevious(self, element):
@@ -1188,7 +1204,7 @@ class Comment(etree.CommentBase, CharacterData):
 
         Adds the element as a preceding sibling directly before this element.
         """
-        self._set_owner_document(element)
+        element.attach_document(self.owner_document)
         super().addprevious(element)
 
     def append_child(self, node):
@@ -1206,8 +1222,9 @@ class Comment(etree.CommentBase, CharacterData):
 
         Extends the current children by the elements in the iterable.
         """
-        for element in elements:
-            self._set_owner_document(element)
+        owner_document = self.owner_document
+        for node in elements:
+            node.attach_document(owner_document)
         super().extend(elements)
 
     def get_root_node(self):
@@ -1216,7 +1233,10 @@ class Comment(etree.CommentBase, CharacterData):
         Returns:
             Node: A root node.
         """
-        return self.getroottree().getroot()
+        root = self.getroottree().getroot()
+        if root is None:
+            root = self
+        return root
 
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
@@ -1245,7 +1265,8 @@ class Comment(etree.CommentBase, CharacterData):
         Returns:
             Node: A node to be removed.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.remove(child)
+        return child
 
     def replace(self, old_element, new_element):
         """Reimplemented from lxml.etree.CommentBase.replace().
@@ -1263,7 +1284,8 @@ class Comment(etree.CommentBase, CharacterData):
         Returns:
             Node: A node to be replaced.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.replace(node, child)
+        return node
 
     def tostring(self, **kwargs):
         """Serializes a comment to an encoded string representation of its
@@ -1355,20 +1377,20 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
     @property
     def class_name(self):
         """str: Reflects the 'class' attribute."""
-        return self.attributes.get('class')
+        return self.get('class', '')
 
     @class_name.setter
-    def class_name(self, class_name):
-        self.attributes.set('class', class_name)
+    def class_name(self, value):
+        self.set('class', value)
 
     @property
     def id(self):
         """str: Reflects the 'id' attribute."""
-        return self.attributes.get('id')
+        return self.get('id', '')
 
     @id.setter
-    def id(self, element_id):
-        self.attributes.set('id', element_id)
+    def id(self, value):
+        self.set('id', value)
 
     @property
     def local_name(self):
@@ -1473,20 +1495,12 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
                     chars.append(child.tail)
         return chars
 
-    def _set_owner_document(self, node, remove=False):
-        owner_document = self.owner_document if not remove else None
-        for it in node.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = owner_document
-
     def addnext(self, element):
         """Reimplemented from lxml.etree.ElementBase.addnext().
 
         Adds the element as a following sibling directly after this element.
         """
-        self._set_owner_document(element)
+        element.attach_document(self.owner_document)
         super().addnext(element)
 
 
@@ -1495,7 +1509,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
         Adds the element as a preceding sibling directly before this element.
         """
-        self._set_owner_document(element)
+        element.attach_document(self.owner_document)
         super().addprevious(element)
 
     def append(self, node):
@@ -1506,7 +1520,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Arguments:
             node (Node): A node to be added.
         """
-        self._set_owner_document(node)
+        node.attach_document(self.owner_document)
         super().append(node)
 
     def append_child(self, node):
@@ -1519,6 +1533,22 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """
         self.append(node)
         return node
+
+    def attach_document(self, document):
+        """Reimplemented from Node.attach_document().
+
+        Attaches an associated document.
+
+        Arguments:
+            document (Document): A document that is associated with the node.
+        Returns:
+            bool: Returns True if successful; otherwise False.
+        """
+        if not super().attach_document(document):
+            return False
+        for child in self:
+            child.attach_document(document)
+        return True
 
     def create_sub_element(self, local_name, index=None, attrib=None,
                            nsmap=None, **_extra):
@@ -1586,24 +1616,38 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
                                           **_extra)
         return element
 
+    def detach_document(self):
+        """Reimplemented from Node.detach_document().
+
+        Detaches an associated document.
+
+        Returns:
+            Document: A document to be detached.
+        """
+        owner_document = super().detach_document()
+        for child in self:
+            child.detach_document()
+        return owner_document
+
     def extend(self, elements):
         """Reimplemented from lxml.etree.ElementBase.extend().
 
         Extends the current children by the elements in the iterable.
         """
-        for element in elements:
-            self._set_owner_document(element)
+        owner_document = self.owner_document
+        for node in elements:
+            node.attach_document(owner_document)
         super().extend(elements)
 
     def get_attribute(self, qualified_name):
-        """Returns an element attribute with the specified name.
+        """Returns an attribute's value with the specified name.
 
         Arguments:
-            qualified_name (str): The name of the attribute.
+            qualified_name (str): The qualified name of the attribute.
         Returns:
-            str: Returns the value of the specified attribute or None.
+            str: The attribute's value or None.
         """
-        return self.attributes.get(qualified_name)
+        return self.get(qualified_name)
 
     def get_attribute_names(self):
         """Returns a list of attribute names in order.
@@ -1611,18 +1655,19 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             list[str]: A list of attribute names.
         """
-        return sorted(self.attributes.keys())
+        return sorted(self.attrib.keys())
 
     def get_attribute_ns(self, namespace, local_name):
-        """Returns an element attribute with the specified namespace and name.
+        """Returns an attribute's value with the specified namespace and name.
 
         Arguments:
             namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
         Returns:
-            str: Returns the value of the specified attribute or None.
+            str: The attribute's value or None.
         """
-        return self.attributes.get_ns(namespace, local_name)
+        name = QualifiedName(namespace, local_name)
+        return self.get_attribute(name.value)
 
     def get_computed_geometry(self):
         return {}  # override with a subclass
@@ -1881,66 +1926,61 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
         return style
 
-    def get_elements_by_class_name(self, class_names, namespaces=None):
+    def get_elements_by_class_name(self, class_names, nsmap=None):
         """Finds all matching sub-elements, by class names.
 
         Arguments:
             class_names (str): A list of class names that are separated by
                 whitespace.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
         return get_elements_by_class_name(self,
                                           class_names,
-                                          namespaces=namespaces)
+                                          nsmap=nsmap)
 
-    def get_elements_by_local_name(self, local_name, namespaces=None):
+    def get_elements_by_local_name(self, local_name, nsmap=None):
         """Finds all matching sub-elements, by the local name.
 
         Arguments:
             local_name (str): The local name.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
         return self.xpath('.//*[local-name() = $local_name]',
-                          namespaces=namespaces,
+                          namespaces=nsmap,
                           local_name=local_name)
 
-    def get_elements_by_tag_name(self, qualified_name, namespaces=None):
+    def get_elements_by_tag_name(self, qualified_name, nsmap=None):
         """Finds all matching sub-elements, by the qualified name.
 
         Arguments:
             qualified_name (str): The qualified name or '*'.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
         return get_elements_by_tag_name(self,
                                         qualified_name,
-                                        namespaces=namespaces)
+                                        nsmap=nsmap)
 
-    def get_elements_by_tag_name_ns(self, namespace, local_name,
-                                    namespaces=None):
+    def get_elements_by_tag_name_ns(self, namespace, local_name, nsmap=None):
         """Finds all matching sub-elements, by the namespace URI and the local
         name.
 
         Arguments:
             namespace (str, None): The namespace URI, '*' or None.
             local_name (str): The local name or '*'.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
         return get_elements_by_tag_name_ns(self,
                                            namespace,
                                            local_name,
-                                           namespaces=namespaces)
+                                           nsmap=nsmap)
 
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
@@ -1948,22 +1988,25 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             Node: A root node.
         """
-        return self.getroottree().getroot()
+        root = self.getroottree().getroot()
+        if root is None:
+            root = self
+        return root
 
     def has_attribute(self, qualified_name):
-        """Returns True if an element attribute with the specified name
-        exists; otherwise returns False.
+        """Returns True if an attribute with the specified name exists;
+        otherwise returns False.
 
         Arguments:
             qualified_name (str): The name of the attribute.
         Returns:
             bool: Returns True if the attribute exists, else False.
         """
-        return self.attributes.has(qualified_name)
+        return qualified_name in self.attrib
 
     def has_attribute_ns(self, namespace, local_name):
-        """Returns True if an element attribute with the specified namespace
-        and name exists; otherwise returns False.
+        """Returns True if an attribute with the specified namespace and name
+        exists; otherwise returns False.
 
         Arguments:
             namespace (str, None): The namespace URI.
@@ -1971,14 +2014,15 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             bool: Returns True if the attribute exists, else False.
         """
-        return self.attributes.has_ns(namespace, local_name)
+        name = QualifiedName(namespace, local_name)
+        return self.has_attribute(name.value)
 
     def insert(self, index, element):
         """Reimplemented from lxml.etree.ElementBase.insert().
 
         Inserts a subelement at the given position in this element.
         """
-        self._set_owner_document(element)
+        element.attach_document(self.owner_document)
         super().insert(index, element)
 
     def insert_before(self, node, child):
@@ -2050,25 +2094,26 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """
         if element not in self:
             raise ValueError('The object can not be found here')
-        self._set_owner_document(element, remove=True)
         super().remove(element)
 
     def remove_attribute(self, qualified_name):
-        """Removes an element attribute with the specified name.
+        """Removes an attribute with the specified name.
 
         Arguments:
-            qualified_name (str): The name of the attribute.
+            qualified_name (str): The qualified name of the attribute.
         """
-        self.attributes.pop(qualified_name, None)
+        attr = self.attributes.pop(qualified_name, None)
+        # TODO: do attr.detach_element().
 
     def remove_attribute_ns(self, namespace, local_name):
-        """Removes an element attribute with the specified namespace and name.
+        """Removes an attribute with the specified namespace and name.
 
         Arguments:
             namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
         """
-        self.attributes.pop_ns(namespace, local_name, None)
+        name = QualifiedName(namespace, local_name)
+        self.remove_attribute(name.value)
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -2088,8 +2133,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """
         if old_element not in self:
             raise ValueError('The object can not be found here')
-        self._set_owner_document(new_element)
-        self._set_owner_document(old_element, remove=True)
+        new_element.attach_document(self.owner_document)
         super().replace(old_element, new_element)
 
     def replace_child(self, node, child):
@@ -2105,23 +2149,24 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         return node
 
     def set_attribute(self, qualified_name, value):
-        """Sets an element attribute.
+        """Sets an attribute with the specified name.
 
         Arguments:
-            qualified_name (str): The name of the attribute.
-            value (str): The value of the attribute.
+            qualified_name (str): The qualified name of the attribute.
+            value (str): The attribute's value.
         """
         self.attributes.set(qualified_name, value)
 
-    def set_attribute_ns(self, namespace, local_name, value):
-        """Sets an element attribute with the specified namespace and name.
+    def set_attribute_ns(self, namespace, qualified_name, value):
+        """Sets an attribute with the specified namespace and name.
 
         Arguments:
             namespace (str, None): The namespace URI.
-            local_name (str): The local name of the attribute.
-            value (str): The value of the attribute.
+            qualified_name (str): The qualified name of the attribute.
+            value (str): The attribute's value.
         """
-        self.attributes.set_ns(namespace, local_name, value)
+        name = QualifiedName(namespace, qualified_name)
+        self.set_attribute(name.value, value)
 
     def tostring(self, **kwargs):
         """Serializes an element to an encoded string representation of its
@@ -2221,6 +2266,22 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
     def text_content(self, text):
         self.data = text
 
+    def addnext(self, element):
+        """Reimplemented from lxml.etree.PIBase.addnext().
+
+        Adds the element as a following sibling directly after this element.
+        """
+        element.attach_document(self.owner_document)
+        super().addnext(element)
+
+    def addprevious(self, element):
+        """Reimplemented from lxml.etree.PIBase.addprevious().
+
+        Adds the element as a preceding sibling directly before this element.
+        """
+        element.attach_document(self.owner_document)
+        super().addprevious(element)
+
     def append_child(self, node):
         """Adds a node to the end of this node.
 
@@ -2231,13 +2292,26 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         """
         raise ValueError('The operation would yield an incorrect node tree')
 
+    def extend(self, elements):
+        """Reimplemented from lxml.etree.PIBase.extend().
+
+        Extends the current children by the elements in the iterable.
+        """
+        owner_document = self.owner_document
+        for node in elements:
+            node.attach_document(owner_document)
+        super().extend(elements)
+
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
 
         Returns:
             Node: A root node.
         """
-        return self.getroottree().getroot()
+        root = self.getroottree().getroot()
+        if root is None:
+            root = self
+        return root
 
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
@@ -2250,6 +2324,14 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         """
         raise ValueError('The operation would yield an incorrect node tree')
 
+    def remove(self, element):
+        """Reimplemented from lxml.etree.PIBase.remove().
+
+        Removes a matching subelement. Unlike the find methods, this method
+        compares elements based on identity, not on tag value or contents.
+        """
+        raise ValueError('The operation would yield an incorrect node tree')
+
     def remove_child(self, child):
         """Removes a child node from this node.
 
@@ -2257,6 +2339,14 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
             child (Node): A node to be removed.
         Returns:
             Node: A node to be removed.
+        """
+        self.remove(child)
+        return child
+
+    def replace(self, old_element, new_element):
+        """Reimplemented from lxml.etree.PIBase.replace().
+
+        Replaces a subelement with the element passed as second argument.
         """
         raise ValueError('The operation would yield an incorrect node tree')
 
@@ -2269,7 +2359,8 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         Returns:
             Node: A node to be replaced.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.replace(node, child)
+        return node
 
     def tostring(self, **kwargs):
         """Serializes a processing instruction to an encoded string

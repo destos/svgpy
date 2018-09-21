@@ -12,7 +12,7 @@ from lxml import etree
 
 sys.path.extend(['.', '..'])
 
-from svgpy.dom import Comment, Element, Node
+from svgpy import Attr, Comment, Element, Node, ProcessingInstruction
 from svgpy.element import HTMLVideoElement, SVGSVGElement
 from svgpy.window import Document, SVGDOMImplementation, Window, XMLDocument, \
     window
@@ -104,43 +104,43 @@ class DocumentTestCase(unittest.TestCase):
         self.assertIsNone(doc.owner_document)
         self.assertIsNone(doc.document_element)
 
-        parser = etree.XMLParser()
-        root = parser.makeelement('svg')
-        self.assertNotIsInstance(root, Node)
-        self.assertRaises(TypeError, lambda: doc.append_child(root))
+        # parser = etree.XMLParser()
+        # root = parser.makeelement('svg')
+        # self.assertNotIsInstance(root, Node)
+        # self.assertRaises(TypeError, lambda: doc.append_child(root))
 
         comment = doc.create_comment('start')
         self.assertRaises(TypeError, lambda: doc.append_child(comment))
 
         root = doc.create_element('svg')
         self.assertIsInstance(root, Node)
-        self.assertIsNone(root.owner_document)
+        self.assertEqual(doc, root.owner_document)
         result = doc.append_child(root)
         self.assertEqual(root, result)
         self.assertEqual(root, doc.document_element)
         self.assertEqual(doc, root.owner_document)
 
         comment = doc.create_comment('end')
-        self.assertIsNone(comment.owner_document)
+        self.assertEqual(doc, comment.owner_document)
         result = doc.append_child(comment)
         self.assertEqual(comment, result)
         self.assertEqual(doc, comment.owner_document)
 
         title = doc.create_element('title')
-        self.assertIsNone(title.owner_document)
+        self.assertEqual(doc, title.owner_document)
         self.assertRaises(ValueError, lambda: comment.append_child(title))
         result = root.append_child(title)
         self.assertEqual(title, result)
         self.assertEqual(doc, title.owner_document)
 
         defs = doc.create_element('defs')
-        self.assertIsNone(defs.owner_document)
+        self.assertEqual(doc, defs.owner_document)
         result = root.append_child(defs)
         self.assertEqual(defs, result)
         self.assertEqual(doc, defs.owner_document)
 
         style = doc.create_element('style')
-        self.assertIsNone(style.owner_document)
+        self.assertEqual(doc, style.owner_document)
         result = defs.append_child(style)
         self.assertEqual(style, result)
         self.assertEqual(doc, style.owner_document)
@@ -169,14 +169,14 @@ class DocumentTestCase(unittest.TestCase):
             '<!--end-->'
         self.assertEqual(expected, doc.tostring().decode())
 
-        link = parser.makeelement('link')
-        self.assertNotIsInstance(link, Node)
-        self.assertRaises(TypeError, lambda: root.append_child(link))
+        # link = parser.makeelement('link')
+        # self.assertNotIsInstance(link, Node)
+        # self.assertRaises(TypeError, lambda: root.append_child(link))
 
         # <title/><defs/><style/><link/>
         link = doc.create_element('link')
         self.assertIsInstance(link, Node)
-        self.assertIsNone(link.owner_document)
+        self.assertEqual(doc, link.owner_document)
         result = root.append_child(link)
         self.assertEqual(link, result)
         self.assertEqual(doc, link.owner_document)
@@ -186,6 +186,13 @@ class DocumentTestCase(unittest.TestCase):
             '</svg>' \
             '<!--end-->'
         self.assertEqual(expected, doc.tostring().decode())
+
+        removed = doc.remove_child(root)
+        self.assertEqual(root, removed)
+        self.assertIsNone(doc.document_element)
+        added = doc.append_child(removed)
+        self.assertEqual(removed, added)
+        self.assertEqual(root, doc.document_element)
 
     def test_document_children(self):
         doc = window.document
@@ -250,7 +257,111 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual(style, root.first_element_child)
         self.assertEqual(group, root.last_element_child)
 
-    def test_document_create_element(self):
+    def test_document_create_attribute(self):
+        doc = window.document
+
+        name = 'id'
+        attr = doc.create_attribute(name)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(2, attr.node_type)
+        self.assertEqual(name, attr.node_name)
+        self.assertEqual('', attr.node_value)
+        self.assertEqual(doc, attr.owner_document)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
+        self.assertEqual('', attr.text_content)
+        self.assertIsNone(attr.namespace_uri)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(name, attr.local_name)
+        self.assertEqual(name, attr.name)
+        self.assertEqual('', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+        value = 'id01'
+        attr.value = value
+        self.assertEqual(2, attr.node_type)
+        self.assertEqual(name, attr.node_name)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(doc, attr.owner_document)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
+        self.assertEqual(value, attr.text_content)
+        self.assertIsNone(attr.namespace_uri)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(name, attr.local_name)
+        self.assertEqual(name, attr.name)
+        self.assertEqual(value, attr.value)
+        self.assertIsNone(attr.owner_element)
+
+    def test_document_create_attribute_ns(self):
+        doc = window.document
+
+        namespace = Element.XML_NAMESPACE_URI
+        local_name = 'lang'
+        qualified_name = '{{{}}}{}'.format(namespace, local_name)
+        attr = doc.create_attribute_ns(namespace, local_name)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(2, attr.node_type)
+        self.assertEqual(qualified_name, attr.node_name)
+        self.assertEqual('', attr.node_value)
+        self.assertEqual(doc, attr.owner_document)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
+        self.assertEqual('', attr.text_content)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(qualified_name, attr.name)
+        self.assertEqual('', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+        attr = doc.create_attribute_ns('', qualified_name)
+        self.assertEqual(2, attr.node_type)
+        self.assertEqual(qualified_name, attr.node_name)
+        self.assertEqual('', attr.node_value)
+        self.assertEqual(doc, attr.owner_document)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
+        self.assertEqual('', attr.text_content)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(qualified_name, attr.name)
+        self.assertEqual('', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+        attr = doc.create_attribute_ns(None, qualified_name)
+        self.assertEqual(2, attr.node_type)
+        self.assertEqual(qualified_name, attr.node_name)
+        self.assertEqual('', attr.node_value)
+        self.assertEqual(doc, attr.owner_document)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
+        self.assertEqual('', attr.text_content)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(qualified_name, attr.name)
+        self.assertEqual('', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+        value = 'ja'
+        attr.value = value
+        self.assertEqual(2, attr.node_type)
+        self.assertEqual(qualified_name, attr.node_name)
+        self.assertEqual(value, attr.node_value)
+        self.assertEqual(doc, attr.owner_document)
+        self.assertIsNone(attr.parent_element)
+        self.assertIsNone(attr.parent_node)
+        self.assertEqual(value, attr.text_content)
+        self.assertEqual(namespace, attr.namespace_uri)
+        self.assertIsNone(attr.prefix)
+        self.assertEqual(local_name, attr.local_name)
+        self.assertEqual(qualified_name, attr.name)
+        self.assertEqual(value, attr.value)
+        self.assertIsNone(attr.owner_element)
+
+    def test_document_create_comment(self):
         doc = window.document
 
         data = 'Comment'
@@ -258,11 +369,16 @@ class DocumentTestCase(unittest.TestCase):
         self.assertIsInstance(comment, Comment)
         self.assertEqual(8, Node.COMMENT_NODE)
         self.assertEqual(8, comment.node_type)
-        self.assertIsNone(comment.owner_document)
+        self.assertEqual(doc, comment.owner_document)
+        self.assertIsNone(comment.parent_element)
+        self.assertIsNone(comment.parent_node)
         self.assertEqual('#comment', comment.node_name)
         self.assertEqual(data, comment.data)
         self.assertEqual(data, comment.node_value)
         self.assertEqual(data, comment.text_content)
+
+    def test_document_create_element(self):
+        doc = window.document
 
         root = doc.create_element(
             'svg',
@@ -272,7 +388,29 @@ class DocumentTestCase(unittest.TestCase):
         self.assertIsInstance(root, SVGSVGElement)
         self.assertEqual(1, Node.ELEMENT_NODE)
         self.assertEqual(1, root.node_type)
-        self.assertIsNone(root.owner_document)
+        self.assertEqual(doc, root.owner_document)
+        self.assertIsNone(root.parent_element)
+        self.assertIsNone(root.parent_node)
+        self.assertEqual('svg', root.node_name)
+        self.assertEqual('svg', root.tag_name)
+        self.assertEqual('svg', root.local_name)
+        self.assertEqual('0 0 200 300', root.get_attribute('viewBox'))
+
+    def test_document_create_element_ns(self):
+        doc = window.document
+
+        root = doc.create_element_ns(
+            Element.SVG_NAMESPACE_URI,
+            'svg',
+            attrib={
+               'viewBox': '0 0 200 300',
+            })
+        self.assertIsInstance(root, SVGSVGElement)
+        self.assertEqual(1, Node.ELEMENT_NODE)
+        self.assertEqual(1, root.node_type)
+        self.assertEqual(doc, root.owner_document)
+        self.assertIsNone(root.parent_element)
+        self.assertIsNone(root.parent_node)
         self.assertEqual('svg', root.node_name)
         self.assertEqual('svg', root.tag_name)
         self.assertEqual('svg', root.local_name)
@@ -287,11 +425,45 @@ class DocumentTestCase(unittest.TestCase):
             })
         self.assertIsInstance(video, HTMLVideoElement)
         self.assertEqual(1, video.node_type)
+        self.assertEqual(doc, video.owner_document)
+        self.assertIsNone(video.parent_element)
+        self.assertIsNone(video.parent_node)
         self.assertEqual('html:video', video.node_name)
         self.assertEqual('html:video', video.tag_name)
         self.assertEqual('video', video.local_name)
         self.assertEqual('100', video.get_attribute('width'))
         self.assertEqual('150', video.get_attribute('height'))
+
+    def test_document_create_processing_instruction(self):
+        doc = window.document
+
+        target = 'xml-stylesheet'
+        pi = doc.create_processing_instruction(target)
+        self.assertIsInstance(pi, ProcessingInstruction)
+        self.assertEqual(7, pi.node_type)
+        self.assertEqual(target, pi.node_name)
+        self.assertEqual('', pi.node_value)
+        self.assertEqual(doc, pi.owner_document)
+        self.assertIsNone(pi.parent_element)
+        self.assertIsNone(pi.parent_node)
+        self.assertEqual('', pi.text_content)
+        self.assertEqual('', pi.data)
+        self.assertEqual(target, pi.target)
+
+        data = 'href="style.css" type="text/css"'
+        pi = doc.create_processing_instruction(target, data)
+        self.assertIsInstance(pi, ProcessingInstruction)
+        self.assertEqual(7, pi.node_type)
+        self.assertEqual(target, pi.node_name)
+        self.assertEqual(data, pi.node_value)
+        self.assertEqual(doc, pi.owner_document)
+        self.assertIsNone(pi.parent_element)
+        self.assertIsNone(pi.parent_node)
+        self.assertEqual(data, pi.text_content)
+        self.assertEqual(data, pi.data)
+        self.assertEqual(target, pi.target)
+        self.assertEqual('style.css', pi.get('href'))
+        self.assertEqual('text/css', pi.get('type'))
 
     def test_document_get_elements(self):
         doc = window.document
@@ -433,7 +605,7 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual([], doc.get_elements_by_tag_name_ns(
             Element.SVG_NAMESPACE_URI,
             'svg'))
-        self.assertIsNone(doc.get_root_node())
+        self.assertEqual(doc, doc.get_root_node())
 
     def test_document_init02(self):
         # Window: window
@@ -467,7 +639,7 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual([], doc.get_elements_by_tag_name_ns(
             Element.SVG_NAMESPACE_URI,
             'svg'))
-        self.assertIsNone(doc.get_root_node())
+        self.assertEqual(doc, doc.get_root_node())
 
     def test_document_init03(self):
         # Window: window
@@ -650,7 +822,7 @@ class DocumentTestCase(unittest.TestCase):
 
         root = doc.create_element('svg')
         self.assertIsInstance(root, Node)
-        self.assertIsNone(root.owner_document)
+        self.assertEqual(doc, root.owner_document)
         result = doc.insert_before(root, None)
         self.assertEqual(root, result)
         self.assertEqual(root, doc.document_element)
@@ -658,7 +830,7 @@ class DocumentTestCase(unittest.TestCase):
 
         # <defs/>
         defs = doc.create_element('defs')
-        self.assertIsNone(defs.owner_document)
+        self.assertEqual(doc, defs.owner_document)
         result = root.insert_before(defs, None)
         self.assertEqual(defs, result)
         self.assertEqual(doc, defs.owner_document)
@@ -671,20 +843,20 @@ class DocumentTestCase(unittest.TestCase):
 
         # <title/><defs/>
         title = doc.create_element('title')
-        self.assertIsNone(title.owner_document)
+        self.assertEqual(doc, title.owner_document)
         result = root.insert_before(title, defs)
         self.assertEqual(title, result)
         self.assertEqual(doc, title.owner_document)
 
         # <title/><defs/><style/>
         style = doc.create_element('style')
-        self.assertIsNone(style.owner_document)
+        self.assertEqual(doc, style.owner_document)
         result = root.insert_before(style, None)
         self.assertEqual(style, result)
         self.assertEqual(doc, style.owner_document)
 
         comment = doc.create_comment('demo')
-        self.assertIsNone(comment.owner_document)
+        self.assertEqual(doc, comment.owner_document)
         result = root.insert_before(comment, title)
         self.assertEqual(comment, result)
         self.assertEqual(doc, comment.owner_document)
@@ -700,8 +872,8 @@ class DocumentTestCase(unittest.TestCase):
         path = doc.create_element('path')
         result = g.append_child(path)
         self.assertEqual(path, result)
-        self.assertIsNone(g.owner_document)
-        self.assertIsNone(path.owner_document)
+        self.assertEqual(doc, g.owner_document)
+        self.assertEqual(doc, path.owner_document)
 
         # <title/><defs/><style/><g><path/></g>
         result = root.insert_before(g, None)
@@ -711,7 +883,7 @@ class DocumentTestCase(unittest.TestCase):
 
         rect = doc.create_element('rect')
         self.assertRaises(ValueError, lambda: doc.insert_before(rect, path))
-        self.assertIsNone(rect.owner_document)
+        self.assertEqual(doc, rect.owner_document)
         self.assertEqual(doc, path.owner_document)
 
         expected = \
@@ -724,13 +896,13 @@ class DocumentTestCase(unittest.TestCase):
         for it in root.iter():
             self.assertEqual(doc, it.owner_document)
 
-        link = parser.makeelement('link')
-        self.assertNotIsInstance(link, Node)
-        self.assertRaises(TypeError, lambda: root.insert_before(link, style))
+        # link = parser.makeelement('link')
+        # self.assertNotIsInstance(link, Node)
+        # self.assertRaises(TypeError, lambda: root.insert_before(link, style))
 
         link = doc.create_element('link')
         self.assertIsInstance(link, Node)
-        self.assertIsNone(link.owner_document)
+        self.assertEqual(doc, link.owner_document)
         result = root.insert_before(link, style)
         self.assertEqual(link, result)
         self.assertEqual(doc, link.owner_document)
@@ -896,29 +1068,59 @@ class DocumentTestCase(unittest.TestCase):
         self.assertIsNone(doc.document_element)
 
         root = doc.create_element('svg')
-        self.assertIsNone(root.owner_document)
+        self.assertEqual(doc, root.owner_document)
         self.assertRaises(ValueError, lambda: doc.remove_child(root))
 
+        # <svg/>
         doc.append_child(root)
         self.assertEqual(root, doc.document_element)
         self.assertEqual(doc, root.owner_document)
 
+        # <svg>
+        # <title/>
+        # </svg>
         title = doc.create_element('title')
         root.append_child(title)
 
+        # <svg>
+        # <title/>
+        # <defs/>
+        # </svg>
         defs = doc.create_element('defs')
         root.append_child(defs)
 
+        # <svg>
+        # <title/>
+        # <defs><style/></defs>
+        # </svg>
         style = doc.create_element('style')
         defs.append_child(style)
 
+        # <!--demo-->
+        # <svg>
+        # <title/>
+        # <defs><style/></defs>
+        # </svg>
         comment = doc.create_comment('demo')
         doc.prepend(comment)
 
+        # <?xml-stylesheet href="1.css"?>
+        # <!--demo-->
+        # <svg>
+        # <title/>
+        # <defs><style/></defs>
+        # </svg>
         pi1 = doc.create_processing_instruction('xml-stylesheet',
                                                 'href="1.css"')
         doc.insert_before(pi1, comment)
 
+        # <?xml-stylesheet href="1.css"?>
+        # <?xml-stylesheet href="2.css"?>
+        # <!--demo-->
+        # <svg>
+        # <title/>
+        # <defs><style/></defs>
+        # </svg>
         pi2 = doc.create_processing_instruction('xml-stylesheet',
                                                 'href="2.css"')
         doc.insert_before(pi2, comment)
@@ -936,20 +1138,12 @@ class DocumentTestCase(unittest.TestCase):
         self.assertTrue(style in defs)
         self.assertTrue(style not in doc.document_element)
         self.assertRaises(ValueError, lambda: doc.remove_child(style))
-
-        # <?xml-stylesheet href="1.css"?>
-        # <?xml-stylesheet href="2.css"?>
-        # <!--demo-->
-        # <svg>
-        # <title/><defs/>
-        # </svg>
         self.assertEqual(doc, style.owner_document)
-        self.assertRaises(ValueError, lambda: doc.remove_child(style))
 
-        # remove the <style> element
+        # remove <style> element
         removed = defs.remove_child(style)
         self.assertEqual(style, removed)
-        self.assertIsNone(style.owner_document)
+        self.assertEqual(doc, style.owner_document)
         self.assertEqual('style', removed.local_name)
         self.assertEqual(2, len(doc.document_element))
         self.assertTrue(style not in defs)
@@ -958,7 +1152,7 @@ class DocumentTestCase(unittest.TestCase):
         # remove a comment node
         removed = doc.remove_child(comment)
         self.assertEqual(comment, removed)
-        self.assertIsNone(comment.owner_document)
+        self.assertEqual(doc, comment.owner_document)
 
         expected = \
             '<?xml-stylesheet href="1.css"?>' \
@@ -971,7 +1165,7 @@ class DocumentTestCase(unittest.TestCase):
         # remove a processing instruction node
         removed = doc.remove_child(pi2)
         self.assertEqual(pi2, removed)
-        self.assertIsNone(pi2.owner_document)
+        self.assertEqual(doc, pi2.owner_document)
 
         expected = \
             '<?xml-stylesheet href="1.css"?>' \
@@ -983,7 +1177,7 @@ class DocumentTestCase(unittest.TestCase):
         # remove a root node
         removed = doc.remove_child(root)
         self.assertEqual(root, removed)
-        self.assertIsNone(root.owner_document)
+        self.assertEqual(doc, root.owner_document)
         self.assertIsNone(doc.document_element)
 
     def test_document_replace_child(self):
@@ -1016,7 +1210,7 @@ class DocumentTestCase(unittest.TestCase):
         result = doc.replace_child(pi, comment)
         self.assertEqual(pi, result)
         self.assertEqual(doc, pi.owner_document)
-        self.assertIsNone(comment.owner_document)
+        self.assertEqual(doc, comment.owner_document)
         expected = \
             '<?xml-stylesheet ?>' \
             '<svg xmlns="http://www.w3.org/2000/svg">' \
@@ -1030,7 +1224,7 @@ class DocumentTestCase(unittest.TestCase):
         result = root.replace_child(style, title)
         self.assertEqual(style, result)
         self.assertEqual(doc, style.owner_document)
-        self.assertIsNone(title.owner_document)
+        self.assertEqual(doc, title.owner_document)
         expected = \
             '<?xml-stylesheet ?>' \
             '<svg xmlns="http://www.w3.org/2000/svg">' \
@@ -1043,7 +1237,7 @@ class DocumentTestCase(unittest.TestCase):
         result = root.replace_child(comment, defs)
         self.assertEqual(comment, result)
         self.assertEqual(doc, comment.owner_document)
-        self.assertIsNone(defs.owner_document)
+        self.assertEqual(doc, defs.owner_document)
         expected = \
             '<?xml-stylesheet ?>' \
             '<svg xmlns="http://www.w3.org/2000/svg">' \
@@ -1061,14 +1255,14 @@ class DocumentTestCase(unittest.TestCase):
             '<svg xmlns="http://www.w3.org/2000/svg"/>'
         self.assertEqual(expected, doc.tostring().decode())
         for it in root.iter():
-            self.assertIsNone(it.owner_document)
+            self.assertEqual(doc, it.owner_document)
         for it in root2.iter():
             self.assertEqual(doc, it.owner_document)
 
-        parser = etree.XMLParser()
-        link = parser.makeelement('link')
-        self.assertNotIsInstance(link, Node)
-        self.assertRaises(TypeError, lambda: root.replace_child(link, style))
+        # parser = etree.XMLParser()
+        # link = parser.makeelement('link')
+        # self.assertNotIsInstance(link, Node)
+        # self.assertRaises(TypeError, lambda: root.replace_child(link, style))
 
     def test_document_write(self):
         doc = window.document

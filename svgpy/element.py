@@ -21,7 +21,7 @@ from .base import HTMLElement, \
     SVGGeometryElement, SVGGraphicsElement, SVGGradientElement, \
     SVGPathData, SVGPathDataSettings, SVGURIReference, SVGZoomAndPan
 from .core import CSSUtils, SVGLength
-from .dom import Comment, DOMTokenList, Element, LinkStyle, \
+from .dom import Attr, Comment, DOMTokenList, Element, LinkStyle, \
     ProcessingInstruction
 from .path import PathParser, SVGPathSegment
 from .text import SVGTextContentElement, SVGTextPositioningElement
@@ -888,20 +888,19 @@ class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
 
         return geometry
 
-    def get_element_by_id(self, element_id, namespaces=None):
+    def get_element_by_id(self, element_id, nsmap=None):
         """Finds the first matching sub-element, by id.
 
         Arguments:
             element_id (str): The id of the element.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             Element: The first matching sub-element. Returns None if there is
                 no such element.
         """
-        return get_element_by_id(self, element_id, namespaces=namespaces)
+        return get_element_by_id(self, element_id, nsmap=nsmap)
 
-    def get_elements_by_class_name(self, class_names, namespaces=None):
+    def get_elements_by_class_name(self, class_names, nsmap=None):
         """Reimplemented from Element.get_elements_by_class_name().
 
         Finds all matching sub-elements, by class names.
@@ -909,35 +908,32 @@ class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
         Arguments:
             class_names (str): A list of class names that are separated by
                 whitespace.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
         return get_elements_by_class_name(self,
                                           class_names,
-                                          namespaces=namespaces,
+                                          nsmap=nsmap,
                                           include_self=True)
 
-    def get_elements_by_tag_name(self, qualified_name, namespaces=None):
+    def get_elements_by_tag_name(self, qualified_name, nsmap=None):
         """Reimplemented from Element.get_elements_by_tag_name().
 
         Finds all matching sub-elements, by the qualified name.
 
         Arguments:
             qualified_name (str): The qualified name or '*'.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
         return get_elements_by_tag_name(self,
                                         qualified_name,
-                                        namespaces=namespaces,
+                                        nsmap=nsmap,
                                         include_self=True)
 
-    def get_elements_by_tag_name_ns(self, namespace, local_name,
-                                    namespaces=None):
+    def get_elements_by_tag_name_ns(self, namespace, local_name, nsmap=None):
         """Reimplemented from Element.get_elements_by_tag_name_ns().
 
         Finds all matching sub-elements, by the namespace URI and the local
@@ -946,15 +942,14 @@ class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
         Arguments:
             namespace (str, None): The namespace URI, '*' or None.
             local_name (str): The local name or '*'.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
         return get_elements_by_tag_name_ns(self,
                                            namespace,
                                            local_name,
-                                           namespaces=namespaces,
+                                           nsmap=nsmap,
                                            include_self=True)
 
     def get_path_data(self, settings=None):
@@ -1225,6 +1220,37 @@ class SVGParser(object):
         """lxml.etree.XMLParser: The XML parser."""
         return self._parser
 
+    def create_attribute(self, local_name):
+        """Creates a new attribute instance, and returns it.
+        See also Document.create_attribute().
+
+        Arguments:
+            local_name (str): A local name of an attribute to be created.
+        Returns:
+            Attr: A new attribute.
+        """
+        _ = self
+        attr = Attr(local_name, '')
+        return attr
+
+    def create_attribute_ns(self, namespace, qualified_name):
+        """Creates a new attribute instance with the specified namespace URI
+        and qualified name, and returns it.
+        See also Document.create_attribute_ns().
+
+        Arguments:
+            namespace (str, None): The namespace URI to associated with the
+                attribute or None.
+            qualified_name (str): A qualified name of an attribute to be
+                created.
+        Returns:
+            Attr: A new attribute.
+        """
+        _ = self
+        name = QualifiedName(namespace, qualified_name)
+        attr = Attr(name.value, '')
+        return attr
+
     def create_comment(self, data):
         """Creates a new comment instance, and returns it.
         See also Document.create_comment().
@@ -1266,8 +1292,8 @@ class SVGParser(object):
 
     def create_element_ns(self, namespace, qualified_name, attrib=None,
                           nsmap=None, **_extra):
-        """Creates a new element instance with the specified namespace URI,
-        and returns it.
+        """Creates a new element instance with the specified namespace URI
+        and qualified name, and returns it.
         See also SVGParser.create_element(), Document.create_element(),
         Document.create_element_ns(), Element.create_sub_element() and
         Element.create_sub_element_ns().

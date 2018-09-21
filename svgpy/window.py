@@ -14,6 +14,7 @@
 
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from fractions import Fraction
 from io import StringIO
 from logging import getLogger
@@ -65,7 +66,7 @@ class BrowsingContext(object):
         return self._window
 
 
-class Document(Node, NonElementParentNode, ParentNode):
+class Document(Node, NonElementParentNode, ParentNode, Iterable):
     """Represents the [DOM] Document."""
 
     def __init__(self, content_type=None, default_view=None,
@@ -88,12 +89,17 @@ class Document(Node, NonElementParentNode, ParentNode):
                               else 'application/xml')
         self._document_element = None
         if document_element is not None:
-            self._set_document_element(document_element)
+            self.append(document_element)
         self._implementation = implementation
         if default_view is not None:
             self._location = default_view.location
         else:
             self._location = Location(self._browsing_context)
+
+    def __iter__(self):
+        siblings = self._get_siblings()
+        for node in siblings:
+            yield node
 
     @property
     def children(self):
@@ -204,21 +210,6 @@ class Document(Node, NonElementParentNode, ParentNode):
         siblings += [element for element in root.itersiblings()]
         return siblings
 
-    def _set_document_element(self, node):
-        if not isinstance(node, Element):
-            raise TypeError('Expected Element, got {}'.format(
-                repr(type(node))))
-        self._set_owner_document(node)
-        self._document_element = node
-
-    def _set_owner_document(self, node, remove=False):
-        owner_document = self if not remove else None
-        for it in node.iter():
-            if not isinstance(it, Node):
-                raise TypeError('Expected Node, got {} {}'.format(
-                    repr(type(it)), hex(id(it))))
-            it._owner_document = owner_document
-
     def append(self, node):
         """Inserts a sub-node after the last child node.
 
@@ -226,7 +217,11 @@ class Document(Node, NonElementParentNode, ParentNode):
             node (Node): A node to be added.
         """
         if self._document_element is None:
-            self._set_document_element(node)
+            if not isinstance(node, Element):
+                raise TypeError('Expected Element, got {}'.format(
+                    repr(type(node))))
+            node.attach_document(self)
+            self._document_element = node
         else:
             siblings = self._get_siblings()
             siblings[-1].addnext(node)
@@ -242,6 +237,55 @@ class Document(Node, NonElementParentNode, ParentNode):
         self.append(node)
         return node
 
+    def attach_document(self, document):
+        """Reimplemented from Node.attach_document().
+
+        Attaches an associated document.
+
+        Arguments:
+            document (Document): A document that is associated with the node.
+        Returns:
+            bool: Returns True if successful; otherwise False.
+        """
+        _ = document
+        return False
+
+    def create_attribute(self, local_name):
+        """Creates a new attribute instance, and returns it.
+        See also SVGParser.create_attribute().
+
+        Arguments:
+            local_name (str): A local name of an attribute to be created.
+        Returns:
+            Attr: A new attribute.
+        """
+        if self._implementation is None:
+            raise ValueError('The object is in the wrong document')
+        parser = self._implementation.parser
+        attr = parser.create_attribute(local_name)
+        attr.attach_document(self)
+        return attr
+
+    def create_attribute_ns(self, namespace, qualified_name):
+        """Creates a new attribute instance with the specified namespace URI
+        and qualified name, and returns it.
+        See also SVGParser.create_attribute_ns().
+
+        Arguments:
+            namespace (str, None): The namespace URI to associated with
+                the element.
+            qualified_name (str): A qualified name of an attribute to be
+                created.
+        Returns:
+            Attr: A new attribute.
+        """
+        if self._implementation is None:
+            raise ValueError('The object is in the wrong document')
+        parser = self._implementation.parser
+        attr = parser.create_attribute_ns(namespace, qualified_name)
+        attr.attach_document(self)
+        return attr
+
     def create_comment(self, data):
         """Creates a new comment instance, and returns it.
         See also SVGParser.create_comment().
@@ -255,6 +299,7 @@ class Document(Node, NonElementParentNode, ParentNode):
             raise ValueError('The object is in the wrong document')
         parser = self._implementation.parser
         comment = parser.create_comment(data)
+        comment.attach_document(self)
         return comment
 
     def create_element(self, local_name, attrib=None, nsmap=None, **_extra):
@@ -273,17 +318,17 @@ class Document(Node, NonElementParentNode, ParentNode):
         if self._implementation is None:
             raise ValueError('The object is in the wrong document')
         parser = self._implementation.parser
-        element = parser.create_element_ns(None,
-                                           local_name,
-                                           attrib=attrib,
-                                           nsmap=nsmap,
-                                           **_extra)
+        element = parser.create_element(local_name,
+                                        attrib=attrib,
+                                        nsmap=nsmap,
+                                        **_extra)
+        element.attach_document(self)
         return element
 
     def create_element_ns(self, namespace, qualified_name, attrib=None,
                           nsmap=None, **_extra):
-        """Creates a new element instance with the specified namespace URI,
-        and returns it.
+        """Creates a new element instance with the specified namespace URI
+        and qualified name, and returns it.
         See also SVGParser.create_element_ns().
 
         Arguments:
@@ -305,6 +350,7 @@ class Document(Node, NonElementParentNode, ParentNode):
                                            attrib=attrib,
                                            nsmap=nsmap,
                                            **_extra)
+        element.attach_document(self)
         return element
 
     def create_processing_instruction(self, target, data=None):
@@ -320,15 +366,25 @@ class Document(Node, NonElementParentNode, ParentNode):
             raise ValueError('The object is in the wrong document')
         parser = self._implementation.parser
         pi = parser.create_processing_instruction(target, data)
+        pi.attach_document(self)
         return pi
 
-    def get_element_by_id(self, element_id, namespaces=None):
+    def detach_document(self):
+        """Reimplemented from Node.detach_document().
+
+        Detaches an associated document.
+
+        Returns:
+            Document: A document to be detached.
+        """
+        return None
+
+    def get_element_by_id(self, element_id, nsmap=None):
         """Finds the first matching sub-element, by id.
 
         Arguments:
             element_id (str): The id of the element.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             Element: The first matching sub-element. Returns None if there is
                 no such element.
@@ -336,16 +392,15 @@ class Document(Node, NonElementParentNode, ParentNode):
         root = self._document_element
         if root is None:
             return None
-        return get_element_by_id(root, element_id, namespaces=namespaces)
+        return get_element_by_id(root, element_id, nsmap=nsmap)
 
-    def get_elements_by_class_name(self, class_names, namespaces=None):
+    def get_elements_by_class_name(self, class_names, nsmap=None):
         """Finds all matching sub-elements, by class names.
 
         Arguments:
             class_names (str): A list of class names that are separated by
                 whitespace.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
@@ -354,16 +409,15 @@ class Document(Node, NonElementParentNode, ParentNode):
             return []
         return get_elements_by_class_name(root,
                                           class_names,
-                                          namespaces=namespaces,
+                                          nsmap=nsmap,
                                           include_self=True)
 
-    def get_elements_by_tag_name(self, qualified_name, namespaces=None):
+    def get_elements_by_tag_name(self, qualified_name, nsmap=None):
         """Finds all matching sub-elements, by the qualified name.
 
         Arguments:
             qualified_name (str): The qualified name or '*'.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
@@ -372,19 +426,18 @@ class Document(Node, NonElementParentNode, ParentNode):
             return []
         return get_elements_by_tag_name(root,
                                         qualified_name,
-                                        namespaces=namespaces,
+                                        nsmap=nsmap,
                                         include_self=True)
 
     def get_elements_by_tag_name_ns(self, namespace, local_name,
-                                    namespaces=None):
+                                    nsmap=None):
         """Finds all matching sub-elements, by the namespace URI and the local
         name.
 
         Arguments:
             namespace (str, None): The namespace URI, '*' or None.
             local_name (str): The local name or '*'.
-            namespaces (dict, optional): The XPath prefixes in the path
-                expression.
+            nsmap (dict, optional): The XPath prefixes in the path expression.
         Returns:
             list[Element]: A list of elements.
         """
@@ -394,7 +447,7 @@ class Document(Node, NonElementParentNode, ParentNode):
         return get_elements_by_tag_name_ns(root,
                                            namespace,
                                            local_name,
-                                           namespaces=namespaces,
+                                           nsmap=nsmap,
                                            include_self=True)
 
     def get_root_node(self):
@@ -403,10 +456,7 @@ class Document(Node, NonElementParentNode, ParentNode):
         Returns:
             Node: A root node.
         """
-        root = self._document_element
-        if root is None:
-            return None
-        return root.getroottree().getroot()
+        return self
 
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
@@ -457,7 +507,7 @@ class Document(Node, NonElementParentNode, ParentNode):
             node (Node): A node to be added.
         """
         if self._document_element is None:
-            self._set_document_element(node)
+            self.append(node)
         else:
             siblings = self._get_siblings()
             siblings[0].addprevious(node)
@@ -479,7 +529,6 @@ class Document(Node, NonElementParentNode, ParentNode):
             raise ValueError(
                 'The operation would yield an incorrect node tree')
         elif child == root:
-            self._set_owner_document(root, remove=True)
             self._document_element = None
         else:
             siblings = self._get_siblings()
@@ -543,9 +592,9 @@ class Document(Node, NonElementParentNode, ParentNode):
         child = implementation.parse(StringIO(text))
         root = self._document_element
         if root is None:
-            self._set_document_element(child)
+            self.append(child)
         else:
-            root.append_child(child)
+            root.append(child)
 
     def writeln(self, text):
         """Parses an SVG document or fragment from a string, and adds to the

@@ -45,25 +45,24 @@ def get_content_type(headers):
     return result
 
 
-def get_element_by_id(element, element_id, namespaces=None):
+def get_element_by_id(element, element_id, nsmap=None):
     """Finds the first matching sub-element, by id.
 
     Arguments:
         element (Element): The root element.
         element_id (str): The id of the element.
-        namespaces (dict, optional): The XPath prefixes in the path
-            expression.
+        nsmap (dict, optional): The XPath prefixes in the path expression.
     Returns:
         Element: The first matching sub-element. Returns None if there is
             no such element.
     """
     elements = element.xpath('descendant-or-self::*[@id = $element_id]',
-                             namespaces=namespaces,
+                             namespaces=nsmap,
                              element_id=element_id)
     return elements[0] if len(elements) > 0 else None
 
 
-def get_elements_by_class_name(element, class_names, namespaces=None,
+def get_elements_by_class_name(element, class_names, nsmap=None,
                                include_self=False):
     """Finds all matching sub-elements, by class names.
 
@@ -71,8 +70,7 @@ def get_elements_by_class_name(element, class_names, namespaces=None,
         element (Element): The root element.
         class_names (str): A list of class names that are separated by
             whitespace.
-        namespaces (dict, optional): The XPath prefixes in the path
-            expression.
+        nsmap (dict, optional): The XPath prefixes in the path expression.
         include_self (bool, optional):
     Returns:
         list[Element]: A list of elements.
@@ -86,21 +84,20 @@ def get_elements_by_class_name(element, class_names, namespaces=None,
         axis = 'descendant'
     patterns = [r're:test(@class, "(^| ){}($| )")'.format(x) for x in names]
     expr = '{}::*[{}]'.format(axis, ' and '.join(patterns))
-    if namespaces is None:
-        namespaces = dict()
-    namespaces['re'] = 'http://exslt.org/regular-expressions'
-    return element.xpath(expr, namespaces=namespaces)
+    if nsmap is None:
+        nsmap = dict()
+    nsmap['re'] = 'http://exslt.org/regular-expressions'
+    return element.xpath(expr, namespaces=nsmap)
 
 
-def get_elements_by_tag_name(element, qualified_name, namespaces=None,
+def get_elements_by_tag_name(element, qualified_name, nsmap=None,
                              include_self=False):
     """Finds all matching sub-elements, by the qualified name.
 
     Arguments:
         element (Element): The root element.
         qualified_name (str): The qualified name or '*'.
-        namespaces (dict, optional): The XPath prefixes in the path
-            expression.
+        nsmap (dict, optional): The XPath prefixes in the path expression.
         include_self (bool, optional):
     Returns:
         list[Element]: A list of elements.
@@ -113,12 +110,12 @@ def get_elements_by_tag_name(element, qualified_name, namespaces=None,
                             '' if qualified_name == '*'
                             else '[name() = $qualified_name]')
     return element.xpath(expr,
-                         namespaces=namespaces,
+                         namespaces=nsmap,
                          qualified_name=qualified_name)
 
 
 def get_elements_by_tag_name_ns(element, namespace, local_name,
-                                namespaces=None, include_self=False):
+                                nsmap=None, include_self=False):
     """Finds all matching sub-elements, by the namespace URI and the local
     name.
 
@@ -126,8 +123,7 @@ def get_elements_by_tag_name_ns(element, namespace, local_name,
         element (Element): The root element.
         namespace (str, None): The namespace URI, '*' or None.
         local_name (str): The local name or '*'.
-        namespaces (dict, optional): The XPath prefixes in the path
-            expression.
+        nsmap (dict, optional): The XPath prefixes in the path expression.
         include_self (bool, optional):
     Returns:
         list[Element]: A list of elements.
@@ -138,15 +134,15 @@ def get_elements_by_tag_name_ns(element, namespace, local_name,
         axis = 'descendant'
     patterns = list()
     if namespace is not None and namespace != '*':
-        patterns.append('namespace-uri() = $namespace')
+        patterns.append('namespace-uri() = $namespace_uri')
     if local_name != '*':
         patterns.append('local-name() = $local_name')
     expr = '{}::*{}'.format(axis,
                             '' if len(patterns) == 0
                             else '[{}]'.format(' and '.join(patterns)))
     return element.xpath(expr,
-                         namespaces=namespaces,
-                         namespace=namespace,
+                         namespaces=nsmap,
+                         namespace_uri=namespace,
                          local_name=local_name)
 
 
