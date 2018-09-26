@@ -215,16 +215,24 @@ def remove_quotes(src):
 
 
 class CaseInsensitiveMapping(MutableMapping):
+
     def __init__(self, *args, **kwargs):
         self._data = dict()
         self._keys = dict()
         self.update(dict(*args, **kwargs))
 
+    def __contains__(self, key):
+        _key = CaseInsensitiveMapping._convert_key(key)
+        return _key in self._keys
+
     def __delitem__(self, key):
-        del self._data[self._keys[CaseInsensitiveMapping._key(key)]]
+        _key = CaseInsensitiveMapping._convert_key(key)
+        del self._data[self._keys[_key]]
+        del self._keys[_key]
 
     def __getitem__(self, key):
-        return self._data[self._keys[CaseInsensitiveMapping._key(key)]]
+        _key = CaseInsensitiveMapping._convert_key(key)
+        return self._data[self._keys[_key]]
 
     def __iter__(self):
         return iter(self._data)
@@ -236,13 +244,12 @@ class CaseInsensitiveMapping(MutableMapping):
         return repr(self._data)
 
     def __setitem__(self, key, value):
-        self._data[
-            self._keys.setdefault(
-                CaseInsensitiveMapping._key(key), key)
-        ] = value
+        _key = CaseInsensitiveMapping._convert_key(key)
+        _key = self._keys.setdefault(_key, key)
+        self._data[_key] = value
 
     @staticmethod
-    def _key(key):
+    def _convert_key(key):
         return key.lower() if isinstance(key, str) else key
 
 
