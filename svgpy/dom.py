@@ -437,8 +437,17 @@ class Node(ABC):
     @property
     def owner_document(self):
         """Document: An associated document."""
-        return (self._owner_document if self.node_type != Node.DOCUMENT_NODE
-                else None)
+        if self.node_type == Node.DOCUMENT_NODE:
+            return None
+        current = self
+        while True:
+            if current._owner_document is not None:
+                return current._owner_document
+            parent = current.parent_node  # type: Node
+            if parent is None:
+                break
+            current = parent
+        return None
 
     @property
     def parent_element(self):
