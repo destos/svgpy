@@ -10,8 +10,7 @@ sys.path.extend(['.', '..'])
 from svgpy.element import HTMLAudioElement, HTMLVideoElement, \
     SVGCircleElement, SVGGElement, SVGPathElement, SVGPolylineElement, \
     SVGRectElement, SVGSVGElement, SVGTextElement
-from svgpy import Attr, Comment, DOMMatrix, DOMRect, DOMTokenList, Element, \
-    Font, HTMLElement, NamedNodeMap, \
+from svgpy import Comment, DOMMatrix, DOMRect, Element, Font, HTMLElement, \
     Node, PathParser, SVGLength, SVGParser, \
     SVGPathDataSettings, SVGPreserveAspectRatio, SVGZoomAndPan, window, \
     formatter
@@ -504,185 +503,6 @@ class BasicShapesTestCase(unittest.TestCase):
         formatter.precision = 3
         window.location = 'about:blank'
 
-    def test_attr00(self):
-        qualified_name = 'name'
-        value = None
-        # attr = Attr(qualified_name)
-        self.assertRaises(ValueError, lambda: Attr(qualified_name, value))
-
-        value = 'white'
-        attr = Attr(qualified_name, value)
-        parser = SVGParser()
-        node = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'g')
-        self.assertRaises(ValueError, lambda: attr.append_child(node))
-        self.assertRaises(ValueError, lambda: attr.insert_before(node, None))
-        self.assertRaises(ValueError, lambda: attr.remove_child(node))
-        self.assertRaises(ValueError, lambda: attr.replace_child(node, None))
-        self.assertEqual(attr, attr.get_root_node())
-
-    def test_attr01(self):
-        qualified_name = 'name'
-        value = 'white'
-        local_name = qualified_name
-        attr = Attr(qualified_name, value)
-        self.assertIsNone(attr.prefix)
-        self.assertEqual(local_name, attr.local_name)
-        self.assertEqual(qualified_name, attr.name)
-        self.assertEqual(qualified_name, attr.node_name)
-        self.assertEqual(Element.ATTRIBUTE_NODE, attr.node_type)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertIsNone(attr.owner_document)
-        self.assertIsNone(attr.owner_element)
-        self.assertIsNone(attr.parent_element)
-        self.assertIsNone(attr.parent_node)
-
-        value = 'silver'
-        attr.value = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-
-        value = 'gray'
-        attr.node_value = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-
-        value = 'black'
-        attr.text_content = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-
-    def test_attr02(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'svg')
-        qualified_name = 'name'
-        value = 'white'
-        local_name = qualified_name
-        root.set(qualified_name, value)
-
-        attr = Attr(qualified_name, owner_element=root)
-        self.assertIsNone(attr.namespace_uri)
-        self.assertIsNone(attr.prefix)
-        self.assertEqual(local_name, attr.local_name)
-        self.assertEqual(qualified_name, attr.name)
-        self.assertEqual(qualified_name, attr.node_name)
-        self.assertEqual(Element.ATTRIBUTE_NODE, attr.node_type)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-        self.assertIsNone(attr.owner_document)
-        self.assertEqual(root, attr.owner_element)
-        self.assertIsNone(attr.parent_element)
-        self.assertIsNone(attr.parent_node)
-
-        value = 'silver'
-        attr.value = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
-        value = 'gray'
-        attr.node_value = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
-        value = 'black'
-        attr.text_content = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
-        value = 'red'
-        root.set(qualified_name, value)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
-    def test_attr03(self):
-        # prefix:local_name
-        parser = SVGParser()
-        namespace = 'http://example.com/namespace'
-        prefix = 'ex'
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'svg',
-                                        nsmap={
-                                            prefix: namespace,
-                                        })
-        local_name = 'name'
-        qualified_name = '{{{}}}{}'.format(namespace, local_name)
-        value = 'white'
-        root.set(qualified_name, value)
-
-        attr = Attr(qualified_name, owner_element=root)
-        self.assertEqual(namespace, attr.namespace_uri)
-        self.assertEqual(prefix, attr.prefix)
-        self.assertEqual(local_name, attr.local_name)
-        self.assertEqual(qualified_name, attr.name)
-        self.assertEqual(qualified_name, attr.node_name)
-        self.assertEqual(Element.ATTRIBUTE_NODE, attr.node_type)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-        self.assertIsNone(attr.owner_document)
-        self.assertEqual(root, attr.owner_element)
-        self.assertIsNone(attr.parent_element)
-        self.assertIsNone(attr.parent_node)
-
-        value = 'silver'
-        attr.value = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
-        value = 'gray'
-        attr.node_value = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
-        value = 'black'
-        attr.text_content = value
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
-        value = 'red'
-        root.set(qualified_name, value)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, attr.node_value)
-        self.assertEqual(value, attr.text_content)
-        self.assertEqual(value, attr.tostring().decode())
-        self.assertEqual(value, root.get(qualified_name))
-
     def test_circle_get_bbox01(self):
         parser = SVGParser()
         circle = parser.create_element('circle')
@@ -810,1264 +630,6 @@ class BasicShapesTestCase(unittest.TestCase):
             " 500,255.228 500,200 500,144.772 544.772,100" \
             " 600,100 655.228,100 700,144.772 700,200 Z"
         self.assertEqual(expected, exp)
-
-    def test_comment_addnext(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
-        self.assertIsNone(group.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
-
-        c0.addnext(c1)
-        self.assertEqual(doc, c1.owner_document)
-
-        c0.addnext(group)
-        self.assertEqual(doc, group.owner_document)
-
-    def test_comment_addprevious(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
-        self.assertIsNone(group.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
-
-        c0.addprevious(c1)
-        self.assertEqual(doc, c1.owner_document)
-
-        c0.addprevious(group)
-        self.assertEqual(doc, group.owner_document)
-
-    def test_comment_append_child(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        c2 = parser.create_comment('#2')
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-
-        doc.append(c1)
-        self.assertRaises(ValueError,
-                          lambda: c1.append_child(c2))
-
-    def test_comment_extend(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        c2 = parser.create_comment('#2')
-        c3 = parser.create_comment('#3')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(c2.owner_document)
-        self.assertIsNone(c3.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
-        c0.extend([c1, c2, c3])  # no effect, no error
-        self.assertEqual(doc, c1.owner_document)
-        self.assertEqual(doc, c2.owner_document)
-        self.assertEqual(doc, c3.owner_document)
-
-    def test_comment_next_element_sibling(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        desc = parser.create_element('desc')
-        root.append(desc)
-        comment = parser.create_comment('comment')
-        root.append(comment)
-        rect = parser.create_element('rect')
-        rect.id = 'border'
-        root.append(rect)
-        path = parser.create_element('path')
-        root.append(path)
-
-        e = comment.next_element_sibling
-        self.assertEqual(rect, e)
-
-    def test_comment_previous_element_sibling(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        desc = parser.create_element('desc')
-        root.append(desc)
-        comment = parser.create_comment('comment')
-        root.append(comment)
-        rect = parser.create_element('rect')
-        rect.id = 'border'
-        root.append(rect)
-        path = parser.create_element('path')
-        root.append(path)
-
-        e = comment.previous_element_sibling
-        self.assertEqual(desc, e)
-
-    def test_comment_remove(self):
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
-
-        self.assertRaises(ValueError,
-                          lambda: c0.remove(root))
-
-    def test_comment_replace(self):
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
-        c1 = doc.create_comment('#1')
-        c2 = doc.create_comment('#2')
-
-        self.assertRaises(ValueError,
-                          lambda: c0.replace(c1, c2))
-
-    def test_dom_token_list(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        attr_name = 'class'
-
-        s = DOMTokenList(root, attr_name)
-        self.assertEqual(0, len(s))
-        self.assertEqual(0, s.length)
-        self.assertEqual('', s.value)
-
-        root.set(attr_name, 'id0 id2 id3')
-        s = DOMTokenList(root, attr_name)
-        self.assertEqual(3, len(s))
-        self.assertEqual(3, s.length)
-        self.assertEqual('id0 id2 id3', s.value)
-        self.assertTrue(s.contains('id0'))
-        self.assertFalse(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id2', s.item(1))
-        self.assertEqual('id3', s.item(2))
-
-    def test_dom_token_list_add(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        attr_name = 'class'
-
-        s = DOMTokenList(root, attr_name)
-        self.assertEqual(0, len(s))
-        self.assertEqual(0, s.length)
-        self.assertEqual('', s.value)
-
-        s.add('id0')
-        self.assertEqual(1, len(s))
-        self.assertEqual(1, s.length)
-        self.assertEqual('id0', s.value)
-        self.assertEqual('id0', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertEqual('id0', s.item(0))
-
-        s.add('id1', 'id2')
-        self.assertEqual(3, len(s))
-        self.assertEqual(3, s.length)
-        self.assertEqual('id0 id1 id2', s.value)
-        self.assertEqual('id0 id1 id2', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id2', s.item(2))
-
-        s.add('id2')  # already exist
-        self.assertEqual(3, len(s))
-        self.assertEqual(3, s.length)
-        self.assertEqual('id0 id1 id2', s.value)
-        self.assertEqual('id0 id1 id2', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id2', s.item(2))
-
-        s.append('id3')
-        self.assertEqual(4, len(s))
-        self.assertEqual(4, s.length)
-        self.assertEqual('id0 id1 id2 id3', s.value)
-        self.assertEqual('id0 id1 id2 id3', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id2', s.item(2))
-        self.assertEqual('id3', s.item(3))
-
-        s.append('id2')  # already exist
-        self.assertEqual(4, len(s))
-        self.assertEqual(4, s.length)
-        self.assertEqual('id0 id1 id2 id3', s.value)
-        self.assertEqual('id0 id1 id2 id3', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id2', s.item(2))
-        self.assertEqual('id3', s.item(3))
-
-        self.assertRaises(ValueError, lambda: s.add(''))
-        self.assertRaises(ValueError, lambda: s.add('a\tb'))
-        self.assertRaises(ValueError, lambda: s.add('a\nb'))
-        self.assertRaises(ValueError, lambda: s.add('a\rb'))
-        self.assertRaises(ValueError, lambda: s.add('a\fb'))
-        self.assertRaises(ValueError, lambda: s.add('a b'))
-        self.assertRaises(ValueError, lambda: s.add('a\t\n\r\f b'))
-
-    def test_dom_token_list_insert(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        attr_name = 'class'
-        root.set(attr_name, 'id0 id2 id5')
-
-        s = DOMTokenList(root, attr_name)
-        s.insert(1, 'id1')
-        self.assertEqual(4, len(s))
-        self.assertEqual(4, s.length)
-        self.assertEqual('id0 id1 id2 id5', s.value)
-        self.assertEqual('id0 id1 id2 id5', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id5'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id2', s.item(2))
-        self.assertEqual('id5', s.item(3))
-
-        s.insert(1, 'id2')
-        self.assertEqual(4, len(s))
-        self.assertEqual(4, s.length)
-        self.assertEqual('id0 id1 id2 id5', s.value)
-        self.assertEqual('id0 id1 id2 id5', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id5'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id2', s.item(2))
-        self.assertEqual('id5', s.item(3))
-
-        s[3:3] = ['id2', 'id3', 'id4']  # new: 'id3', 'id4'
-        self.assertEqual(6, len(s))
-        self.assertEqual(6, s.length)
-        self.assertEqual('id0 id1 id2 id3 id4 id5', s.value)
-        self.assertEqual('id0 id1 id2 id3 id4 id5', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertTrue(s.contains('id4'))
-        self.assertTrue(s.contains('id5'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id2', s.item(2))
-        self.assertEqual('id3', s.item(3))
-        self.assertEqual('id4', s.item(4))
-        self.assertEqual('id5', s.item(5))
-
-        self.assertRaises(ValueError, lambda: s.insert(1, ''))
-        self.assertRaises(ValueError, lambda: s.insert(1, 'a\tb'))
-        self.assertRaises(ValueError, lambda: s.insert(1, 'a\nb'))
-        self.assertRaises(ValueError, lambda: s.insert(1, 'a\rb'))
-        self.assertRaises(ValueError, lambda: s.insert(1, 'a\fb'))
-        self.assertRaises(ValueError, lambda: s.insert(1, 'a b'))
-        self.assertRaises(ValueError, lambda: s.insert(1, 'a\t\n\r\f b'))
-
-    def test_dom_token_list_remove(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        attr_name = 'class'
-        root.set(attr_name, 'id0 id1 id2 id3 id4')
-
-        s = DOMTokenList(root, attr_name)
-        s.remove('id1')
-        self.assertEqual(4, len(s))
-        self.assertEqual(4, s.length)
-        self.assertEqual('id0 id2 id3 id4', s.value)
-        self.assertEqual('id0 id2 id3 id4', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertTrue(s.contains('id4'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id2', s.item(1))
-        self.assertEqual('id3', s.item(2))
-        self.assertEqual('id4', s.item(3))
-
-        s.remove('id0', 'id3')
-        self.assertEqual(2, len(s))
-        self.assertEqual(2, s.length)
-        self.assertEqual('id2 id4', s.value)
-        self.assertEqual('id2 id4', root.get(attr_name))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id4'))
-        self.assertEqual('id2', s.item(0))
-        self.assertEqual('id4', s.item(1))
-
-        s.remove('xx')  # not exist
-        self.assertEqual(2, len(s))
-        self.assertEqual(2, s.length)
-        self.assertEqual('id2 id4', s.value)
-        self.assertEqual('id2 id4', root.get(attr_name))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id4'))
-        self.assertEqual('id2', s.item(0))
-        self.assertEqual('id4', s.item(1))
-
-        s.remove('id2', 'id4')  # remove attribute
-        self.assertEqual(0, len(s))
-        self.assertEqual(0, s.length)
-        self.assertEqual('', s.value)
-        self.assertIsNone(root.get(attr_name))
-
-    def test_dom_token_list_replace(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        attr_name = 'class'
-        root.set(attr_name, 'id0 id2 id3')
-
-        s = DOMTokenList(root, attr_name)
-        result = s.replace('id2', 'id1')
-        self.assertTrue(result)
-        self.assertEqual(3, len(s))
-        self.assertEqual(3, s.length)
-        self.assertEqual('id0 id1 id3', s.value)
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id3'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id3', s.item(2))
-
-        result = s.replace('id2', 'id4')  # 'id2': not exist
-        self.assertFalse(result)
-        self.assertEqual(3, len(s))
-        self.assertEqual(3, s.length)
-        self.assertEqual('id0 id1 id3', s.value)
-        self.assertTrue(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id3'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id1', s.item(1))
-        self.assertEqual('id3', s.item(2))
-
-    def test_dom_token_list_toggle(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        attr_name = 'class'
-        root.set(attr_name, 'id0 id2 id3')
-
-        s = DOMTokenList(root, attr_name)
-        # token: not exist. force: none => add()
-        result = s.toggle('id4')
-        self.assertTrue(result)
-        self.assertEqual(4, len(s))
-        self.assertEqual(4, s.length)
-        self.assertEqual('id0 id2 id3 id4', s.value)
-        self.assertEqual('id0 id2 id3 id4', root.get(attr_name))
-        self.assertTrue(s.contains('id0'))
-        self.assertFalse(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertTrue(s.contains('id4'))
-        self.assertEqual('id0', s.item(0))
-        self.assertEqual('id2', s.item(1))
-        self.assertEqual('id3', s.item(2))
-        self.assertEqual('id4', s.item(3))
-
-        # token: already exist. force: none => remove()
-        result = s.toggle('id0')
-        self.assertFalse(result)
-        self.assertEqual(3, len(s))
-        self.assertEqual(3, s.length)
-        self.assertEqual('id2 id3 id4', s.value)
-        self.assertEqual('id2 id3 id4', root.get(attr_name))
-        self.assertFalse(s.contains('id0'))
-        self.assertFalse(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertTrue(s.contains('id4'))
-        self.assertEqual('id2', s.item(0))
-        self.assertEqual('id3', s.item(1))
-        self.assertEqual('id4', s.item(2))
-
-        # force: True => add()
-        result = s.toggle('id1', force=True)
-        self.assertTrue(result)
-        self.assertEqual(4, len(s))
-        self.assertEqual(4, s.length)
-        self.assertEqual('id2 id3 id4 id1', s.value)
-        self.assertEqual('id2 id3 id4 id1', root.get(attr_name))
-        self.assertFalse(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertTrue(s.contains('id4'))
-        self.assertEqual('id2', s.item(0))
-        self.assertEqual('id3', s.item(1))
-        self.assertEqual('id4', s.item(2))
-        self.assertEqual('id1', s.item(3))
-
-        # force: False => remove()
-        result = s.toggle('id4', False)
-        self.assertFalse(result)
-        self.assertEqual(3, len(s))
-        self.assertEqual(3, s.length)
-        self.assertEqual('id2 id3 id1', s.value)
-        self.assertEqual('id2 id3 id1', root.get(attr_name))
-        self.assertFalse(s.contains('id0'))
-        self.assertTrue(s.contains('id1'))
-        self.assertTrue(s.contains('id2'))
-        self.assertTrue(s.contains('id3'))
-        self.assertFalse(s.contains('id4'))
-        self.assertEqual('id2', s.item(0))
-        self.assertEqual('id3', s.item(1))
-        self.assertEqual('id1', s.item(2))
-
-    def test_element_addnext(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
-        self.assertIsNone(style.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        title = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'title')
-        root.append(title)
-        desc = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'desc')
-        root.append(desc)
-
-        title.addnext(c1)
-        self.assertEqual(doc, c1.owner_document)
-
-        desc.addnext(style)
-        self.assertEqual(doc, style.owner_document)
-
-        # <svg>
-        #   <title/>
-        #   <!--#1-->
-        #   <desc/>
-        #   <style/>
-        #   <group><path/></group>
-        # </svg>
-        style.addnext(group)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-        nodes = [e for e in root]
-        self.assertEqual([title, c1, desc, style, group], nodes)
-
-    def test_element_addprevious(self):
-        parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        self.assertIsNone(p1.owner_document)
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        rect = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'rect')
-        root.append(rect)
-
-        root.addprevious(p1)
-        self.assertEqual(doc, p1.owner_document)
-
-        rect.addprevious(group)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        #   <!--#1-->
-        #   <group><path/></group>
-        #   <rect/>
-        # </svg>
-        group.addprevious(c1)
-        self.assertEqual(doc, c1.owner_document)
-        # print(doc.tostring())
-
-    def test_element_append(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-
-        root.append(c1)
-        self.assertEqual(doc, c1.owner_document)
-
-        # <svg>
-        #   <!--#1-->
-        #   <group><path/></group>
-        # </svg>
-        root.append(group)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-        # print(doc.tostring())
-
-    def test_element_append_child(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(group.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-
-        node = root.append_child(c1)
-        self.assertEqual(c1, node)
-        self.assertEqual(doc, c1.owner_document)
-
-        node = root.append_child(group)
-        self.assertEqual(group, node)
-        self.assertEqual(doc, group.owner_document)
-
-    def test_element_attributes(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        root.attributes.set('width', '20cm')
-        root.attributes.set('height', '10cm')
-        self.assertEqual(2, len(root.attributes))
-        self.assertEqual(2, len(root.attrib))
-        self.assertTrue('width' in root.attributes)
-        self.assertTrue('height' in root.attributes)
-        self.assertTrue('x' not in root.attributes)
-        self.assertTrue(root.attributes.has('width'))
-        self.assertTrue(root.attributes.has('height'))
-        self.assertTrue(not root.attributes.has('x'))
-
-        self.assertEqual(['height', 'width'],
-                         root.get_attribute_names())
-        self.assertTrue(root.has_attribute('width'))
-        self.assertTrue(root.has_attribute('height'))
-        self.assertTrue(not root.has_attribute('x'))
-        self.assertEqual('20cm',
-                         root.get_attribute('width'))
-        self.assertEqual('10cm',
-                         root.get_attribute('height'))
-
-        width = root.attributes.pop('width')
-        self.assertEqual(1, len(root.attributes))
-        self.assertEqual(1, len(root.attrib))
-        self.assertEqual('20cm', width)
-        self.assertTrue('width' not in root.attributes)
-        self.assertTrue('height' in root.attributes)
-        self.assertTrue(not root.attributes.has('width'))
-        self.assertTrue(root.attributes.has('height'))
-
-        del root.attributes['height']
-        self.assertEqual(0, len(root.attributes))
-        self.assertEqual(0, len(root.attrib))
-        self.assertTrue('width' not in root.attributes)
-        self.assertTrue('height' not in root.attributes)
-        self.assertTrue(not root.attributes.has('width'))
-        self.assertTrue(not root.attributes.has('height'))
-
-        root.attributes.set('width', '20cm')
-        root.attributes.set('height', '10cm')
-        root.attributes.update({
-            'width': '15cm',
-        })
-        width = root.attributes.get('width')
-        height = root.attributes.get('height')
-        x = root.attributes.get('x')
-        self.assertEqual(2, len(root.attributes))
-        self.assertEqual(2, len(root.attrib))
-        self.assertEqual('15cm', width)
-        self.assertEqual('10cm', height)
-        self.assertTrue(x is None)
-        self.assertTrue(root.attributes.has('width'))
-        self.assertTrue(root.attributes.has('height'))
-        self.assertTrue(not root.attributes.has('x'))
-
-        x = root.attributes.get('x', '100')
-        self.assertEqual('100', x)
-
-        self.assertTrue('viewBox' not in root.attributes)
-
-        view_box = root.attributes.setdefault('viewBox', '0 0 200 100')
-        self.assertEqual('0 0 200 100', view_box)
-
-        self.assertTrue('viewBox' in root.attributes)
-        self.assertTrue(root.attributes.has('viewBox'))
-
-        # 'width': '15cm', 'height': '10cm', 'viewBox': '0 0 200 100'
-        root.remove_attribute('viewBox')
-        root.remove_attribute('x')
-        self.assertEqual('15cm',
-                         root.get_attribute('width'))
-        self.assertEqual('10cm',
-                         root.get_attribute('height'))
-        self.assertIsNone(root.get_attribute('viewBox'))
-        self.assertIsNone(root.get_attribute('x'))
-
-    def test_element_attributes_ns(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        text = root.create_sub_element('text')
-
-        attributes = text.attributes
-
-        self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
-                                              'lang'))
-        self.assertTrue(not text.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                                  'lang'))
-        attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ja')
-        self.assertTrue(attributes.has_ns(Element.XML_NAMESPACE_URI, 'lang'))
-        self.assertTrue(text.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang'))
-
-        expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-                   "<text xml:lang=\"ja\"/></svg>"
-        self.assertEqual(expected, root.tostring().decode())
-
-        lang = attributes.get('lang')
-        self.assertIsNone(lang)
-        self.assertIsNone(text.get_attribute_ns(None, 'lang'))
-        self.assertTrue(not attributes.has_ns(None, 'lang'))
-        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
-
-        lang = attributes.get_ns(Element.XML_NAMESPACE_URI, 'lang')
-        expected = 'ja'
-        self.assertEqual(expected, lang)
-        self.assertEqual(expected,
-                         text.get_attribute_ns(Element.XML_NAMESPACE_URI,
-                                               'lang'))
-        self.assertEqual(
-            'ja',
-            text.get('{http://www.w3.org/XML/1998/namespace}lang'))
-
-        space = attributes.get_ns(Element.XML_NAMESPACE_URI,
-                                  'space')  # deprecated
-        self.assertIsNone(space)
-        self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
-                                              'space'))
-
-        space = attributes.get_ns(Element.XML_NAMESPACE_URI,
-                                  'space', 'preserve')
-        expected = 'preserve'
-        self.assertEqual(expected, space)
-
-        lang = attributes.pop_ns(Element.XML_NAMESPACE_URI, 'lang', 'en')
-        expected = 'ja'
-        self.assertEqual(expected, lang)
-        self.assertTrue(not attributes.has_ns(Element.XML_NAMESPACE_URI,
-                                              'lang'))
-
-        expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-                   "<text/></svg>"
-        self.assertEqual(expected, root.tostring().decode())
-
-        lang = attributes.setdefault_ns(Element.XML_NAMESPACE_URI, 'lang',
-                                        'en')
-        expected = 'en'
-        self.assertEqual(expected, lang)
-        self.assertTrue(attributes.has_ns(Element.XML_NAMESPACE_URI, 'lang'))
-
-        expected = "<svg xmlns=\"http://www.w3.org/2000/svg\">" \
-                   "<text xml:lang=\"en\"/></svg>"
-        self.assertEqual(expected, root.tostring().decode())
-
-        text.set_attribute_ns(Element.XML_NAMESPACE_URI,
-                              'lang',
-                              'fr')
-        self.assertEqual('fr',
-                         text.get_attribute_ns(Element.XML_NAMESPACE_URI,
-                                               'lang'))
-        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
-        self.assertTrue(text.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang'))
-        text.remove_attribute_ns(None, 'lang')
-        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
-        self.assertTrue(text.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang'))
-        text.remove_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
-        self.assertTrue(not text.has_attribute_ns(None, 'lang'))
-        self.assertTrue(not text.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                                  'lang'))
-
-    def test_element_class_list01(self):
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_CUBIC01))
-        root = tree.getroot()
-
-        self.assertIsNone(root.get('class'))
-        self.assertEqual('', root.class_name)
-        class_list = root.class_list
-        self.assertIsInstance(class_list, DOMTokenList)
-        self.assertEqual(0, len(class_list))
-
-        class_list.add('Border')
-        self.assertEqual('Border', root.get('class'))
-        self.assertEqual('Border', root.class_name)
-
-        class_list.replace('Border', 'Label')
-        self.assertEqual('Label', root.get('class'))
-        self.assertEqual('Label', root.class_name)
-
-        class_list.toggle('Label')
-        self.assertIsNone(root.get('class'))
-        self.assertEqual('', root.class_name)
-
-    def test_element_class_list02(self):
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_CUBIC01))
-        root = tree.getroot()
-
-        self.assertIsNone(root.get('class'))
-        self.assertEqual('', root.class_name)
-        class_list = root.class_list
-        self.assertIsInstance(class_list, DOMTokenList)
-        self.assertEqual(0, len(class_list))
-
-        root.class_name = 'Border'
-        self.assertEqual('Border', root.class_name)
-        self.assertEqual('Border', root.get('class'))
-        class_list = root.class_list
-        self.assertEqual(1, len(class_list))
-        self.assertEqual('Border', class_list[0])
-
-    def test_element_class_list03(self):
-        parser = SVGParser()
-        tree = parser.parse(StringIO(SVG_CUBIC01))
-        root = tree.getroot()
-
-        root.class_name = 'Border Label'
-        self.assertEqual('Border Label', root.class_name)
-        self.assertEqual('Border Label', root.get('class'))
-        class_list = root.class_list
-        self.assertIsInstance(class_list, DOMTokenList)
-        self.assertEqual(2, len(class_list))
-        self.assertEqual('Border', class_list[0])
-        self.assertEqual('Label', class_list[1])
-
-        rect = root.get_elements_by_tag_name_ns(Element.SVG_NAMESPACE_URI,
-                                                'rect')[0]
-        self.assertEqual('Border', rect.get('class'))
-        self.assertEqual('Border', rect.class_name)
-        class_list = rect.class_list
-        self.assertEqual(1, len(class_list))
-        self.assertEqual('Border', class_list[0])
-        class_list.remove('Border')
-        self.assertEqual(0, len(class_list))
-        self.assertIsNone(rect.get('class'))
-        self.assertEqual('', rect.class_name)
-
-    def test_element_extend(self):
-        parser = SVGParser()
-        desc = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'desc')
-        comment = parser.create_comment('comment')
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertIsNone(desc.owner_document)
-        self.assertIsNone(comment.owner_document)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        self.assertEqual(doc, root.owner_document)
-        doc.append(root)
-
-        root.extend([desc, comment, group])
-        self.assertEqual(doc, desc.owner_document)
-        self.assertEqual(doc, comment.owner_document)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-        # print(doc.tostring())
-
-    def test_element_id(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'svg')
-        self.assertIsNone(root.get('id'))
-        self.assertEqual('', root.id)
-
-        value = 'id01'
-        root.id = value
-        self.assertEqual(value, root.get('id'))
-        self.assertEqual(value, root.id)
-
-    def test_element_namespace_uri(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'svg')
-        self.assertEqual(Element.SVG_NAMESPACE_URI, root.namespace_uri)
-        self.assertIsNone(root.prefix)
-
-        nsmap = {
-            None: Element.SVG_NAMESPACE_URI,
-            'html': Element.XHTML_NAMESPACE_URI,
-        }
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'svg',
-                                        nsmap=nsmap)
-        self.assertEqual(Element.SVG_NAMESPACE_URI, root.namespace_uri)
-        self.assertIsNone(root.prefix)
-
-        video = parser.create_element_ns(Element.XHTML_NAMESPACE_URI,
-                                         'video',
-                                         nsmap=nsmap)
-        self.assertEqual(Element.XHTML_NAMESPACE_URI, video.namespace_uri)
-        self.assertEqual('html', video.prefix)
-
-    def test_element_insert(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(style.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        root.append(group)
-
-        root.insert(0, style)
-        self.assertEqual(doc, style.owner_document)
-
-        root.insert(0, c1)
-        self.assertEqual(doc, c1.owner_document)
-
-    def test_element_insert_before(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(style.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        root.append(group)
-
-        node = root.insert_before(style, group)
-        self.assertEqual(style, node)
-        self.assertEqual(doc, style.owner_document)
-
-        node = root.insert_before(c1, style)
-        self.assertEqual(c1, node)
-        self.assertEqual(doc, c1.owner_document)
-
-        children = [e for e in root]
-        self.assertEqual([c1, style, group], children)
-        # print(doc.tostring())
-
-    def test_element_next_element_sibling(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        desc = parser.create_element('desc')
-        root.append(desc)
-        comment = parser.create_comment('comment')
-        root.append(comment)
-        rect = parser.create_element('rect')
-        rect.id = 'border'
-        root.append(rect)
-        path = parser.create_element('path')
-        root.append(path)
-
-        e = root.next_element_sibling
-        self.assertIsNone(e)
-
-        e = desc.next_element_sibling
-        self.assertEqual(rect, e)
-
-        e = rect.next_element_sibling
-        self.assertEqual(path, e)
-
-        e = path.next_element_sibling
-        self.assertIsNone(e)
-
-    def test_element_previous_element_sibling(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        desc = parser.create_element('desc')
-        root.append(desc)
-        comment = parser.create_comment('comment')
-        root.append(comment)
-        rect = parser.create_element('rect')
-        rect.id = 'border'
-        root.append(rect)
-        path = parser.create_element('path')
-        root.append(path)
-
-        e = root.previous_element_sibling
-        self.assertIsNone(e)
-
-        e = desc.previous_element_sibling
-        self.assertIsNone(e)
-
-        e = rect.previous_element_sibling
-        self.assertEqual(desc, e)
-
-        e = path.previous_element_sibling
-        self.assertEqual(rect, e)
-
-    def test_element_remove(self):
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-        root.remove(group)
-        self.assertFalse(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-    def test_element_remove_child(self):
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-        node = root.remove_child(group)
-        self.assertEqual(group, node)
-        self.assertTrue(group not in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-    def test_element_replace(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-        root.replace(group, c1)
-        self.assertTrue(c1 in root)
-        self.assertTrue(group not in root)
-        self.assertEqual(doc, c1.owner_document)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-    def test_element_replace_child(self):
-        parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-        node = root.replace_child(c1, group)
-        self.assertEqual(c1, node)
-        self.assertTrue(c1 in root)
-        self.assertTrue(group not in root)
-        self.assertEqual(doc, c1.owner_document)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-
-    def test_element_style_attribute(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-
-        circle = root.create_sub_element('circle')
-        circle.attributes.update({
-            'r': '120',
-            'cx': '100',
-            'cy': '200',
-        })
-        circle.attributes.set_style({
-            'stroke': 'red',
-            'stroke-width': '5',
-            'stroke-dasharray': '10 5',
-        })
-        self.assertEqual(4, len(circle.keys()))
-        self.assertEqual(4, len(circle.attributes))
-        self.assertEqual(4, len(circle.attrib))
-        self.assertEqual('120', circle.attributes.get('r'))
-        self.assertEqual('100', circle.attributes.get('cx'))
-        self.assertEqual('200', circle.attributes.get('cy'))
-        self.assertEqual('red', circle.attributes.get('stroke'))
-        self.assertEqual('5', circle.attributes.get('stroke-width'))
-        self.assertEqual('10 5', circle.attributes.get('stroke-dasharray'))
-
-        style = circle.attributes.get('style')
-        expected = 'stroke-dasharray: 10 5; stroke-width: 5; stroke: red;'
-        self.assertEqual(expected, style)
-        self.assertTrue(circle.attributes.has('r'))
-        self.assertTrue(circle.attributes.has('cx'))
-        self.assertTrue(circle.attributes.has('cy'))
-        self.assertTrue(circle.attributes.has('style'))
-        self.assertTrue(circle.attributes.has('stroke'))
-        self.assertTrue(circle.attributes.has('stroke-width'))
-        self.assertTrue(circle.attributes.has('stroke-dasharray'))
-
-        d = circle.attributes.get_style()
-        self.assertEqual(3, len(d))
-        self.assertEqual('red', d['stroke'])
-        self.assertEqual('5', d['stroke-width'])
-        self.assertEqual('10 5', d['stroke-dasharray'])
-
-        sw = circle.attributes.pop('stroke-width')
-        self.assertEqual(4, len(circle.keys()))
-        self.assertEqual('5', sw)
-        self.assertEqual('120', circle.attributes.get('r'))
-        self.assertEqual('100', circle.attributes.get('cx'))
-        self.assertEqual('200', circle.attributes.get('cy'))
-        self.assertEqual('red', circle.attributes.get('stroke'))
-        self.assertEqual('10 5', circle.attributes.get('stroke-dasharray'))
-        self.assertTrue(circle.attributes.get('stroke-width') is None)
-        self.assertTrue('stroke-width' not in circle.attributes)
-        self.assertTrue('stroke-width' not in circle.attrib)
-        self.assertTrue(circle.attributes.has('r'))
-        self.assertTrue(circle.attributes.has('cx'))
-        self.assertTrue(circle.attributes.has('cy'))
-        self.assertTrue(circle.attributes.has('style'))
-        self.assertTrue(circle.attributes.has('stroke'))
-        self.assertTrue(not circle.attributes.has('stroke-width'))
-        self.assertTrue(circle.attributes.has('stroke-dasharray'))
-
-        style = circle.attributes.get('style')
-        expected = 'stroke-dasharray: 10 5; stroke: red;'
-        self.assertEqual(expected, style)
-
-        d = circle.attributes.get_style()
-        self.assertEqual(2, len(d))
-        self.assertEqual('red', d['stroke'])
-        self.assertEqual('10 5', d['stroke-dasharray'])
-
-        circle.attributes.update({
-            'cx': '500',
-            'cy': '800',
-            'stroke': 'green',
-        })
-        self.assertEqual(4, len(circle.keys()))
-        self.assertEqual('120', circle.attributes.get('r'))
-        self.assertEqual('500', circle.attributes.get('cx'))
-        self.assertEqual('800', circle.attributes.get('cy'))
-        self.assertEqual('green', circle.attributes.get('stroke'))
-        self.assertTrue('stroke' in circle.attributes)
-        self.assertTrue('stroke' not in circle.attrib)
-        self.assertTrue('stroke' not in circle.keys())
-        self.assertTrue(circle.attributes.has('r'))
-        self.assertTrue(circle.attributes.has('cx'))
-        self.assertTrue(circle.attributes.has('cy'))
-        self.assertTrue(circle.attributes.has('style'))
-        self.assertTrue(circle.attributes.has('stroke'))
-        self.assertTrue(not circle.attributes.has('stroke-width'))
-        self.assertTrue(circle.attributes.has('stroke-dasharray'))
-
-        style = circle.attributes.get('style')
-        expected = 'stroke-dasharray: 10 5; stroke: green;'
-        self.assertEqual(expected, style)
-
-        d = circle.attributes.get_style()
-        self.assertEqual(2, len(d))
-        self.assertEqual('green', d['stroke'])
-        self.assertEqual('10 5', d['stroke-dasharray'])
-
-        self.assertTrue('fill' not in circle.attributes)
-        self.assertTrue('fill' not in circle.attrib)
-        d = circle.attributes.get_style()
-        d.update({
-            'fill': 'none',
-        })
-        circle.attributes.set_style(d)
-        self.assertTrue('fill' in circle.attributes)
-        self.assertTrue('fill' not in circle.attrib)
-        self.assertEqual(4, len(circle.keys()))
-        self.assertEqual('120', circle.attributes.get('r'))
-        self.assertEqual('500', circle.attributes.get('cx'))
-        self.assertEqual('800', circle.attributes.get('cy'))
-        self.assertEqual('none', circle.attributes.get('fill'))
-        self.assertEqual('green', circle.attributes.get('stroke'))
-        self.assertEqual('10 5', circle.attributes.get('stroke-dasharray'))
-        self.assertTrue(circle.attributes.get('stroke-width') is None)
-        self.assertTrue(circle.attributes.has('r'))
-        self.assertTrue(circle.attributes.has('cx'))
-        self.assertTrue(circle.attributes.has('cy'))
-        self.assertTrue(circle.attributes.has('style'))
-        self.assertTrue(circle.attributes.has('stroke'))
-        self.assertTrue(not circle.attributes.has('stroke-width'))
-        self.assertTrue(circle.attributes.has('stroke-dasharray'))
-        self.assertTrue(circle.attributes.has('fill'))
-
-        style = circle.attributes.get('style')
-        expected = 'fill: none; stroke-dasharray: 10 5; stroke: green;'
-        self.assertEqual(expected, style)
-
-        circle.attributes.pop('stroke')
-        self.assertEqual(4, len(circle.keys()))
-
-        circle.attributes.pop('stroke')  # remove twice
-        self.assertEqual(4, len(circle.keys()))
-
-        circle.attributes.pop('stroke-width')
-        self.assertEqual(4, len(circle.keys()))
-
-        circle.attributes.pop('stroke-dasharray')
-        self.assertEqual(4, len(circle.keys()))
-
-        style = circle.attributes.get('style')
-        expected = 'fill: none;'
-        self.assertEqual(expected, style)
-
-        fill = circle.attributes.pop('fill', 'red')
-        self.assertEqual('none', fill)
-
-        fill = circle.attributes.pop('fill', 'red')  # remove twice
-        self.assertEqual('red', fill)
-
-        style = circle.attributes.get('style')
-        self.assertEqual(3, len(circle.keys()))
-        self.assertEqual('120', circle.attributes.get('r'))
-        self.assertEqual('500', circle.attributes.get('cx'))
-        self.assertEqual('800', circle.attributes.get('cy'))
-        self.assertTrue(style is None)
-        self.assertTrue(circle.attributes.has('r'))
-        self.assertTrue(circle.attributes.has('cx'))
-        self.assertTrue(circle.attributes.has('cy'))
-        self.assertTrue(not circle.attributes.has('style'))
-        self.assertTrue(not circle.attributes.has('stroke'))
-        self.assertTrue(not circle.attributes.has('stroke-width'))
-        self.assertTrue(not circle.attributes.has('stroke-dasharray'))
-        self.assertTrue(not circle.attributes.has('fill'))
-
-        circle.attributes.update_style({'fill': 'none', 'stroke': 'red'})
-        circle.attributes.update_style({'stroke-width': '2'})
-        style = circle.attributes.get('style')
-        expected = 'fill: none; stroke-width: 2; stroke: red;'
-        self.assertEqual(expected, style)
-        self.assertTrue(circle.attributes.has('r'))
-        self.assertTrue(circle.attributes.has('cx'))
-        self.assertTrue(circle.attributes.has('cy'))
-        self.assertTrue(circle.attributes.has('style'))
-        self.assertTrue(circle.attributes.has('stroke'))
-        self.assertTrue(circle.attributes.has('stroke-width'))
-        self.assertTrue(not circle.attributes.has('stroke-dasharray'))
-        self.assertTrue(circle.attributes.has('fill'))
-
-    def test_element_style_attribute_ns(self):
-        parser = SVGParser()
-        root = parser.create_element('svg')
-        circle = root.create_sub_element('circle')
-
-        value = circle.attributes.get_ns(None, 'fill')
-        self.assertIsNone(value)
-        self.assertTrue(not circle.attributes.has_ns(None, 'style'))
-        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
-
-        circle.attributes.set('style', 'fill:red;stroke:blue')
-        value = circle.attributes.get_ns(None, 'fill')
-        expected = 'red'
-        self.assertEqual(expected, value)
-        self.assertTrue(circle.attributes.has_ns(None, 'style'))
-        self.assertTrue(circle.attributes.has_ns(None, 'fill'))
-        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
-
-        circle.attributes.set_ns(None, 'fill', 'white')
-        value = circle.attributes.pop_ns(None, 'fill')
-        expected = 'white'
-        self.assertEqual(expected, value)
-        self.assertTrue(circle.attributes.has_ns(None, 'style'))
-        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
-        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
-
-        value = circle.attributes.pop_ns(None, 'fill', 'black')
-        expected = 'black'
-        self.assertEqual(expected, value)
-        self.assertTrue(circle.attributes.has_ns(None, 'style'))
-        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
-        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
-
-        value = circle.attributes.setdefault_ns(None, 'stroke', 'black')
-        expected = 'blue'
-        self.assertEqual(expected, value)
-        self.assertTrue(circle.attributes.has_ns(None, 'style'))
-        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
-        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
-
-        circle.attributes.update({'stroke': 'white'})
-        value = circle.attributes.get_ns(None, 'style')
-        expected = 'stroke: white;'
-        self.assertEqual(expected, value)
-        self.assertTrue(circle.attributes.has_ns(None, 'style'))
-        self.assertTrue(not circle.attributes.has_ns(None, 'fill'))
-        self.assertTrue(circle.attributes.has_ns(None, 'stroke'))
 
     def test_ellipse_get_bbox08(self):
         parser = SVGParser()
@@ -2526,7 +1088,7 @@ class BasicShapesTestCase(unittest.TestCase):
         parser = SVGParser()
         root = parser.create_element('svg')
         group = root.create_sub_element('g')
-        group.attributes.set_style({
+        group.style.update({
             'fill': 'red',
             'stroke': 'blue',
             'stroke-width': '1',
@@ -2541,13 +1103,13 @@ class BasicShapesTestCase(unittest.TestCase):
             {
                 'style': 'fill: red; stroke-width: 1; stroke: blue;',
             },
-            group.attributes)
+            dict([(attr.name, attr.value) for attr in group.attributes]))
         self.assertEqual(
             {
                 'fill': 'white',
                 'stroke-width': '5',
             },
-            rect.attributes)
+            dict([(attr.name, attr.value) for attr in rect.attributes]))
         css_style = rect.get_computed_style()
         self.assertEqual('white', css_style.get('fill'))
         self.assertEqual('blue', css_style.get('stroke'))
@@ -2562,7 +1124,7 @@ class BasicShapesTestCase(unittest.TestCase):
             'stroke-width': '5',
         })
         rect = group.create_sub_element('rect')
-        rect.attributes.set_style({
+        rect.style.update({
             'fill': 'red',
             'stroke': 'blue',
             'stroke-width': '1',
@@ -2573,12 +1135,12 @@ class BasicShapesTestCase(unittest.TestCase):
                 'fill': 'white',
                 'stroke-width': '5',
             },
-            group.attributes)
+            dict([(attr.name, attr.value) for attr in group.attributes]))
         self.assertEqual(
             {
                 'style': 'fill: red; stroke-width: 1; stroke: blue;',
             },
-            rect.attributes)
+            dict([(attr.name, attr.value) for attr in rect.attributes]))
         css_style = rect.get_computed_style()
         self.assertEqual('red', css_style.get('fill'))
         self.assertEqual('blue', css_style.get('stroke'))
@@ -2588,13 +1150,13 @@ class BasicShapesTestCase(unittest.TestCase):
         parser = SVGParser()
         root = parser.create_element('svg')
         group = root.create_sub_element('g')
-        group.attributes.set_style({
+        group.style.update({
             'fill': 'red',
             'stroke': 'blue',
             'stroke-width': '1',
         })
         rect = group.create_sub_element('rect')
-        rect.attributes.set_style({
+        rect.style.update({
             'fill': 'white',
             'stroke-width': '5',
         })
@@ -2603,12 +1165,12 @@ class BasicShapesTestCase(unittest.TestCase):
             {
                 'style': 'fill: red; stroke-width: 1; stroke: blue;',
             },
-            group.attributes)
+            dict([(attr.name, attr.value) for attr in group.attributes]))
         self.assertEqual(
             {
                 'style': 'fill: white; stroke-width: 5;',
             },
-            rect.attributes)
+            dict([(attr.name, attr.value) for attr in rect.attributes]))
         css_style = rect.get_computed_style()
         self.assertEqual('white', css_style.get('fill'))
         self.assertEqual('blue', css_style.get('stroke'))
@@ -3584,377 +2146,6 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = math.sqrt((-100 - 100) ** 2 + (-200 - 200) ** 2)
         self.assertEqual(expected, n)
 
-    def test_named_node_map(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
-
-        attributes = NamedNodeMap(root)
-        self.assertEqual(0, len(attributes))
-        self.assertEqual(0, attributes.length)
-        self.assertEqual(0, len(root.keys()))
-
-        # fill="none" stroke="black" stroke-width="1"
-        fill = 'none'
-        stroke = 'black'
-        stroke_width = '1'
-        attributes['fill'] = fill
-        attributes['stroke'] = stroke
-        attributes['stroke-width'] = stroke_width
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-        self.assertEqual(fill, root.get('fill'))
-        self.assertEqual(stroke, root.get('stroke'))
-        self.assertEqual(stroke_width, root.get('stroke-width'))
-
-        attributes = NamedNodeMap(root)
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-        self.assertEqual(fill, root.get('fill'))
-        self.assertEqual(stroke, root.get('stroke'))
-        self.assertEqual(stroke_width, root.get('stroke-width'))
-
-        attr = attributes['fill']
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(root, attr.owner_element)
-        self.assertEqual('fill', attr.name)
-        self.assertEqual(fill, attr.value)
-
-        attr = attributes.get('fill', Attr('fill', ''))
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(fill, attr.value)
-        self.assertNotEqual('', attr.value)
-
-        attr = attributes.get('background', Attr('background', ''))
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual('', attr.value)
-
-        # fill="silver" stroke="black" stroke-width="1"
-        fill = 'silver'
-        attributes['fill'].value = fill
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-        self.assertEqual(fill, root.get('fill'))
-        self.assertEqual(stroke, root.get('stroke'))
-        self.assertEqual(stroke_width, root.get('stroke-width'))
-
-        # fill="white" stroke="black" stroke-width="1"
-        fill = 'white'
-        attr = Attr('fill', fill)
-        attributes['fill'] = attr
-        self.assertEqual(root, attr.owner_element)
-        self.assertEqual('fill', attr.name)
-        self.assertEqual(fill, attr.value)
-        self.assertEqual(fill, root.get('fill'))
-
-        attributes['fill'] = attr  # no effect
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-        self.assertEqual(root, attr.owner_element)
-        self.assertEqual(fill, root.get('fill'))
-        self.assertEqual(stroke, root.get('stroke'))
-        self.assertEqual(stroke_width, root.get('stroke-width'))
-
-        # fill="none" stroke="red" stroke-width="2"
-        fill = 'none'
-        stroke = 'red'
-        stroke_width = '2'
-        attributes.update({
-            'fill': fill,
-            'stroke': stroke,
-            'stroke-width': stroke_width,
-        })
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-        self.assertEqual(fill, root.get('fill'))
-        self.assertEqual(stroke, root.get('stroke'))
-        self.assertEqual(stroke_width, root.get('stroke-width'))
-
-        def _set_value(d, k, v):
-            d[k] = v
-
-        self.assertRaises(TypeError,
-                          lambda: _set_value(attributes, 'stroke-width', 1))
-
-        attr = Attr('color', 'blue')  # name not matched
-        self.assertRaises(ValueError,
-                          lambda: _set_value(attributes, 'fill', attr))
-
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
-        attr = Attr('fill', owner_element=group)  # element already in use
-        self.assertRaises(ValueError,
-                          lambda: _set_value(attributes, 'fill', attr))
-        self.assertEqual(group, attr.owner_element)
-
-        self.assertRaises(KeyError,
-                          lambda: attributes['background'])
-
-        self.assertRaises(KeyError,
-                          lambda: attributes.pop('background'))
-
-        # remove attributes
-        del attributes['fill']
-        attributes['stroke'] = ''
-        attributes['stroke-width'] = Attr('stroke-width', '')
-        self.assertEqual(0, len(attributes))
-        self.assertEqual(0, attributes.length)
-        self.assertEqual(0, len(root.keys()))
-
-    def test_named_node_map_get_named_item(self):
-        fill = 'white'
-        stroke = 'black'
-        stroke_width = '1'
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'g',
-                                        attrib={
-                                            'fill': fill,
-                                            'stroke': stroke,
-                                            'stroke-width': stroke_width,
-                                        })
-
-        attributes = NamedNodeMap(root)
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-
-        attr = attributes.get_named_item('fill')
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(root, attr.owner_element)
-        name = 'fill'
-        self.assertEqual(name, attr.name)
-        self.assertEqual(fill, attr.value)
-        attr.value = fill = 'none'
-        self.assertEqual(fill, root.get(name))
-        self.assertEqual(fill, attributes[name].value)
-
-        attr = attributes.get_named_item('style')  # not exist
-        self.assertIsNone(attr)
-
-        name = 'background'
-        background = 'gray'
-        root.set(name, background)
-        attr = attributes.get_named_item(name)
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(root, attr.owner_element)
-        self.assertEqual(name, attr.name)
-        self.assertEqual(background, attr.value)
-
-    def test_named_node_map_get_named_item_ns(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        namespace = Element.XML_NAMESPACE_URI
-        local_name = 'lang'
-        name = '{{{}}}{}'.format(namespace, local_name)
-        value = 'ja'
-        root.set(name, value)
-
-        attributes = NamedNodeMap(root)
-
-        attr = attributes.get_named_item_ns(namespace, local_name)
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(root, attr.owner_element)
-        self.assertEqual(name, attr.name)
-        self.assertEqual(namespace, attr.namespace_uri)
-        self.assertEqual(local_name, attr.local_name)
-        attr.value = value = 'fr'
-        self.assertEqual(value, root.get(name))
-
-        attr = attributes.get_named_item_ns(namespace, 'space')  # not exist
-        self.assertIsNone(attr)
-
-    def test_named_node_map_item(self):
-        fill = 'white'
-        stroke = 'black'
-        stroke_width = '1'
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'g',
-                                        attrib={
-                                            'fill': fill,
-                                            'stroke': stroke,
-                                            'stroke-width': stroke_width,
-                                        })
-
-        attributes = NamedNodeMap(root)
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-
-        attr = attributes.item(0)
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(root, attr.owner_element)
-        name = attr.name
-        value = attr.value
-        self.assertEqual(value, root.get(name))
-        attr.value = value = 'none'
-        self.assertEqual(value, root.get(name))
-        self.assertEqual(value, attributes[name].value)
-
-        attr = attributes.item(1)
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(root, attr.owner_element)
-
-        attr = attributes.item(2)
-        self.assertIsInstance(attr, Attr)
-        self.assertEqual(root, attr.owner_element)
-
-        attr = attributes.item(3)  # out of range
-        self.assertIsNone(attr)
-
-    def test_named_node_map_remove_named_item(self):
-        fill = 'white'
-        stroke = 'black'
-        stroke_width = '1'
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
-                                        'g',
-                                        attrib={
-                                            'fill': fill,
-                                            'stroke': stroke,
-                                            'stroke-width': stroke_width,
-                                        })
-
-        attributes = NamedNodeMap(root)
-        self.assertEqual(3, len(attributes))
-        self.assertEqual(3, attributes.length)
-        self.assertEqual(3, len(root.keys()))
-
-        name = 'stroke'
-        attr = attributes.remove_named_item(name)
-        self.assertIsInstance(attr, Attr)
-        self.assertIsNone(attr.owner_element)
-        self.assertEqual(name, attr.name)
-        self.assertEqual(stroke, attr.value)
-        self.assertEqual(2, len(attributes))
-        self.assertEqual(2, attributes.length)
-        self.assertEqual(2, len(root.keys()))
-        self.assertTrue('fill' in root.attrib)
-        self.assertTrue('stroke' not in root.attrib)
-        self.assertTrue('stroke-width' in root.attrib)
-
-        # attr = attributes.remove_named_item('background')
-        self.assertRaises(KeyError,
-                          lambda: attributes.remove_named_item('background'))
-
-    def test_named_node_map_remove_named_item_ns(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        namespace = Element.XML_NAMESPACE_URI
-        local_name = 'lang'
-        name = '{{{}}}{}'.format(namespace, local_name)
-        value = 'ja'
-        root.set(name, value)
-
-        attributes = NamedNodeMap(root)
-        self.assertEqual(1, len(attributes))
-        self.assertEqual(1, attributes.length)
-        self.assertEqual(1, len(root.keys()))
-
-        attr = attributes.remove_named_item_ns(namespace, local_name)
-        self.assertIsInstance(attr, Attr)
-        self.assertIsNone(attr.owner_element)
-        self.assertEqual(name, attr.name)
-        self.assertEqual(namespace, attr.namespace_uri)
-        self.assertEqual(local_name, attr.local_name)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(0, len(attributes))
-        self.assertEqual(0, attributes.length)
-        self.assertEqual(0, len(root.keys()))
-
-        # attr = attributes.remove_named_item_ns(namespace, 'space')
-        self.assertRaises(KeyError,
-                          lambda: attributes.remove_named_item_ns(
-                              namespace, 'space'))
-
-    def test_named_node_map_set_named_item_ns(self):
-        parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        namespace = Element.XML_NAMESPACE_URI
-        local_name = 'lang'
-        name = '{{{}}}{}'.format(namespace, local_name)
-        value = 'ja'
-
-        attributes = NamedNodeMap(root)
-        self.assertEqual(0, len(attributes))
-        self.assertEqual(0, attributes.length)
-        self.assertEqual(0, len(root.keys()))
-
-        attr = Attr(name, value)
-        self.assertIsNone(attr.owner_element)
-        old = attributes.set_named_item_ns(attr)
-        self.assertEqual(root, attr.owner_element)
-        self.assertEqual(name, attr.name)
-        self.assertEqual(namespace, attr.namespace_uri)
-        self.assertEqual(local_name, attr.local_name)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, root.get(name))
-        self.assertEqual(1, len(attributes))
-        self.assertEqual(1, attributes.length)
-        self.assertEqual(1, len(root.keys()))
-        self.assertIsNone(old)
-
-        old_value = value
-        value = 'es'
-        attr = Attr(name, value)
-        self.assertIsNone(attr.owner_element)
-        old = attributes.set_named_item_ns(attr)
-        self.assertEqual(root, attr.owner_element)
-        self.assertEqual(name, attr.name)
-        self.assertEqual(namespace, attr.namespace_uri)
-        self.assertEqual(local_name, attr.local_name)
-        self.assertEqual(value, attr.value)
-        self.assertEqual(value, root.get(name))
-        self.assertEqual(1, len(attributes))
-        self.assertEqual(1, attributes.length)
-        self.assertEqual(1, len(root.keys()))
-        self.assertIsInstance(old, Attr)
-        self.assertIsNone(old.owner_element)
-        self.assertEqual(name, old.name)
-        self.assertEqual(namespace, old.namespace_uri)
-        self.assertEqual(local_name, old.local_name)
-        self.assertEqual(old_value, old.value)
-
-    def test_parser_create_comment(self):
-        parser = SVGParser()
-        expected = 'Comment'
-        comment = parser.create_comment(expected)
-        self.assertIsInstance(comment, Comment)
-        self.assertEqual(8, Node.COMMENT_NODE)
-        self.assertEqual(8, comment.node_type)
-        self.assertEqual('#comment', comment.node_name)
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
-
-        comment.data = None
-        self.assertEqual('', comment.data)
-        self.assertEqual('', comment.node_value)
-        self.assertEqual('', comment.text_content)
-        self.assertEqual('', comment.tostring().decode())
-
-        expected = 'node_value'
-        comment.node_value = expected
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
-
-        expected = 'text_content'
-        comment.text_content = expected
-        self.assertEqual(expected, comment.data)
-        self.assertEqual(expected, comment.node_value)
-        self.assertEqual(expected, comment.text_content)
-        expected = '<!--' + expected + '-->'
-        self.assertEqual(expected, comment.tostring().decode())
-
     def test_parser_create_sub_element(self):
         parser = SVGParser()
         root = parser.create_element('svg')
@@ -4285,125 +2476,6 @@ class BasicShapesTestCase(unittest.TestCase):
         expected = 363.3689880371094
         self.assertAlmostEqual(expected, n, delta=delta)
 
-    def test_pi_addnext(self):
-        parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        self.assertIsNone(p1.owner_document)
-        c1 = parser.create_comment('c1')
-        self.assertIsNone(c1.owner_document)
-
-        # <?xml-stylesheet href="0.css"?>
-        # <svg>
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-
-        # <?xml-stylesheet href="0.css"?>
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        p0.addnext(p1)
-        self.assertEqual(doc, p1.owner_document)
-
-        # <?xml-stylesheet href="0.css"?>
-        # <?xml-stylesheet href="1.css"?>
-        # <!--c1-->
-        # <svg>
-        p1.addnext(c1)
-        self.assertEqual(doc, c1.owner_document)
-
-    def test_pi_addprevious(self):
-        parser = SVGParser()
-        p0 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="0.css"')
-        self.assertIsNone(p0.owner_document)
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        self.assertIsNone(p1.owner_document)
-
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        doc.insert_before(p1, root)
-        self.assertEqual(doc, p1.owner_document)
-
-        # <?xml-stylesheet href="0.css"?>
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        p1.addprevious(p0)
-        self.assertEqual(doc, p0.owner_document)
-
-    def test_pi_append_child(self):
-        parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-        # print(doc.tostring())
-
-        self.assertRaises(ValueError,
-                          lambda: p0.append_child(p1))
-
-    def test_pi_extend(self):
-        parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        p2 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="2.css"')
-        p3 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="3.css"')
-        self.assertIsNone(p1.owner_document)
-        self.assertIsNone(p2.owner_document)
-        self.assertIsNone(p3.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-        p0.extend([p1, p2, p3])  # no effect, no error
-        self.assertEqual(doc, p1.owner_document)
-        self.assertEqual(doc, p2.owner_document)
-        self.assertEqual(doc, p3.owner_document)
-        # print(doc.tostring())
-
-    def test_pi_remove(self):
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-
-        self.assertRaises(ValueError,
-                          lambda: p0.remove(root))
-
-    def test_pi_replace(self):
-        doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-        p1 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="1.css"')
-        p2 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="2.css"')
-
-        self.assertRaises(ValueError,
-                          lambda: p0.replace(p1, p2))
-
     def test_polygon_get_bbox(self):
         parser = SVGParser()
         polygon = parser.create_element('polygon')
@@ -4425,7 +2497,7 @@ class BasicShapesTestCase(unittest.TestCase):
         points = \
             "350,75 379,161 469,161 397,215 423,301 350,250" \
             " 277,301 303,215 231,161 321,161"
-        polygon.attributes.set('points', points)
+        polygon.attributes['points'] = points
         pts = polygon.points
         self.assertEqual(10, len(pts))
         self.assertEqual((350, 75), pts[0])
@@ -4475,7 +2547,7 @@ class BasicShapesTestCase(unittest.TestCase):
         points = \
             "850,75 958,137.5 958,262.5" \
             " 850,325 742,262.6 742,137.5"
-        polygon.attributes.set('points', points)
+        polygon.attributes['points'] = points
         pts = polygon.points
         self.assertEqual(6, len(pts))
         self.assertEqual((850, 75), pts[0])
@@ -4518,7 +2590,7 @@ class BasicShapesTestCase(unittest.TestCase):
         points = \
             "350,75 379,161 469,161 397,215 423,301 350,250" \
             " 277,301 303,215 231,161 321,161"
-        polygon.attributes.set('points', points)
+        polygon.attributes['points'] = points
 
         settings = SVGPathDataSettings()
         settings.normalize = True
@@ -4568,7 +2640,7 @@ class BasicShapesTestCase(unittest.TestCase):
             " 750,375 750,100 850,100 850,375" \
             " 950,375 950,25 1050,25 1050,375" \
             " 1150,375"
-        polyline.attributes.set('points', pts)
+        polyline.attributes['points'] = pts
 
         points = polyline.points
         self.assertEqual(22, len(points))
@@ -4598,7 +2670,7 @@ class BasicShapesTestCase(unittest.TestCase):
         pts = [(100, 100), (300, 100), (200, 300), (100, 100)]
         polyline.points = pts
 
-        points = polyline.attributes.get('points')
+        points = polyline.get('points')
         expected = '100,100 300,100 200,300 100,100'
         self.assertEqual(expected, points)
 
@@ -4618,7 +2690,7 @@ class BasicShapesTestCase(unittest.TestCase):
             " 750,375 750,100 850,100 850,375" \
             " 950,375 950,25 1050,25 1050,375" \
             " 1150,375"
-        polyline.attributes.set('points', pts)
+        polyline.attributes['points'] = pts
 
         settings = SVGPathDataSettings()
         settings.normalize = True
@@ -4632,68 +2704,112 @@ class BasicShapesTestCase(unittest.TestCase):
 
     def test_preserve_aspect_ratio01(self):
         par = SVGPreserveAspectRatio()  # -> xMidYMid meet
-        self.assertEqual('xMidYMid', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('xMidYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio02(self):
         par = SVGPreserveAspectRatio('slice')  # -> xMidYMid meet
-        self.assertEqual('xMidYMid', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('xMidYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio03(self):
         par = SVGPreserveAspectRatio('xMidYMin')  # -> xMidYMin meet
-        self.assertEqual('xMidYMin', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMIN,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('xMidYMin meet', par.tostring())
 
     def test_preserve_aspect_ratio04(self):
         par = SVGPreserveAspectRatio('xMaxYMin slice')
-        self.assertEqual('xMaxYMin', par.align)
-        self.assertEqual('slice', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMIN,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_SLICE,
+            par.meet_or_slice)
         self.assertEqual('xMaxYMin slice', par.tostring())
 
     def test_preserve_aspect_ratio05(self):
         par = SVGPreserveAspectRatio('XMinYMid slice')
-        self.assertEqual('XMinYMid', par.align)
-        self.assertEqual('slice', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMID,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_SLICE,
+            par.meet_or_slice)
         self.assertEqual('XMinYMid slice', par.tostring())
 
     def test_preserve_aspect_ratio06(self):
         par = SVGPreserveAspectRatio('xMidYMid')  # -> xMidYMid meet
-        self.assertEqual('xMidYMid', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('xMidYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio07(self):
         par = SVGPreserveAspectRatio('xMaxYMid')  # -> xMaxYMid meet
-        self.assertEqual('xMaxYMid', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMID,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('xMaxYMid meet', par.tostring())
 
     def test_preserve_aspect_ratio08(self):
         par = SVGPreserveAspectRatio('xMinYMax slice')
-        self.assertEqual('xMinYMax', par.align)
-        self.assertEqual('slice', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMAX,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_SLICE,
+            par.meet_or_slice)
         self.assertEqual('xMinYMax slice', par.tostring())
 
     def test_preserve_aspect_ratio09(self):
         par = SVGPreserveAspectRatio('xMidYMax meet')
-        self.assertEqual('xMidYMax', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMAX,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('xMidYMax meet', par.tostring())
 
     def test_preserve_aspect_ratio10(self):
         par = SVGPreserveAspectRatio('xMaxYMax meet')
-        self.assertEqual('xMaxYMax', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMAX,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('xMaxYMax meet', par.tostring())
 
     def test_preserve_aspect_ratio11(self):
         par = SVGPreserveAspectRatio('none')
-        self.assertEqual('none', par.align)
-        self.assertIsNone(par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE,
+            par.align)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+            par.meet_or_slice)
         self.assertEqual('none', par.tostring())
 
     def test_rect_get_bbox01(self):
@@ -5277,7 +3393,7 @@ class BasicShapesTestCase(unittest.TestCase):
         # element.current_translate = 100, 50
 
         zap = element.zoom_and_pan
-        self.assertEqual(SVGZoomAndPan.ZOOMANDPAN_MAGNIFY, zap)
+        self.assertEqual(SVGZoomAndPan.SVG_ZOOMANDPAN_MAGNIFY, zap)
 
         ctm = element.get_ctm()
         expected = DOMMatrix([1, 0, 0, 1, 0, 0])
@@ -5366,8 +3482,11 @@ class BasicShapesTestCase(unittest.TestCase):
         vbx, vby, vbw, vbh, par = element.get_view_box()
         expected = SVGLength(0), SVGLength(0), SVGLength(30), SVGLength(40)
         self.assertEqual(expected, (vbx, vby, vbw, vbh))
-        self.assertEqual('xMinYMin', par.align)
-        self.assertEqual('meet', par.meet_or_slice)
+        self.assertEqual(
+            SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMIN,
+            par.align)
+        self.assertEqual(SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET,
+                         par.meet_or_slice)
 
         # CTM = [0.75, 0, 0, 0.75, 0, 0]
         m = element.get_ctm()

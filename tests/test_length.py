@@ -537,11 +537,11 @@ class LengthTestCase(unittest.TestCase):
             'font-size': '8vw',
         })
 
-        a = SVGLength(text.attributes.get('font-size'), context=None)
+        a = SVGLength(text.attributes['font-size'].value, context=None)
         expected = 8
         self.assertEqual(expected, a.value(), msg=a)
 
-        a = SVGLength(text.attributes.get('font-size'), context=text)
+        a = SVGLength(text.attributes['font-size'].value, context=text)
         expected = 8 * 200 / 100  # 16mm
         self.assertAlmostEqual(expected, a.value(SVGLength.TYPE_MM), msg=a)
 

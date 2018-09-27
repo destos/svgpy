@@ -54,77 +54,77 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
         """str: The potential destination for a preload request
         (for rel="preload" and rel="modulepreload").
         """
-        return self.attributes.get('as', '')
+        return self.get('as', '')
 
     @as_.setter
     def as_(self, value):
-        self.attributes.set('as', value)
+        self.set('as', value)
 
     @property
     def cross_origin(self):
         """str: How the element handles crossorigin requests."""
-        return self.attributes.get('crossorigin')
+        return self.get('crossorigin')
 
     @cross_origin.setter
     def cross_origin(self, value):
-        self.attributes.set('crossorigin', value)
+        self.set('crossorigin', value)
 
     @property
     def href(self):
         """str: The address of the hyperlink."""
-        return self.attributes.get('href', '')
+        return self.get('href', '')
 
     @href.setter
     def href(self, value):
-        self.attributes.set('href', value)
+        self.set('href', value)
 
     @property
     def hreflang(self):
         """str: The language of the linked resource."""
-        return self.attributes.get('hreflang', '')
+        return self.get('hreflang', '')
 
     @hreflang.setter
     def hreflang(self, value):
-        self.attributes.set('hreflang', value)
+        self.set('hreflang', value)
 
     @property
     def integrity(self):
         """str: The integrity metadata used in Subresource Integrity checks.
         """
-        return self.attributes.get('integrity', '')
+        return self.get('integrity', '')
 
     @integrity.setter
     def integrity(self, value):
-        self.attributes.set('integrity', value)
+        self.set('integrity', value)
 
     @property
     def media(self):
         """str: The applicable media."""
-        return self.attributes.get('media', '')
+        return self.get('media', '')
 
     @media.setter
     def media(self, value):
-        self.attributes.set('media', value)
+        self.set('media', value)
 
     @property
     def referrer_policy(self):
         """str: The referrer policy for fetches initiated by the element."""
-        return self.attributes.get('referrerpolicy', '')
+        return self.get('referrerpolicy', '')
 
     @referrer_policy.setter
     def referrer_policy(self, value):
-        self.attributes.set('referrerpolicy', value)
+        self.set('referrerpolicy', value)
 
     @property
     def rel(self):
         """str: The relationship between the document containing the hyperlink
         and the destination resource.
         """
-        return self.attributes.get('rel', '')
+        return self.get('rel', '')
 
     @rel.setter
     def rel(self, value):
-        self.attributes.set('rel', value)
+        self.set('rel', value)
 
     @property
     def rel_list(self):
@@ -143,11 +143,11 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
     @property
     def type(self):
         """str: The hint for the type of the referenced resource."""
-        return self.attributes.get('type', '')
+        return self.get('type', '')
 
     @type.setter
     def type(self, value):
-        self.attributes.set('type', value)
+        self.set('type', value)
 
 
 class HTMLVideoElement(HTMLMediaElement):
@@ -169,14 +169,13 @@ class SVGCircleElement(SVGGeometryElement):
 
     def get_computed_geometry(self):
         geometry = dict()
-        attributes = self.attributes
 
         # 'cx' property
         # Value: <length> | <percentage>
         # Initial: 0
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        cx = SVGLength(attributes.get('cx', '0'),
+        cx = SVGLength(self.get('cx', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_HORIZONTAL).value()
         geometry['cx'] = cx
@@ -186,7 +185,7 @@ class SVGCircleElement(SVGGeometryElement):
         # Initial: 0
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        cy = SVGLength(attributes.get('cy', '0'),
+        cy = SVGLength(self.get('cy', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_VERTICAL).value()
         geometry['cy'] = cy
@@ -196,7 +195,7 @@ class SVGCircleElement(SVGGeometryElement):
         # Initial: 0
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        r = SVGLength(attributes.get('r', '0'),
+        r = SVGLength(self.get('r', '0'),
                       context=self,
                       direction=SVGLength.DIRECTION_UNSPECIFIED).value()
         geometry['r'] = r
@@ -272,21 +271,20 @@ class SVGEllipseElement(SVGGeometryElement):
 
     def get_computed_geometry(self):
         geometry = dict()
-        attributes = self.attributes
 
         # 'rx' property
         # Value: <length> | <percentage> | auto
         # Initial: auto
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        _rx = attributes.get('rx', 'auto')
+        _rx = self.get('rx', 'auto')
 
         # 'ry' property
         # Value: <length> | <percentage> | auto
         # Initial: auto
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        _ry = attributes.get('ry', 'auto')
+        _ry = self.get('ry', 'auto')
 
         if _rx != 'auto' and _ry == 'auto':
             _ry = _rx
@@ -311,7 +309,7 @@ class SVGEllipseElement(SVGGeometryElement):
         # Initial: 0
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        cx = SVGLength(attributes.get('cx', '0'),
+        cx = SVGLength(self.get('cx', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_HORIZONTAL).value()
         geometry['cx'] = cx
@@ -321,7 +319,7 @@ class SVGEllipseElement(SVGGeometryElement):
         # Initial: 0
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        cy = SVGLength(attributes.get('cy', '0'),
+        cy = SVGLength(self.get('cy', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_VERTICAL).value()
         geometry['cy'] = cy
@@ -414,17 +412,16 @@ class SVGLineElement(SVGGeometryElement):
 
     def get_computed_geometry(self):
         geometry = dict()
-        attributes = self.attributes
 
         # 'x1', 'y1' properties
         # Value: <length> | <percentage> | <number>
         # Initial: 0
-        x1 = SVGLength(attributes.get('x1', '0'),
+        x1 = SVGLength(self.get('x1', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_HORIZONTAL).value()
         geometry['x1'] = x1
 
-        y1 = SVGLength(attributes.get('y1', '0'),
+        y1 = SVGLength(self.get('y1', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_VERTICAL).value()
         geometry['y1'] = y1
@@ -432,12 +429,12 @@ class SVGLineElement(SVGGeometryElement):
         # 'x2', 'y2' properties
         # Value: <length> | <percentage> | <number>
         # Initial: 0
-        x2 = SVGLength(attributes.get('x2', '0'),
+        x2 = SVGLength(self.get('x2', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_HORIZONTAL).value()
         geometry['x2'] = x2
 
-        y2 = SVGLength(attributes.get('y2', '0'),
+        y2 = SVGLength(self.get('y2', '0'),
                        context=self,
                        direction=SVGLength.DIRECTION_VERTICAL).value()
         geometry['y2'] = y2
@@ -516,7 +513,7 @@ class SVGPathElement(SVGGeometryElement, SVGPathData):
         # Initial: none
         # Inherited: no
         # Percentages: N/A
-        d = self.attributes.get('d', 'none')
+        d = self.get('d', 'none')
         if d == 'none' or len(d) == 0:
             d = None
         geometry['d'] = d
@@ -647,7 +644,6 @@ class SVGRectElement(SVGGeometryElement):
 
     def get_computed_geometry(self):
         geometry = dict()
-        attributes = self.attributes
 
         # 'width' property
         # Value: <length> | <percentage> | auto | inherit
@@ -676,14 +672,14 @@ class SVGRectElement(SVGGeometryElement):
         # Initial: auto
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        _rx = attributes.get('rx', 'auto')
+        _rx = self.get('rx', 'auto')
 
         # 'ry' property
         # Value: <length> | <percentage> | auto
         # Initial: auto
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        _ry = attributes.get('ry', 'auto')
+        _ry = self.get('ry', 'auto')
 
         if _rx == 'auto' and _ry == 'auto':
             rx = 0
@@ -723,7 +719,7 @@ class SVGRectElement(SVGGeometryElement):
         # Initial: 0
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        x = SVGLength(attributes.get('x', '0'),
+        x = SVGLength(self.get('x', '0'),
                       context=self,
                       direction=SVGLength.DIRECTION_HORIZONTAL).value()
         geometry['x'] = x
@@ -733,7 +729,7 @@ class SVGRectElement(SVGGeometryElement):
         # Initial: 0
         # Inherited: no
         # Percentages: refer to the size of the current SVG viewport
-        y = SVGLength(attributes.get('y', '0'),
+        y = SVGLength(self.get('y', '0'),
                       context=self,
                       direction=SVGLength.DIRECTION_VERTICAL).value()
         geometry['y'] = y
@@ -815,27 +811,27 @@ class SVGStyleElement(SVGElement, LinkStyle):
 
     @property
     def media(self):
-        return self.attributes.get('media', 'all')
+        return self.get('media', 'all')
 
     @media.setter
     def media(self, value):
-        self.attributes.set('media', value)
+        self.set('media', value)
 
     @property
     def title(self):
-        return self.attributes.get('title')
+        return self.get('title')
 
     @title.setter
     def title(self, value):
-        self.attributes.set('title', value)
+        self.set('title', value)
 
     @property
     def type(self):
-        return self.attributes.get('type', 'text/css')
+        return self.get('type', 'text/css')
 
     @type.setter
     def type(self, value):
-        self.attributes.set('type', value)
+        self.set('type', value)
 
 
 class SVGSVGElement(SVGGraphicsElement, SVGFitToViewBox, SVGZoomAndPan):
@@ -984,15 +980,14 @@ class SVGSymbolElement(SVGGraphicsElement, SVGFitToViewBox):
         geometry['width'] = vpw.value()
         geometry['height'] = vph.value()
 
-        attributes = self.attributes
-        ref_x = attributes.get('refX')
+        ref_x = self.get('refX')
         if ref_x is not None and ref_x not in ['left', 'center', 'right']:
             ref_x = SVGLength(ref_x,
                               context=self,
                               direction=SVGLength.DIRECTION_HORIZONTAL).value()
         geometry['refX'] = ref_x
 
-        ref_y = attributes.get('refY')
+        ref_y = self.get('refY')
         if ref_y is not None and ref_y not in ['top', 'center', 'bottom']:
             ref_y = SVGLength(ref_y,
                               context=self,
@@ -1052,15 +1047,14 @@ class SVGUseElement(SVGGraphicsElement, SVGURIReference):
 
     def get_computed_geometry(self):
         geometry = dict()
-        attributes = self.attributes
 
         geometry['x'] = SVGLength(
-            attributes.get('x', '0'),
+            self.get('x', '0'),
             context=self,
             direction=SVGLength.DIRECTION_HORIZONTAL).value()
 
         geometry['y'] = SVGLength(
-            attributes.get('y', '0'),
+            self.get('y', '0'),
             context=self,
             direction=SVGLength.DIRECTION_VERTICAL).value()
 
@@ -1230,7 +1224,7 @@ class SVGParser(object):
             Attr: A new attribute.
         """
         _ = self
-        attr = Attr(local_name, '')
+        attr = Attr(None, local_name, '')
         return attr
 
     def create_attribute_ns(self, namespace, qualified_name):
@@ -1247,8 +1241,7 @@ class SVGParser(object):
             Attr: A new attribute.
         """
         _ = self
-        name = QualifiedName(namespace, qualified_name)
-        attr = Attr(name.value, '')
+        attr = Attr(namespace, qualified_name, '')
         return attr
 
     def create_comment(self, data):
@@ -1279,11 +1272,10 @@ class SVGParser(object):
         Returns:
             Element: A new element.
         """
-        if local_name == 'svg' or local_name.endswith('}svg'):
-            if nsmap is None:
-                nsmap = dict()
-            if None not in nsmap:
-                nsmap[None] = Element.SVG_NAMESPACE_URI
+        if nsmap is None:
+            nsmap = dict()
+        if None not in nsmap:
+            nsmap[None] = Element.SVG_NAMESPACE_URI
         element = self._parser.makeelement(local_name,
                                            attrib=attrib,
                                            nsmap=nsmap,

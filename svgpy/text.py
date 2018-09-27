@@ -524,7 +524,6 @@ class SVGTextContentElement(SVGGraphicsElement):
 
     def get_computed_geometry(self):
         geometry = dict()
-        attributes = self.attributes
         local_name = self.local_name
 
         # 'x' attribute
@@ -532,7 +531,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         # Initial: 0 <text>
         # Initial: (none) <tspan>
         default = '0' if local_name == 'text' else None
-        _x = attributes.get('x', default)
+        _x = self.get('x', default)
         if _x is None:
             x = None
         else:
@@ -549,7 +548,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         # Initial: 0 <text>
         # Initial: (none) <tspan>
         default = '0' if local_name == 'text' else None
-        _y = attributes.get('y', default)
+        _y = self.get('y', default)
         if _y is None:
             y = None
         else:
@@ -564,7 +563,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         # 'dx' attribute
         # Value: [ [ <length> | <percentage> | <number> ]+ ]#
         # Initial: (none)
-        _dx = attributes.get('dx')
+        _dx = self.get('dx')
         if _dx is None:
             dx = None
         else:
@@ -579,7 +578,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         # 'dy' attribute
         # Value: [ [ <length> | <percentage> | <number> ]+ ]#
         # Initial: (none)
-        _dy = attributes.get('dy')
+        _dy = self.get('dy')
         if _dy is None:
             dy = None
         else:
@@ -594,7 +593,7 @@ class SVGTextContentElement(SVGGraphicsElement):
         # 'rotate' attribute
         # Value: [ <number>+ ]#
         # Initial: (none)
-        _rotate = attributes.get('rotate')
+        _rotate = self.get('rotate')
         if _rotate is None:
             rotate = None
         else:

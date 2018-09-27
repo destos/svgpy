@@ -156,7 +156,8 @@ class CSSOMTestCase(unittest.TestCase):
                          rule.selector_text)
         style = rule.style
         self.assertEqual(1, style.length)
-        self.assertEqual(('green', ''), style['stroke'])
+        self.assertEqual('green', style['stroke'])
+        self.assertEqual('', style.get_property_priority('stroke'))
 
     def test_css_import_rule02(self):
         # local css style sheet
@@ -204,7 +205,8 @@ class CSSOMTestCase(unittest.TestCase):
                          rule.selector_text)
         style = rule.style
         self.assertEqual(1, style.length)
-        self.assertEqual(('green', ''), style['stroke'])
+        self.assertEqual('green', style['stroke'])
+        self.assertEqual('', style.get_property_priority('stroke'))
 
     def test_css_media_rule(self):
         stylesheet = '''
@@ -244,7 +246,8 @@ class CSSOMTestCase(unittest.TestCase):
                          style_rule.selector_text)
         style = style_rule.style
         self.assertEqual(1, style.length)
-        self.assertEqual(('none', ''), style['display'])
+        self.assertEqual('none', style['display'])
+        self.assertEqual('', style.get_property_priority('display'))
 
         # '@media (max-width: 12cm) {...}'
         media_rule = rule.css_rules[1]
@@ -265,7 +268,8 @@ class CSSOMTestCase(unittest.TestCase):
                          style_rule.selector_text)
         style = style_rule.style
         self.assertEqual(1, style.length)
-        self.assertEqual(('none', ''), style['float'])
+        self.assertEqual('none', style['float'])
+        self.assertEqual('', style.get_property_priority('float'))
 
         # '@media screen and (min-width: 35em), print and (min-width: 40em)
         # {...}'
@@ -294,8 +298,10 @@ class CSSOMTestCase(unittest.TestCase):
                          style_rule.selector_text)
         style = style_rule.style
         self.assertEqual(2, style.length)
-        self.assertEqual(('left', ''), style['float'])
-        self.assertEqual(('10em', ''), style['width'])
+        self.assertEqual('left', style['float'])
+        self.assertEqual('', style.get_property_priority('float'))
+        self.assertEqual('10em', style['width'])
+        self.assertEqual('', style.get_property_priority('width'))
 
     def test_css_namespace_rule(self):
         stylesheet = '''
@@ -351,6 +357,26 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('',
                          style.get_property_priority('transform-origin'))
 
+        value = style['transform-origin']
+        priority = style.get_property_priority('transform-origin')
+        self.assertEqual('0 0', value)
+        self.assertEqual('', priority)
+
+        style['transform-origin'] = 'center', 'important'
+        value = style.get_property_value('transform-origin')
+        priority = style.get_property_priority('transform-origin')
+        self.assertEqual('center', value)
+        self.assertEqual('important', priority)
+
+        style['transform-origin'] = '50 50'
+        value = style.get_property_value('transform-origin')
+        priority = style.get_property_priority('transform-origin')
+        self.assertEqual('50 50', value)
+        self.assertEqual('important', priority)
+
+        style['transform-origin'] = None  # remove
+        self.assertEqual(0, style.length)
+
         rule = rules[1]
         self.assertIsInstance(rule, CSSStyleRule)
         self.assertEqual(CSSRule.STYLE_RULE, rule.type)
@@ -365,6 +391,14 @@ class CSSOMTestCase(unittest.TestCase):
                          style.get_property_value('display'))
         self.assertEqual('important',
                          style.get_property_priority('display'))
+
+        value = style['display']
+        priority = style.get_property_priority('display')
+        self.assertEqual('inline', value)
+        self.assertEqual('important', priority)
+
+        style.set_property('display', None)  # remove
+        self.assertEqual(0, style.length)
 
     def test_inline_style01(self):
         parser = SVGParser()
@@ -388,16 +422,17 @@ class CSSOMTestCase(unittest.TestCase):
                          style.get_property_value('stroke-width'))
         self.assertEqual(1, len(attributes))
         expected = 'fill: red; stroke-width: 5; stroke: blue;'
-        self.assertEqual(expected, attributes.get('style'))
+        self.assertEqual(expected, rect.get('style'))
 
         style.remove_property('stroke-width')
         self.assertEqual(2, style.length)
         self.assertEqual(1, len(attributes))
         expected = 'fill: red; stroke: blue;'
-        self.assertEqual(expected, attributes.get('style'))
+        self.assertEqual(expected, rect.get('style'))
 
-        style.remove_property('fill')
+        style.set_property('fill', None)
         style.set_property('stroke', '')
+        style.set_property('stroke', '')  # no error
         self.assertEqual(0, style.length)
         self.assertEqual(0, len(attributes))
 
@@ -405,12 +440,12 @@ class CSSOMTestCase(unittest.TestCase):
         parser = SVGParser()
         rect = parser.create_element('rect')
         attributes = rect.attributes
-        attributes.update_style({
+        style = rect.style
+        style.update({
             'fill': 'red',
             'stroke': 'blue',
             'stroke-width': '5',
         })
-        style = rect.style
         self.assertIsInstance(style, CSSStyleDeclaration)
         self.assertIsNone(style.parent_rule)
         self.assertEqual(3, style.length)
@@ -422,23 +457,48 @@ class CSSOMTestCase(unittest.TestCase):
                          style.get_property_value('stroke-width'))
         self.assertEqual(1, len(attributes))
         expected = 'fill: red; stroke-width: 5; stroke: blue;'
-        self.assertEqual(expected, attributes.get('style'))
+        self.assertEqual(expected, rect.get('style'))
 
-        attributes.update_style({'fill': 'white'})
+        style.update({'fill': 'white'})
         self.assertEqual('white',
                          style.get_property_value('fill'))
 
         self.assertEqual(3, style.length)
         self.assertEqual(1, len(attributes))
-        del attributes['fill']
+        del style['fill']
         self.assertEqual(2, style.length)
         self.assertEqual(1, len(attributes))
-        del attributes['stroke']
+        style['stroke'] = None
         self.assertEqual(1, style.length)
         self.assertEqual(1, len(attributes))
-        attributes['stroke-width'] = ''
+        style['stroke-width'] = ''
         self.assertEqual(0, len(attributes))
         self.assertEqual(0, style.length)
+
+        style['fill'] = 'white', 'IMPORTANT'  # value with priority
+        value = style['fill']
+        priority = style.get_property_priority('fill')
+        self.assertEqual('white', value)
+        self.assertEqual('important', priority)
+
+        style['fill'] = 'black'  # value without priority
+        value = style['fill']
+        priority = style.get_property_priority('fill')
+        self.assertEqual('black', value)
+        self.assertEqual('important', priority)
+
+        style.remove_property('fill')
+        style.set_property('fill', 'none')
+        value = style['fill']
+        priority = style.get_property_priority('fill')
+        self.assertEqual('none', value)
+        self.assertEqual('', priority)
+
+        style.set_property('fill', 'blue', 'Important')
+        value = style.get_property_value('fill')
+        priority = style.get_property_priority('fill')
+        self.assertEqual('blue', value)
+        self.assertEqual('important', priority)
 
     def test_link_style_sheet_link(self):
         # HTMLLinkElement#sheet

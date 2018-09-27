@@ -21,8 +21,8 @@ from urllib.error import URLError
 
 import tinycss2
 
-from ..utils import CaseInsensitiveMapping, get_content_type, load, \
-    normalize_url
+from ..utils import CaseInsensitiveMapping, dict_to_style, get_content_type, \
+    load, normalize_url, style_to_dict
 
 _RE_COLLAPSIBLE_WHITESPACE = re.compile(r'(\x20){2,}')
 
@@ -646,71 +646,67 @@ class CSSStyleDeclaration(MutableMapping):
         """
         self._parent_rule = parent_rule
         self._css_text = None
-        self._properties = dict()
-        self._owner_attributes = None
+        self._values = dict()
+        self._priorities = dict()
+        self._owner_node = owner_node
         if rule is not None:
             self._css_text = normalize_text(tinycss2.serialize(rule.content))
             self._parse_content(rule.content)
-        elif owner_node is not None:
-            self._owner_attributes = owner_node.attributes
 
     def __delitem__(self, name):
-        if self._owner_attributes is not None:
-            del self._owner_attributes[name]
-        else:
-            del self._properties[name]
+        self._remove_item(name)
 
     def __getitem__(self, name):
-        # TODO: support shorthand property.
-        if self._owner_attributes is not None:
-            style = self._owner_attributes.get_style({})
-            return style[name], ''
-        return self._properties[name]
+        return self._get_item(name)
 
     def __iter__(self):
-        if self._owner_attributes is not None:
-            style = self._owner_attributes.get_style({})
-        else:
-            style = self._properties
-        return iter(style)
+        items = self._items()
+        return iter(items)
 
     def __len__(self):
-        if self._owner_attributes is not None:
-            style = self._owner_attributes.get_style({})
-        else:
-            style = self._properties
-        return len(style)
+        items = self._items()
+        return len(items)
 
     def __repr__(self):
-        if self._owner_attributes is not None:
-            style = self._owner_attributes.get_style({})
-        else:
-            style = self._properties
-        return repr((type(self).__name__, style))
+        items = self._items()
+        return repr((type(self).__name__, items))
 
-    def __setitem__(self, name, value_and_priority):
+    def __setitem__(self, name, value):
+        """Sets a CSS declaration property with a value and an important flag
+        in the declarations.
+
+        Arguments:
+            name (str): A property name of a CSS declaration.
+            value (str, tuple[str, str], None): A CSS value of the
+                declarations with or without an important flag.
+        """
+        if value is None or isinstance(value, str):
+            priority = None
+        elif (isinstance(value, (tuple, list))
+              and len(value) == 2):
+            value, priority = value
+        else:
+            raise TypeError('Expected str or tuple[str, str], got '
+                            + repr(type(value)))
+        self._set_item(name, value, priority)
+
+    def _get_item(self, name):
         # TODO: support shorthand property.
-        if isinstance(value_and_priority, str):
-            value = value_and_priority
-            priority = ''
-        elif (isinstance(value_and_priority, (tuple, list))
-              and len(value_and_priority) == 2):
-            value, priority = value_and_priority
-            priority = priority.lower()
+        if self._owner_node is None:
+            items = self._values
         else:
-            raise TypeError(
-                'Expected a tuple of two numbers (<str>, <str>), got '
-                + repr(value_and_priority))
-        value = normalize_text(value)
-        value = value.replace('("', '(').replace('")', ')')
-        value = value.replace('(\'', '(').replace('\')', ')')
-        if len(value) == 0:
-            self.__delitem__(name)
-            return
-        if self._owner_attributes is not None:
-            self._owner_attributes.update_style({name: value})
+            items = self._items()
+        return items[name]
+
+    def _items(self):
+        if self._owner_node is None:
+            return self._values
         else:
-            self._properties[name] = value, priority
+            style = self._owner_node.get('style')
+            if style is None:
+                return {}
+            items = style_to_dict(style)
+            return items
 
     def _parse_content(self, content):
         nodes = tinycss2.parse_declaration_list(content,
@@ -723,6 +719,43 @@ class CSSStyleDeclaration(MutableMapping):
                 self.__setitem__(
                     name,
                     (value, 'important' if node.important else ''))
+
+    def _remove_item(self, name):
+        items = self._items()
+        del items[name]
+        self._priorities.pop(name, None)
+        if self._owner_node is not None:
+            if len(items) == 0:
+                del self._owner_node.attrib['style']
+            else:
+                style = dict_to_style(items)
+                self._owner_node.set('style', style)
+
+    def _set_item(self, name, value, priority=None):
+        # TODO: support shorthand property.
+        if value is not None:
+            value = normalize_text(value)
+            value = value.replace('("', '(').replace('")', ')')
+            value = value.replace('(\'', '(').replace('\')', ')')
+        if value is None or len(value) == 0:
+            try:
+                self._remove_item(name)
+            except KeyError:
+                pass
+            return
+        if priority is None and name not in self._priorities:
+            priority = ''  # default
+        elif priority is not None:
+            priority = priority.lower()
+            if len(priority) > 0 and priority != 'important':
+                return
+        items = self._items()
+        items[name] = value
+        if self._owner_node is not None:
+            style = dict_to_style(items)
+            self._owner_node.set('style', style)
+        if priority is not None:
+            self._priorities[name] = priority
 
     @property
     def css_text(self):
@@ -749,7 +782,10 @@ class CSSStyleDeclaration(MutableMapping):
         Returns:
             str: The important flag of the declarations.
         """
-        _, priority = self.__getitem__(name)
+        items = self._items()
+        if name not in items:
+            raise KeyError(name)
+        priority = self._priorities.setdefault(name, '')
         return priority
 
     def get_property_value(self, name):
@@ -761,8 +797,7 @@ class CSSStyleDeclaration(MutableMapping):
         Returns:
             str: A CSS value of the declarations.
         """
-        value, _ = self.__getitem__(name)
-        return value
+        return self.__getitem__(name)
 
     def remove_property(self, name):
         """Removes a CSS declaration property of the first exact match of name
@@ -773,14 +808,15 @@ class CSSStyleDeclaration(MutableMapping):
         """
         self.__delitem__(name)
 
-    def set_property(self, name, value, priority=''):
+    def set_property(self, name, value, priority=None):
         """Sets a CSS declaration property with a value and an important flag
         in the declarations.
 
         Arguments:
             name (str): A property name of a CSS declaration.
-            value (str): A CSS value of the declarations.
-            priority (str): An important flag of the declarations.
+            value (str, None): A CSS value of the declarations.
+            priority (str, optional): An important flag of the
+                declarations.
         """
         self.__setitem__(name, (value, priority))
 

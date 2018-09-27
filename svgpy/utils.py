@@ -29,6 +29,20 @@ _RE_QUALIFIED_NAME = re.compile(
     r'{(?P<namespace>[^}]*)}(?P<local_name>.*)')
 
 
+def dict_to_style(d):
+    """Converts a dictionary to the style attributes's value.
+
+    Arguments:
+        d (dict): A dictionary to be converted.
+    Returns:
+        str: The style attributes's value.
+    """
+    if d is None:
+        return ''
+    items = ['{}: {};'.format(key, value) for key, value in iter(d.items())]
+    return ' '.join(sorted(items))
+
+
 def get_content_type(headers):
     _headers = CaseInsensitiveMapping(headers)
     # Content-Type := type "/" subtype *[";" parameter]
@@ -212,6 +226,22 @@ def remove_quotes(src):
             or (src.startswith('\'') and src.endswith('\''))):
         src = src[1:-1]
     return src
+
+
+def style_to_dict(text):
+    """Converts the style attribute's value to a dictionary.
+
+    Arguments:
+        text (str): The style attributes's value to be converted.
+    Returns:
+        dict: A dictionary.
+    """
+    if text is None:
+        return {}
+    items = [x.split(':') for x in iter(text.strip().split(';'))]
+    if [''] in items:
+        items.remove([''])
+    return {key.strip(): value.strip() for key, value in iter(items)}
 
 
 class CaseInsensitiveMapping(MutableMapping):

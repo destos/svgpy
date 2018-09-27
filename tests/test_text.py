@@ -464,7 +464,7 @@ class TextTestCase(unittest.TestCase):
         text = group.create_sub_element('text')
 
         # font-size/line-height | font-family
-        text.attributes.set('font', '12pt/14pt sans-serif')
+        text.attributes['font'] = '12pt/14pt sans-serif'
         style = text.get_computed_style()
 
         expected = ['sans-serif']
@@ -507,7 +507,7 @@ class TextTestCase(unittest.TestCase):
         })
         text = group.create_sub_element('text')
 
-        text.attributes.set('font', '80% sans-serif')
+        text.attributes['font'] = '80% sans-serif'
         style = text.get_computed_style()
 
         expected = ['sans-serif']
@@ -550,8 +550,7 @@ class TextTestCase(unittest.TestCase):
         })
         text = group.create_sub_element('text')
 
-        text.attributes.set('font',
-                            'x-large/110% "new century schoolbook", serif')
+        text.attributes['font'] = 'x-large/110% "new century schoolbook", serif'
         style = text.get_computed_style()
 
         expected = ['new century schoolbook', 'serif']
@@ -595,7 +594,7 @@ class TextTestCase(unittest.TestCase):
         })
         text = group.create_sub_element('text')
 
-        text.attributes.set('font', 'bold italic large Palatino, serif')
+        text.attributes['font'] = 'bold italic large Palatino, serif'
         style = text.get_computed_style()
 
         expected = ['Palatino', 'serif']
@@ -644,7 +643,7 @@ class TextTestCase(unittest.TestCase):
         })
         text = group.create_sub_element('text')
 
-        text.attributes.set('font', 'normal small-caps 120%/120% fantasy')
+        text.attributes['font'] = 'normal small-caps 120%/120% fantasy'
         style = text.get_computed_style()
 
         expected = ['fantasy']
@@ -687,8 +686,7 @@ class TextTestCase(unittest.TestCase):
         })
         text = group.create_sub_element('text')
 
-        text.attributes.set('font',
-                            'condensed oblique 12pt "Helvetica Neue", serif')
+        text.attributes['font'] = 'condensed oblique 12pt "Helvetica Neue", serif'
         style = text.get_computed_style()
 
         expected = ['Helvetica Neue', 'serif']
@@ -730,31 +728,31 @@ class TextTestCase(unittest.TestCase):
         group = root.create_sub_element('g')
         text = group.create_sub_element('text')
 
-        text.attributes.set('font-size', 'xx-small')
+        text.attributes['font-size'] = 'xx-small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'x-small')
+        text.attributes['font-size'] = 'x-small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'small')
+        text.attributes['font-size'] = 'small'
         style = text.get_computed_style()
         self.assertEqual(13, style['font-size'])
 
-        text.attributes.set('font-size', 'medium')
+        text.attributes['font-size'] = 'medium'
         style = text.get_computed_style()
         self.assertEqual(16, style['font-size'])
 
-        text.attributes.set('font-size', 'large')
+        text.attributes['font-size'] = 'large'
         style = text.get_computed_style()
         self.assertEqual(18, style['font-size'])
 
-        text.attributes.set('font-size', 'x-large')
+        text.attributes['font-size'] = 'x-large'
         style = text.get_computed_style()
         self.assertEqual(24, style['font-size'])
 
-        text.attributes.set('font-size', 'xx-large')
+        text.attributes['font-size'] = 'xx-large'
         style = text.get_computed_style()
         self.assertEqual(32, style['font-size'])
 
@@ -767,31 +765,31 @@ class TextTestCase(unittest.TestCase):
         group = root.create_sub_element('g')
         text = group.create_sub_element('text')
 
-        text.attributes.set('font-size', 'xx-small')
+        text.attributes['font-size'] = 'xx-small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'x-small')
+        text.attributes['font-size'] = 'x-small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'small')
+        text.attributes['font-size'] = 'small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'medium')
+        text.attributes['font-size'] = 'medium'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'large')
+        text.attributes['font-size'] = 'large'
         style = text.get_computed_style()
         self.assertEqual(11, style['font-size'])
 
-        text.attributes.set('font-size', 'x-large')
+        text.attributes['font-size'] = 'x-large'
         style = text.get_computed_style()
         self.assertEqual(14, style['font-size'])
 
-        text.attributes.set('font-size', 'xx-large')
+        text.attributes['font-size'] = 'xx-large'
         style = text.get_computed_style()
         self.assertEqual(18, style['font-size'])
 
@@ -804,31 +802,31 @@ class TextTestCase(unittest.TestCase):
         group = root.create_sub_element('g')
         text = group.create_sub_element('text')
 
-        text.attributes.set('font-size', 'xx-small')
+        text.attributes['font-size'] = 'xx-small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'x-small')
+        text.attributes['font-size'] = 'x-small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'small')
+        text.attributes['font-size'] = 'small'
         style = text.get_computed_style()
         self.assertEqual(10, style['font-size'])
 
-        text.attributes.set('font-size', 'medium')
+        text.attributes['font-size'] = 'medium'
         style = text.get_computed_style()
         self.assertEqual(12, style['font-size'])
 
-        text.attributes.set('font-size', 'large')
+        text.attributes['font-size'] = 'large'
         style = text.get_computed_style()
         self.assertEqual(14, style['font-size'])
 
-        text.attributes.set('font-size', 'x-large')
+        text.attributes['font-size'] = 'x-large'
         style = text.get_computed_style()
         self.assertEqual(18, style['font-size'])
 
-        text.attributes.set('font-size', 'xx-large')
+        text.attributes['font-size'] = 'xx-large'
         style = text.get_computed_style()
         self.assertEqual(24, style['font-size'])
 
@@ -841,31 +839,31 @@ class TextTestCase(unittest.TestCase):
         group = root.create_sub_element('g')
         text = group.create_sub_element('text')
 
-        text.attributes.set('font-size', 'xx-small')
+        text.attributes['font-size'] = 'xx-small'
         style = text.get_computed_style()
         self.assertEqual(12, style['font-size'])
 
-        text.attributes.set('font-size', 'x-small')
+        text.attributes['font-size'] = 'x-small'
         style = text.get_computed_style()
         self.assertEqual(15, style['font-size'])
 
-        text.attributes.set('font-size', 'small')
+        text.attributes['font-size'] = 'small'
         style = text.get_computed_style()  # 17.7777...
         self.assertAlmostEqual(17.8, style['font-size'], places=places)
 
-        text.attributes.set('font-size', 'medium')
+        text.attributes['font-size'] = 'medium'
         style = text.get_computed_style()
         self.assertEqual(20, style['font-size'])
 
-        text.attributes.set('font-size', 'large')
+        text.attributes['font-size'] = 'large'
         style = text.get_computed_style()
         self.assertEqual(24, style['font-size'])
 
-        text.attributes.set('font-size', 'x-large')
+        text.attributes['font-size'] = 'x-large'
         style = text.get_computed_style()
         self.assertEqual(30, style['font-size'])
 
-        text.attributes.set('font-size', 'xx-large')
+        text.attributes['font-size'] = 'xx-large'
         style = text.get_computed_style()
         self.assertEqual(40, style['font-size'])
 
@@ -878,31 +876,31 @@ class TextTestCase(unittest.TestCase):
         group = root.create_sub_element('g')
         text = group.create_sub_element('text')
 
-        text.attributes.set('font-size', 'xx-small')
+        text.attributes['font-size'] = 'xx-small'
         style = text.get_computed_style()
         self.assertAlmostEqual(14.4, style['font-size'])
 
-        text.attributes.set('font-size', 'x-small')
+        text.attributes['font-size'] = 'x-small'
         style = text.get_computed_style()
         self.assertEqual(18, style['font-size'])
 
-        text.attributes.set('font-size', 'small')
+        text.attributes['font-size'] = 'small'
         style = text.get_computed_style()  # 21.3333...
         self.assertAlmostEqual(21.36, style['font-size'], places=places)
 
-        text.attributes.set('font-size', 'medium')
+        text.attributes['font-size'] = 'medium'
         style = text.get_computed_style()
         self.assertEqual(24, style['font-size'])
 
-        text.attributes.set('font-size', 'large')
+        text.attributes['font-size'] = 'large'
         style = text.get_computed_style()
         self.assertAlmostEqual(28.8, style['font-size'])
 
-        text.attributes.set('font-size', 'x-large')
+        text.attributes['font-size'] = 'x-large'
         style = text.get_computed_style()
         self.assertEqual(36, style['font-size'])
 
-        text.attributes.set('font-size', 'xx-large')
+        text.attributes['font-size'] = 'xx-large'
         style = text.get_computed_style()
         self.assertEqual(48, style['font-size'])
 
@@ -2773,7 +2771,7 @@ class TextTestCase(unittest.TestCase):
             'x': '250',
             'y': '30',
         })
-        text.attributes.set_style({
+        text.style.update({
             'font': '20px Vazir, "DejaVu Sans"',
             'inline-size': '200px',
             'direction': 'rtl',
@@ -2795,7 +2793,9 @@ class TextTestCase(unittest.TestCase):
             'viewBox': '0 0 300 100',
         })
         text = root.create_sub_element('text')
-        text.attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ar')
+        attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        attr.value = 'ar'
+        text.attributes.set_named_item(attr)
         text.attributes.update({
             'x': '200',
             'y': '50',
@@ -2807,6 +2807,7 @@ class TextTestCase(unittest.TestCase):
 
         path_data = text.get_path_data()
         print([PathParser.tostring(path_data)])
+        print([root.tostring(encoding='unicode')])
 
     def _test_rtl_text04(self):
         # http://unicode.org/faq/bidi.html
@@ -2819,7 +2820,9 @@ class TextTestCase(unittest.TestCase):
             'viewBox': '0 0 300 100',
         })
         text = root.create_sub_element('text')
-        text.attributes.set_ns(Element.XML_NAMESPACE_URI, 'lang', 'ar')
+        attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        attr.value = 'ar'
+        text.attributes.set_named_item(attr)
         text.attributes.update({
             'x': '-150',
             'y': '100',
@@ -2831,6 +2834,7 @@ class TextTestCase(unittest.TestCase):
 
         path_data = text.get_path_data()
         print([PathParser.tostring(path_data)])
+        print([root.tostring(encoding='unicode')])
 
     def _test_text_repositioning_x01(self):
         formatter.precision = 2
@@ -2894,15 +2898,16 @@ class TextTestCase(unittest.TestCase):
             'y': '25',
             'inline-size': '200',
         })
-        text.attributes.set_style({
+        text.style.update({
             'font': '25px IPAmjMincho',
             'inline-size': '200px',
             'writing-mode': 'vertical-rl',
             # 'font-kerning': 'normal',
-            'font-feature-settings': '"swsh" 2',
+            'font-feature-settings': 'swsh 2',
             'font-variant-caps': 'small-caps',
         })
         text.text = 'テキストは１０文字の後に折り返されます。'
+        print([root.tostring(encoding='unicode')])
 
         path_data = text.get_path_data()
         # print([PathParser.tostring(path_data)])

@@ -15,6 +15,7 @@
 
 import re
 from abc import ABC, abstractmethod
+
 from collections.abc import MutableMapping, MutableSequence
 from lxml import cssselect, etree
 
@@ -23,274 +24,8 @@ from .css import CSSStyleDeclaration
 from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
 from .utils import QualifiedName, get_elements_by_class_name, \
-    get_elements_by_tag_name, get_elements_by_tag_name_ns, is_ascii_whitespace
-
-
-def dict_to_style(d):
-    if d is None:
-        return ''
-    items = ['{}: {};'.format(key, value) for key, value in iter(d.items())]
-    return ' '.join(sorted(items))
-
-
-def style_to_dict(text):
-    if text is None:
-        return {}
-    items = [x.split(':') for x in iter(text.strip().split(';'))]
-    if [''] in items:
-        items.remove([''])
-    return {key.strip(): value.strip() for key, value in iter(items)}
-
-
-class Attrib(MutableMapping):
-    """A wrapper class for lxml.etree._Attrib."""
-
-    def __init__(self, attrib):
-        """Constructs an Attrib object.
-
-        Arguments:
-            attrib (lxml.etree._Attrib): An attribute object.
-        """
-        self._attrib = attrib  # type: dict
-
-    def __delitem__(self, name):
-        """Removes an element attribute with the specified name.
-
-        Arguments:
-            name (str): The name of the attribute.
-        """
-        if name in self._attrib:
-            del self._attrib[name]
-            return
-        style = self.get_style({})
-        del style[name]
-        if len(style) > 0:
-            self.set_style(style)
-        else:
-            del self._attrib['style']
-
-    def __getitem__(self, name):
-        """Gets an element attribute with the specified name.
-
-        Arguments:
-            name (str): The name of the attribute.
-        Returns:
-            str: Returns the value of the specified attribute.
-                Raises a KeyError if the attribute doesn't exists.
-        """
-        value = self._attrib.get(name)
-        if value is not None:
-            return value.strip()
-        style = self.get_style()
-        if style is not None:
-            return style[name]
-        raise KeyError
-
-    def __iter__(self):
-        for x in self._attrib:
-            yield x
-
-    def __len__(self):
-        return len(self._attrib)
-
-    def __repr__(self):
-        return repr(self._attrib)
-
-    def __setitem__(self, name, value):
-        """Sets an element attribute with the specified name.
-
-        Arguments:
-            name (str): The name of the attribute.
-            value (str): The value of the attribute.
-        """
-        self.set(name, value)
-
-    def get_ns(self, namespace, local_name, default=None):
-        """Gets an element attribute with the specified namespace and name.
-
-        Arguments:
-            namespace (str, None): The namespace URI.
-            local_name (str): The local name of the attribute.
-            default (str, optional): The default value of the attribute.
-        Returns:
-            str: Returns the value of the specified attribute if the attribute
-                exists, else default.
-        """
-        if namespace is None:
-            name = local_name
-        else:
-            name = '{{{0}}}{1}'.format(namespace, local_name)
-        return self.get(name, default)
-
-    def get_style(self, default=None):
-        """Returns the 'style' attribute.
-
-        Arguments:
-            default (dict, optional): The default value of the attribute.
-        Returns:
-            dict: Returns the value of the 'style' attribute if the attribute
-                exists, else default.
-        """
-        style = self._attrib.get('style')
-        if style is None:
-            return default
-        return style_to_dict(style)
-
-    def has(self, name):
-        """Returns True if an element attribute with the specified name exists;
-        otherwise returns False.
-
-        Arguments:
-            name (str): The name of the attribute.
-        Returns:
-            bool: Returns True if the attribute exists, else False.
-        """
-        if name in self._attrib:
-            return True
-        style = self.get_style({})
-        return name in style
-
-    def has_ns(self, namespace, local_name):
-        """Returns True if an element attribute with the specified namespace
-        and name exists; otherwise returns False.
-
-        Arguments:
-            namespace (str, None): The namespace URI.
-            local_name (str): The local name of the attribute.
-        Returns:
-            bool: Returns True if the attribute exists, else False.
-        """
-        if namespace is None:
-            name = local_name
-        else:
-            name = '{{{0}}}{1}'.format(namespace, local_name)
-        return self.has(name)
-
-    def pop(self, name, default=None):
-        """Removes an element attribute with the specified name and returns the
-        value associated with it.
-
-        Arguments:
-            name (str): The name of the attribute.
-            default (str, optional): The default value of the attribute.
-        Returns:
-            str: Returns the value of the specified attribute if the attribute
-                exists, else default.
-        """
-        try:
-            value = self.__getitem__(name)
-            self.__delitem__(name)
-            return value
-        except KeyError:
-            return default
-
-    def pop_ns(self, namespace, local_name, default=None):
-        """Removes an element attribute with the specified namespace and name,
-        and returns the value associated with it.
-
-        Arguments:
-            namespace (str, None): The namespace URI.
-            local_name (str): The local name of the attribute.
-            default (str, optional): The default value of the attribute.
-        Returns:
-            str: Returns the value of the specified attribute if the attribute
-                exists, else default.
-        """
-        if namespace is None:
-            name = local_name
-        else:
-            name = '{{{0}}}{1}'.format(namespace, local_name)
-        return self.pop(name, default)
-
-    def set(self, name, value):
-        """Sets an element attribute.
-
-        Arguments:
-            name (str): The name of the attribute.
-            value (str): The value of the attribute.
-        """
-        if len(value) == 0:
-            self.__delitem__(name)
-            return
-        if name in self._attrib:
-            self._attrib[name] = value
-            return
-        style = self.get_style()
-        if style is not None and name in style:
-            style[name] = value
-            self.set_style(style)
-            return
-        self._attrib[name] = value
-
-    def set_ns(self, namespace, local_name, value):
-        """Sets an element attribute with the specified namespace and name.
-
-        Arguments:
-            namespace (str, None): The namespace URI.
-            local_name (str): The local name of the attribute.
-            value (str): The value of the attribute.
-        """
-        if namespace is None:
-            name = local_name
-        else:
-            name = '{{{0}}}{1}'.format(namespace, local_name)
-        self.set(name, value)
-
-    def setdefault(self, name, default=None):
-        """If the specified attribute exists, returns its value. If not, sets
-        an element attribute with a value of default and returns default.
-
-        Arguments:
-            name (str): The name of the attribute.
-            default (str, optional): The default value of the attribute.
-        Returns:
-            str: Returns the value of the specified attribute if the attribute
-                exists, else default.
-        """
-        # override
-        value = self.get(name)
-        if value is not None:
-            return value
-        self._attrib[name] = default
-        return default
-
-    def setdefault_ns(self, namespace, local_name, default):
-        """If the specified attribute exists, returns its value. If not, sets
-        an element attribute with a value of default and returns default.
-
-        Arguments:
-            namespace (str, None): The namespace URI.
-            local_name (str): The local name of the attribute.
-            default (str, optional): The default value of the attribute.
-        Returns:
-            str: Returns the value of the specified attribute if the attribute
-                exists, else default.
-        """
-        if namespace is None:
-            name = local_name
-        else:
-            name = '{{{0}}}{1}'.format(namespace, local_name)
-        return self.setdefault(name, default)
-
-    def set_style(self, d):
-        """Sets the 'style' attribute.
-
-        Arguments:
-            d (dict): The value of the 'style' attribute.
-        """
-        style = dict_to_style(d)
-        self._attrib['style'] = style
-
-    def update_style(self, other):
-        """Updates the 'style' attribute with the key/value pairs from other.
-
-        Arguments:
-            other (dict): The key/value pairs of the 'style' attribute to be
-                updated.
-        """
-        style = self.get_style({})
-        style.update(other)
-        self.set_style(style)
+    get_elements_by_tag_name, get_elements_by_tag_name_ns, \
+    is_ascii_whitespace, style_to_dict
 
 
 class DOMTokenList(MutableSequence):
@@ -478,7 +213,12 @@ class NamedNodeMap(MutableMapping):
         self._attrib = owner_element.attrib  # type: dict
         self._attr_map = dict()
         for name in self._attrib:
-            self._attr_map[name] = Attr(name, owner_element=owner_element)
+            self._attr_map[name] = Attr(None,
+                                        name,
+                                        owner_element=owner_element)
+
+    def __contains__(self, name):
+        return name in self._attrib
 
     def __delitem__(self, name):
         """Removes an attribute with the specified `name`.
@@ -486,6 +226,8 @@ class NamedNodeMap(MutableMapping):
         Arguments:
             name (str): The qualified name of the attribute.
         """
+        if isinstance(name, Attr):
+            name = name.name
         attr = self._attr_map.pop(name, None)
         if attr is not None:
             attr.detach_element()
@@ -499,6 +241,8 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object.
         """
+        if isinstance(name, Attr):
+            name = name.name
         if name not in self._attrib:
             attr = self._attr_map.pop(name, None)
             if attr is not None:
@@ -522,10 +266,11 @@ class NamedNodeMap(MutableMapping):
 
         Arguments:
             name (str): The qualified name of the attribute.
-            value (Attr, str): An attribute object or an attribute's value.
+            value (Attr, str, None): An attribute object or an attribute's
+                value.
         """
-        if isinstance(value, str):
-            if len(value) == 0:
+        if value is None or isinstance(value, str):
+            if value is None or len(value) == 0:
                 if name in self._attrib:
                     self.__delitem__(name)
                 return
@@ -539,7 +284,7 @@ class NamedNodeMap(MutableMapping):
                 if value.owner_element != self._owner_element:
                     raise ValueError('Element already in use')
                 return  # already exist
-            elif len(value.value) == 0:
+            elif value.value is None or len(value.value) == 0:
                 if name in self._attrib:
                     self.__delitem__(name)
                 return
@@ -564,6 +309,7 @@ class NamedNodeMap(MutableMapping):
             return None
         elif attr is None and name in self._attrib:
             self._attr_map[name] = attr = Attr(
+                None,
                 name,
                 owner_element=self._owner_element)
         return attr
@@ -613,7 +359,7 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object to be removed.
         """
-        attr = self.get(qualified_name)
+        attr = self.__getitem__(qualified_name)
         self.__delitem__(qualified_name)
         return attr
 
@@ -900,11 +646,14 @@ class ParentNode(ABC):
 class Attr(Node):
     """Represents the [DOM] Attr."""
 
-    def __init__(self, qualified_name, value=None, owner_element=None):
+    def __init__(self, namespace, qualified_name, value=None,
+                 owner_element=None):
         """Constructs an Attr object.
 
         Arguments:
-            qualified_name (str): The qualified name of the attribute.
+            namespace (str, None): The namespace URI.
+            qualified_name (str): The qualified name of the attribute or the
+                local part of the qualified name.
             value (str, optional): The attribute's value.
             owner_element (Element, optional): The element that is associated
                 with the attribute.
@@ -912,18 +661,21 @@ class Attr(Node):
         super().__init__()
         if value is None and owner_element is None:
             raise ValueError("Expected 'value' or 'owner_element'")
-        name = QualifiedName(None, qualified_name)
+        name = QualifiedName(namespace, qualified_name)
         self._qualified_name = name.value
         self._local_name = name.local_name
         self._namespace_uri = name.namespace
         self._prefix = None
         self._value = value
         self._owner_element = owner_element
-        if owner_element is not None and self._namespace_uri is not None:
-            for prefix, namespace in owner_element.nsmap.items():
-                if namespace == self._namespace_uri:
-                    self._prefix = prefix
-                    break
+        if owner_element is not None:
+            if value is not None:
+                self.value = value
+            if self._namespace_uri is not None:
+                for prefix, namespace in owner_element.nsmap.items():
+                    if namespace == self._namespace_uri:
+                        self._prefix = prefix
+                        break
 
     def __repr__(self):
         return repr({
@@ -964,10 +716,9 @@ class Attr(Node):
 
     @property
     def node_value(self):
-        """str: The attribute's value.
-        Same sa Attr.value.
-        """
-        return self.value
+        """str: The attribute's value."""
+        value = self.value
+        return value if value is not None else ''
 
     @node_value.setter
     def node_value(self, value):
@@ -990,10 +741,9 @@ class Attr(Node):
 
     @property
     def text_content(self):
-        """str: The attribute's value.
-        Same sa Attr.value.
-        """
-        return self.value
+        """str: The attribute's value."""
+        value = self.value
+        return value if value is not None else ''
 
     @text_content.setter
     def text_content(self, value):
@@ -1001,7 +751,7 @@ class Attr(Node):
 
     @property
     def value(self):
-        """str: The attribute's value."""
+        """str: The attribute's value or None."""
         if self._owner_element is not None:
             return self._owner_element.get(self._qualified_name)
         return self._value
@@ -1009,6 +759,10 @@ class Attr(Node):
     @value.setter
     def value(self, value):
         if self._owner_element is not None:
+            if value is None or len(value) == 0:
+                if self._qualified_name in self._owner_element.attrib:
+                    del self._owner_element.attrib[self._qualified_name]
+                return
             self._owner_element.set(self._qualified_name, value)
         else:
             self._value = value
@@ -1102,7 +856,10 @@ class Attr(Node):
         Returns:
             bytes: An attribute's value.
         """
-        return self.value.encode()
+        value = self.value
+        if value is None:
+            value = ''
+        return value.encode()
 
 
 class CharacterData(Node, NonDocumentTypeChildNode):
@@ -1352,11 +1109,25 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
     def _init(self):
         Node.__init__(self)
-        self._attributes = Attrib(self.attrib)
+        self._attributes = NamedNodeMap(self)
 
     @property
     def attributes(self):
-        """Attrib: A dictionary of an element attributes."""
+        """NamedNodeMap: A dictionary of an element attributes.
+
+        Examples:
+            >>> from svgpy import SVGParser
+            >>> parser = SVGParser()
+            >>> root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+            >>> root.attributes['viewBox'] = '0 0 600 400'
+            >>> attr = parser.create_attribute_ns('http://www.w3.org/XML/1998/namespace', 'lang')
+            >>> attr.value = 'ja'
+            >>> root.attributes.set_named_item_ns(attr)
+            >>> root.attributes
+            {'viewBox': '0 0 600 400', '{http://www.w3.org/XML/1998/namespace}lang': 'ja'}
+            >>> root.tostring()
+            b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" xml:lang="ja"/>'
+        """
         return self._attributes
 
     @property
@@ -1601,7 +1372,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Examples:
             >>> from svgpy import SVGParser
             >>> parser = SVGParser()
-            >>> root = parser.create_element('svg', nsmap={'html': 'http://www.w3.org/1999/xhtml'})
+            >>> root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg', nsmap={'html': 'http://www.w3.org/1999/xhtml'})
             >>> video = root.create_sub_element_ns('http://www.w3.org/1999/xhtml', 'video')
             >>> print(root.tostring(pretty_print=True).decode())
             <svg xmlns:html="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/2000/svg">
@@ -1798,10 +1569,9 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
              'unicode-bidi': 'normal',
              'vector-effect': 'none',
              }
-        attributes = self.attributes
-        for key in iter(non_inherited_props.keys()):
+        for key in iter(non_inherited_props):
             style.setdefault(key,
-                             attributes.get(key, non_inherited_props[key]))
+                             self.get(key, non_inherited_props[key]))
 
         inherited_props = \
             {'clip-rule': 'nonzero',
@@ -1876,7 +1646,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         element = self
         while element is not None:
             css_style, css_style_important = get_css_style(element, css_rules)
-            css_style.update(element.attributes)
+            css_style.update(element.attrib)
             _style = css_style.pop('style', None)
             if _style is not None:
                 css_style.update(style_to_dict(_style))
@@ -2103,7 +1873,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             qualified_name (str): The qualified name of the attribute.
         """
         attr = self.attributes.pop(qualified_name, None)
-        # TODO: do attr.detach_element().
+        if attr is not None:
+            attr.detach_element()
 
     def remove_attribute_ns(self, namespace, local_name):
         """Removes an attribute with the specified namespace and name.
@@ -2155,7 +1926,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             qualified_name (str): The qualified name of the attribute.
             value (str): The attribute's value.
         """
-        self.attributes.set(qualified_name, value)
+        self.attributes[qualified_name] = value
 
     def set_attribute_ns(self, namespace, qualified_name, value):
         """Sets an attribute with the specified namespace and name.

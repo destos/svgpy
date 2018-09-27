@@ -119,7 +119,7 @@ class CSSUtils(object):
                 parent_sequence.insert(0, parent)
                 parent = parent.getparent()
             for parent in iter(parent_sequence):
-                value = parent.attributes.get('font-size')
+                value = parent.get('font-size')
                 if value is None:
                     continue
                 elif value in ['larger', 'smaller']:
@@ -177,7 +177,7 @@ class CSSUtils(object):
                 parent_sequence.insert(0, parent)
                 parent = parent.getparent()
             for parent in iter(parent_sequence):
-                value = parent.attributes.get('font-weight')
+                value = parent.get('font-weight')
                 if value is None:
                     continue
                 elif value in ['bolder', 'lighter']:
@@ -226,7 +226,7 @@ class CSSUtils(object):
     def get_value(element, key, default=None):
         context = element
         while context is not None:
-            value = context.attributes.get(key, default)
+            value = context.get(key, default)
             if value == 'auto' and key in ['width', 'height']:
                 # See https://drafts.csswg.org/css2/visudet.html#the-width-property
                 local_name = context.local_name

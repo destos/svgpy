@@ -24,6 +24,7 @@ from .geometry.rect import DOMRect
 from .path import PathParser
 from .screen import Screen
 from .transform import SVGTransformList
+from .utils import QualifiedName
 
 
 class HTMLOrSVGElement(ABC):
@@ -37,20 +38,20 @@ class HTMLElement(ElementCSSInlineStyle, HTMLOrSVGElement):
     @property
     def lang(self):
         """str: The lang content attribute in no namespace.."""
-        return self.attributes.get('lang', '')
+        return self.get('lang', '')
 
     @lang.setter
     def lang(self, value):
-        self.attributes.set('lang', value)
+        self.set('lang', value)
 
     @property
     def title(self):
         """str: The title of the link, or the CSS style sheet set name."""
-        return self.attributes.get('title', '')
+        return self.get('title', '')
 
     @title.setter
     def title(self, value):
-        self.attributes.set('title', value)
+        self.set('title', value)
 
 
 class HTMLHyperlinkElementUtils(object):
@@ -72,20 +73,21 @@ class SVGAnimatedPoints(Element):
         """list[tuple[float, float]]: A list of coordinates pair.
 
         Examples:
+            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
-            >>> polygon = parser.create_element('polygon')
-            >>> polygon.attributes.set('points', '100,300 300,300 200,100')
+            >>> polygon = parser.create_element_ns('http://www.w3.org/2000/svg', 'polygon')
+            >>> polygon.set('points', '100,300 300,300 200,100')
             >>> polygon.points
             [(100.0, 300.0), (300.0, 300.0), (200.0, 100.0)]
             >>> polygon.points = [(100, 100), (300, 100), (200, 300)]
-            >>> polygon.tostring()
-            b'<polygon points="100,100 300,100 200,300"/>'
+            >>> polygon.get('points')
+            '100,100 300,100 200,300'
         """
         # 'points' property
         # Value: <points>
         # <points> = [ <number>+ ]#
         # Initial value: (none)
-        points = self.attributes.get('points')
+        points = self.get('points')
         if points is None:
             return []
         number_sequence = list()
@@ -99,7 +101,7 @@ class SVGAnimatedPoints(Element):
     @points.setter
     def points(self, points):
         value = format_coordinate_pair_sequence(points)
-        self.attributes.set('points', value)
+        self.set('points', value)
 
 
 class SVGBoundingBoxOptions(object):
@@ -239,9 +241,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
         parent_vph = vph = SVGLength(initial_viewport_height,
                                      direction=SVGLength.DIRECTION_VERTICAL)
         for root in roots:
-            attributes = root.attributes
-
-            _width = attributes.get('width', 'auto')
+            _width = root.get('width', 'auto')
             if _width == 'auto':
                 _width = '100%'
             if _width == 'inherit':
@@ -263,7 +263,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
                     vpw = min(parent_vpw, parent_vph)
             parent_vpw = vpw
 
-            _height = attributes.get('height', 'auto')
+            _height = root.get('height', 'auto')
             if _height == 'auto':
                 _height = '100%'
             if _height == 'inherit':
@@ -289,9 +289,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
             vpy = SVGLength(0)
         else:
             root = roots[-1]
-            attributes = root.attributes
-
-            vpx = SVGLength(attributes.get('x', '0'),
+            vpx = SVGLength(root.get('x', '0'),
                             context=root,
                             direction=SVGLength.DIRECTION_HORIZONTAL)
             unit = vpx.unit
@@ -304,7 +302,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
             elif unit == SVGLength.TYPE_VMIN:
                 vpx = min(vpw, vph)
 
-            vpy = SVGLength(attributes.get('y', '0'),
+            vpy = SVGLength(root.get('y', '0'),
                             context=root,
                             direction=SVGLength.DIRECTION_VERTICAL)
             unit = vpy.unit
@@ -333,7 +331,7 @@ class SVGGraphicsElement(SVGElement):
         # <transform-list> = <transform-function>+
         # Initial: none
         # Inherited: no
-        transform = self.attributes.get('transform')
+        transform = self.get('transform')
         if transform is None or transform == 'none':
             return None
         return SVGTransformList.parse(transform)
@@ -341,7 +339,7 @@ class SVGGraphicsElement(SVGElement):
     @transform.setter
     def transform(self, transform):
         value = SVGTransformList.tostring(transform)
-        self.attributes.set('transform', value)
+        self.set('transform', value)
 
     def _get_ctm(self, viewport_type):
         """Returns the current transformation matrix (CTM).
@@ -411,7 +409,7 @@ class SVGGraphicsElement(SVGElement):
         if self.iscontainer():
             for child in iter(self):
                 if isinstance(child, SVGGraphicsElement):
-                    display = child.attributes.get('display', 'inline')
+                    display = child.get('display', 'inline')
                     if display == 'none':
                         continue
                     bbox |= child.get_bbox(options, _depth)
@@ -501,33 +499,46 @@ class SVGGraphicsElement(SVGElement):
         if ew is None or eh is None:
             return ctm
         vbx, vby, vbw, vbh, par = view_box
-        align = SVGPreserveAspectRatio.ALIGN_XMIDYMID \
-            if par.align is None else par.align
-        meet_or_slice = SVGPreserveAspectRatio.MEETORSLICE_MEET \
-            if par.meet_or_slice is None \
-            else par.meet_or_slice
+        align = par.align
+        if align == SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_UNKNOWN:
+            align = SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID
+        meet_or_slice = par.meet_or_slice
+        if meet_or_slice == SVGPreserveAspectRatio.SVG_MEETORSLICE_UNKNOWN:
+            meet_or_slice = SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET
         sx = ew / vbw
         sy = eh / vbh
-        if align != SVGPreserveAspectRatio.ALIGN_NONE:
-            if meet_or_slice == SVGPreserveAspectRatio.MEETORSLICE_MEET:
+        if align != SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE:
+            if meet_or_slice == SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET:
                 if sx < sy:
                     sy = sx
                 elif sx > sy:
                     sx = sy
-            elif meet_or_slice == SVGPreserveAspectRatio.MEETORSLICE_SLICE:
+            elif meet_or_slice == SVGPreserveAspectRatio.SVG_MEETORSLICE_SLICE:
                 if sx > sy:
                     sy = sx
                 elif sx < sy:
                     sx = sy
         tx = ex - vbx * sx
         ty = ey - vby * sy
-        if 'xMid' in align:
+        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMIN,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMAX]:
+            # 'xMid'
             tx += (ew - vbw * sx) / 2
-        if 'xMax' in align:
+        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMIN,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMID,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMAX]:
+            # 'xMax'
             tx += ew - vbw * sx
-        if 'YMid' in align:
+        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMID,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMID]:
+            # 'YMid'
             ty += (eh - vbh * sy) / 2
-        if 'YMax' in align:
+        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMAX,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMAX,
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMAX]:
+            # 'YMax'
             ty += eh - vbh * sy
         ctm.translate_self(tx.value(), ty.value())
         ctm.scale_self(sx.value(tx.unit), sy.value(tx.unit))
@@ -542,11 +553,10 @@ class SVGFitToViewBox(Element):
         """SVGPreserveAspectRatio: The value of the 'preserveAspectRatio'
         attribute.
         """
-        # 'preserveAspectRatio' attribute
-        # Value: <align> <meetOrSlice>?
-        # Initial: xMidYMid meet
-        par = SVGPreserveAspectRatio(
-            self.attributes.get('preserveAspectRatio', 'xMidYMid meet'))
+        default = '{} {}'.format(
+            SVGPreserveAspectRatio.ALIGN_XMIDYMID,
+            SVGPreserveAspectRatio.MEETORSLICE_MEET)
+        par = SVGPreserveAspectRatio(self.get('preserveAspectRatio', default))
         return par
 
     @property
@@ -558,7 +568,7 @@ class SVGFitToViewBox(Element):
         # 'viewBox' attribute
         # Value: [<min-x>,? <min-y>,? <width>,? <height>]
         # <min-x>, <min-x>, <width>, <height> = <number>
-        view_box = self.attributes.get('viewBox')
+        view_box = self.get('viewBox')
         if view_box is None:
             return None
         vb = Element.RE_DIGIT_SEQUENCE_SPLITTER.split(view_box)
@@ -615,7 +625,7 @@ class SVGPathData(Element):
             d = 'none'
         else:
             d = PathParser.tostring(path_data)
-        self.attributes.set('d', d)
+        self.set('d', d)
 
 
 class SVGPathDataSettings(object):
@@ -627,6 +637,22 @@ class SVGPathDataSettings(object):
 
 class SVGPreserveAspectRatio(object):
     """Represents the [SVG2] SVGPreserveAspectRatio."""
+
+    SVG_PRESERVEASPECTRATIO_UNKNOWN = 0
+    SVG_PRESERVEASPECTRATIO_NONE = 1
+    SVG_PRESERVEASPECTRATIO_XMINYMIN = 2
+    SVG_PRESERVEASPECTRATIO_XMIDYMIN = 3
+    SVG_PRESERVEASPECTRATIO_XMAXYMIN = 4
+    SVG_PRESERVEASPECTRATIO_XMINYMID = 5
+    SVG_PRESERVEASPECTRATIO_XMIDYMID = 6  # default
+    SVG_PRESERVEASPECTRATIO_XMAXYMID = 7
+    SVG_PRESERVEASPECTRATIO_XMINYMAX = 8
+    SVG_PRESERVEASPECTRATIO_XMIDYMAX = 9
+    SVG_PRESERVEASPECTRATIO_XMAXYMAX = 10
+
+    SVG_MEETORSLICE_UNKNOWN = 0
+    SVG_MEETORSLICE_MEET = 1  # default
+    SVG_MEETORSLICE_SLICE = 2
 
     ALIGN_NONE = 'none'
     ALIGN_XMINYMIN = 'xMinYMin'
@@ -642,12 +668,32 @@ class SVGPreserveAspectRatio(object):
     MEETORSLICE_MEET = 'meet'
     MEETORSLICE_SLICE = 'slice'
 
+    _TYPE_ALIGN_MAP = {
+        SVG_PRESERVEASPECTRATIO_NONE: ALIGN_NONE,
+        SVG_PRESERVEASPECTRATIO_XMINYMIN: ALIGN_XMINYMIN,
+        SVG_PRESERVEASPECTRATIO_XMIDYMIN: ALIGN_XMIDYMIN,
+        SVG_PRESERVEASPECTRATIO_XMAXYMIN: ALIGN_XMAXYMIN,
+        SVG_PRESERVEASPECTRATIO_XMINYMID: ALIGN_XMINYMID,
+        SVG_PRESERVEASPECTRATIO_XMIDYMID: ALIGN_XMIDYMID,
+        SVG_PRESERVEASPECTRATIO_XMAXYMID: ALIGN_XMAXYMID,
+        SVG_PRESERVEASPECTRATIO_XMINYMAX: ALIGN_XMINYMAX,
+        SVG_PRESERVEASPECTRATIO_XMIDYMAX: ALIGN_XMIDYMAX,
+        SVG_PRESERVEASPECTRATIO_XMAXYMAX: ALIGN_XMAXYMAX,
+    }
+
+    _ALIGN_TYPE_MAP = dict((v, k) for k, v in _TYPE_ALIGN_MAP.items())
+
+    _TYPE_MEETORSLICE_MAP = {
+        SVG_MEETORSLICE_MEET: MEETORSLICE_MEET,
+        SVG_MEETORSLICE_SLICE: MEETORSLICE_SLICE,
+    }
+
+    _MEETORSLICE_TYPE_MAP = dict(
+        (v, k) for k, v in _TYPE_MEETORSLICE_MAP.items())
+
     def __init__(self, text=None):
-        # 'preserveAspectRatio' attribute
-        # Value: <align> <meetOrSlice>?
-        # Initial: xMidYMid meet
-        self._align = SVGPreserveAspectRatio.ALIGN_XMIDYMID
-        self._meet_or_slice = SVGPreserveAspectRatio.MEETORSLICE_MEET
+        self._align = SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID
+        self._meet_or_slice = SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET
         if text is not None:
             (self._align,
              self._meet_or_slice) = SVGPreserveAspectRatio.parse(text)
@@ -658,55 +704,55 @@ class SVGPreserveAspectRatio(object):
         return (self.align == other.align
                 and self.meet_or_slice == other.meet_or_slice)
 
+    def __repr__(self):
+        return repr({
+            'align': self.align,
+            'meet_or_slice': self.meet_or_slice,
+        })
+
     @property
     def align(self):
-        return self._align if self._align is not None else 'xMidYMid'
+        """int: The numeric alignment type."""
+        return self._align
 
     @align.setter
-    def align(self, align):
-        self._align = align
+    def align(self, value):
+        self._align = value
 
     @property
     def meet_or_slice(self):
-        if self._align == SVGPreserveAspectRatio.ALIGN_NONE:
-            return None
-        return self._meet_or_slice if self._meet_or_slice is not None \
-            else 'meet'
+        """int: The numeric meet-or-slice type."""
+        return self._meet_or_slice
 
     @meet_or_slice.setter
-    def meet_or_slice(self, meet_or_slice):
-        self._meet_or_slice = meet_or_slice
+    def meet_or_slice(self, value):
+        self._meet_or_slice = value
 
     @staticmethod
     def parse(text):
-        align = SVGPreserveAspectRatio.ALIGN_XMIDYMID
-        meet_or_slice = SVGPreserveAspectRatio.MEETORSLICE_MEET
+        align = SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID
+        meet_or_slice = SVGPreserveAspectRatio.SVG_MEETORSLICE_MEET
         items = Element.RE_DIGIT_SEQUENCE_SPLITTER.split(text.strip())
-        if (len(items) > 0
-                and items[0] in [SVGPreserveAspectRatio.ALIGN_NONE,
-                                 SVGPreserveAspectRatio.ALIGN_XMAXYMAX,
-                                 SVGPreserveAspectRatio.ALIGN_XMAXYMID,
-                                 SVGPreserveAspectRatio.ALIGN_XMAXYMIN,
-                                 SVGPreserveAspectRatio.ALIGN_XMIDYMAX,
-                                 SVGPreserveAspectRatio.ALIGN_XMIDYMID,
-                                 SVGPreserveAspectRatio.ALIGN_XMIDYMIN,
-                                 SVGPreserveAspectRatio.ALIGN_XMINYMAX,
-                                 SVGPreserveAspectRatio.ALIGN_XMINYMID,
-                                 SVGPreserveAspectRatio.ALIGN_XMINYMIN]):
-            align = items[0]
-            if (align != SVGPreserveAspectRatio.ALIGN_NONE and len(items) >= 2
-                    and items[1] in [
-                        SVGPreserveAspectRatio.MEETORSLICE_MEET,
-                        SVGPreserveAspectRatio.MEETORSLICE_SLICE
-                    ]):
-                meet_or_slice = items[1]
+        if len(items) > 0:
+            align = SVGPreserveAspectRatio._ALIGN_TYPE_MAP.get(
+                items[0],
+                align)
+            if len(items) > 1:
+                meet_or_slice = SVGPreserveAspectRatio._MEETORSLICE_TYPE_MAP.get(
+                    items[1],
+                    meet_or_slice)
         return align, meet_or_slice
 
     def tostring(self):
-        return ' '.join([self.align,
-                         self.meet_or_slice
-                         if self.align != SVGPreserveAspectRatio.ALIGN_NONE
-                         else '']).strip()
+        if self.align == SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_NONE:
+            return SVGPreserveAspectRatio.ALIGN_NONE
+        align = SVGPreserveAspectRatio._TYPE_ALIGN_MAP.get(
+            self.align,
+            SVGPreserveAspectRatio.ALIGN_XMIDYMID)
+        meet_or_slice = SVGPreserveAspectRatio._TYPE_MEETORSLICE_MAP.get(
+            self.meet_or_slice,
+            SVGPreserveAspectRatio.MEETORSLICE_MEET)
+        return ' '.join([align, meet_or_slice])
 
 
 class SVGURIReference(Element):
@@ -714,47 +760,51 @@ class SVGURIReference(Element):
 
     @property
     def href(self):
-        attributes = self.attributes
-        href = attributes.get('href')
-        if href is None:
-            href = attributes.get_ns(Element.XLINK_NAMESPACE_URI, 'href')
+        href = self.get('href', '')
+        if len(href) == 0:
+            name = QualifiedName(Element.XLINK_NAMESPACE_URI, 'href')
+            href = self.get(name.value, '')
         return href
 
 
 class SVGGradientElement(SVGElement, SVGURIReference):
     """Represents the [SVG2] SVGGradientElement."""
 
-    SPREADMETHOD_UNKNOWN = 0
-    SPREADMETHOD_PAD = 1
-    SPREADMETHOD_REFLECT = 2
-    SPREADMETHOD_REPEAT = 3
+    SVG_SPREADMETHOD_UNKNOWN = 0
+    SVG_SPREADMETHOD_PAD = 1
+    SVG_SPREADMETHOD_REFLECT = 2
+    SVG_SPREADMETHOD_REPEAT = 3
 
 
 class SVGZoomAndPan(Element):
     """Represents the [SVG2] SVGZoomAndPan."""
 
-    ZOOMANDPAN_UNKNOWN = 0
-    ZOOMANDPAN_DISABLE = 1
-    ZOOMANDPAN_MAGNIFY = 2
+    SVG_ZOOMANDPAN_UNKNOWN = 0
+    SVG_ZOOMANDPAN_DISABLE = 1  # default
+    SVG_ZOOMANDPAN_MAGNIFY = 2
 
-    _ZOOMANDPAN_MAP = {
-        'disable': ZOOMANDPAN_DISABLE,
-        'magnify': ZOOMANDPAN_MAGNIFY,
+    ZOOMANDPAN_DISABLE = 'disable'
+    ZOOMANDPAN_MAGNIFY = 'magnify'
+
+    _TYPE_ZOOMANDPAN_MAP = {
+        SVG_ZOOMANDPAN_DISABLE: ZOOMANDPAN_DISABLE,
+        SVG_ZOOMANDPAN_MAGNIFY: ZOOMANDPAN_MAGNIFY,
     }
+
+    _ZOOMANDPAN_TYPE_MAP = dict(
+        (v, k) for k, v in _TYPE_ZOOMANDPAN_MAP.items())
 
     @property
     def zoom_and_pan(self):
         """int: The zoom and pan type."""
-        zoom_and_pan = self.attributes.get('zoomAndPan', 'disable')
-        zap_type = SVGZoomAndPan._ZOOMANDPAN_MAP.get(
-            zoom_and_pan, SVGZoomAndPan.ZOOMANDPAN_UNKNOWN)
-        return zap_type
+        value = self.get('zoomAndPan', SVGZoomAndPan.ZOOMANDPAN_DISABLE)
+        zoom_and_pan = SVGZoomAndPan._ZOOMANDPAN_TYPE_MAP.get(
+            value, SVGZoomAndPan.SVG_ZOOMANDPAN_UNKNOWN)
+        return zoom_and_pan
 
     @zoom_and_pan.setter
-    def zoom_and_pan(self, zoom_and_pan_type):
-        if zoom_and_pan_type not in SVGZoomAndPan._ZOOMANDPAN_MAP.values():
+    def zoom_and_pan(self, value):
+        if value not in SVGZoomAndPan._TYPE_ZOOMANDPAN_MAP:
             return
-        zoom_and_pan = [key for key, value
-                        in SVGZoomAndPan._ZOOMANDPAN_MAP.items()
-                        if value == zoom_and_pan_type][0]
-        self.attributes.set('zoomAndPan', zoom_and_pan)
+        zoom_and_pan = SVGZoomAndPan._TYPE_ZOOMANDPAN_MAP[value]
+        self.set('zoomAndPan', zoom_and_pan)

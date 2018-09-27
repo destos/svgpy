@@ -279,8 +279,9 @@ def get_css_style(element, css_rules):
                                                  namespaces=namespaces)
                 matched = selector(element)
                 if len(matched) > 0 and element in matched:
-                    for key, (value, priority) in css_rule.style.items():
+                    for key, value in css_rule.style.items():
                         style[key] = value
+                        priority = css_rule.style.get_property_priority(key)
                         if priority == 'important':
                             style_important[key] = value
             except cssselect.ExpressionError as exp:
