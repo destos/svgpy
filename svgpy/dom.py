@@ -334,7 +334,7 @@ class NamedNodeMap(MutableMapping):
             Attr: An attribute object or None.
         """
         qualified_name = QualifiedName(namespace, local_name)
-        return self.get_named_item(qualified_name.value)
+        return self.get_named_item(qualified_name.name)
 
     def item(self, index):
         """Returns the attribute list[`index`].
@@ -373,7 +373,7 @@ class NamedNodeMap(MutableMapping):
             Attr: An attribute object to be removed.
         """
         qualified_name = QualifiedName(namespace, local_name)
-        return self.remove_named_item(qualified_name.value)
+        return self.remove_named_item(qualified_name.name)
 
     def set_named_item(self, attr):
         """Sets an attribute given `attr`.
@@ -671,9 +671,9 @@ class Attr(Node):
         if value is None and owner_element is None:
             raise ValueError("Expected 'value' or 'owner_element'")
         name = QualifiedName(namespace, qualified_name)
-        self._qualified_name = name.value
+        self._qualified_name = name.name
         self._local_name = name.local_name
-        self._namespace_uri = name.namespace
+        self._namespace_uri = name.namespace_uri
         self._prefix = None
         self._value = value
         self._owner_element = owner_element
@@ -1389,7 +1389,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             </svg>
         """
         qualified_name = QualifiedName(namespace, local_name)
-        element = self.create_sub_element(qualified_name.value,
+        element = self.create_sub_element(qualified_name.name,
                                           index=index,
                                           attrib=attrib,
                                           nsmap=nsmap,
@@ -1447,7 +1447,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             str: The attribute's value or None.
         """
         name = QualifiedName(namespace, local_name)
-        return self.get_attribute(name.value)
+        return self.get_attribute(name.name)
 
     def get_computed_geometry(self):
         return {}  # override with a subclass
@@ -1794,7 +1794,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             bool: Returns True if the attribute exists, else False.
         """
         name = QualifiedName(namespace, local_name)
-        return self.has_attribute(name.value)
+        return self.has_attribute(name.name)
 
     def insert(self, index, element):
         """Reimplemented from lxml.etree.ElementBase.insert().
@@ -1893,7 +1893,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             local_name (str): The local name of the attribute.
         """
         name = QualifiedName(namespace, local_name)
-        self.remove_attribute(name.value)
+        self.remove_attribute(name.name)
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -1946,7 +1946,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             value (str): The attribute's value.
         """
         name = QualifiedName(namespace, qualified_name)
-        self.set_attribute(name.value, value)
+        self.set_attribute(name.name, value)
 
     def tostring(self, **kwargs):
         """Serializes an element to an encoded string representation of its

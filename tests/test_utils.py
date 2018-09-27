@@ -6,7 +6,7 @@ import unittest
 
 sys.path.extend(['.', '..'])
 
-from svgpy.utils import CaseInsensitiveMapping
+from svgpy.utils import CaseInsensitiveMapping, QualifiedName
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -61,6 +61,90 @@ class UtilsTestCase(unittest.TestCase):
 
         del d[key]
         self.assertEqual(0, len(d))
+
+    def test_qualified_name(self):
+        # QualifiedName()
+        svg_namespace = 'http://www.w3.org/2000/svg'
+        xml_namespace = 'http://www.w3.org/XML/1998/namespace'
+
+        q_name = QualifiedName(None, 'lang')
+        self.assertIsNone(q_name.namespace_uri)
+        self.assertEqual('lang', q_name.name)
+        self.assertEqual('lang', q_name.local_name)
+
+        q_name = QualifiedName('', 'lang')
+        self.assertIsNone(q_name.namespace_uri)
+        self.assertEqual('lang', q_name.name)
+        self.assertEqual('lang', q_name.local_name)
+
+        qualified_name = '{{{}}}{}'.format(xml_namespace, 'lang')
+        q_name = QualifiedName(xml_namespace, 'lang')
+        self.assertEqual(xml_namespace, q_name.namespace_uri)
+        self.assertEqual(qualified_name, q_name.name)
+        self.assertEqual('lang', q_name.local_name)
+
+        qualified_name = '{{{}}}{}'.format(xml_namespace, 'lang')
+        q_name = QualifiedName(None, qualified_name)
+        self.assertEqual(xml_namespace, q_name.namespace_uri)
+        self.assertEqual(qualified_name, q_name.name)
+        self.assertEqual('lang', q_name.local_name)
+
+        qualified_name = '{{{}}}{}'.format(xml_namespace, 'lang')
+        q_name = QualifiedName('', qualified_name)
+        self.assertEqual(xml_namespace, q_name.namespace_uri)
+        self.assertEqual(qualified_name, q_name.name)
+        self.assertEqual('lang', q_name.local_name)
+
+        qualified_name = '{{{}}}{}'.format(xml_namespace, 'lang')
+        q_name = QualifiedName(xml_namespace, qualified_name)
+        self.assertEqual(xml_namespace, q_name.namespace_uri)
+        self.assertEqual(qualified_name, q_name.name)
+        self.assertEqual('lang', q_name.local_name)
+
+        # Invalid character
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, 'lang\t'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, 'lang\n'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, 'lang\f'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, 'lang\r'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, 'lang '))
+
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName('\t', 'lang'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName('\n', 'lang'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName('\f', 'lang'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName('\r', 'lang'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(' ', 'lang'))
+
+        # Missing namespace
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, '{}lang'))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(xml_namespace, '{}lang'))
+
+        # Missing local name
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, ''))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(xml_namespace, ''))
+        qualified_name = '{{{}}}{}'.format(xml_namespace, '')
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(None, qualified_name))
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(xml_namespace, qualified_name))
+
+        # Namespace did not match
+        qualified_name = '{{{}}}{}'.format(xml_namespace, 'lang')
+        self.assertRaises(ValueError,
+                          lambda: QualifiedName(svg_namespace, qualified_name))
 
 
 if __name__ == '__main__':

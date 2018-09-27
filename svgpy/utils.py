@@ -320,16 +320,21 @@ class QualifiedName(object):
                 raise ValueError('Namespace did not match: '
                                  + repr((namespace, self._namespace)))
             self._local_name = matched.group('local_name')
-            if len(self._local_name) == 0:
-                raise ValueError('Missing local name')
             self._qualified_name = qualified_name
+        if len(self._local_name) == 0:
+            raise ValueError('Missing local name')
 
     def __repr__(self):
         return repr({
-            'namespace': self.namespace,
+            'name': self.name,
+            'namespace_uri': self.namespace_uri,
             'local_name': self.local_name,
-            'value': self.value,
         })
+
+    @property
+    def name(self):
+        """str: The qualified name."""
+        return self._qualified_name
 
     @property
     def local_name(self):
@@ -337,11 +342,6 @@ class QualifiedName(object):
         return self._local_name
 
     @property
-    def namespace(self):
+    def namespace_uri(self):
         """str: The namespace URI or None."""
         return self._namespace
-
-    @property
-    def value(self):
-        """str: The qualified name."""
-        return self._qualified_name

@@ -763,7 +763,7 @@ class SVGURIReference(Element):
         href = self.get('href', '')
         if len(href) == 0:
             name = QualifiedName(Element.XLINK_NAMESPACE_URI, 'href')
-            href = self.get(name.value, '')
+            href = self.get(name.name, '')
         return href
 
 

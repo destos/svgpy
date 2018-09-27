@@ -1314,7 +1314,7 @@ class SVGParser(object):
             'source'
         """
         name = QualifiedName(namespace, qualified_name)
-        element = self.create_element(name.value,
+        element = self.create_element(name.name,
                                       attrib=attrib,
                                       nsmap=nsmap,
                                       **_extra)
