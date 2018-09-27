@@ -403,100 +403,96 @@ class CSSOMTestCase(unittest.TestCase):
     def test_inline_style01(self):
         parser = SVGParser()
         rect = parser.create_element('rect')
-        attributes = rect.attributes
-        style = rect.style
-        self.assertIsInstance(style, CSSStyleDeclaration)
-        self.assertIsNone(style.parent_rule)
-        self.assertEqual(0, style.length)
-        self.assertEqual(0, len(attributes))
+        self.assertIsInstance(rect.style, CSSStyleDeclaration)
+        self.assertIsNone(rect.style.parent_rule)
+        self.assertEqual(0, rect.style.length)
+        self.assertEqual(0, len(rect.attributes))
 
-        style.set_property('fill', 'red')
-        style.set_property('stroke', 'blue')
-        style.set_property('stroke-width', '5')
-        self.assertEqual(3, style.length)
+        rect.style.set_property('fill', 'red')
+        rect.style.set_property('stroke', 'blue')
+        rect.style.set_property('stroke-width', '5')
+        self.assertEqual(3, rect.style.length)
         self.assertEqual('red',
-                         style.get_property_value('fill'))
+                         rect.style.get_property_value('fill'))
         self.assertEqual('blue',
-                         style.get_property_value('stroke'))
+                         rect.style.get_property_value('stroke'))
         self.assertEqual('5',
-                         style.get_property_value('stroke-width'))
-        self.assertEqual(1, len(attributes))
+                         rect.style.get_property_value('stroke-width'))
+        self.assertEqual(1, len(rect.attributes))
         expected = 'fill: red; stroke-width: 5; stroke: blue;'
         self.assertEqual(expected, rect.get('style'))
 
-        style.remove_property('stroke-width')
-        self.assertEqual(2, style.length)
-        self.assertEqual(1, len(attributes))
+        rect.style.remove_property('stroke-width')
+        self.assertEqual(2, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
         expected = 'fill: red; stroke: blue;'
         self.assertEqual(expected, rect.get('style'))
 
-        style.set_property('fill', None)
-        style.set_property('stroke', '')
-        style.set_property('stroke', '')  # no error
-        self.assertEqual(0, style.length)
-        self.assertEqual(0, len(attributes))
+        rect.style.set_property('fill', None)
+        rect.style.set_property('stroke', '')
+        rect.style.set_property('stroke', '')  # no error
+        self.assertEqual(0, rect.style.length)
+        self.assertEqual(0, len(rect.attributes))
 
     def test_inline_style02(self):
         parser = SVGParser()
         rect = parser.create_element('rect')
-        attributes = rect.attributes
-        style = rect.style
-        style.update({
+        rect.style.update({
             'fill': 'red',
             'stroke': 'blue',
             'stroke-width': '5',
         })
-        self.assertIsInstance(style, CSSStyleDeclaration)
-        self.assertIsNone(style.parent_rule)
-        self.assertEqual(3, style.length)
+        self.assertIsInstance(rect.style, CSSStyleDeclaration)
+        self.assertIsNone(rect.style.parent_rule)
+        self.assertEqual(3, rect.style.length)
         self.assertEqual('red',
-                         style.get_property_value('fill'))
+                         rect.style.get_property_value('fill'))
         self.assertEqual('blue',
-                         style.get_property_value('stroke'))
+                         rect.style.get_property_value('stroke'))
         self.assertEqual('5',
-                         style.get_property_value('stroke-width'))
-        self.assertEqual(1, len(attributes))
+                         rect.style.get_property_value('stroke-width'))
+        self.assertEqual(1, len(rect.attributes))
         expected = 'fill: red; stroke-width: 5; stroke: blue;'
         self.assertEqual(expected, rect.get('style'))
 
-        style.update({'fill': 'white'})
+        rect.style.update({'fill': 'white'})
         self.assertEqual('white',
-                         style.get_property_value('fill'))
+                         rect.style.get_property_value('fill'))
 
-        self.assertEqual(3, style.length)
-        self.assertEqual(1, len(attributes))
-        del style['fill']
-        self.assertEqual(2, style.length)
-        self.assertEqual(1, len(attributes))
-        style['stroke'] = None
-        self.assertEqual(1, style.length)
-        self.assertEqual(1, len(attributes))
-        style['stroke-width'] = ''
-        self.assertEqual(0, len(attributes))
-        self.assertEqual(0, style.length)
+        self.assertEqual(3, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
+        del rect.style['fill']
+        self.assertEqual(2, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
+        rect.style['stroke'] = None
+        self.assertEqual(1, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
+        rect.style['stroke-width'] = ''
+        self.assertEqual(0, len(rect.attributes))
+        self.assertEqual(0, rect.style.length)
 
-        style['fill'] = 'white', 'IMPORTANT'  # value with priority
-        value = style['fill']
-        priority = style.get_property_priority('fill')
+        rect.style['fill'] = 'white', 'IMPORTANT'  # value with priority
+        value = rect.style['fill']
+        priority = rect.style.get_property_priority('fill')
         self.assertEqual('white', value)
         self.assertEqual('important', priority)
 
-        style['fill'] = 'black'  # value without priority
-        value = style['fill']
-        priority = style.get_property_priority('fill')
+        rect.style['fill'] = 'black'  # value without priority
+        value = rect.style['fill']
+        priority = rect.style.get_property_priority('fill')
         self.assertEqual('black', value)
         self.assertEqual('important', priority)
 
-        style.remove_property('fill')
-        style.set_property('fill', 'none')
-        value = style['fill']
-        priority = style.get_property_priority('fill')
+        rect.style.remove_property('fill')
+        rect.style.set_property('fill', 'none')
+        value = rect.style['fill']
+        priority = rect.style.get_property_priority('fill')
         self.assertEqual('none', value)
         self.assertEqual('', priority)
 
-        style.set_property('fill', 'blue', 'Important')
-        value = style.get_property_value('fill')
-        priority = style.get_property_priority('fill')
+        rect.style.set_property('fill', 'blue', 'Important')
+        value = rect.style.get_property_value('fill')
+        priority = rect.style.get_property_priority('fill')
         self.assertEqual('blue', value)
         self.assertEqual('important', priority)
 

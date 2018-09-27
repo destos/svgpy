@@ -1963,11 +1963,25 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 class ElementCSSInlineStyle(Element):
     """Represents the [cssom] ElementCSSInlineStyle."""
 
+    def _init(self):
+        super()._init()
+        self._style = CSSStyleDeclaration(owner_node=self)
+
     @property
     def style(self):
-        """CSSStyleDeclaration: A CSS declaration block object."""
-        style = CSSStyleDeclaration(owner_node=self)
-        return style
+        """CSSStyleDeclaration: A CSS declaration block object.
+
+        Examples:
+            >>> from svgpy import SVGParser
+            >>> parser = SVGParser()
+            >>> g = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
+            >>> g.attributes['style'] = 'fill: none; stroke: red;'
+            >>> g.style['stroke'] = 'blue'
+            >>> g.style['stroke-width'] = '3'
+            >>> g.attributes['style'].value
+            'fill: none; stroke-width: 3; stroke: blue;'
+        """
+        return self._style
 
 
 class LinkStyle(Element):
