@@ -237,7 +237,7 @@ class NamedNodeMap(MutableMapping):
         """Gets an attribute with the specified `name`.
 
         Arguments:
-            name (str): The qualified name of the attribute.
+            name (str, Attr): The qualified name of the attribute.
         Returns:
             Attr: An attribute object.
         """
@@ -1437,6 +1437,27 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """
         return sorted(self.attrib.keys())
 
+    def get_attribute_node(self, qualified_name):
+        """Returns an attribute given the qualified name.
+
+        Arguments:
+            qualified_name (str): The qualified name of the attribute.
+        Returns:
+            Attr: An attribute object or None.
+        """
+        return self.attributes.get_named_item(qualified_name)
+
+    def get_attribute_node_ns(self, namespace, local_name):
+        """Returns an attribute given the namespace URI and local name.
+
+        Arguments:
+            namespace (str, None): The namespace URI of the attribute.
+            local_name (str): The local name of the attribute.
+        Returns:
+            Attr: An attribute object or None.
+        """
+        return self.attributes.get_named_item_ns(namespace, local_name)
+
     def get_attribute_ns(self, namespace, local_name):
         """Returns an attribute's value with the specified namespace and name.
 
@@ -1454,6 +1475,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
     def get_computed_style(self):
         """Gets the presentation attributes from ancestor elements."""
+        # TODO: implement Window.get_computed_style()
         style = self.get_inherited_style()
 
         # 'font-feature-settings' property
@@ -1796,6 +1818,12 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         name = QualifiedName(namespace, local_name)
         return self.has_attribute(name.name)
 
+    def has_attributes(self):
+        """Returns True if attribute list is not empty; otherwise returns
+        False.
+        """
+        return len(self.attrib) > 0
+
     def insert(self, index, element):
         """Reimplemented from lxml.etree.ElementBase.insert().
 
@@ -1885,6 +1913,17 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         if attr is not None:
             attr.detach_element()
 
+    def remove_attribute_node(self, attr):
+        """Removes an attribute given `attr`.
+
+        Arguments:
+            attr (Attr): An attribute to be removed.
+        Returns:
+            Attr: An attribute object to be removed.
+        """
+        del self.attributes[attr]
+        return attr
+
     def remove_attribute_ns(self, namespace, local_name):
         """Removes an attribute with the specified namespace and name.
 
@@ -1937,6 +1976,27 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """
         self.attributes[qualified_name] = value
 
+    def set_attribute_node(self, attr):
+        """Sets an attribute given `attr`.
+
+        Arguments:
+            attr (Attr): An attribute to be replaced or added.
+        Returns:
+            Attr: An attribute object to be removed or None.
+        """
+        return self.attributes.set_named_item(attr)
+
+    def set_attribute_node_ns(self, attr):
+        """Sets an attribute given `attr`.
+        Same as Element.set_attribute_node().
+
+        Arguments:
+            attr (Attr): An attribute to be replaced or added.
+        Returns:
+            Attr: An attribute object to be removed or None.
+        """
+        return self.attributes.set_named_item_ns(attr)
+
     def set_attribute_ns(self, namespace, qualified_name, value):
         """Sets an attribute with the specified namespace and name.
 
@@ -1947,6 +2007,29 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """
         name = QualifiedName(namespace, qualified_name)
         self.set_attribute(name.name, value)
+
+    def toggle_attribute(self, qualified_name, force=None):
+        """If `force` is not given, "toggles" `qualified_name`, removing it if
+        it’s present and adding it if it’s not present. If `force` is True,
+        adds attribute (same as set()). If `force` is False, removes attribute
+        (same as remove_attribute()).
+
+        Arguments:
+            qualified_name (str): The qualified name of the attribute.
+            force (bool, optional): The toggle flag.
+        Returns:
+            bool: Returns True if specified attribute is now present, and
+                False otherwise.
+        """
+        if qualified_name in self.attrib:
+            if force in [None, False]:
+                self.remove_attribute(qualified_name)
+                return False
+            return True
+        elif force in [None, True]:
+            self.set(qualified_name, '')
+            return True
+        return False
 
     def tostring(self, **kwargs):
         """Serializes an element to an encoded string representation of its

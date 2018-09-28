@@ -1450,12 +1450,185 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(doc, path.owner_document)
         # print(doc.tostring())
 
+    def test_element_get_attribute(self):
+        # Element.get_attribute()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+
+        root.set('viewBox', '0 0 600 400')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root.set(xml_lang, 'ja')
+
+        value = root.get_attribute('viewBox')
+        self.assertEqual('0 0 600 400', value)
+
+        value = root.get_attribute(xml_lang)
+        self.assertEqual('ja', value)
+
+        self.assertIsNone(root.get_attribute('x'))
+        self.assertIsNone(root.get_attribute('y'))
+
+    def test_element_get_attribute_ns(self):
+        # Element.get_attribute_ns()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+
+        root.set('viewBox', '0 0 600 400')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root.set(xml_lang, 'ja')
+
+        value = root.get_attribute_ns(None, 'viewBox')
+        self.assertEqual('0 0 600 400', value)
+
+        value = root.get_attribute_ns(None, xml_lang)
+        self.assertEqual('ja', value)
+
+        value = root.get_attribute_ns(Element.XML_NAMESPACE_URI, xml_lang)
+        self.assertEqual('ja', value)
+
+        value = root.get_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        self.assertEqual('ja', value)
+
+        self.assertIsNone(root.get_attribute_ns(None, 'x'))
+        self.assertIsNone(root.get_attribute_ns(None, 'y'))
+
+    def test_element_get_attribute_names(self):
+        # Element.get_attribute_names()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+
+        names = root.get_attribute_names()
+        self.assertEqual(0, len(names))
+
+        root.set('width', '600')
+        root.set('height', '400')
+        root.set('viewBox', '0 0 600 400')
+        names = root.get_attribute_names()
+        self.assertEqual(['height', 'viewBox', 'width'],
+                         names)
+
+        root.set('x', '0')
+        root.set('y', '0')
+        names = root.get_attribute_names()
+        self.assertEqual(['height', 'viewBox', 'width', 'x', 'y'],
+                         names)
+
+    def test_element_get_attribute_node(self):
+        # Element.get_attribute_node()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+
+        src_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang')
+        src_attr.value = 'ja'
+        root.attributes.set_named_item_ns(src_attr)
+
+        attr = root.get_attribute_node(xml_lang)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('ja', attr.value)
+
+        self.assertIsNone(root.get_attribute_node('lang'))
+
+    def test_element_get_attribute_node_ns(self):
+        # Element.get_attribute_node_ns()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+
+        src_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang')
+        src_attr.value = 'ja'
+        root.attributes.set_named_item_ns(src_attr)
+
+        attr = root.get_attribute_node_ns(None, xml_lang)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('ja', attr.value)
+
+        attr = root.get_attribute_node_ns(Element.XML_NAMESPACE_URI, xml_lang)
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('ja', attr.value)
+
+        attr = root.get_attribute_node_ns(Element.XML_NAMESPACE_URI, 'lang')
+        self.assertIsInstance(attr, Attr)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('ja', attr.value)
+
+        self.assertIsNone(root.get_attribute_node_ns(None, 'lang'))
+
+    def test_element_has_attribute(self):
+        # Element.has_attribute()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+
+        self.assertFalse(root.has_attribute('viewBox'))
+
+        root.set('viewBox', '0 0 600 400')
+        self.assertTrue(root.has_attribute('viewBox'))
+
+        self.assertFalse(root.has_attribute(xml_lang))
+
+        attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        attr.value = 'ja'
+        root.attributes.set_named_item_ns(attr)
+        self.assertTrue(root.has_attribute(xml_lang))
+
+    def test_element_has_attribute_ns(self):
+        # Element.has_attribute_ns()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+
+        self.assertFalse(root.has_attribute_ns(None, 'viewBox'))
+
+        root.set('viewBox', '0 0 600 400')
+        self.assertTrue(root.has_attribute_ns(None, 'viewBox'))
+
+        self.assertFalse(root.has_attribute_ns(None, xml_lang))
+        self.assertFalse(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                               xml_lang))
+        self.assertFalse(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                               'lang'))
+
+        attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        attr.value = 'ja'
+        root.attributes.set_named_item_ns(attr)
+        self.assertTrue(root.has_attribute_ns(None, xml_lang))
+        self.assertTrue(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              xml_lang))
+        self.assertTrue(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang'))
+
+    def test_element_has_attributes(self):
+        # Element.has_attributes()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        self.assertEqual(0, len(root.attrib))
+        self.assertFalse(root.has_attributes())
+
+        root.set('width', '600')
+        root.set('height', '400')
+        self.assertEqual(2, len(root.attrib))
+        self.assertTrue(root.has_attributes())
+
+        del root.attrib['width']
+        self.assertEqual(1, len(root.attrib))
+        self.assertTrue(root.has_attributes())
+
+        del root.attrib['height']
+        self.assertEqual(0, len(root.attrib))
+        self.assertFalse(root.has_attributes())
+
     def test_element_id(self):
         # Element.id
         parser = SVGParser()
         root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
         self.assertIsNone(root.get('id'))
-        self.assertEqual('', root.id)
+        self.assertEqual(0, len(root.id))
 
         root.id = value = 'toc'
         self.assertEqual(value, root.get('id'))
@@ -1606,6 +1779,95 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(doc, group.owner_document)
         self.assertEqual(doc, path.owner_document)
 
+    def test_element_remove_attribute(self):
+        # Element.remove_attribute()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root.set('viewBox', '0 0 600 400')
+        attr = parser.create_attribute(xml_lang)
+        attr.value = 'ja'
+        root.attributes[xml_lang] = attr
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual(root, attr.owner_element)
+
+        root.remove_attribute('viewBox')
+        self.assertEqual(1, len(root.attrib))
+        self.assertTrue(xml_lang in root.attrib)
+
+        root.remove_attribute(xml_lang)
+        self.assertEqual(0, len(root.attrib))
+        self.assertIsNone(attr.owner_element)
+
+        root.remove_attribute('lang')  # no effect
+
+    def test_element_remove_attribute_node(self):
+        # Element.remove_attribute_node()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+
+        root.set('viewBox', '0 0 600 400')
+        self.assertTrue('viewBox' in root.attrib)
+        src_attr = root.get_attribute_node('viewBox')
+        attr = root.remove_attribute_node(src_attr)
+        self.assertTrue('viewBox' not in root.attrib)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('0 0 600 400', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+        src_attr = parser.create_attribute(xml_lang)
+        src_attr.value = 'ja'
+        root.attributes[xml_lang] = src_attr
+        self.assertTrue(xml_lang in root.attrib)
+        attr = root.remove_attribute_node(src_attr)
+        self.assertTrue(xml_lang not in root.attrib)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('ja', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+        self.assertRaises(KeyError,
+                          lambda: root.remove_attribute_node(attr))
+
+    def test_element_remove_attribute_ns(self):
+        # Element.remove_attribute_ns()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root.set('viewBox', '0 0 600 400')
+        attr = parser.create_attribute(xml_lang)
+        attr.value = 'ja'
+        root.attributes[xml_lang] = attr
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual(root, attr.owner_element)
+
+        root.remove_attribute_ns(None, 'viewBox')
+        self.assertEqual(1, len(root.attrib))
+        self.assertTrue(xml_lang in root.attrib)
+
+        root.remove_attribute_ns(None, xml_lang)
+        self.assertEqual(0, len(root.attrib))
+        self.assertIsNone(attr.owner_element)
+
+        root.attributes[xml_lang] = attr
+        self.assertEqual(1, len(root.attrib))
+        self.assertEqual(root, attr.owner_element)
+        root.remove_attribute_ns(Element.XML_NAMESPACE_URI, xml_lang)
+        self.assertEqual(0, len(root.attrib))
+        self.assertIsNone(attr.owner_element)
+
+        root.attributes[xml_lang] = attr
+        self.assertEqual(1, len(root.attrib))
+        self.assertEqual(root, attr.owner_element)
+        root.remove_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        self.assertEqual(0, len(root.attrib))
+        self.assertIsNone(attr.owner_element)
+
+        # no effect
+        root.remove_attribute_ns(Element.XML_NAMESPACE_URI, 'space')
+
     def test_element_remove_child(self):
         # Element.remove_child()
         doc = window.document
@@ -1673,6 +1935,131 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(doc, c1.owner_document)
         self.assertEqual(doc, group.owner_document)
         self.assertEqual(doc, path.owner_document)
+
+    def test_element_set_attribute(self):
+        # Element.set_attribute()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root.set_attribute('viewBox', '0 0 600 400')
+        root.set_attribute(xml_lang, 'ja')
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertEqual('ja', root.get(xml_lang))
+
+    def test_element_set_attribute_node(self):
+        # Element.set_attribute_node()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+
+        src_attr = parser.create_attribute(xml_lang)
+        src_attr.value = 'ja'
+        attr = root.set_attribute_node(src_attr)
+        self.assertEqual('ja', root.get(xml_lang))
+        self.assertEqual('ja', src_attr.value)
+        self.assertEqual(root, src_attr.owner_element)
+        self.assertIsNone(attr)
+
+        new_attr = parser.create_attribute(xml_lang)
+        new_attr.value = 'en'
+        attr = root.set_attribute_node(new_attr)
+        self.assertEqual('en', root.get(xml_lang))
+        self.assertEqual('en', new_attr.value)
+        self.assertEqual(root, new_attr.owner_element)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('ja', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+    def test_element_set_attribute_node_ns(self):
+        # Element.set_attribute_node_ns()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+
+        src_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang')
+        src_attr.value = 'ja'
+        attr = root.set_attribute_node_ns(src_attr)
+        self.assertEqual('ja', root.get(xml_lang))
+        self.assertEqual('ja', src_attr.value)
+        self.assertEqual(root, src_attr.owner_element)
+        self.assertIsNone(attr)
+
+        new_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
+                                              'lang')
+        new_attr.value = 'en'
+        attr = root.set_attribute_node_ns(new_attr)
+        self.assertEqual('en', root.get(xml_lang))
+        self.assertEqual('en', new_attr.value)
+        self.assertEqual(root, new_attr.owner_element)
+        self.assertEqual(id(src_attr), id(attr))
+        self.assertEqual('ja', attr.value)
+        self.assertIsNone(attr.owner_element)
+
+    def test_element_set_attribute_ns(self):
+        # Element.set_attribute_ns()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root.set_attribute_ns(None, 'viewBox', '0 0 600 400')
+        root.set_attribute_ns(None, xml_lang, 'ja')
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertEqual('ja', root.get(xml_lang))
+
+        root.set_attribute_ns(Element.XML_NAMESPACE_URI, xml_lang, 'es')
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertEqual('es', root.get(xml_lang))
+
+        root.set_attribute_ns(Element.XML_NAMESPACE_URI, 'lang', 'fr')
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertEqual('fr', root.get(xml_lang))
+
+    def test_element_toggle_attribute(self):
+        # Element.toggle_attribute()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        self.assertEqual(0, len(root.attrib))
+
+        # not exist, force=None => add
+        result = root.toggle_attribute(xml_lang)
+        self.assertTrue(xml_lang in root.attrib)
+        self.assertTrue(result)
+        self.assertEqual('', root.get(xml_lang))
+
+        # exist, force=None => remove
+        result = root.toggle_attribute(xml_lang)
+        self.assertFalse(xml_lang in root.attrib)
+        self.assertFalse(result)
+
+        # not exist, force=True => add
+        result = root.toggle_attribute(xml_lang, True)
+        self.assertTrue(xml_lang in root.attrib)
+        self.assertTrue(result)
+        self.assertEqual('', root.get(xml_lang))
+
+        # exist, force=True => do nothing
+        root.set(xml_lang, 'ja')
+        result = root.toggle_attribute(xml_lang, True)
+        self.assertTrue(xml_lang in root.attrib)
+        self.assertTrue(result)
+        self.assertEqual('ja', root.get(xml_lang))
+
+        # exist, force=False => remove
+        result = root.toggle_attribute(xml_lang, False)
+        self.assertFalse(xml_lang in root.attrib)
+        self.assertFalse(result)
+
+        # not exist, force=False => do nothing
+        result = root.toggle_attribute(xml_lang, False)
+        self.assertFalse(xml_lang in root.attrib)
+        self.assertFalse(result)
 
     def test_named_node_map(self):
         # NamedNodeMap()
