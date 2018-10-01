@@ -21,13 +21,13 @@ from svgpy.base import \
     SVGPathData, SVGPathDataSettings, SVGPreserveAspectRatio, \
     SVGURIReference, SVGZoomAndPan
 from svgpy.core import Font, SVGLength
+from svgpy.css.screen import Screen
 from svgpy.dom import Attr, Comment, DOMTokenList, Element, NamedNodeMap, \
     Node, ProcessingInstruction
 from svgpy.element import SVGElementClassLookup, SVGParser
 from svgpy.geometry.matrix import DOMMatrix, DOMMatrixReadOnly
 from svgpy.geometry.rect import DOMRect, DOMRectReadOnly
 from svgpy.path import PathParser, SVGPathSegment
-from svgpy.screen import Screen
 from svgpy.text import SVGTextContentElement, SVGTextPositioningElement
 from svgpy.transform import SVGTransform, SVGTransformList
 from svgpy.url import Location, URL, URLSearchParams

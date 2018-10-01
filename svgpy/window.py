@@ -23,9 +23,9 @@ from lxml import etree
 
 from . import mediaquery as mq
 from .core import SVGLength
+from .css.screen import Screen
 from .dom import Element, Node, NonElementParentNode, ParentNode
 from .element import SVGParser
-from .screen import Screen
 from .style import get_css_style_sheets
 from .url import Location
 from .utils import get_content_type, get_element_by_id, \

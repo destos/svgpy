@@ -16,13 +16,13 @@
 from abc import ABC, abstractmethod
 
 from .core import SVGLength
+from .css.screen import Screen
 from .dom import Element, ElementCSSInlineStyle
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
 from .geometry.matrix import DOMMatrix
 from .geometry.rect import DOMRect
 from .path import PathParser
-from .screen import Screen
 from .transform import SVGTransformList
 from .utils import QualifiedName
 

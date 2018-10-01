@@ -23,10 +23,10 @@ from decimal import Decimal, InvalidOperation
 
 import numpy as np
 
+from .css.screen import Screen
 from .fontconfig import FontConfig
 from .formatter import format_number_sequence
 from .freetype import FreeType, FTFace
-from .screen import Screen
 
 
 class CSSUtils(object):
