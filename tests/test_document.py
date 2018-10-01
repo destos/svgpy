@@ -194,6 +194,58 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual(removed, added)
         self.assertEqual(root, doc.document_element)
 
+    def test_document_child_nodes(self):
+        # Node.child_nodes
+        # Node.first_child
+        # Node.last_child
+        # Node.next_sibling
+        # Node.previous_sibling
+        # Node.has_child_nodes()
+        doc = window.document
+
+        children = doc.child_nodes
+        self.assertEqual(0, len(children))
+        node = doc.first_child
+        self.assertIsNone(node)
+        node = doc.last_child
+        self.assertIsNone(node)
+        node = doc.previous_sibling
+        self.assertIsNone(node)
+        node = doc.next_sibling
+        self.assertIsNone(node)
+        self.assertFalse(doc.has_child_nodes())
+
+        # <?xml-stylesheet ?>
+        # <!--comment-->
+        # <svg>
+        # <g><path/></g>
+        # <text/>
+        # </svg>
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.append(root)
+        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        root.append(group)
+        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        text = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'text')
+        root.append(text)
+        comment = doc.create_comment('comment')
+        doc.insert_before(comment, root)
+        pi = doc.create_processing_instruction('xml-stylesheet')
+        doc.insert_before(pi, comment)
+
+        children = doc.child_nodes
+        self.assertEqual([pi, comment, root], children)
+        node = doc.first_child
+        self.assertEqual(pi, node)
+        node = doc.last_child
+        self.assertEqual(root, node)
+        node = doc.previous_sibling
+        self.assertIsNone(node)
+        node = doc.next_sibling
+        self.assertIsNone(node)
+        self.assertTrue(doc.has_child_nodes())
+
     def test_document_children(self):
         doc = window.document
 

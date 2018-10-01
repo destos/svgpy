@@ -413,6 +413,30 @@ class Node(ABC):
 
     @property
     @abstractmethod
+    def child_nodes(self):
+        """list[Node]: The children of this node."""
+        raise NotImplementedError
+
+    @property
+    def first_child(self):
+        """Node: The first child node or None."""
+        children = self.child_nodes
+        return None if len(children) == 0 else children[0]
+
+    @property
+    def last_child(self):
+        """Node: The last child node or None."""
+        children = self.child_nodes
+        return None if len(children) == 0 else children[-1]
+
+    @property
+    @abstractmethod
+    def next_sibling(self):
+        """Node: The first following sibling node or None."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
     def node_name(self):
         """str: A string appropriate for the type of node."""
         raise NotImplementedError
@@ -461,6 +485,12 @@ class Node(ABC):
     @abstractmethod
     def parent_node(self):
         """Node: A parent node."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def previous_sibling(self):
+        """Node: The first preceding sibling node or None."""
         raise NotImplementedError
 
     @property
@@ -516,6 +546,10 @@ class Node(ABC):
             Node: A root node.
         """
         raise NotImplementedError
+
+    def has_child_nodes(self):
+        """Returns True if this node has children; otherwise returns False."""
+        return len(self.child_nodes) > 0
 
     @abstractmethod
     def insert_before(self, node, child):
@@ -697,6 +731,11 @@ class Attr(Node):
         })
 
     @property
+    def child_nodes(self):
+        """list[Node]: The children of this node."""
+        return []
+
+    @property
     def local_name(self):
         """str: The local name of the attribute."""
         return self._local_name
@@ -710,6 +749,11 @@ class Attr(Node):
     def namespace_uri(self):
         """str: The namespace URI of the attribute or None."""
         return self._namespace_uri
+
+    @property
+    def next_sibling(self):
+        """Node: The first following sibling node or None."""
+        return None
 
     @property
     def node_name(self):
@@ -747,6 +791,11 @@ class Attr(Node):
     def prefix(self):
         """str: The namespace prefix of the attribute or None."""
         return self._prefix
+
+    @property
+    def previous_sibling(self):
+        """Node: The first preceding sibling node or None."""
+        return None
 
     @property
     def text_content(self):
@@ -875,6 +924,11 @@ class CharacterData(Node, NonDocumentTypeChildNode):
     """Represents the [DOM] CharacterData."""
 
     @property
+    def child_nodes(self):
+        """list[Node]: The children of this node."""
+        return []
+
+    @property
     @abstractmethod
     def data(self):
         """str: The value of node."""
@@ -916,6 +970,11 @@ class Comment(etree.CommentBase, CharacterData):
         return None
 
     @property
+    def next_sibling(self):
+        """Node: The first following sibling node or None."""
+        return self.getnext()
+
+    @property
     def node_name(self):
         """str: '#comment'."""
         return '#comment'
@@ -947,6 +1006,11 @@ class Comment(etree.CommentBase, CharacterData):
             if node.node_type == Node.ELEMENT_NODE:
                 return node
         return None
+
+    @property
+    def previous_sibling(self):
+        """Node: The first preceding sibling node or None."""
+        return self.getprevious()
 
     @property
     def text_content(self):
@@ -1140,13 +1204,16 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         return self._attributes
 
     @property
+    def child_nodes(self):
+        """list[Node]: The children of this node."""
+        return list(self)
+
+    @property
     def children(self):
         """list[Element]: A list of the child elements, in document order."""
-        elements = list()
-        for node in iter(self):
-            if node.node_type == Node.ELEMENT_NODE:
-                elements.append(node)
-        return elements
+        children = self.child_nodes
+        return [child for child in children
+                if child.node_type == Node.ELEMENT_NODE]
 
     @property
     def class_list(self):
@@ -1191,6 +1258,11 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         return None
 
     @property
+    def next_sibling(self):
+        """Node: The first following sibling node or None."""
+        return self.getnext()
+
+    @property
     def node_name(self):
         """str: Same as Element.tag_name."""
         return self.tag_name
@@ -1222,6 +1294,11 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             if node.node_type == Node.ELEMENT_NODE:
                 return node
         return None
+
+    @property
+    def previous_sibling(self):
+        """Node: The first preceding sibling node or None."""
+        return self.getprevious()
 
     @property
     def qname(self):
@@ -2102,6 +2179,11 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         return None
 
     @property
+    def next_sibling(self):
+        """Node: The first following sibling node or None."""
+        return self.getnext()
+
+    @property
     def node_name(self):
         """str: A string appropriate for the type of node."""
         return self.target
@@ -2133,6 +2215,11 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
             if node.node_type == Node.ELEMENT_NODE:
                 return node
         return None
+
+    @property
+    def previous_sibling(self):
+        """Node: The first preceding sibling node or None."""
+        return self.getprevious()
 
     @property
     def text_content(self):

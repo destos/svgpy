@@ -352,6 +352,31 @@ class DOMTestCase(unittest.TestCase):
         attr = parser.create_attribute('fill')
         self.assertRaises(ValueError, lambda: attr.append_child(node))
 
+    def test_attr_child_nodes(self):
+        # Node.child_nodes
+        # Node.first_child
+        # Node.last_child
+        # Node.next_sibling
+        # Node.previous_sibling
+        # Node.has_child_nodes()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        attr = parser.create_attribute('viewBox')
+        attr.value = '0 0 600 400'
+        root.set_attribute_node(attr)
+
+        children = attr.child_nodes
+        self.assertEqual(0, len(children))
+        node = attr.first_child
+        self.assertIsNone(node)
+        node = attr.last_child
+        self.assertIsNone(node)
+        node = attr.previous_sibling
+        self.assertIsNone(node)
+        node = attr.next_sibling
+        self.assertIsNone(node)
+        self.assertFalse(attr.has_child_nodes())
+
     def test_attr_get_root_node(self):
         # Attr.get_root_node()
         parser = SVGParser()
@@ -466,6 +491,58 @@ class DOMTestCase(unittest.TestCase):
         doc.append(c1)
         self.assertRaises(ValueError,
                           lambda: c1.append_child(c2))
+
+    def test_comment_child_nodes(self):
+        # Node.child_nodes
+        # Node.first_child
+        # Node.last_child
+        # Node.next_sibling
+        # Node.previous_sibling
+        # Node.has_child_nodes()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        start = parser.create_comment('start')
+        root.addprevious(start)
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        end = parser.create_comment('end')
+        root.addnext(end)
+
+        children = comment.child_nodes
+        self.assertEqual(0, len(children))
+        node = comment.first_child
+        self.assertIsNone(node)
+        node = comment.last_child
+        self.assertIsNone(node)
+        node = comment.previous_sibling
+        self.assertIsNone(node)
+        node = comment.next_sibling
+        self.assertIsNone(node)
+        self.assertFalse(comment.has_child_nodes())
+
+        children = start.child_nodes
+        self.assertEqual(0, len(children))
+        node = start.first_child
+        self.assertIsNone(node)
+        node = start.last_child
+        self.assertIsNone(node)
+        node = start.previous_sibling
+        self.assertIsNone(node)
+        node = start.next_sibling
+        self.assertEqual(root, node)
+        self.assertFalse(start.has_child_nodes())
+
+        children = end.child_nodes
+        self.assertEqual(0, len(children))
+        node = end.first_child
+        self.assertIsNone(node)
+        node = end.last_child
+        self.assertIsNone(node)
+        node = end.previous_sibling
+        self.assertEqual(root, node)
+        node = end.next_sibling
+        self.assertIsNone(node)
+        self.assertFalse(end.has_child_nodes())
 
     def test_comment_extend(self):
         # Comment.extend()
@@ -1351,6 +1428,96 @@ class DOMTestCase(unittest.TestCase):
         value = 'es'
         root.set(qualified_name, value)
         self.assertEqual(value, attr.value)
+
+    def test_element_child_nodes(self):
+        # Node.child_nodes
+        # Node.first_child
+        # Node.last_child
+        # Node.next_sibling
+        # Node.previous_sibling
+        # Node.has_child_nodes()
+        parser = SVGParser()
+        # <?xml-stylesheet ?>
+        # <!--start-->
+        # <svg xmlns="http://www.w3.org/2000/svg">
+        # <!--inner-->
+        # <g><path/></g>
+        # <text/>
+        # </svg>
+        # <!--end-->'
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        root.addprevious(pi)
+        start = parser.create_comment('start')
+        root.addprevious(start)
+        end = parser.create_comment('end')
+        root.addnext(end)
+        comment = parser.create_comment('inner')
+        root.append(comment)
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        root.append(group)
+        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        text = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'text')
+        root.append(text)
+        # window.document.append(root)
+        # print(window.document.tostring())
+
+        children = root.child_nodes
+        self.assertEqual([comment, group, text], children)
+        node = root.first_child
+        self.assertEqual(comment, node)
+        node = root.last_child
+        self.assertEqual(text, node)
+        node = root.previous_sibling
+        self.assertEqual(start, node)
+        node = root.next_sibling
+        self.assertEqual(end, node)
+        self.assertTrue(root.has_child_nodes())
+
+        children = group.child_nodes
+        self.assertEqual([path], children)
+        node = group.first_child
+        self.assertEqual(path, node)
+        node = group.last_child
+        self.assertEqual(path, node)
+        node = group.previous_sibling
+        self.assertEqual(comment, node)
+        node = group.next_sibling
+        self.assertEqual(text, node)
+        self.assertTrue(group.has_child_nodes())
+
+        children = text.child_nodes
+        self.assertEqual(0, len(children))
+        node = text.first_child
+        self.assertIsNone(node)
+        node = text.last_child
+        self.assertIsNone(node)
+        node = text.previous_sibling
+        self.assertEqual(group, node)
+        node = text.next_sibling
+        self.assertIsNone(node)
+        self.assertFalse(text.has_child_nodes())
+
+    def test_element_children(self):
+        # ParentNode.children
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        comment = parser.create_comment('comment')
+        root.append(comment)
+        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        root.append(group)
+        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group.append(path)
+        text = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'text')
+        root.append(text)
+
+        children = root.children
+        self.assertEqual([group, text], children)
+        children = group.children
+        self.assertEqual([path], children)
+        children = text.children
+        self.assertEqual(0, len(children))
 
     def test_element_class_list01(self):
         # Element.class_list
@@ -2476,6 +2643,33 @@ class DOMTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError,
                           lambda: p0.append_child(p1))
+
+    def test_pi_child_nodes(self):
+        # Node.child_nodes
+        # Node.first_child
+        # Node.last_child
+        # Node.next_sibling
+        # Node.previous_sibling
+        # Node.has_child_nodes()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        comment = parser.create_comment('comment')
+        root.addprevious(comment)
+        pi = parser.create_processing_instruction('xml-stylesheet',
+                                                  'href="1.css"')
+        comment.addprevious(pi)
+
+        children = pi.child_nodes
+        self.assertEqual(0, len(children))
+        node = pi.first_child
+        self.assertIsNone(node)
+        node = pi.last_child
+        self.assertIsNone(node)
+        node = pi.previous_sibling
+        self.assertIsNone(node)
+        node = pi.next_sibling
+        self.assertEqual(comment, node)
+        self.assertFalse(pi.has_child_nodes())
 
     def test_pi_extend(self):
         # ProcessingInstruction.extend()

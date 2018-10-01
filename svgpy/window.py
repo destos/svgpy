@@ -97,17 +97,28 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
             self._location = Location(self._browsing_context)
 
     def __iter__(self):
-        siblings = self._get_siblings()
-        for node in siblings:
+        children = self.child_nodes
+        for node in children:
             yield node
 
     @property
-    def children(self):
-        """list[Node]: A list of the child elements, in document order."""
+    def child_nodes(self):
+        """list[Node]: The children of this node."""
         root = self._document_element
-        return ([root] if root is not None
-                          and root.node_type == Node.ELEMENT_NODE
-                else [])
+        if root is None:
+            return []
+        children = list(root.itersiblings(preceding=True))
+        children.reverse()
+        children += [root]
+        children += list(root.itersiblings())
+        return children
+
+    @property
+    def children(self):
+        """list[Element]: A list of the child elements, in document order."""
+        children = self.child_nodes
+        return [child for child in children
+                if child.node_type == Node.ELEMENT_NODE]
 
     @property
     def content_type(self):
@@ -152,6 +163,11 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         self._location.href = url.tostring()
 
     @property
+    def next_sibling(self):
+        """Node: The first following sibling node or None."""
+        return None
+
+    @property
     def node_name(self):
         """str: '#document'."""
         return '#document'
@@ -182,6 +198,11 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         return root.getparent() if root is not None else None
 
     @property
+    def previous_sibling(self):
+        """Node: The first preceding sibling node or None."""
+        return None
+
+    @property
     def style_sheets(self):
         """list[StyleSheet]: A list of the document CSS style sheets."""
         root = self._document_element
@@ -201,15 +222,6 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         """str: The entire URL of the current document."""
         return self._location.href
 
-    def _get_siblings(self):
-        root = self._document_element
-        if root is None:
-            return []
-        siblings = [element for element in root.itersiblings(preceding=True)]
-        siblings = list(reversed(siblings)) + [root]
-        siblings += [element for element in root.itersiblings()]
-        return siblings
-
     def append(self, node):
         """Inserts a sub-node after the last child node.
 
@@ -223,8 +235,8 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
             node.attach_document(self)
             self._document_element = node
         else:
-            siblings = self._get_siblings()
-            siblings[-1].addnext(node)
+            children = self.child_nodes
+            children[-1].addnext(node)
 
     def append_child(self, node):
         """Adds a sub-node to the end of this node.
@@ -470,9 +482,9 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         if child is None:
             return self.append_child(node)
         root = self._document_element
-        siblings = self._get_siblings()
+        children = self.child_nodes
         if (root is None
-                or child not in siblings
+                or child not in children
                 or node.node_type == Node.ELEMENT_NODE):
             raise ValueError(
                 'The operation would yield an incorrect node tree')
@@ -509,8 +521,8 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         if self._document_element is None:
             self.append(node)
         else:
-            siblings = self._get_siblings()
-            siblings[0].addprevious(node)
+            children = self.child_nodes
+            children[0].addprevious(node)
 
     def query_selector_all(self, selectors):
         root = self._document_element
@@ -531,8 +543,8 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         elif child == root:
             self._document_element = None
         else:
-            siblings = self._get_siblings()
-            if child not in siblings:
+            children = self.child_nodes
+            if child not in children:
                 raise ValueError('The object can not be found here: '
                                  + repr(child))
             root.append(child)  # move
@@ -556,12 +568,12 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
             self.remove_child(root)
             self.append_child(node)
         else:
-            siblings = self._get_siblings()
-            if child not in siblings:
+            children = self.child_nodes
+            if child not in children:
                 raise ValueError('The object can not be found here: '
                                  + repr(child))
-            pos = siblings.index(child)
-            siblings[pos].addprevious(node)
+            pos = children.index(child)
+            children[pos].addprevious(node)
             self.remove_child(child)
         return node
 
