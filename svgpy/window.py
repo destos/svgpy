@@ -21,8 +21,8 @@ from logging import getLogger
 
 from lxml import etree
 
-from . import mediaquery as mq
 from .core import SVGLength
+from .css import mediaquery as mq
 from .css.screen import Screen
 from .dom import Element, Node, NonElementParentNode, ParentNode
 from .element import SVGParser

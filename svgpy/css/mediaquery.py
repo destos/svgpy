@@ -98,19 +98,19 @@ def dump(node_list, **kwargs):
 
 
 def match(node_list, conditions, compare_func, user_data=None):
-    logger.debug('{}: start'.format(hex(id(node_list))))
+    logger.debug('id={}: start'.format(hex(id(node_list))))
     matched_media = None
     for node in node_list:
-        logger.debug('{}: node: {}'.format(hex(id(node_list)), repr(node)))
+        logger.debug('id={}: node={}'.format(hex(id(node_list)), repr(node)))
         result, media = _match_node(node, conditions, compare_func,
                                     user_data=user_data)
         if result and media and matched_media is None:
             matched_media = media
         if result:
-            logger.debug('{}: matched {}'.format(
+            logger.debug('id={}: matched media={}'.format(
                 hex(id(node_list)), repr(matched_media)))
             return True, matched_media
-    logger.debug('{}: unmatched'.format(hex(id(node_list))))
+    logger.debug('id={}: unmatched'.format(hex(id(node_list))))
     return False, matched_media
 
 
@@ -174,6 +174,7 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
         name = left[MQ_ID]
         left_value = conditions.get(name)
         if left_value is None:
+            logger.debug('feature \'{}\': missing value'.format(name))
             return False, None
     for right, op in zip(node[MQ_COMPARATORS], node[MQ_OPS]):
         right_expr = right[MQ_EXPR]
@@ -190,9 +191,13 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
             # value type: discrete
             # e.g.: '(orientation: portrait)' -> '(orientation == portrait)'
             # FIXME: '(min-grid: 1)' to invalidate.
-            logger.debug('feature \'{}\': {} {} {}'.format(
-                name, repr(left_value), op, repr(right_value)))
             if op[-1] != '=' or left_value != right_value:
+                result = False
+            else:
+                result = True
+            logger.debug('feature \'{}\': {} {} {}: result={}'.format(
+                name, repr(left_value), op, repr(right_value), result))
+            if not result:
                 return False, None
         elif ((left_expr == MQ_EXPR_NAME or right_expr == MQ_EXPR_NAME)
               and name == 'aspect-ratio'):
@@ -200,12 +205,13 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
             # e.g.: '(aspect-ratio: 16/9)' -> '(aspect-ratio == 16/9)'
             left_ratio = Fraction(left_value)
             right_ratio = Fraction(right_value)
-            logger.debug('feature \'{}\': {} {} {}'.format(
-                name, repr(left_ratio), op, repr(right_ratio)))
             if op[-1] == '=' and left_ratio == right_ratio:
-                pass  # ok
+                logger.debug('feature \'{}\': {} {} {}: result={}'.format(
+                    name, repr(left_ratio), op, repr(right_ratio), True))
             else:
                 cmp = left_ratio > right_ratio
+                logger.debug('feature \'{}\': {} {} {}: result={}'.format(
+                    name, repr(left_ratio), op, repr(right_ratio), cmp))
                 if (op[0] == '>' and not cmp) or (op[0] == '<' and cmp):
                     return False, None
         else:
@@ -214,9 +220,11 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
             # '(1 < color-index)' and '(color-index < 255)'
             try:
                 cmp = compare_func(left_value, right_value, user_data)
-                logger.debug('feature \'{}\': {} {} {}: result = {}'.format(
+                logger.debug('feature \'{}\': {} {} {}: result={}'.format(
                     name, repr(left_value), op, repr(right_value), cmp))
-            except ValueError:
+            except ValueError as exp:
+                logger.debug('feature \'{}\': {} {} {}: exception={}'.format(
+                    name, repr(left_value), op, repr(right_value), repr(exp)))
                 return False, None
             if ((cmp == 0 and op[-1] == '=')
                     or (cmp > 0 and op[0] == '>')
@@ -238,7 +246,7 @@ def _eval_expr_name(node, conditions):
         if name == 'all' or conditions.get('media', '') == name:
             result = True
             matched_media = name
-        logger.debug('media \'{}\': result = {}'.format(name, result))
+        logger.debug('media \'{}\': result={}'.format(name, result))
     else:
         # <mf-boolean>
         if name in DISCRETE_FEATURES:
@@ -252,7 +260,7 @@ def _eval_expr_name(node, conditions):
             result = conditions.get(name, 0) > 0
         else:
             result = name in conditions
-        logger.debug('feature \'{}\': {}: result = {}'.format(
+        logger.debug('feature \'{}\': {}: result={}'.format(
             name, repr(conditions.get(name)), result))
     return result, matched_media
 
