@@ -31,9 +31,6 @@ class Screen(object):
     MEDIA_SCREEN = 'screen'
     MEDIA_SPEECH = 'speech'
 
-    ORIENTATION_LANDSCAPE = 'landscape'
-    ORIENTATION_PORTRAIT = 'portrait'
-
     SCAN_INTERLACE = 'interlace'
     SCAN_PROGRESSIVE = 'progressive'
 
@@ -45,7 +42,7 @@ class Screen(object):
         self._width = Screen.DEFAULT_SCREEN_WIDTH
         self._height = Screen.DEFAULT_SCREEN_HEIGHT
         self._color_depth = 24
-        self._orientation = Screen.ORIENTATION_LANDSCAPE
+        self._orientation = ScreenOrientation(self)
         self._horizontal_resolution = Screen.DEFAULT_HORIZONTAL_RESOLUTION
         self._vertical_resolution = Screen.DEFAULT_VERTICAL_RESOLUTION
         self._device_pixel_ratio = 1.
@@ -56,18 +53,19 @@ class Screen(object):
         self._media = Screen.MEDIA_SCREEN
 
     def __repr__(self):
-        return repr({'width': self._width,
-                     'height': self._height,
-                     'color_depth': self._color_depth,
-                     'orientation': self._orientation,
-                     'horizontal_resolution': self._horizontal_resolution,
-                     'vertical_resolution': self._vertical_resolution,
-                     'device_pixel_ratio': self._device_pixel_ratio,
-                     'scan': self._scan,
-                     'update': self._update,
-                     'color_gamut': self._color_gamut,
-                     'media': self._media,
-                     })
+        return repr({
+            'width': self._width,
+            'height': self._height,
+            'color_depth': self._color_depth,
+            'orientation': self._orientation,
+            'horizontal_resolution': self._horizontal_resolution,
+            'vertical_resolution': self._vertical_resolution,
+            'device_pixel_ratio': self._device_pixel_ratio,
+            'scan': self._scan,
+            'update': self._update,
+            'color_gamut': self._color_gamut,
+            'media': self._media,
+        })
 
     @property
     def color_depth(self):
@@ -135,12 +133,8 @@ class Screen(object):
 
     @property
     def orientation(self):
-        """str: The 'orientation' media feature."""
+        """ScreenOrientation: The ScreenOrientation object."""
         return self._orientation
-
-    @orientation.setter
-    def orientation(self, orientation):
-        self._orientation = orientation
 
     @property
     def pixel_depth(self):
@@ -181,3 +175,70 @@ class Screen(object):
     @width.setter
     def width(self, width):
         self._width = int(width)
+
+
+class ScreenOrientation(object):
+
+    PORTRAIT_PRIMARY = 'portrait-primary'
+    PORTRAIT_SECONDARY = 'portrait-secondary'
+    LANDSCAPE_PRIMARY = 'landscape-primary'
+    LANDSCAPE_SECONDARY = 'landscape-secondary'
+
+    LOCK_ANY = 'any'
+    LOCK_NATURAL = 'natural'
+    LOCK_LANDSCAPE = 'landscape'
+    LOCK_PORTRAIT = 'portrait'
+    LOCK_PORTRAIT_PRIMARY = 'portrait-primary'
+    LOCK_PORTRAIT_SECONDARY = 'portrait-secondary'
+    LOCK_LANDSCAPE_PRIMARY = 'landscape-primary'
+    LOCK_LANDSCAPE_SECONDARY = 'landscape-secondary'
+
+    def __init__(self, screen):
+        self._screen = screen
+        self._angle = 0
+
+    def __repr__(self):
+        return repr({
+            'angle': self.angle,
+            'type': self.type,
+        })
+
+    @property
+    def angle(self):
+        """int: The current orientation angle."""
+        return self._angle
+
+    @angle.setter
+    def angle(self, angle):
+        angle = int(angle // 90 * 90)
+        while angle >= 360:
+            angle -= 360
+        while angle < 0:
+            angle += 360
+        self._angle = angle
+
+    @property
+    def type(self):
+        """str: The current orientation type."""
+        if self._screen.width > self._screen.height:
+            if self._angle == 0:
+                return ScreenOrientation.LANDSCAPE_PRIMARY
+            elif self._angle == 90:
+                return ScreenOrientation.PORTRAIT_PRIMARY
+            elif self._angle == 180:
+                return ScreenOrientation.LANDSCAPE_SECONDARY
+            elif self._angle == 270:
+                return ScreenOrientation.PORTRAIT_SECONDARY
+            else:
+                return ScreenOrientation.LANDSCAPE_PRIMARY
+        else:
+            if self._angle == 0:
+                return ScreenOrientation.PORTRAIT_PRIMARY
+            elif self._angle == 90:
+                return ScreenOrientation.LANDSCAPE_PRIMARY
+            elif self._angle == 180:
+                return ScreenOrientation.PORTRAIT_SECONDARY
+            elif self._angle == 270:
+                return ScreenOrientation.LANDSCAPE_SECONDARY
+            else:
+                return ScreenOrientation.PORTRAIT_PRIMARY

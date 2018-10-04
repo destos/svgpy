@@ -21,7 +21,7 @@ from svgpy.base import \
     SVGPathData, SVGPathDataSettings, SVGPreserveAspectRatio, \
     SVGURIReference, SVGZoomAndPan
 from svgpy.core import Font, SVGLength
-from svgpy.css.screen import Screen
+from svgpy.css.screen import Screen, ScreenOrientation
 from svgpy.dom import Attr, Comment, DOMTokenList, Element, NamedNodeMap, \
     Node, ProcessingInstruction
 from svgpy.element import SVGElementClassLookup, SVGParser

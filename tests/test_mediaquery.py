@@ -25,7 +25,7 @@ class MediaQueryTestCase(unittest.TestCase):
                             format=fmt)
         screen = window.screen
         screen.color_depth = 24
-        screen.orientation = 'landscape'
+        screen.orientation.angle = 0
         screen.device_pixel_ratio = 1
         screen.update = 'none'
         screen.width = 1280
@@ -129,7 +129,7 @@ class MediaQueryTestCase(unittest.TestCase):
     def test_match_invalid_mf_name02(self):
         # unknown media feature
         # 'discrete' media feature with min/max prefix
-        window.screen.orientation = 'portrait'
+        window.screen.orientation.angle = 90
         query = '(min-orientation: portrait)'
         mql = window.match_media(query)
         self.assertTrue(not mql.matches)
@@ -278,12 +278,12 @@ class MediaQueryTestCase(unittest.TestCase):
         mql = window.match_media(query)
         self.assertTrue(not mql.matches)
 
-        window.screen.orientation = 'portrait'
+        window.screen.orientation.angle = 90
         query = '(orientation: landscape)'
         mql = window.match_media(query)
         self.assertTrue(not mql.matches)
 
-        window.screen.orientation = 'portrait'
+        window.screen.orientation.angle = 90
         query = '(orientation: portrait)'
         mql = window.match_media(query)
         self.assertTrue(mql.matches)

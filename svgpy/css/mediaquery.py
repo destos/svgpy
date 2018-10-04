@@ -191,6 +191,11 @@ def _eval_expr_compare(node, conditions, compare_func, user_data=None):
             # value type: discrete
             # e.g.: '(orientation: portrait)' -> '(orientation == portrait)'
             # FIXME: '(min-grid: 1)' to invalidate.
+            if name == 'orientation':
+                if '-' in left_value and '-' not in right_value:
+                    left_value = left_value.split('-')[0]
+                elif '-' not in left_value and '-' in right_value:
+                    right_value = right_value.split('-')[0]
             if op[-1] != '=' or left_value != right_value:
                 result = False
             else:

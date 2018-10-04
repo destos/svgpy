@@ -686,7 +686,7 @@ class MediaQueryList(object):
             'width': '{}px'.format(width),
             'height': '{}px'.format(height),
             'aspect-ratio': '{}'.format(aspect_ratio),
-            'orientation': screen.orientation,
+            'orientation': screen.orientation.type,
             'resolution': '{}dppx'.format(win.device_pixel_ratio),
             'scan': screen.scan,
             'grid': 0,
