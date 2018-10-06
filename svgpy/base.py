@@ -13,11 +13,11 @@
 # limitations under the License.
 
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from .core import SVGLength
 from .css.screen import Screen
-from .dom import Element, ElementCSSInlineStyle
+from .dom import DOMStringMap, Element, ElementCSSInlineStyle
 from .formatter import format_coordinate_pair_sequence, \
     to_coordinate_pair_sequence
 from .geometry.matrix import DOMMatrix
@@ -27,9 +27,32 @@ from .transform import SVGTransformList
 from .utils import QualifiedName
 
 
-class HTMLOrSVGElement(ABC):
+class HTMLOrSVGElement(Element):
     """Represents the [HTML] HTMLOrSVGElement."""
-    pass
+
+    def _init(self):
+        super()._init()
+        self._dataset = DOMStringMap(self, 'data-')
+
+    @property
+    def dataset(self):
+        """DOMStringMap: A DOMStringMap object for the element's data-*
+        attributes.
+
+        Examples:
+            >>> from svgpy import SVGParser
+            >>> parser = SVGParser()
+            >>> root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+            >>> root.dataset['foo'] = 'foo'
+            >>> root.dataset['fooBar'] = 'foo-bar'
+            >>> root.dataset
+            {'foo': 'foo', 'fooBar': 'foo-bar'}
+            >>> root.attributes
+            {'data-foo': 'foo', 'data-foo-bar': 'foo-bar'}
+            >>> root.tostring()
+            b'<svg xmlns="http://www.w3.org/2000/svg" data-foo="foo" data-foo-bar="foo-bar"/>'
+        """
+        return self._dataset
 
 
 class HTMLElement(ElementCSSInlineStyle, HTMLOrSVGElement):
@@ -37,7 +60,7 @@ class HTMLElement(ElementCSSInlineStyle, HTMLOrSVGElement):
 
     @property
     def lang(self):
-        """str: The lang content attribute in no namespace.."""
+        """str: The lang content attribute in no namespace."""
         return self.get('lang', '')
 
     @lang.setter

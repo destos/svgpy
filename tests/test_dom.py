@@ -8,6 +8,7 @@ sys.path.extend(['.', '..'])
 
 from svgpy import Attr, Comment, DOMTokenList, Element, HTMLElement, \
     NamedNodeMap, Node, SVGElement, SVGParser, formatter, window
+from svgpy.dom import DOMStringMap
 
 SVG_CUBIC01 = '''
 <svg width="5cm" height="4cm" viewBox="0 0 500 400"
@@ -623,6 +624,103 @@ class DOMTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError,
                           lambda: c0.replace(c1, c2))
+
+    def test_dom_string_map(self):
+        # DOMStringMap()
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root.set('viewBox', '0 0 600 400')
+        root.set('data-foo', '0')
+        root.set('data-foo-bar', '10')
+        root.set('data-foo-bar-baz', '100')
+
+        # init
+        dataset = DOMStringMap(root, 'data-')
+        self.assertEqual(3, len(dataset))
+        self.assertEqual('0', dataset['foo'])
+        self.assertEqual('10', dataset['fooBar'])
+        self.assertEqual('100', dataset['fooBarBaz'])
+
+        # update
+        dataset['foo'] = 'a'
+        dataset['fooBar'] = 'b'
+        dataset['fooBarBaz'] = 'c'
+        self.assertEqual('a', dataset['foo'])
+        self.assertEqual('b', dataset['fooBar'])
+        self.assertEqual('c', dataset['fooBarBaz'])
+        self.assertEqual('a', root.get('data-foo'))
+        self.assertEqual('b', root.get('data-foo-bar'))
+        self.assertEqual('c', root.get('data-foo-bar-baz'))
+
+        # append
+        dataset['fooBarBazQux'] = 'd'
+        self.assertEqual(4, len(dataset))
+        self.assertEqual(5, len(root.attrib))
+        self.assertEqual('a', dataset['foo'])
+        self.assertEqual('b', dataset['fooBar'])
+        self.assertEqual('c', dataset['fooBarBaz'])
+        self.assertEqual('d', dataset['fooBarBazQux'])
+        self.assertEqual('a', root.get('data-foo'))
+        self.assertEqual('b', root.get('data-foo-bar'))
+        self.assertEqual('c', root.get('data-foo-bar-baz'))
+        self.assertEqual('d', root.get('data-foo-bar-baz-qux'))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+
+        # remove one
+        del dataset['fooBarBaz']
+        self.assertEqual(3, len(dataset))
+        self.assertEqual(4, len(root.attrib))
+        self.assertEqual('a', dataset['foo'])
+        self.assertEqual('b', dataset['fooBar'])
+        self.assertRaises(KeyError, lambda: dataset['fooBarBaz'])
+        self.assertEqual('d', dataset['fooBarBazQux'])
+        self.assertEqual('a', root.get('data-foo'))
+        self.assertEqual('b', root.get('data-foo-bar'))
+        self.assertTrue('data-foo-bar-baz' not in root.attrib)
+        self.assertEqual('d', root.get('data-foo-bar-baz-qux'))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+
+        # remove all
+        dataset.clear()
+        self.assertEqual(0, len(dataset))
+        self.assertEqual(1, len(root.attrib))
+        self.assertTrue('data-foo' not in root.attrib)
+        self.assertTrue('data-foo-bar' not in root.attrib)
+        self.assertTrue('data-foo-bar-baz' not in root.attrib)
+        self.assertTrue('data-foo-bar-baz-qux' not in root.attrib)
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+
+        # invalid key
+        # dataset.get('a-x')
+        self.assertRaises(ValueError, lambda: dataset.get('a-x'))
+
+        # valid key
+        dataset['a-X'] = 'a-X'  # 'a-X' => 'data-a--x'
+        self.assertEqual(1, len(dataset))
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual('a-X', dataset['a-X'])
+        self.assertEqual('a-X', root.get('data-a--x'))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+
+        dataset['a--X'] = 'a--X'  # 'a--X' => 'data-a---x'
+        self.assertEqual(2, len(dataset))
+        self.assertEqual(3, len(root.attrib))
+        self.assertEqual('a-X', dataset['a-X'])
+        self.assertEqual('a--X', dataset['a--X'])
+        self.assertEqual('a-X', root.get('data-a--x'))
+        self.assertEqual('a--X', root.get('data-a---x'))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+
+        dataset[''] = 'x'  # '' => 'data-'
+        self.assertEqual(3, len(dataset))
+        self.assertEqual(4, len(root.attrib))
+        self.assertEqual('a-X', dataset['a-X'])
+        self.assertEqual('a--X', dataset['a--X'])
+        self.assertEqual('x', dataset[''])
+        self.assertEqual('a-X', root.get('data-a--x'))
+        self.assertEqual('a--X', root.get('data-a---x'))
+        self.assertEqual('x', root.get('data-'))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
 
     def test_dom_token_list(self):
         # DOMTokenList()
@@ -1591,6 +1689,104 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(0, len(class_list))
         self.assertIsNone(rect.get('class'))
         self.assertEqual('', rect.class_name)
+
+    def test_element_dataset(self):
+        # HTMLOrSVGElement.dataset
+        parser = SVGParser()
+        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        self.assertIsInstance(root.dataset, DOMStringMap)
+        root.attributes['viewBox'] = '0 0 600 400'
+        root.dataset['foo'] = 'foo'
+        root.dataset['fooBar'] = 'fooBar'
+        root.dataset['fooBarBaz'] = 'fooBarBaz'
+
+        self.assertEqual(4, len(root.attrib))
+        self.assertEqual(4, len(root.attributes))
+        self.assertEqual(3, len(root.dataset))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertEqual('foo', root.get('data-foo'))
+        self.assertEqual('fooBar', root.get('data-foo-bar'))
+        self.assertEqual('fooBarBaz', root.get('data-foo-bar-baz'))
+        self.assertEqual('0 0 600 400', root.attributes['viewBox'].value)
+        self.assertEqual('foo', root.attributes['data-foo'].value)
+        self.assertEqual('fooBar', root.attributes['data-foo-bar'].value)
+        self.assertEqual('fooBarBaz',
+                         root.attributes['data-foo-bar-baz'].value)
+        self.assertEqual('foo', root.dataset['foo'])
+        self.assertEqual('fooBar', root.dataset['fooBar'])
+        self.assertEqual('fooBarBaz', root.dataset['fooBarBaz'])
+
+        del root.dataset['fooBarBaz']
+        self.assertEqual(3, len(root.attrib))
+        self.assertEqual(3, len(root.attributes))
+        self.assertEqual(2, len(root.dataset))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertEqual('foo', root.get('data-foo'))
+        self.assertEqual('fooBar', root.get('data-foo-bar'))
+        self.assertTrue('data-foo-bar-baz' not in root.attrib)
+        self.assertEqual('0 0 600 400', root.attributes['viewBox'].value)
+        self.assertEqual('foo', root.attributes['data-foo'].value)
+        self.assertEqual('fooBar', root.attributes['data-foo-bar'].value)
+        self.assertTrue('fooBarBaz' not in root.attributes)
+        self.assertEqual('foo', root.dataset['foo'])
+        self.assertEqual('fooBar', root.dataset['fooBar'])
+        self.assertTrue('fooBarBaz' not in root.dataset)
+
+        del root.attrib['data-foo']
+        self.assertEqual(2, len(root.attrib))
+        self.assertEqual(2, len(root.attributes))
+        self.assertEqual(1, len(root.dataset))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertTrue('data-foo' not in root.attrib)
+        self.assertEqual('fooBar', root.get('data-foo-bar'))
+        self.assertTrue('data-foo-bar-baz' not in root.attrib)
+        self.assertEqual('0 0 600 400', root.attributes['viewBox'].value)
+        self.assertTrue('data-foo' not in root.attributes)
+        self.assertEqual('fooBar', root.attributes['data-foo-bar'].value)
+        self.assertTrue('fooBarBaz' not in root.attributes)
+        self.assertTrue('foo' not in root.dataset)
+        self.assertEqual('fooBar', root.dataset['fooBar'])
+        self.assertTrue('fooBarBaz' not in root.dataset)
+
+        root.set('data-A', 'A')  # invalid name
+        self.assertEqual(3, len(root.attrib))
+        self.assertEqual(3, len(root.attributes))
+        self.assertEqual(1, len(root.dataset))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertTrue('data-foo' not in root.attrib)
+        self.assertEqual('fooBar', root.get('data-foo-bar'))
+        self.assertTrue('data-foo-bar-baz' not in root.attrib)
+        self.assertEqual('A', root.get('data-A'))
+        self.assertEqual('0 0 600 400', root.attributes['viewBox'].value)
+        self.assertTrue('data-foo' not in root.attributes)
+        self.assertEqual('fooBar', root.attributes['data-foo-bar'].value)
+        self.assertTrue('fooBarBaz' not in root.attributes)
+        self.assertEqual('A', root.attributes['data-A'].value)
+        self.assertTrue('foo' not in root.dataset)
+        self.assertEqual('fooBar', root.dataset['fooBar'])
+        self.assertTrue('fooBarBaz' not in root.dataset)
+
+        root.set('data-a', 'a')  # valid name
+        self.assertEqual(4, len(root.attrib))
+        self.assertEqual(4, len(root.attributes))
+        self.assertEqual(2, len(root.dataset))
+        self.assertEqual('0 0 600 400', root.get('viewBox'))
+        self.assertTrue('data-foo' not in root.attrib)
+        self.assertEqual('fooBar', root.get('data-foo-bar'))
+        self.assertTrue('data-foo-bar-baz' not in root.attrib)
+        self.assertEqual('A', root.get('data-A'))
+        self.assertEqual('a', root.get('data-a'))
+        self.assertEqual('0 0 600 400', root.attributes['viewBox'].value)
+        self.assertTrue('data-foo' not in root.attributes)
+        self.assertEqual('fooBar', root.attributes['data-foo-bar'].value)
+        self.assertTrue('fooBarBaz' not in root.attributes)
+        self.assertEqual('A', root.attributes['data-A'].value)
+        self.assertEqual('a', root.attributes['data-a'].value)
+        self.assertTrue('foo' not in root.dataset)
+        self.assertEqual('fooBar', root.dataset['fooBar'])
+        self.assertTrue('fooBarBaz' not in root.dataset)
+        self.assertEqual('a', root.dataset['a'])
+        # print(root.tostring())
 
     def test_element_extend(self):
         # Element.extend()

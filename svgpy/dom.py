@@ -15,8 +15,8 @@
 
 import re
 from abc import ABC, abstractmethod
+from collections.abc import KeysView, MutableMapping, MutableSequence
 
-from collections.abc import MutableMapping, MutableSequence
 from lxml import cssselect, etree
 
 from .core import CSSUtils, Font, SVGLength
@@ -26,6 +26,83 @@ from .style import get_css_rules, get_css_style, \
 from .utils import QualifiedName, get_elements_by_class_name, \
     get_elements_by_tag_name, get_elements_by_tag_name_ns, \
     is_ascii_whitespace, style_to_dict
+
+
+_RE_DATASET_INVALID_KEY = re.compile(r'-[a-z]')
+
+
+class DOMStringMap(MutableMapping):
+    """Represents the [HTML] DOMStringMap."""
+
+    def __init__(self, owner_element, prefix):
+        """Constructs a DOMStringMap object.
+
+        Arguments:
+            owner_element (Element): The element that is associated with the
+                attribute.
+            prefix (str): The prefix of the attribute name.
+        """
+        self._owner_element = owner_element
+        self._prefix = prefix
+
+    def __delitem__(self, key):
+        name = self._convert_to_name(key)
+        del self._owner_element.attrib[name]
+
+    def __getitem__(self, key):
+        name = self._convert_to_name(key)
+        return self._owner_element.attrib[name]
+
+    def __iter__(self):
+        return iter(self.keys())
+
+    def __len__(self):
+        return len(self.keys())
+
+    def __repr__(self):
+        return repr({key: value for key, value in self.items()})
+
+    def __setitem__(self, key, value):
+        if value is None or len(value) == 0:
+            self.__delitem__(key)
+            return
+        name = self._convert_to_name(key)
+        self._owner_element.set(name, value)
+
+    def _convert_to_name(self, key):
+        if _RE_DATASET_INVALID_KEY.search(key) is not None:
+            raise ValueError('Invalid key: ' + repr(key))
+        name = self._prefix
+        for ch in key:
+            if ch.isupper():
+                name += '-'
+            name += ch
+        return name.lower()
+
+    def _convert_to_key(self, name):
+        _name = name[len(self._prefix):]
+        length = len(_name)
+        key = ''
+        start = 0
+        while start < length:
+            end = _name.find('-', start)
+            if end == -1:
+                end = length
+            if start == end:
+                key += '-'
+            else:
+                part = _name[start:end]
+                if start != 0:
+                    part = part.capitalize()
+                key += part
+            start = end + 1
+        return key
+
+    def keys(self):
+        keys = [self._convert_to_key(name)
+                for name in self._owner_element.attrib
+                if name.startswith(self._prefix) and name.islower()]
+        return KeysView(keys)
 
 
 class DOMTokenList(MutableSequence):
