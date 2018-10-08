@@ -1199,6 +1199,7 @@ class SVGElementClassLookup(etree.CustomElementClassLookup):
 
 
 class SVGParser(object):
+
     def __init__(self, **kwargs):
         """Constructs an SVGParser object.
 
@@ -1256,6 +1257,28 @@ class SVGParser(object):
         _ = self
         comment = etree.Comment(data)
         return comment
+
+    def create_document(self, namespace, qualified_name=None, doctype=None,
+                        nsmap=None, **extra):
+        """Creates a new XML document instance, and returns it.
+
+        Arguments:
+            namespace (str, None): The namespace URI to associated with the
+                element.
+            qualified_name (str, optional): A qualified name of an element to
+                be created.
+            doctype (DocumentType, optional): A Document Type of the document.
+                Sets to None.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **extra: See Document.__init__().
+        Returns:
+            XMLDocument: A new XML document.
+        """
+        from .window import SVGDOMImplementation
+        impl = SVGDOMImplementation(self)
+        doc = impl.create_document(namespace, qualified_name, doctype,
+                                   nsmap=nsmap, **extra)
+        return doc
 
     def create_element(self, local_name, attrib=None, nsmap=None, **_extra):
         """Creates a new element instance, and returns it.
@@ -1338,6 +1361,21 @@ class SVGParser(object):
         _ = self
         pi = etree.ProcessingInstruction(target, data)
         return pi
+
+    def create_svg_document(self, nsmap=None, **extra):
+        """Creates a new SVG document instance, and returns it.
+
+        Arguments:
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
+            **extra: See Document.__init__().
+        Returns:
+            XMLDocument: A new SVG document.
+        """
+        doc = self.create_document(Element.SVG_NAMESPACE_URI,
+                                   'svg',
+                                   nsmap=nsmap,
+                                   **extra)
+        return doc
 
     def fromstring(self, text):
         """Parses an SVG document or fragment from a string, and returns the

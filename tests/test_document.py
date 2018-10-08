@@ -12,10 +12,10 @@ from lxml import etree
 
 sys.path.extend(['.', '..'])
 
-from svgpy import Attr, Comment, Element, Node, ProcessingInstruction
+from svgpy import Attr, Comment, Document, Element, Node, \
+    ProcessingInstruction, SVGDOMImplementation, SVGParser, Window, \
+    XMLDocument, window
 from svgpy.element import HTMLVideoElement, SVGSVGElement
-from svgpy.window import Document, SVGDOMImplementation, Window, XMLDocument, \
-    window
 
 # LOGGING_LEVEL = logging.DEBUG
 LOGGING_LEVEL = logging.WARNING
@@ -1369,6 +1369,75 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual(2, len(children))
         self.assertEqual('rect', children[0].node_name)
         self.assertEqual('rect', children[1].node_name)
+
+    def test_parser_create_document(self):
+        # SVGParser.create_document()
+        parser = SVGParser()
+        doc1 = parser.create_document(None)
+        self.assertIsInstance(doc1, XMLDocument)
+        self.assertEqual(window, doc1.default_view)
+        self.assertIsNone(doc1.document_element)
+        self.assertNotEqual(window.document.implementation,
+                            doc1.implementation)
+
+        doc2 = parser.create_document(
+            Element.SVG_NAMESPACE_URI,
+            'svg',
+            nsmap={
+                'html': Element.XHTML_NAMESPACE_URI,
+            })
+        self.assertIsInstance(doc2, XMLDocument)
+        self.assertEqual(window, doc2.default_view)
+        self.assertIsNotNone(doc2.document_element)
+        self.assertIsInstance(doc2.document_element, SVGSVGElement)
+        self.assertEqual('svg', doc2.document_element.tag_name)
+        self.assertNotEqual(window.document.implementation,
+                            doc2.implementation)
+        self.assertNotEqual(doc1.implementation,
+                            doc2.implementation)
+        self.assertDictEqual(
+            {
+                None: 'http://www.w3.org/2000/svg',
+                'html': 'http://www.w3.org/1999/xhtml',
+            },
+            doc2.document_element.nsmap)
+
+    def test_parser_create_svg_document(self):
+        # SVGParser.create_svg_document()
+        parser = SVGParser()
+        doc1 = parser.create_svg_document()
+        self.assertIsInstance(doc1, XMLDocument)
+        self.assertEqual(window, doc1.default_view)
+        self.assertIsNotNone(doc1.document_element)
+        self.assertIsInstance(doc1.document_element, SVGSVGElement)
+        self.assertEqual('svg', doc1.document_element.tag_name)
+        self.assertNotEqual(window.document.implementation,
+                            doc1.implementation)
+        self.assertDictEqual(
+            {
+                None: 'http://www.w3.org/2000/svg',
+            },
+            doc1.document_element.nsmap)
+
+        doc2 = parser.create_svg_document(
+            nsmap={
+                'html': Element.XHTML_NAMESPACE_URI,
+            })
+        self.assertIsInstance(doc2, XMLDocument)
+        self.assertEqual(window, doc2.default_view)
+        self.assertIsNotNone(doc2.document_element)
+        self.assertIsInstance(doc2.document_element, SVGSVGElement)
+        self.assertEqual('svg', doc2.document_element.tag_name)
+        self.assertNotEqual(window.document.implementation,
+                            doc2.implementation)
+        self.assertNotEqual(doc1.implementation,
+                            doc2.implementation)
+        self.assertDictEqual(
+            {
+                None: 'http://www.w3.org/2000/svg',
+                'html': 'http://www.w3.org/1999/xhtml',
+            },
+            doc2.document_element.nsmap)
 
 
 if __name__ == '__main__':

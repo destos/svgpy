@@ -25,7 +25,6 @@ from .core import SVGLength
 from .css import mediaquery as mq
 from .css.screen import Screen
 from .dom import Element, Node, NonElementParentNode, ParentNode
-from .element import SVGParser
 from .style import get_css_style_sheets
 from .url import Location
 from .utils import get_content_type, get_element_by_id, \
@@ -714,13 +713,18 @@ class MediaQueryList(object):
 
 
 class SVGDOMImplementation(DOMImplementation):
-    def __init__(self, **kwargs):
+
+    def __init__(self, parser=None, **kwargs):
         """Constructs an SVGDOMImplementation object.
 
         Arguments:
+            parser (SVGParser, optional): An SVG parser object.
             **kwargs: See SVGParser.__init__().
         """
-        self._parser = SVGParser(**kwargs)
+        if parser is None:
+            from .element import SVGParser
+            parser = SVGParser(**kwargs)
+        self._parser = parser
 
     @property
     def parser(self):
@@ -897,3 +901,4 @@ class XMLDocument(Document):
 
 
 window = Window(SVGDOMImplementation())
+document = window.document

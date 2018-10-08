@@ -33,4 +33,4 @@ from svgpy.transform import SVGTransform, SVGTransformList
 from svgpy.url import Location, URL, URLSearchParams
 from svgpy.utils import CaseInsensitiveMapping, QualifiedName
 from svgpy.window import Document, SVGDOMImplementation, Window, XMLDocument, \
-    window
+    document, window
