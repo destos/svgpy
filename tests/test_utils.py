@@ -24,6 +24,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(key in d)
         self.assertTrue(key.upper() in d)
         self.assertTrue(key.lower() in d)
+        # print(d.keys(), d.values(), d.items())
 
         del d[key]
         self.assertEqual(0, len(d))

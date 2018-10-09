@@ -15,7 +15,8 @@
 
 import re
 from abc import ABC, abstractmethod
-from collections.abc import KeysView, MutableMapping, MutableSequence
+from collections.abc import ItemsView, KeysView, MutableMapping, \
+    MutableSequence, ValuesView
 
 from lxml import cssselect, etree
 
@@ -46,11 +47,11 @@ class DOMStringMap(MutableMapping):
         self._prefix = prefix
 
     def __delitem__(self, key):
-        name = self._convert_to_name(key)
+        name = self._convert_name(key)
         del self._owner_element.attrib[name]
 
     def __getitem__(self, key):
-        name = self._convert_to_name(key)
+        name = self._convert_name(key)
         return self._owner_element.attrib[name]
 
     def __iter__(self):
@@ -64,22 +65,12 @@ class DOMStringMap(MutableMapping):
 
     def __setitem__(self, key, value):
         if value is None or len(value) == 0:
-            self.__delitem__(key)
+            del self[key]
             return
-        name = self._convert_to_name(key)
+        name = self._convert_name(key)
         self._owner_element.set(name, value)
 
-    def _convert_to_name(self, key):
-        if _RE_DATASET_INVALID_KEY.search(key) is not None:
-            raise ValueError('Invalid key: ' + repr(key))
-        name = self._prefix
-        for ch in key:
-            if ch.isupper():
-                name += '-'
-            name += ch
-        return name.lower()
-
-    def _convert_to_key(self, name):
+    def _convert_key(self, name):
         _name = name[len(self._prefix):]
         length = len(_name)
         key = ''
@@ -98,11 +89,29 @@ class DOMStringMap(MutableMapping):
             start = end + 1
         return key
 
+    def _convert_name(self, key):
+        if _RE_DATASET_INVALID_KEY.search(key) is not None:
+            raise ValueError('Invalid key: ' + repr(key))
+        name = self._prefix
+        for ch in key:
+            if ch.isupper():
+                name += '-'
+            name += ch
+        return name.lower()
+
+    def items(self):
+        items = [(key, self[key]) for key in self.keys()]
+        return ItemsView(items)
+
     def keys(self):
-        keys = [self._convert_to_key(name)
+        keys = [self._convert_key(name)
                 for name in self._owner_element.attrib
                 if name.startswith(self._prefix) and name.islower()]
         return KeysView(keys)
+
+    def values(self):
+        values = [self[key] for key in self.keys()]
+        return ValuesView(values)
 
 
 class DOMTokenList(MutableSequence):
@@ -119,13 +128,11 @@ class DOMTokenList(MutableSequence):
         """
         self._owner_element = owner_element
         self._local_name = local_name
-        value = owner_element.get(local_name, '')
-        tokens = value.split()
-        self._tokens = list(tokens)
 
     def __delitem__(self, index):
-        del self._tokens[index]
-        self._update_attribute()
+        tokens = list(self._tokens)
+        del tokens[index]
+        self._set_tokens(tokens)
 
     def __getitem__(self, index):
         return self._tokens[index]
@@ -134,7 +141,7 @@ class DOMTokenList(MutableSequence):
         return len(self._tokens)
 
     def __repr__(self):
-        return repr(self._tokens)
+        return repr(list(self._tokens))
 
     def __setitem__(self, index, value):
         if isinstance(value, str):
@@ -149,24 +156,32 @@ class DOMTokenList(MutableSequence):
         else:
             raise TypeError('Expected str or list[str], got {}'.format(
                 type(value)))
-        self._tokens[index] = value
-        self._update_attribute()
+        tokens = list(self._tokens)
+        tokens[index] = value
+        self._set_tokens(tokens)
+
+    @property
+    def _tokens(self):
+        """tuple[str, ...]: The token set."""
+        value = self._owner_element.get(self._local_name, '')
+        tokens = tuple(value.split())
+        return tokens
 
     @property
     def length(self):
         """int: The token set's size."""
-        return self.__len__()
+        return len(self)
 
     @property
     def value(self):
         """str: The attribute's value."""
         return ' '.join(self._tokens)
 
-    def _update_attribute(self):
-        value = self.value
-        if (len(value) == 0
-                and self._local_name in self._owner_element.attrib):
-            del self._owner_element.attrib[self._local_name]
+    def _set_tokens(self, tokens):
+        value = ' '.join(tokens).strip()
+        if len(value) == 0:
+            if self._local_name in self._owner_element.attrib:
+                del self._owner_element.attrib[self._local_name]
         else:
             self._owner_element.set(self._local_name, value)
 
@@ -222,7 +237,7 @@ class DOMTokenList(MutableSequence):
         Returns:
             str: The token.
         """
-        return self.__getitem__(index)
+        return self[index]
 
     def remove(self, *tokens):
         """Removes tokens in this token set.
@@ -250,7 +265,7 @@ class DOMTokenList(MutableSequence):
         if token not in self._tokens or new_token in self._tokens:
             return False
         index = self._tokens.index(token)
-        self.__setitem__(index, new_token)
+        self[index] = new_token
         return True
 
     def toggle(self, token, force=None):
@@ -349,7 +364,7 @@ class NamedNodeMap(MutableMapping):
         if value is None or isinstance(value, str):
             if value is None or len(value) == 0:
                 if name in self._attrib:
-                    self.__delitem__(name)
+                    del self[name]
                 return
             self._attrib[name] = value
             self._set_default_named_item(name)
@@ -363,7 +378,7 @@ class NamedNodeMap(MutableMapping):
                 return  # already exist
             elif value.value is None or len(value.value) == 0:
                 if name in self._attrib:
-                    self.__delitem__(name)
+                    del self[name]
                 return
             old_attr = self._attr_map.get(name)
             if old_attr is not None:
@@ -376,7 +391,7 @@ class NamedNodeMap(MutableMapping):
     @property
     def length(self):
         """int: The attribute list's size."""
-        return self.__len__()
+        return len(self)
 
     def _set_default_named_item(self, name):
         attr = self._attr_map.get(name)
@@ -421,12 +436,19 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object or None.
         """
-        keys = list(self._attrib.keys())
+        keys = list(self.keys())
         try:
             name = keys[index]
-            return self.__getitem__(name)
+            return self[name]
         except IndexError:
             return None
+
+    def items(self):
+        items = [(key, self[key]) for key in self.keys()]
+        return ItemsView(items)
+
+    def keys(self):
+        return KeysView(self._attrib.keys())
 
     def remove_named_item(self, qualified_name):
         """Removes an attribute given the qualified name.
@@ -436,8 +458,8 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object to be removed.
         """
-        attr = self.__getitem__(qualified_name)
-        self.__delitem__(qualified_name)
+        attr = self[qualified_name]
+        del self[qualified_name]
         return attr
 
     def remove_named_item_ns(self, namespace, local_name):
@@ -461,7 +483,7 @@ class NamedNodeMap(MutableMapping):
             Attr: An attribute object to be removed or None.
         """
         old_attr = self.get(attr.name)
-        self.__setitem__(attr.name, attr)
+        self[attr.name] = attr
         return old_attr
 
     def set_named_item_ns(self, attr):
@@ -474,6 +496,10 @@ class NamedNodeMap(MutableMapping):
             Attr: An attribute object to be removed.
         """
         return self.set_named_item(attr)
+
+    def values(self):
+        values = [self[key] for key in self.keys()]
+        return ValuesView(values)
 
 
 class Node(ABC):

@@ -640,6 +640,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('0', dataset['foo'])
         self.assertEqual('10', dataset['fooBar'])
         self.assertEqual('100', dataset['fooBarBaz'])
+        # print(dataset.keys(), dataset.values(), dataset.items())
 
         # update
         dataset['foo'] = 'a'
@@ -745,6 +746,14 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('id0', s.item(0))
         self.assertEqual('id2', s.item(1))
         self.assertEqual('id3', s.item(2))
+
+        root.set(attr_name, 'id3 id2 id5')
+        self.assertEqual(3, len(s))
+        self.assertEqual(3, s.length)
+        self.assertEqual('id3 id2 id5', s.value)
+        self.assertEqual('id3', s[0])
+        self.assertEqual('id2', s[1])
+        self.assertEqual('id5', s[2])
 
     def test_dom_token_list_add(self):
         # DOMTokenList.add()
@@ -934,6 +943,25 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(0, s.length)
         self.assertEqual('', s.value)
         self.assertIsNone(root.get(attr_name))
+
+        root.set(attr_name, 'id3 id5')
+        self.assertEqual(2, len(s))
+        self.assertEqual(2, s.length)
+        self.assertEqual('id3 id5', s.value)
+        self.assertEqual('id3', s[0])
+        self.assertEqual('id5', s[1])
+        self.assertEqual('id3 id5', root.get(attr_name))
+        s[1] = ''  # remove token
+        self.assertEqual(1, len(s))
+        self.assertEqual(1, s.length)
+        self.assertEqual('id3', s.value)
+        self.assertEqual('id3', s[0])
+        self.assertEqual('id3', root.get(attr_name))
+        s[0] = ''  # remove token and attribute
+        self.assertEqual(0, len(s))
+        self.assertEqual(0, s.length)
+        self.assertEqual('', s.value)
+        self.assertTrue(attr_name not in root.attrib)
 
     def test_dom_token_list_replace(self):
         # DOMTokenList.replace()
@@ -2447,6 +2475,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(fill, root.get('fill'))
         self.assertEqual(stroke, root.get('stroke'))
         self.assertEqual(stroke_width, root.get('stroke-width'))
+        # print(attributes.keys(), attributes.values(), attributes.items())
 
         attributes = NamedNodeMap(root)
         self.assertEqual(3, len(attributes))

@@ -282,6 +282,15 @@ class CaseInsensitiveMapping(MutableMapping):
     def _convert_key(key):
         return key.lower() if isinstance(key, str) else key
 
+    def items(self):
+        return self._data.items()
+
+    def keys(self):
+        return self._data.keys()
+
+    def values(self):
+        return self._data.values()
+
 
 class QualifiedName(object):
     """Utility class for the qualified name."""
