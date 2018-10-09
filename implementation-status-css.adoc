@@ -1,0 +1,546 @@
+= Implementation status - CSS
+:numbered:
+:toc: right
+:toclevels: 3
+:doctype: article
+:source-highlighter: coderay
+:icons: font
+
+// [lime-background]#[✓]#
+// [aqua-background]#[partial]#
+// [yellow-background]#[planned]#
+// [fuchsia-background]#[TBD]#
+// [red-background]#[no]#
+// [silver]_*_
+
+== Geometry Interfaces Module Level 1 [geometry]
+// Editor’s Draft, 27 July 2018
+=== Geometry Interfaces
+==== The DOMPoint interfaces
+* interface [[DOMPointReadOnly]]*DOMPointReadOnly* [fuchsia-background]#[TBD]#
+:: properties
+** x
+** y
+** z
+** w
+:: methods
+** fromPoint()
+** matrixTransform()
+** toJSON()
+
+* interface [[DOMPoint]]*DOMPoint* : link:#DOMPointReadOnly[DOMPointReadOnly] [fuchsia-background]#[TBD]#
+:: properties
+** x
+** y
+** z
+** w
+:: methods
+** fromPoint()
+
+==== The DOMRect interfaces
+* interface [[DOMRectReadOnly]]*DOMRectReadOnly* [lime-background]#[✓]#
+:: properties
+** x [lime-background]#[✓]#
+** y [lime-background]#[✓]#
+** width [lime-background]#[✓]#
+** height [lime-background]#[✓]#
+** top [lime-background]#[✓]#
+** right [lime-background]#[✓]#
+** bottom [lime-background]#[✓]#
+** left [lime-background]#[✓]#
+:: methods
+** toJSON() [lime-background]#[✓]#
+
+* interface [[DOMRect]]*DOMRect* : link:#DOMRectReadOnly[DOMRectReadOnly] [lime-background]#[✓]#
+:: properties
+** x [lime-background]#[✓]#
+** y [lime-background]#[✓]#
+** width [lime-background]#[✓]#
+** height [lime-background]#[✓]#
+
+==== The DOMQuad interface
+* interface [[DOMQuad]]*DOMQuad* [fuchsia-background]#[TBD]#
+:: properties
+** p1
+** p2
+** p3
+** p4
+:: methods
+** fromRect()
+** fromQuad()
+** getBounds()
+** toJSON()
+
+==== The DOMMatrix interfaces
+* interface [[DOMMatrixReadOnly]]*DOMMatrixReadOnly* [lime-background]#[✓]#
+:: properties
+** a [lime-background]#[✓]#
+** b [lime-background]#[✓]#
+** c [lime-background]#[✓]#
+** d [lime-background]#[✓]#
+** e [lime-background]#[✓]#
+** f [lime-background]#[✓]#
+** m11 [lime-background]#[✓]#
+** m12 [lime-background]#[✓]#
+** m13 [lime-background]#[✓]#
+** m14 [lime-background]#[✓]#
+** m21 [lime-background]#[✓]#
+** m22 [lime-background]#[✓]#
+** m23 [lime-background]#[✓]#
+** m24 [lime-background]#[✓]#
+** m31 [lime-background]#[✓]#
+** m32 [lime-background]#[✓]#
+** m33 [lime-background]#[✓]#
+** m34 [lime-background]#[✓]#
+** m41 [lime-background]#[✓]#
+** m42 [lime-background]#[✓]#
+** m43 [lime-background]#[✓]#
+** m44 [lime-background]#[✓]#
+** is2D [lime-background]#[✓]#
+** isIdentity [lime-background]#[✓]#
+:: methods
+** fromMatrix() [lime-background]#[✓]#
+** fromFloat32Array() [lime-background]#[✓]#
+** fromFloat64Array() [lime-background]#[✓]#
+** translate() [lime-background]#[✓]#
+** scale() [lime-background]#[✓]#
+** scale3d() [lime-background]#[✓]#
+** rotate() [lime-background]#[✓]#
+** rotateFromVector() [lime-background]#[✓]#
+** rotateAxisAngle() [lime-background]#[✓]#
+** skewX() [lime-background]#[✓]#
+** skewY() [lime-background]#[✓]#
+** multiply() [lime-background]#[✓]#
+** flipX() [lime-background]#[✓]#
+** flipY() [lime-background]#[✓]#
+** inverse() [lime-background]#[✓]#
+** transformPoint() [lime-background]#[✓]#
+** toFloat32Array() [lime-background]#[✓]#
+** toFloat64Array() [lime-background]#[✓]#
+** stringifier [lime-background]#[✓]#
+** toJSON() [lime-background]#[✓]#
+
+* interface [[DOMMatrix]]*DOMMatrix* : link:#DOMMatrixReadOnly[DOMMatrixReadOnly] [aqua-background]#[partial]#
+:: properties
+** a [lime-background]#[✓]#
+** b [lime-background]#[✓]#
+** c [lime-background]#[✓]#
+** d [lime-background]#[✓]#
+** e [lime-background]#[✓]#
+** f [lime-background]#[✓]#
+** m11 [lime-background]#[✓]#
+** m12 [lime-background]#[✓]#
+** m13 [lime-background]#[✓]#
+** m14 [lime-background]#[✓]#
+** m21 [lime-background]#[✓]#
+** m22 [lime-background]#[✓]#
+** m23 [lime-background]#[✓]#
+** m24 [lime-background]#[✓]#
+** m31 [lime-background]#[✓]#
+** m32 [lime-background]#[✓]#
+** m33 [lime-background]#[✓]#
+** m34 [lime-background]#[✓]#
+** m41 [lime-background]#[✓]#
+** m42 [lime-background]#[✓]#
+** m43 [lime-background]#[✓]#
+** m44 [lime-background]#[✓]#
+:: methods
+** fromMatrix() [lime-background]#[✓]#
+** fromFloat32Array() [lime-background]#[✓]#
+** fromFloat64Array() [lime-background]#[✓]#
+** multiplySelf() [lime-background]#[✓]#
+** preMultiplySelf() [yellow-background]#[planned]#
+** translateSelf() [lime-background]#[✓]#
+** scaleSelf() [lime-background]#[✓]#
+** scale3dSelf() [lime-background]#[✓]#
+** rotateSelf() [lime-background]#[✓]#
+** rotateFromVectorSelf() [lime-background]#[✓]#
+** rotateAxisAngleSelf() [lime-background]#[✓]#
+** skewXSelf() [lime-background]#[✓]#
+** skewYSelf() [lime-background]#[✓]#
+** invertSelf() [lime-background]#[✓]#
+** setMatrixValue() [yellow-background]#[planned]#
+
+== CSS Object Model [cssom]
+// Editor’s Draft, 17 August 2018
+// 4.
+=== Media Queries
+// 4.4.
+==== The MediaList Interface
+* interface [[MediaList]]*MediaList* [lime-background]#[✓]#
+:: properties
+** mediaText [lime-background]#[✓]#
+** length [lime-background]#[✓]#
+:: methods
+** item() [lime-background]#[✓]#
+** appendMedium() [lime-background]#[✓]#
+** deleteMedium() [lime-background]#[✓]#
+
+// 6.1.
+=== CSS Style Sheets
+// 6.1.1.
+==== The StyleSheet Interface
+* interface [[StyleSheet]]*StyleSheet* [lime-background]#[✓]#
+:: properties
+** type [lime-background]#[✓]#
+** href [lime-background]#[✓]#
+** ownerNode [lime-background]#[✓]#
+** parentStyleSheet [lime-background]#[✓]#
+** title [lime-background]#[✓]#
+** media [lime-background]#[✓]#
+** disabled [lime-background]#[✓]#
+
+// 6.1.2.
+==== The CSSStyleSheet Interface
+* interface [[CSSStyleSheet]]*CSSStyleSheet* : link:#StyleSheet[StyleSheet] [lime-background]#[✓]#
+:: properties
+** ownerRule [lime-background]#[✓]#
+** cssRules [lime-background]#[✓]#
+:: methods
+** insertRule() [lime-background]#[✓]#
+** deleteRule() [lime-background]#[✓]#
+
+// 6.2.
+=== CSS Style Sheet Collections
+// 6.2.3.
+==== Extensions to the Document Interface
+* partial interface *Document* [lime-background]#[✓]#
+:: properties
+** styleSheets [aqua-background]#[partial]#
+
+// 6.3.
+=== Style Sheet Association
+// 6.3.2.
+==== The LinkStyle Interface
+* interface mixin [[LinkStyle]]*LinkStyle* [lime-background]#[✓]#
+:: properties
+** sheet [aqua-background]#[partial]#
+
+* ProcessingInstruction includes link:#LinkStyle[LinkStyle]
+
+// 6.4.
+=== CSS Rules
+// 6.4.2.
+==== The CSSRule Interface
+* interface [[CSSRule]]*CSSRule* [aqua-background]#[partial]#
+:: properties
+** type [lime-background]#[✓]#
+** cssText [yellow-background]#[planned]#
+** parentRule [lime-background]#[✓]#
+** parentStyleSheet [lime-background]#[✓]#
+
+// 6.4.3.
+==== The CSSStyleRule Interface
+* interface [[CSSStyleRule]]*CSSStyleRule* : link:#CSSRule[CSSRule] [lime-background]#[✓]#
+:: properties
+** selectorText [lime-background]#[✓]#
+** style [lime-background]#[✓]#
+
+// 6.4.4.
+==== The CSSImportRule Interface
+* interface [[CSSImportRule]]*CSSImportRule* : link:#CSSRule[CSSRule] [lime-background]#[✓]#
+:: properties
+** href [lime-background]#[✓]#
+** media [lime-background]#[✓]#
+
+// 6.4.5.
+==== The CSSGroupingRule Interface
+* interface [[CSSGroupingRule]]*CSSGroupingRule* : link:#CSSRule[CSSRule] [lime-background]#[✓]#
+:: properties
+** cssRules [lime-background]#[✓]#
+:: methods
+** insertRule() [lime-background]#[✓]#
+** deleteRule() [lime-background]#[✓]#
+
+// 6.4.6. The CSSMediaRule Interface
+// -> [css-conditional]
+
+// 6.4.7.
+==== The CSSPageRule Interface
+* interface [[CSSPageRule]]*CSSPageRule* : link:#CSSGroupingRule[CSSGroupingRule] [fuchsia-background]#[TBD]#
+:: properties
+** selectorText
+** style
+
+// 6.4.8.
+==== The CSSMarginRule Interface
+* interface [[CSSMarginRule]]*CSSMarginRule* : link:#CSSRule[CSSRule] [fuchsia-background]#[TBD]#
+:: properties
+** name
+** style
+
+// 6.4.9.
+==== The CSSNamespaceRule Interface
+* interface [[CSSNamespaceRule]]*CSSNamespaceRule* : link:#CSSRule[CSSRule] [lime-background]#[✓]#
+:: properties
+** namespaceURI [lime-background]#[✓]#
+** prefix [lime-background]#[✓]#
+
+// 6.6.
+=== CSS Declaration Blocks
+// 6.6.1.
+==== The CSSStyleDeclaration Interface
+* interface [[CSSStyleDeclaration]]*CSSStyleDeclaration* [aqua-background]#[partial]#
+:: properties
+** cssText [yellow-background]#[planned]#
+** length [lime-background]#[✓]#
+** parentRule [lime-background]#[✓]#
+** cssFloat
+:: methods
+** item() [yellow-background]#[planned]#
+** getPropertyValue() [aqua-background]#[partial]#
+** getPropertyPriority() [lime-background]#[✓]#
+** setProperty() [aqua-background]#[partial]#
+** removeProperty() [lime-background]#[✓]#
+
+// 7.
+=== DOM Access to CSS Declaration Blocks
+// 7.1.
+==== The ElementCSSInlineStyle Interface
+* interface mixin [[ElementCSSInlineStyle]]*ElementCSSInlineStyle* [lime-background]#[✓]#
+:: properties
+** style [lime-background]#[✓]#
+
+* HTMLElement includes link:#ElementCSSInlineStyle[ElementCSSInlineStyle] [lime-background]#[✓]#
+* SVGElement includes link:#ElementCSSInlineStyle[ElementCSSInlineStyle] [lime-background]#[✓]#
+
+// 7.2.
+==== Extensions to the Window Interface
+* partial interface *Window*
+:: methods
+** getComputedStyle() [yellow-background]#[planned]#
+
+// 8.
+=== Utility APIs
+// 8.1.
+==== The CSS.escape() Method
+* namespace [[CSS]]*CSS* [yellow-background]#[planned]#
+:: methods
+** escape()
+
+== CSS Conditional Rules Module Level 3 [css-conditional]
+// Editor’s Draft, 10 August 2018
+// 7.
+=== APIs
+// 7.2.
+////
+==== The CSSGroupingRule interface
+* interface [[CSSGroupingRule]]*CSSGroupingRule* : link:#CSSRule[CSSRule]
+:: properties
+** cssRules
+:: methods
+** insertRule()
+** deleteRule()
+////
+
+// 7.3.
+==== The CSSConditionRule interface
+* interface [[CSSConditionRule]]*CSSConditionRule* : link:#CSSGroupingRule[CSSGroupingRule] [lime-background]#[✓]#
+:: properties
+** conditionText [lime-background]#[✓]#
+
+// 7.4.
+==== The CSSMediaRule interface
+* interface [[CSSMediaRule]]*CSSMediaRule* : link:#CSSConditionRule[CSSConditionRule] [lime-background]#[✓]#
+:: properties
+** media [lime-background]#[✓]#
+
+// 7.5.
+==== The CSSSupportsRule interface
+* interface [[CSSSupportsRule]]*CSSSupportsRule* : link:#CSSConditionRule[CSSConditionRule] [fuchsia-background]#[TBD]#
+
+// 7.6.
+==== The CSS namespace, and the supports() function
+* partial namespace [[CSS]]*CSS*
+:: methods
+** supports() [fuchsia-background]#[TBD]#
+
+== CSS Fonts Module Level 4 [css-fonts]
+// Editor’s Draft, 17 August 2018
+// 11. Object Model
+=== APIs
+// 11.1.
+==== The CSSFontFaceRule interface
+* interface [[CSSFontFaceRule]]*CSSFontFaceRule* : link:#CSSRule[CSSRule] [lime-background]#[✓]#
+:: properties
+** style [lime-background]#[✓]#
+
+// 11.2.
+==== The CSSFontFeatureValuesRule interface
+* interface [[CSSFontFeatureValuesRule]]*CSSFontFeatureValuesRule* : link:#CSSRule[CSSRule] [lime-background]#[✓]#
+:: properties
+** fontFamily [lime-background]#[✓]#
+** annotation [lime-background]#[✓]#
+** ornaments [lime-background]#[✓]#
+** stylistic [lime-background]#[✓]#
+** swash [lime-background]#[✓]#
+** characterVariant [lime-background]#[✓]#
+** styleset [lime-background]#[✓]#
+
+// 11.3.
+==== The CSSFontPaletteValuesRule interface
+* interface [[CSSFontPaletteValuesRule]]*CSSFontPaletteValuesRule* : link:#CSSRule[CSSRule]
+:: properties
+** fontFamily
+** basePalette
+:: methods
+** maplike
+
+== CSSOM View Module [cssom-view]
+// Editor’s Draft, 1 September 2018
+// 4.
+=== Extensions to the Window Interface
+==== The Window interface
+* partial interface [[Window]]*Window* [aqua-background]#[partial]#
+:: properties
+** screen [lime-background]#[✓]#
+** innerWidth [lime-background]#[✓]#
+** innerHeight [lime-background]#[✓]#
+** scrollX
+** pageXOffset
+** scrollY
+** pageYOffset
+** screenX
+** screenY
+** outerWidth
+** outerHeight
+** devicePixelRatio [lime-background]#[✓]#
+:: methods
+** matchMedia() [lime-background]#[✓]#
+** moveTo()
+** moveBy()
+** resizeTo()
+** resizeBy()
+** scroll()
+** scrollTo()
+** scrollBy()
+
+// 4.2.
+==== The MediaQueryList Interface
+* interface [[MediaQueryList]]*MediaQueryList* : EventTarget [aqua-background]#[partial]#
+:: properties
+** media [yellow-background]#[planned]#
+** matches [lime-background]#[✓]#
+** onchange
+:: methods
+** addListener()
+** removeListener()
+
+// 4.3.
+==== The Screen Interface
+* interface [[Screen]]*Screen* [aqua-background]#[partial]#
+:: properties
+** availWidth
+** availHeight
+** width [lime-background]#[✓]#
+** height [lime-background]#[✓]#
+** colorDepth [lime-background]#[✓]#
+** pixelDepth [lime-background]#[✓]#
+
+// 5.
+=== Extensions to the Document Interface
+==== The Document Interface
+* partial interface [[Document]]*Document*
+:: properties
+** scrollingElement
+:: methods
+** elementFromPoint()
+** elementsFromPoint()
+** caretPositionFromPoint()
+
+// 6.
+=== Extensions to the Element Interface
+==== The Element Interface
+* partial interface [[Element]]*Element*
+:: properties
+** scrollTop
+** scrollLeft
+** scrollWidth
+** scrollHeight
+** clientTop
+** clientLeft
+** clientWidth
+** clientHeight
+:: methods
+** getClientRects()
+** getBoundingClientRect()
+** scrollIntoView()
+** scroll()
+** scrollTo()
+** scrollBy()
+
+// 7.
+=== Extensions to the HTMLElement Interface
+==== The HTMLElement Interface
+* partial interface [[HTMLElement]]*HTMLElement*
+:: properties
+** offsetParent
+** offsetTop
+** offsetLeft
+** offsetWidth
+** offsetHeight
+
+// 8.
+=== Extensions to the HTMLImageElement Interface
+==== The HTMLImageElement Interface
+* partial interface [[HTMLImageElement]]*HTMLImageElement*
+:: properties
+** x
+** y
+
+// 9. Extensions to the Range Interface
+=== Extensions to the Range Interface
+==== The Range Interface
+* partial interface [[Range]]*Range*
+:: methods
+** getClientRects()
+** getBoundingClientRect()
+
+// 10. Extensions to the MouseEvent Interface
+// 11.
+=== Geometry
+// 11.1.
+==== The GeometryUtils Interface
+* interface mixin [[GeometryUtils]]*GeometryUtils*
+:: methods
+** getBoxQuads()
+** convertQuadFromNode()
+** convertRectFromNode()
+** convertPointFromNode()
+
+* Text includes GeometryUtils
+* Element includes GeometryUtils
+* CSSPseudoElement includes GeometryUtils
+* Document includes GeometryUtils
+
+// Compatibility Living Standard — Last Updated 27 August 2018
+== Compatibility
+// 4.
+=== DOM Compatibility
+==== Interface Window
+* partial interface [[Window]]*Window* [yellow-background]#[planned]#
+:: properties
+** orientation [yellow-background]#[planned]#
+** onorientationchange
+
+== The Screen Orientation API
+// Editor's Draft 26 September 2018
+// 3.1
+=== Extensions to the Screen interface
+==== The Screen interface
+* partial interface [[Screen]]*Screen* [lime-background]#[✓]#
+:: properties
+** orientation [lime-background]#[✓]#
+
+// 3.2
+==== The ScreenOrientation interface
+* interface [[ScreenOrientation]]*ScreenOrientation* : EventTarget [aqua-background]#[partial]#
+:: properties
+** type [lime-background]#[✓]#
+** angle [lime-background]#[✓]#
+** onchange
+:: methods
+** lock()
+** unlock()
+
+// EOF

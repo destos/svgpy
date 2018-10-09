@@ -1,0 +1,636 @@
+= Implementation status - SVG 2
+:numbered:
+:toc: right
+:toclevels: 4
+:sectnumlevels: 4
+:doctype: article
+:source-highlighter: coderay
+:icons: font
+
+// [lime-background]#[✓]#
+// [aqua-background]#[partial]#
+// [yellow-background]#[planned]#
+// [fuchsia-background]#[TBD]#
+// [red-background]#[no]#
+// [silver]_*_
+
+// Scalable Vector Graphics (SVG) 2 - W3C Editor’s Draft 16 July 2018
+== Scalable Vector Graphics (SVG) 2
+=== Element Index
+|====
+^|Element ^|Class ^|Notes
+|a |link:#SVGAElement[SVGAElement] |
+|animate |SVGAnimateElement |SVG Animations
+|animateMotion |SVGAnimateMotionElement |SVG Animations
+|animateTransform |SVGAnimateTransformElement |SVG Animations
+|audio |HTMLAudioElement |
+|canvas |HTMLCanvasElement |
+|circle |link:#SVGCircleElement[SVGCircleElement] |
+|clipPath |link:#SVGClipPathElement[SVGClipPathElement] |CSS Masking Module
+|cursor |link:#SVGCursorElement[SVGCursorElement] |
+|defs |link:#SVGDefsElement[SVGDefsElement] |
+|desc |link:#SVGDescElement[SVGDescElement] |
+|discard |SVGDiscardElement |SVG Animations
+|ellipse |link:#SVGEllipseElement[SVGEllipseElement] |
+|feBlend | |Filter Effects Module
+|feColorMatrix | |Filter Effects Module
+|feComponentTransfer | |Filter Effects Module
+|feComposite | |Filter Effects Module
+|feConvolveMatrix | |Filter Effects Module
+|feDiffuseLighting | |Filter Effects Module
+|feDisplacementMap | |Filter Effects Module
+|feDistantLight | |Filter Effects Module
+|feDropShadow | |Filter Effects Module
+|feFlood | |Filter Effects Module
+|feFuncA | |Filter Effects Module
+|feFuncB | |Filter Effects Module
+|feFuncG | |Filter Effects Module
+|feFuncR | |Filter Effects Module
+|feGaussianBlur | |Filter Effects Module
+|feImage | |Filter Effects Module
+|feMerge | |Filter Effects Module
+|feMergeNode | |Filter Effects Module
+|feMorphology | |Filter Effects Module
+|feOffset | |Filter Effects Module
+|fePointLight | |Filter Effects Module
+|feSpecularLighting | |Filter Effects Module
+|feSpotLight | |Filter Effects Module
+|feTile | |Filter Effects Module
+|feTurbulence | |Filter Effects Module
+|filter | |Filter Effects Module
+|foreignObject |link:#SVGForeignObjectElement[SVGForeignObjectElement] |
+|g |link:#SVGGElement[SVGGElement] |
+|hatch |link:#SVGHatchElement[SVGHatchElement] |
+|hatchpath |link:#SVGHatchpathElement[SVGHatchpathElement] |
+|iframe |HTMLIFrameElement |
+|image |link:#SVGImageElement[SVGImageElement] |
+|line |link:#SVGLineElement[SVGLineElement] |
+|linearGradient |link:#SVGLinearGradientElement[SVGLinearGradientElement] |
+|marker |link:#SVGMarkerElement[SVGMarkerElement] |
+|mask |SVGMaskElement |CSS Masking Module
+|mesh |link:#SVGMeshElement[SVGMeshElement] |
+|meshgradient |link:#SVGMeshGradientElement[SVGMeshGradientElement] |
+|meshpatch |link:#SVGMeshpatchElement[SVGMeshpatchElement] |
+|meshrow |link:#SVGMeshrowElement[SVGMeshrowElement] |
+|metadata |link:#SVGMetadataElement[SVGMetadataElement] |
+|mpath |SVGMPathElement |SVG Animations
+|path |link:#SVGPathElement[SVGPathElement] |
+|pattern |link:#SVGPatternElement[SVGPatternElement] |
+|polygon |link:#SVGPolygonElement[SVGPolygonElement] |
+|polyline |link:#SVGPolylineElement[SVGPolylineElement] |
+|radialGradient |link:#SVGRadialGradientElement[SVGRadialGradientElement] |
+|rect |link:#SVGRectElement[SVGRectElement] |
+|script |link:#SVGScriptElement[SVGScriptElement] |
+|set |SVGSetElement |SVG Animations
+|solidcolor |link:#SVGSolidcolorElement[SVGSolidcolorElement] |
+|stop |link:#SVGStopElement[SVGStopElement] |
+|style |link:#SVGStyleElement[SVGStyleElement] |
+|svg |link:#SVGSVGElement[SVGSVGElement] |
+|switch |link:#SVGSwitchElement[SVGSwitchElement] |
+|symbol |link:#SVGSymbolElement[SVGSymbolElement] |
+|text |link:#SVGTextElement[SVGTextElement] |
+|textPath |link:#SVGTextPathElement[SVGTextPathElement] |
+|title |link:#SVGTitleElement[SVGTitleElement] |
+|tspan |link:#SVGTSpanElement[SVGTSpanElement] |
+|unknown |link:#SVGUnknownElement[SVGUnknownElement] |
+|use |link:#SVGUseElement[SVGUseElement] |
+|video |HTMLVideoElement |
+|view |link:#SVGViewElement[SVGViewElement] |
+|====
+
+=== DOM interfaces
+// 4. Basic Data Types and Interfaces
+==== Basic Interfaces
+===== Interface SVGElement
+* interface [[SVGElement]]*SVGElement* : Element
+:: properties
+** className
+** ownerSVGElement
+** viewportElement
+
+* SVGElement includes GlobalEventHandlers
+* SVGElement includes DocumentAndElementEventHandlers
+* SVGElement includes link:#SVGElementInstance[SVGElementInstance]
+* SVGElement includes HTMLOrSVGElement
+
+===== Interface SVGGraphicsElement
+* interface [[SVGGraphicsElement]]*SVGGraphicsElement* : link:#SVGElement[SVGElement]
+:: properties
+** transform
+:: methods
+** getBBox()
+** getCTM()
+** getScreenCTM()
+
+* SVGGraphicsElement includes link:#SVGTests[SVGTests]
+
+===== Interface SVGGeometryElement
+* interface [[SVGGeometryElement]]*SVGGeometryElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+:: properties
+** pathLength
+:: methods
+** isPointInFill()
+** isPointInStroke()
+** getTotalLength()
+** getPointAtLength()
+
+==== Basic data types
+===== Interface SVGNumber
+* Interface [[SVGNumber]]*SVGNumber*
+
+===== Interface SVGLength
+* interface [[SVGLength]]*SVGLength*
+:: properties
+** unitType
+** value
+** valueInSpecifiedUnits
+** valueAsString
+:: methods
+** newValueSpecifiedUnits()
+** convertToSpecifiedUnits()
+
+===== Interface SVGAngle
+* interface [[SVGAngle]]*SVGAngle*
+:: properties
+** unitType
+** value
+** valueInSpecifiedUnits
+** valueAsString
+:: methods
+** newValueSpecifiedUnits()
+** convertToSpecifiedUnits()
+
+===== Interface SVGAnimatedBoolean
+* interface [[SVGAnimatedBoolean]]*SVGAnimatedBoolean*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGAnimatedEnumeration
+* interface [[SVGAnimatedEnumeration]]*SVGAnimatedEnumeration*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGAnimatedInteger
+* interface [[SVGAnimatedInteger]]*SVGAnimatedInteger*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGAnimatedNumber
+* interface [[SVGAnimatedNumber]]*SVGAnimatedNumber*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGAnimatedLength
+* interface [[SVGAnimatedLength]]*SVGAnimatedLength*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGAnimatedAngle
+* interface [[SVGAnimatedAngle]]*SVGAnimatedAngle*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGAnimatedString
+* interface [[SVGAnimatedString]]*SVGAnimatedString*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGAnimatedRect
+* interface [[SVGAnimatedRect]]*SVGAnimatedRect*
+:: properties
+** baseVal
+** animVal
+
+//==== Other DOM interfaces
+===== Interface SVGUnitTypes
+* interface [[SVGUnitTypes]]*SVGUnitTypes*
+
+===== Mixin SVGTests
+* interface mixin [[SVGTests]]*SVGTests*
+:: properties
+** requiredExtensions
+** systemLanguage
+
+===== Mixin SVGFitToViewBox
+* interface mixin [[SVGFitToViewBox]]*SVGFitToViewBox*
+:: properties
+** viewBox
+** preserveAspectRatio
+
+===== Mixin SVGZoomAndPan
+* interface mixin [[SVGZoomAndPan]]*SVGZoomAndPan*
+:: properties
+** zoomAndPan
+
+===== Mixin SVGURIReference
+* interface mixin [[SVGURIReference]]*SVGURIReference*
+:: properties
+** href
+
+// 5. Document Structure
+==== Document Structure
+===== Interface Document
+* partial interface [[Document]]*Document*
+:: properties
+** title
+** referrer
+** domain
+** activeElement
+
+// <svg>
+===== Interface SVGSVGElement
+* interface [[SVGSVGElement]]*SVGSVGElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+:: properties
+** x
+** y
+** width
+** height
+** currentScale
+** currentTranslate
+:: methods
+** getIntersectionList()
+** getEnclosureList()
+** checkIntersection()
+** checkEnclosure()
+//  ** deselectAll()  // deprecated
+** createSVGNumber()
+** createSVGLength()
+** createSVGAngle()
+** createSVGPoint()
+** createSVGMatrix()
+** createSVGRect()
+** createSVGTransform()
+** createSVGTransformFromMatrix()
+** getElementById()
+
+* SVGSVGElement includes link:#SVGFitToViewBox[SVGFitToViewBox]
+* SVGSVGElement includes link:#SVGZoomAndPan[SVGZoomAndPan]
+* SVGSVGElement includes WindowEventHandlers
+
+===== Interface SVGGElement
+* interface [[SVGGElement]]*SVGGElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+
+===== Interface SVGUnknownElement
+* interface [[SVGUnknownElement]]*SVGUnknownElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+
+===== Interface SVGDefsElement
+* interface [[SVGDefsElement]]*SVGDefsElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+
+===== Interface SVGDescElement
+* interface [[SVGDescElement]]*SVGDescElement* : link:#SVGElement[SVGElement]
+
+===== Interface SVGMetadataElement
+* interface [[SVGMetadataElement]]*SVGMetadataElement* : link:#SVGElement[SVGElement]
+
+===== Interface SVGTitleElement
+* interface [[SVGTitleElement]]*SVGTitleElement* : link:#SVGElement[SVGElement]
+
+===== Interface SVGSymbolElement
+* interface [[SVGSymbolElement]]*SVGSymbolElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+
+* SVGSymbolElement includes link:#SVGFitToViewBox[SVGFitToViewBox]
+
+===== Interface SVGUseElement
+* interface [[SVGUseElement]]*SVGUseElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+:: properties
+** x
+** y
+** width
+** height
+** instanceRoot
+** animatedInstanceRoot
+
+* SVGUseElement includes link:#SVGURIReference[SVGURIReference]
+
+===== Interface SVGUseElementShadowRoot
+* interface [[SVGUseElementShadowRoot]]*SVGUseElementShadowRoot* : link:#ShadowRoot[ShadowRoot]
+
+===== Mixin SVGElementInstance
+* interface mixin [[SVGElementInstance]]*SVGElementInstance*
+:: properties
+** correspondingElement
+** correspondingUseElement
+
+===== Interface ShadowAnimation
+* interface [[ShadowAnimation]]*ShadowAnimation* : link:#Animation[Animation]
+:: properties
+** sourceAnimation
+
+===== Interface SVGSwitchElement
+* interface [[SVGSwitchElement]]*SVGSwitchElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+
+// deprecated
+////
+===== Mixin GetSVGDocument
+* interface mixin GetSVGDocument
+:: methods
+** getSVGDocument()
+////
+
+// 6. Styling
+==== Styling
+===== Interface SVGStyleElement
+* interface [[SVGStyleElement]]*SVGStyleElement* : link:#SVGElement[SVGElement]
+:: properties
+** type
+** media
+** title
+
+* SVGStyleElement includes link:#LinkStyle[LinkStyle]
+
+// 8. Coordinate Systems, Transformations and Units
+==== Transformations
+===== Interface SVGTransform
+* interface [[SVGTransform]]*SVGTransform*
+:: properties
+** type
+** matrix
+** angle
+:: methods
+** setMatrix()
+** setTranslate()
+** setScale()
+** setRotate()
+** setSkewX()
+** setSkewY()
+
+===== Interface SVGTransformList
+* interface [[SVGTransformList]]*SVGTransformList*
+:: properties
+** length
+** numberOfItems
+:: methods
+** clear()
+** initialize()
+** getItem()
+** insertItemBefore()
+** replaceItem()
+** removeItem()
+** appendItem()
+** setter
+** createSVGTransformFromMatrix()
+** consolidate()
+
+===== Interface SVGAnimatedTransformList
+* interface [[SVGAnimatedTransformList]]*SVGAnimatedTransformList*
+:: properties
+** baseVal
+** animVal
+
+===== Interface SVGPreserveAspectRatio
+* interface [[SVGPreserveAspectRatio]]*SVGPreserveAspectRatio*
+:: properties
+** align
+** meetOrSlice
+
+===== Interface SVGAnimatedPreserveAspectRatio
+* interface [[SVGAnimatedPreserveAspectRatio]]*SVGAnimatedPreserveAspectRatio*
+:: properties
+** baseVal
+** animVal
+
+// 9. Paths
+// SVG Paths - W3C Editor’s Draft 16 July 2018
+==== Paths
+===== Interface SVGPathSegment
+* interface [[SVGPathSegment]]*SVGPathSegment*
+:: properties
+** type
+** values
+
+===== Mixin SVGPathData
+* interface mixin [[SVGPathData]]*SVGPathData*
+:: methods
+** getPathData()
+** setPathData()
+
+===== Interface SVGPathElement
+* interface [[SVGPathElement]]*SVGPathElement* : link:#SVGGeometryElement[SVGGeometryElement]
+:: properties
+** pathLength
+:: methods
+** getTotalLength()
+** getPointAtLength()
+** getPathSegmentAtLength()
+
+* SVGPathElement includes link:#SVGPathData[SVGPathData]
+
+// 10. Basic Shapes
+==== Basic Shapes
+===== Interface SVGRectElement
+* interface [[SVGRectElement]]*SVGRectElement* : link:#SVGGeometryElement[SVGGeometryElement]
+:: properties
+** x
+** y
+** width
+** height
+** rx
+** ry
+
+===== Interface SVGCircleElement
+* interface [[SVGCircleElement]]*SVGCircleElement* : link:#SVGGeometryElement[SVGGeometryElement]
+:: properties
+** cx
+** cy
+** r
+
+===== Interface SVGEllipseElement
+* interface [[SVGEllipseElement]]*SVGEllipseElement* : link:#SVGGeometryElement[SVGGeometryElement]
+:: properties
+** cx
+** cy
+** rx
+** ry
+
+===== Interface SVGLineElement
+* interface [[SVGLineElement]]*SVGLineElement* : link:#SVGGeometryElement[SVGGeometryElement]
+:: properties
+** x1
+** y1
+** x2
+** y2
+
+===== Mixin SVGAnimatedPoints
+* interface mixin [[SVGAnimatedPoints]]*SVGAnimatedPoints*
+:: properties
+** points
+** animatedPoints
+
+===== Interface SVGPolylineElement
+* interface [[SVGPolylineElement]]*SVGPolylineElement* : link:#SVGGeometryElement[SVGGeometryElement]
+
+* SVGPolylineElement includes link:#SVGAnimatedPoints[SVGAnimatedPoints]
+
+===== Interface SVGPolygonElement
+* interface [[SVGPolygonElement]]*SVGPolygonElement* : link:#SVGGeometryElement[SVGGeometryElement]
+
+* SVGPolygonElement includes link:#SVGAnimatedPoints[SVGAnimatedPoints]
+
+// 11. Text
+==== Text
+===== Interface SVGTextContentElement
+* interface [[SVGTextContentElement]]*SVGTextContentElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+:: properties
+** textLength
+** lengthAdjust
+:: methods
+** getNumberOfChars()
+** getComputedTextLength()
+** getSubStringLength()
+** getStartPositionOfChar()
+** getEndPositionOfChar()
+** getExtentOfChar()
+** getRotationOfChar()
+** getCharNumAtPosition()
+** selectSubString()
+
+===== Interface SVGTextPositioningElement
+* interface [[SVGTextPositioningElement]]*SVGTextPositioningElement* : link:#SVGTextContentElement[SVGTextContentElement]
+:: properties
+** x
+** y
+** dx
+** dy
+** rotate
+
+===== Interface SVGTextElement
+* nterface [[SVGTextElement]]*SVGTextElement* : link:#SVGTextPositioningElement[SVGTextPositioningElement]
+
+===== Interface SVGTSpanElement
+* interface [[SVGTSpanElement]]*SVGTSpanElement* : link:#SVGTextPositioningElement[SVGTextPositioningElement]
+
+===== Interface SVGTextPathElement
+* interface [[SVGTextPathElement]]*SVGTextPathElement* : link:#SVGTextContentElement[SVGTextContentElement]
+:: properties
+** startOffset
+** method
+** spacing
+
+* SVGTextPathElement includes link:#SVGURIReference[SVGURIReference]
+
+// 12.
+==== Embedded Content
+===== Interface SVGImageElement
+* interface [[SVGImageElement]]*SVGImageElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+:: properties
+** x
+** y
+** width
+** height
+** preserveAspectRatio
+** crossOrigin
+
+* SVGImageElement includes link:#SVGURIReference[SVGURIReference]
+
+===== Interface SVGForeignObjectElement
+* interface [[SVGForeignObjectElement]]*SVGForeignObjectElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+:: properties
+** x
+** y
+** width
+** height
+
+// 13.7.
+==== Markers
+===== Interface SVGMarkerElement
+* interface [[SVGMarkerElement]]*SVGMarkerElement* : link:#SVGElement[SVGElement]
+:: properties
+** refX
+** refY
+** markerUnits
+** markerWidth
+** markerHeight
+** orientType
+** orientAngle
+** orient
+:: methods
+** setOrientToAuto()
+** setOrientToAngle()
+
+// 14.
+==== Gradients and Patterns
+===== Interface SVGGradientElement
+* interface [[SVGGradientElement]]*SVGGradientElement* : link:#SVGElement[SVGElement]
+:: properties
+** gradientUnits
+** gradientTransform
+** spreadMethod
+
+* SVGGradientElement includes link:#SVGURIReference[SVGURIReference]
+
+===== Interface SVGLinearGradientElement
+* interface [[SVGLinearGradientElement]]*SVGLinearGradientElement* : link:#SVGGradientElement[SVGGradientElement]
+:: properties
+** x1
+** y1
+** x2
+** y2
+
+===== Interface SVGRadialGradientElement
+* interface [[SVGRadialGradientElement]]*SVGRadialGradientElement* : link:#SVGGradientElement[SVGGradientElement]
+:: properties
+** cx
+** cy
+** r
+** fx
+** fy
+** fr
+
+===== Interface SVGStopElement
+* interface [[SVGStopElement]]*SVGStopElement* : link:#SVGElement[SVGElement]
+:: properties
+** offset
+
+===== Interface SVGPatternElement
+* interface [[SVGPatternElement]]*SVGPatternElement* : link:#SVGElement[SVGElement]
+:: properties
+** patternUnits
+** patternContentUnits
+** patternTransform
+** x
+** y
+** width
+** height
+
+* SVGPatternElement includes link:#SVGFitToViewBox[SVGFitToViewBox]
+* SVGPatternElement includes link:#SVGURIReference[SVGURIReference]
+
+// 15.
+==== Scripting
+===== Interface SVGScriptElement
+* interface [[SVGScriptElement]]*SVGScriptElement* : link:#SVGElement[SVGElement]
+:: properties
+** type
+** crossOrigin
+
+* SVGScriptElement includes link:#SVGURIReference[SVGURIReference]
+
+// 16.
+==== Linking
+===== Interface SVGAElement
+* interface [[SVGAElement]]*SVGAElement* : link:#SVGGraphicsElement[SVGGraphicsElement]
+:: properties
+** target
+** download
+** rel
+** relList
+** hreflang
+** type
+
+* SVGAElement includes link:#SVGURIReference[SVGURIReference]
+* SVGAElement includes link:#HTMLHyperlinkElementUtils[HTMLHyperlinkElementUtils]
+
+===== Interface SVGViewElement
+* interface [[SVGViewElement]]*SVGViewElement* : link:#SVGElement[SVGElement]
+
+* SVGViewElement includes link:#SVGFitToViewBox[SVGFitToViewBox]
+* SVGViewElement includes link:#SVGZoomAndPan[SVGZoomAndPan]
+
+// EOF

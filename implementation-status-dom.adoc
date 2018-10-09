@@ -1,0 +1,704 @@
+= Implementation status - DOM / URL / HTML
+:numbered:
+:toc: right
+:toclevels: 3
+:doctype: article
+:source-highlighter: coderay
+:icons: font
+
+// [lime-background]#[✓]#
+// [aqua-background]#[partial]#
+// [yellow-background]#[planned]#
+// [fuchsia-background]#[TBD]#
+// [red-background]#[no]#
+// [silver]_*_
+
+// DOM Living Standard — Last Updated 21 June 2018
+== DOM Standard
+// DOM 2. Events
+=== Events
+==== Interface Event
+* interface [[Event]]*Event* [fuchsia-background]#[TBD]#
+:: properties
+** type
+** target
+** srcElement [silver]_// historical_
+** currentTarget
+** eventPhase
+** cancelBubble [silver]_// historical alias of .stopPropagation_
+** bubbles
+** cancelable
+** returnValue [silver]_// historical_
+** defaultPrevented
+** composed
+** isTrusted
+** timeStamp
+:: methods
+** composedPath()
+** stopPropagation()
+** stopImmediatePropagation()
+** preventDefault()
+** initEvent()
+
+==== Interface EventTarget
+* interface [[EventTarget]]*EventTarget* [fuchsia-background]#[TBD]#
+:: methods
+** addEventListener()
+** removeEventListener()
+** dispatchEvent()
+
+// DOM 4. Nodes
+=== Nodes
+
+// DOM 4.2.4.
+==== Mixin NonElementParentNode
+* interface mixin [[NonElementParentNode]]*NonElementParentNode* [lime-background]#[✓]#
+:: methods
+** getElementById() [lime-background]#[✓]#
+
+* link:#Document[Document] includes NonElementParentNode [lime-background]#[✓]#
+* link:#DocumentFragment[DocumentFragment] includes NonElementParentNode [fuchsia-background]#[TBD]#
+
+// DOM 4.2.5.
+==== Mixin DocumentOrShadowRoot
+* interface mixin [[DocumentOrShadowRoot]]*DocumentOrShadowRoot* [fuchsia-background]#[TBD]#
+
+* link:#Document[Document] includes DocumentOrShadowRoot [fuchsia-background]#[TBD]#
+* link:#ShadowRoot[ShadowRoot] includes DocumentOrShadowRoot [fuchsia-background]#[TBD]#
+
+// DOM 4.2.6.
+==== Mixin ParentNode
+* interface mixin [[ParentNode]]*ParentNode* [lime-background]#[✓]#
+:: properties
+** children [lime-background]#[✓]#
+** firstElementChild [lime-background]#[✓]#
+** lastElementChild [lime-background]#[✓]#
+** childElementCount [lime-background]#[✓]#
+:: methods
+** prepend() [lime-background]#[✓]#
+** append() [lime-background]#[✓]#
+** querySelector() [lime-background]#[✓]#
+** querySelectorAll() [lime-background]#[✓]#
+
+* link:#Document[Document] includes ParentNode [lime-background]#[✓]#
+* link:#DocumentFragment[DocumentFragment] includes ParentNode [fuchsia-background]#[TBD]#
+* link:#Element[Element] includes ParentNode [lime-background]#[✓]#
+
+// DOM 4.2.7.
+==== Mixin NonDocumentTypeChildNode
+* interface mixin [[NonDocumentTypeChildNode]]*NonDocumentTypeChildNode* [lime-background]#[✓]#
+:: properties
+** previousElementSibling [lime-background]#[✓]#
+** nextElementSibling [lime-background]#[✓]#
+
+* link:#Element[Element] includes NonDocumentTypeChildNode [lime-background]#[✓]#
+* link:#CharacterData[CharacterData] includes NonDocumentTypeChildNode [lime-background]#[✓]#
+
+// DOM 4.2.8.
+==== Mixin ChildNode
+* interface mixin [[ChildNode]]*ChildNode* [yellow-background]#[planned]#
+:: methods
+** before() [yellow-background]#[planned]#
+** after() [yellow-background]#[planned]#
+** replaceWith() [yellow-background]#[planned]#
+** remove() [yellow-background]#[planned]#
+
+* link:#DocumentType[DocumentType] includes ChildNode [fuchsia-background]#[TBD]#
+* link:#Element[Element] includes ChildNode [yellow-background]#[planned]#
+* link:#CharacterData[CharacterData] includes ChildNode [yellow-background]#[planned]#
+
+// DOM 4.2.9.
+==== Mixin Slotable
+* interface mixin [[Slotable]]*Slotable* [fuchsia-background]#[TBD]#
+:: properties
+** assignedSlot
+
+* link:#Element[Element] includes Slotable [fuchsia-background]#[TBD]#
+* link:#Text[Text] includes Slotable [red-background]#[no]#
+
+// DOM 4.2.10.2.
+==== Interface HTMLCollection
+* interface [[HTMLCollection]]*HTMLCollection* [red-background]#[no]# [silver]_use 'list' instead._
+:: properties
+** length
+:: methods
+** item()
+** namedItem()
+
+// DOM 4.3.1.
+==== Interface MutationObserver
+* interface [[MutationObserver]]*MutationObserver* [fuchsia-background]#[TBD]#
+:: methods
+** observe()
+** disconnect()
+** takeRecords()
+
+// DOM 4.3.3.
+==== Interface MutationRecord
+* interface [[MutationRecord]]*MutationRecord* [fuchsia-background]#[TBD]#
+:: properties
+** type
+** target
+** addedNodes
+** removedNodes
+** previousSibling
+** nextSibling
+** attributeName
+** attributeNamespace
+** oldValue
+
+// DOM 4.4.
+==== Interface Node
+* interface [[Node]]*Node* : link:#EventTarget[EventTarget] [aqua-background]#[partial]#
+:: properties
+** nodeType [lime-background]#[✓]#
+** nodeName [lime-background]#[✓]#
+** baseURI [yellow-background]#[planned]#
+** isConnected [yellow-background]#[planned]#
+** ownerDocument [lime-background]#[✓]#
+** parentNode [lime-background]#[✓]#
+** parentElement [lime-background]#[✓]#
+** childNodes [lime-background]#[✓]#
+** firstChild [lime-background]#[✓]#
+** lastChild [lime-background]#[✓]#
+** previousSibling [lime-background]#[✓]#
+** nextSibling [lime-background]#[✓]#
+** nodeValue [lime-background]#[✓]#
+** textContent [lime-background]#[✓]#
+:: methods
+** getRootNode() [aqua-background]#[partial]#
+** hasChildNodes() [lime-background]#[✓]#
+** normalize() [fuchsia-background]#[TBD]#
+** cloneNode() [fuchsia-background]#[TBD]#
+** isEqualNode() [fuchsia-background]#[TBD]#
+** isSameNode() [fuchsia-background]#[TBD]#
+** compareDocumentPosition() [fuchsia-background]#[TBD]#
+** contains() [fuchsia-background]#[TBD]#
+** lookupPrefix() [fuchsia-background]#[TBD]#
+** lookupNamespaceURI() [fuchsia-background]#[TBD]#
+** isDefaultNamespace() [fuchsia-background]#[TBD]#
+** insertBefore() [lime-background]#[✓]#
+** appendChild() [lime-background]#[✓]#
+** replaceChild() [lime-background]#[✓]#
+** removeChild() [lime-background]#[✓]#
+
+// DOM 4.5.
+==== Interface Document
+* interface [[Document]]*Document* : link:#Node[Node] [aqua-background]#[partial]#
+:: properties
+** implementation [lime-background]#[✓]#
+** URL [lime-background]#[✓]#
+** documentURI [lime-background]#[✓]#
+** origin [lime-background]#[✓]#
+** compatMode
+** characterSet
+** charset [silver]_// historical alias of .characterSet_
+** inputEncoding [silver]_// historical alias of .characterSet_
+** contentType [lime-background]#[✓]#
+** doctype [red-background]#[no]#
+** documentElement [lime-background]#[✓]#
+:: methods
+** getElementsByTagName() [lime-background]#[✓]#
+** getElementsByTagNameNS() [lime-background]#[✓]#
+** getElementsByClassName() [lime-background]#[✓]#
+** createElement() [lime-background]#[✓]#
+** createElementNS() [lime-background]#[✓]#
+** createDocumentFragment()
+** createTextNode()
+** createCDATASection()
+** createComment() [lime-background]#[✓]#
+** createProcessingInstruction() [lime-background]#[✓]#
+** importNode()
+** adoptNode()
+** createAttribute() [lime-background]#[✓]#
+** createAttributeNS() [lime-background]#[✓]#
+** createEvent()
+** createRange()
+** createNodeIterator()
+** createTreeWalker()
+
+==== Interface XMLDocument
+* interface [[XMLDocument]]*XMLDocument* : link:#Document[Document] [lime-background]#[✓]#
+
+// DOM 4.5.1.
+==== Interface DOMImplementation
+* interface [[DOMImplementation]]*DOMImplementation* [aqua-background]#[partial]#
+:: methods
+** createDocumentType() [red-background]#[no]#
+** createDocument() [lime-background]#[✓]#
+** createHTMLDocument() [red-background]#[no]#
+** hasFeature() [fuchsia-background]#[TBD]#
+
+// DOM 4.6.
+==== Interface DocumentType
+* interface [[DocumentType]]*DocumentType* : link:#Node[Node] [red-background]#[no]#
+:: properties
+** name
+** publicId
+** systemId
+
+// DOM 4.7.
+==== Interface DocumentFragment
+* interface [[DocumentFragment]]*DocumentFragment* : link:#Node[Node] [fuchsia-background]#[TBD]#
+
+// DOM 4.8.
+==== Interface ShadowRoot
+* interface [[ShadowRoot]]*ShadowRoot* : link:#DocumentFragment[DocumentFragment] [fuchsia-background]#[TBD]#
+:: properties
+** mode
+** host
+
+// DOM 4.9.
+==== Interface Element
+* interface [[Element]]*Element* : link:#Node[Node] [aqua-background]#[partial]#
+:: properties
+** namespaceURI [lime-background]#[✓]#
+** prefix [lime-background]#[✓]#
+** localName [lime-background]#[✓]#
+** tagName [lime-background]#[✓]#
+** id [lime-background]#[✓]#
+** className [lime-background]#[✓]#
+** classList [lime-background]#[✓]#
+** slot
+** attributes [lime-background]#[✓]#
+** shadowRoot
+:: methods
+** hasAttributes() [lime-background]#[✓]#
+** getAttributeNames() [lime-background]#[✓]#
+** getAttribute() [lime-background]#[✓]#
+** getAttributeNS() [lime-background]#[✓]#
+** setAttribute() [lime-background]#[✓]#
+** setAttributeNS() [lime-background]#[✓]#
+** removeAttribute() [lime-background]#[✓]#
+** removeAttributeNS() [lime-background]#[✓]#
+** toggleAttribute() [lime-background]#[✓]#
+** hasAttribute() [lime-background]#[✓]#
+** hasAttributeNS() [lime-background]#[✓]#
+** getAttributeNode() [lime-background]#[✓]#
+** getAttributeNodeNS() [lime-background]#[✓]#
+** setAttributeNode() [lime-background]#[✓]#
+** setAttributeNodeNS() [lime-background]#[✓]#
+** removeAttributeNode() [lime-background]#[✓]#
+** attachShadow()
+** closest()
+** matches()
+** webkitMatchesSelector() [silver]_// historical alias of .matches_
+** getElementsByTagName() [lime-background]#[✓]#
+** getElementsByTagNameNS() [lime-background]#[✓]#
+** getElementsByClassName() [lime-background]#[✓]#
+** insertAdjacentElement()
+** insertAdjacentText()
+
+// DOM 4.9.1.
+==== Interface NamedNodeMap
+* interface [[NamedNodeMap]]*NamedNodeMap* [lime-background]#[✓]#
+:: properties
+** length [lime-background]#[✓]#
+:: methods
+** item() [lime-background]#[✓]#
+** getNamedItem() [lime-background]#[✓]#
+** getNamedItemNS() [lime-background]#[✓]#
+** setNamedItem() [lime-background]#[✓]#
+** setNamedItemNS() [lime-background]#[✓]#
+** removeNamedItem() [lime-background]#[✓]#
+** removeNamedItemNS() [lime-background]#[✓]#
+
+// DOM 4.9.2.
+==== Interface Attr
+* interface [[Attr]]*Attr* : link:#Node[Node] [lime-background]#[✓]#
+:: properties
+** namespaceURI [lime-background]#[✓]#
+** prefix [lime-background]#[✓]#
+** localName [lime-background]#[✓]#
+** name [lime-background]#[✓]#
+** value [lime-background]#[✓]#
+** ownerElement [lime-background]#[✓]#
+** specified [silver]_// useless; always returns true_
+
+// DOM 4.10.
+==== Interface CharacterData
+* interface [[CharacterData]]*CharacterData* : link:#Node[Node] [aqua-background]#[partial]#
+:: properties
+** data [lime-background]#[✓]#
+** length [lime-background]#[✓]#
+:: methods
+** substringData() [fuchsia-background]#[TBD]#
+** appendData() [fuchsia-background]#[TBD]#
+** insertData() [fuchsia-background]#[TBD]#
+** deleteData() [fuchsia-background]#[TBD]#
+** replaceData() [fuchsia-background]#[TBD]#
+
+// DOM 4.11.
+==== Interface Text
+* interface [[Text]]*Text* : link:#CharacterData[CharacterData] [red-background]#[no]#
+:: properties
+** wholeText
+:: methods
+** splitText()
+
+// DOM 4.12.
+==== Interface CDATASection
+* interface [[CDATASection]]*CDATASection* : link:#Text[Text] [red-background]#[no]#
+
+// DOM 4.13.
+==== Interface ProcessingInstruction
+* interface [[ProcessingInstruction]]*ProcessingInstruction* : link:#CharacterData[CharacterData] [lime-background]#[✓]#
+:: properties
+** target [lime-background]#[✓]#
+
+// DOM 4.14.
+==== Interface Comment
+* interface [[Comment]]*Comment* : link:#CharacterData[CharacterData] [lime-background]#[✓]#
+
+// DOM 5.
+// === Ranges
+// ==== Interface AbstractRange
+// ==== Interface StaticRange
+// ==== Interface Range
+
+// DOM 6.
+// === Traversal
+// ==== Interface NodeIterator
+// ==== Interface TreeWalker
+// ==== Interface NodeFilter
+
+// DOM 7.
+=== Sets
+==== Interface DOMTokenList
+* interface [[DOMTokenList]]*DOMTokenList* [aqua-background]#[partial]#
+:: properties
+** length [lime-background]#[✓]#
+** value [lime-background]#[✓]#
+:: methods
+** item() [lime-background]#[✓]#
+** contains() [lime-background]#[✓]#
+** add() [lime-background]#[✓]#
+** remove() [lime-background]#[✓]#
+** toggle() [lime-background]#[✓]#
+** replace() [lime-background]#[✓]#
+** supports() [fuchsia-background]#[TBD]#
+** iterable [lime-background]#[✓]#
+
+// URL Living Standard — Last Updated 8 June 2018
+== URL Standard
+=== URLs
+==== Interface URL
+* interface [[URL]]*URL* [aqua-background]#[partial]#
+:: properties
+** href [lime-background]#[✓]#
+** origin [lime-background]#[✓]#
+** protocol [lime-background]#[✓]#
+** username [lime-background]#[✓]#
+** password [lime-background]#[✓]#
+** host [lime-background]#[✓]#
+** hostname [lime-background]#[✓]#
+** port [lime-background]#[✓]#
+** pathname [lime-background]#[✓]#
+** search [lime-background]#[✓]#
+** searchParams [lime-background]#[✓]#
+** hash [lime-background]#[✓]#
+:: methods
+** stringifier [lime-background]#[✓]#
+** toJSON() [fuchsia-background]#[TBD]#
+
+==== Interface URLSearchParams
+* interface [[URLSearchParams]]*URLSearchParams* [aqua-background]#[partial]#
+:: methods
+** append() [yellow-background]#[planned]# [silver]_use 'd[key] = value' instead._
+** delete() [yellow-background]#[planned]# [silver]_use 'del d[key]' instead._
+** get() [yellow-background]#[planned]#
+** getAll() [yellow-background]#[planned]#
+** has() [yellow-background]#[planned]# [silver]_use 'key in d' instead._
+** set() [yellow-background]#[planned]# [silver]_use 'd[key] = value' instead._
+** sort() [fuchsia-background]#[TBD]#
+** iterable [lime-background]#[✓]#
+** stringifier [lime-background]#[✓]#
+
+// HTML Living Standard — Last Updated 2 August 2018 | 11 July 2018
+== HTML Standard
+// HTML 3.1.
+=== Documents
+==== Interface Document
+* partial interface [[Document]]*Document* [aqua-background]#[partial]#
+:: properties
+** location [lime-background]#[✓]#
+** domain [yellow-background]#[planned]#
+** referrer [yellow-background]#[planned]#
+** cookie
+** lastModified
+** readyState
+** title [yellow-background]#[planned]#
+** dir
+** body
+** head
+** images
+** embeds
+** plugins
+** links
+** forms
+** scripts
+** currentScript
+** defaultView [lime-background]#[✓]#
+** activeElement [fuchsia-background]#[TBD]#
+** designMode
+** onreadystatechange
+:: methods
+** object()
+** getElementsByName()
+** open() [lime-background]#[✓]#
+** close()
+** write() [lime-background]#[✓]#
+** writeln() [lime-background]#[✓]#
+** hasFocus()
+** execCommand()
+** queryCommandEnabled()
+** queryCommandIndeterm()
+** queryCommandState()
+** queryCommandSupported()
+** queryCommandValue()
+
+* Document includes GlobalEventHandlers [fuchsia-background]#[TBD]#
+* Document includes DocumentAndElementEventHandlers [fuchsia-background]#[TBD]#
+
+// HTML 3.2.2.
+=== Elements
+==== Interface HTMLElement
+* interface [[HTMLElement]]*HTMLElement* : link:#Element[Element] [aqua-background]#[partial]#
+:: properties
+** title [lime-background]#[✓]#
+** lang [lime-background]#[✓]#
+** translate
+** dir
+** hidden
+** accessKey
+** accessKeyLabel
+** draggable
+** spellcheck
+** autocapitalize
+** innerText
+:: methods
+** click()
+
+* HTMLElement includes GlobalEventHandlers
+* HTMLElement includes DocumentAndElementEventHandlers
+* HTMLElement includes ElementContentEditable
+* HTMLElement includes link:#HTMLOrSVGElement[HTMLOrSVGElement] [lime-background]#[✓]#
+
+==== Interface HTMLUnknownElement
+* interface [[HTMLUnknownElement]]*HTMLUnknownElement* : link:#HTMLElement[HTMLElement] [yellow-background]#[planned]#
+
+==== Mixin HTMLOrSVGElement
+* interface mixin [[HTMLOrSVGElement]]*HTMLOrSVGElement* [aqua-background]#[partial]#
+:: properties
+** dataset [lime-background]#[✓]#
+** nonce
+** tabIndex
+:: methods
+** focus()
+** blur()
+
+* interface [[DOMStringMap]]*DOMStringMap* [lime-background]#[✓]#
+:: methods
+** getter [lime-background]#[✓]#
+** setter [lime-background]#[✓]#
+** deleter [lime-background]#[✓]#
+
+=== Web
+// HTML 7.2.
+==== Interface Window
+* interface [[Window]]*Window* : link:#EventTarget[EventTarget] [aqua-background]#[partial]#
+:: properties
+** window
+** self
+** document [lime-background]#[✓]#
+** name
+** location [lime-background]#[✓]#
+** history
+** customElements
+** locationbar
+** menubar
+** personalbar
+** scrollbars
+** statusbar
+** toolbar
+** status
+** closed
+** frames
+** length
+** top
+** opener
+** parent
+** frameElement
+** navigator [yellow-background]#[planned]#
+** applicationCache
+:: methods
+** close()
+** stop()
+** focus()
+** blur()
+** open()
+** object()
+** alert()
+** confirm()
+** prompt()
+** print()
+** requestAnimationFrame()
+** cancelAnimationFrame()
+** postMessage()
+
+* Window includes GlobalEventHandlers
+* Window includes WindowEventHandlers
+
+// HTML 7.7.2.
+==== Interface History
+* interface [[History]]*History* [red-background]#[no]#
+
+// HTML 7.7.4.
+==== Interface Location
+* interface [[Location]]*Location* [aqua-background]#[partial]#
+:: properties
+** href [lime-background]#[✓]#
+** origin [lime-background]#[✓]#
+** protocol [lime-background]#[✓]#
+** host [lime-background]#[✓]#
+** hostname [lime-background]#[✓]#
+** port [lime-background]#[✓]#
+** pathname [lime-background]#[✓]#
+** search [lime-background]#[✓]#
+** hash [lime-background]#[✓]#
+** ancestorOrigins [red-background]#[no]#
+:: methods
+** assign() [lime-background]#[✓]#
+** replace() [fuchsia-background]#[TBD]#
+** reload() [lime-background]#[✓]#
+
+// HTML 8.7.1.
+==== Interface Navigator
+* interface [[Navigator]]*Navigator* [yellow-background]#[planned]#
+
+* Navigator includes link:#NavigatorID[NavigatorID] [yellow-background]#[planned]#
+* Navigator includes link:#NavigatorLanguage[NavigatorLanguage]
+* Navigator includes link:#NavigatorOnLine[NavigatorOnLine]
+* Navigator includes link:#NavigatorContentUtils[NavigatorContentUtils]
+* Navigator includes link:#NavigatorCookies[NavigatorCookies]
+* Navigator includes link:#NavigatorPlugins[NavigatorPlugins]
+* Navigator includes link:#NavigatorConcurrentHardware[NavigatorConcurrentHardware]
+
+==== Mixin NavigatorID
+* interface mixin [[NavigatorID]]*NavigatorID* [yellow-background]#[planned]#
+:: properties
+** appCodeName [silver]_// constant "Mozilla"_
+** appName [silver]_// constant "Netscape"_
+** appVersion
+** platform
+** product [silver]_// constant "Gecko"_
+** productSub
+** userAgent
+** vendor
+** vendorSub [silver]_// constant ""_
+
+* partial interface NavigatorID
+:: properties
+** oscpu
+:: methods
+** taintEnabled() [silver]_// constant false_
+
+==== Mixin NavigatorLanguage
+* interface mixin [[NavigatorLanguage]]*NavigatorLanguage*
+:: properties
+** language
+** languages
+
+==== Mixin NavigatorContentUtils
+* interface mixin [[NavigatorContentUtils]]*NavigatorContentUtils*
+:: methods
+** registerProtocolHandler()
+** unregisterProtocolHandler()
+
+==== Mixin NavigatorCookies
+* interface mixin [[NavigatorCookies]]*NavigatorCookies*
+:: properties
+** cookieEnabled
+
+==== Mixin NavigatorPlugins
+* interface mixin [[NavigatorPlugins]]*NavigatorPlugins*
+:: properties
+** plugins
+** mimeTypes
+:: methods
+** javaEnabled()
+
+* interface [[PluginArray]]*PluginArray*
+:: properties
+** length
+:: methods
+** refresh()
+** item()
+** namedItem()
+
+* interface [[MimeTypeArray]]*MimeTypeArray*
+:: properties
+** length
+:: methods
+** item()
+** namedItem()
+
+* interface [[Plugin]]*Plugin*
+:: properties
+** name
+** description
+** filename
+** length
+:: methods
+** item()
+** namedItem()
+
+* interface [[MimeType]]*MimeType*
+:: properties
+** type
+** description
+** suffixes [silver]_// comma-separated_
+** enabledPlugin
+
+// HTML 8.9.
+=== Images
+==== Interface ImageBitmap
+* interface [[ImageBitmap]]*ImageBitmap*
+:: properties
+** width
+** height
+:: methods
+** close()
+
+// HTML 9.
+// === Communication
+// * interface MessageEvent : Event
+// * interface EventSource : EventTarget
+// * interface WebSocket : EventTarget
+// * interface CloseEvent : Event
+
+// HTML 10.
+=== Web workers
+// * interface WorkerGlobalScope : EventTarget
+// * interface DedicatedWorkerGlobalScope : WorkerGlobalScope
+// * interface SharedWorkerGlobalScope : WorkerGlobalScope
+// * interface mixin AbstractWorker
+// * interface Worker : EventTarget
+// * interface SharedWorker : EventTarget
+// 10.2.7.
+==== Concurrent hardware capabilities
+* interface mixin [[NavigatorConcurrentHardware]]*NavigatorConcurrentHardware*
+:: properties
+** hardwareConcurrency
+
+// * interface WorkerNavigator
+// * interface WorkerLocation
+
+// HTML 11.
+// === Web storage
+// * interface Storage
+// * interface mixin WindowSessionStorage
+// * interface mixin WindowLocalStorage
+// * interface StorageEvent : Event
+
+// EOF
