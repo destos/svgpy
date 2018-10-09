@@ -3,7 +3,7 @@
 :source-highlighter: coderay
 :icons: font
 
-SVG parser based on lxml.
+SVG parser based on lxml.etree.
 
 This project aims to implement an SVG 2 DOM API.
 
@@ -12,15 +12,27 @@ This project aims to implement an SVG 2 DOM API.
 +
 [source,python]
 ----
->>> from svgpy import Node, SVGParser
+>>> from svgpy import SVGParser
 >>> parser = SVGParser(remove_comments=True)
->>> tree = parser.parse('tests/svg/svg.svg')
->>> tree
-<lxml.etree._ElementTree object at 0x7fd75cad6cc8>
->>> for element in tree.iter():
+>>> doc = parser.create_document('http://www.w3.org/2000/svg')
+>>> doc.location.assign('https://raw.githubusercontent.com/miute/svgpy/master/tests/svg/svg.svg')
+>>> print(doc.tostring(pretty_print=True).decode())
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100" viewBox="0 0 100 100">
+ <g id="gtop" stroke-width="12" stroke="#000">
+   <g id="svgstar" transform="translate(50,50)">
+     <path id="svgbar" d="M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z"/>
+     <use id="use1" xlink:href="#svgbar" transform="rotate(45)"/>
+     <use id="use2" xlink:href="#svgbar" transform="rotate(90)"/>
+     <use id="use3" xlink:href="#svgbar" transform="rotate(135)"/>
+   </g>
+ </g>
+ <use id="usetop" xlink:href="#svgstar" fill="#FB4"/>
+</svg>
+
+>>> for element in doc.document_element.iter():
 ...     print((element.node_type, element.node_name, element.id))
 ...
-(1, 'svg', None)
+(1, 'svg', '')
 (1, 'g', 'gtop')
 (1, 'g', 'svgstar')
 (1, 'path', 'svgbar')
@@ -28,21 +40,13 @@ This project aims to implement an SVG 2 DOM API.
 (1, 'use', 'use2')
 (1, 'use', 'use3')
 (1, 'use', 'usetop')
->>> root = tree.getroot()
->>> root
-<Element svg at 0x7fd73910ff98>
->>> from lxml import etree
->>> isinstance(root, etree.ElementBase)
-True
->>> isinstance(root, Node)
-True
->>> element = root.get_element_by_id('usetop')
+>>> element = doc.get_element_by_id('usetop')
 >>> element.attributes
 {'id': 'usetop', '{http://www.w3.org/1999/xlink}href': '#svgstar', 'fill': '#FB4'}
 >>> bbox = element.get_bbox()
 >>> bbox.x, bbox.y, bbox.width, bbox.height
 (11.101020514433644, 11.101020514433644, 77.79795897113272, 77.79795897113272)
->>> element = root.get_element_by_id('svgbar')
+>>> element = doc.get_element_by_id('svgbar')
 >>> element.attributes
 {'id': 'svgbar', 'd': 'M-27-5a7,7,0,1,0,0,10h54a7,7,0,1,0,0-10z'}
 >>> bbox = element.get_bbox()
@@ -58,16 +62,19 @@ True
 ----
 >>> from svgpy import SVGParser
 >>> parser = SVGParser()
->>> root = parser.create_element('svg')
+>>> doc = parser.create_svg_document()
+>>> root = doc.document_element
 >>> root.attributes.update({'width': '10cm', 'height': '3cm', 'viewBox': '0 0 1000 300'})
->>> text = root.create_sub_element('text')
->>> text.attributes.update({'font-family': 'Verdana', 'font-size': '55', 'fill': 'blue'})
->>> tspan = text.create_sub_element('tspan')
+>>> text = doc.create_element_ns('http://www.w3.org/2000/svg', 'text')
+>>> root.append(text)
+>>> text.style.update({'font-family': 'Verdana', 'font-size': '55', 'fill': 'blue'})
+>>> tspan = doc.create_element_ns('http://www.w3.org/2000/svg', 'tspan')
+>>> text.append(tspan)
 >>> tspan.attributes.update({'x': '250', 'y': '150', 'rotate': '-30,0,30'})
 >>> tspan.text = 'Hello, out there'
->>> print(root.tostring(pretty_print=True).decode())
+>>> print(doc.tostring(pretty_print=True).decode())
 <svg xmlns="http://www.w3.org/2000/svg" width="10cm" height="3cm" viewBox="0 0 1000 300">
-  <text font-family="Verdana" font-size="55" fill="blue">
+  <text style="fill: blue; font-family: Verdana; font-size: 55;">
     <tspan x="250" y="150" rotate="-30,0,30">Hello, out there</tspan>
   </text>
 </svg>
@@ -79,7 +86,7 @@ True
 ----
 $ cat output.svg
 <svg xmlns="http://www.w3.org/2000/svg" width="10cm" height="3cm" viewBox="0 0 1000 300">
-  <text font-family="Verdana" font-size="55" fill="blue">
+  <text style="fill: blue; font-family: Verdana; font-size: 55;">
     <tspan x="250" y="150" rotate="-30,0,30">Hello, out there</tspan>
   </text>
 </svg>
@@ -91,7 +98,7 @@ $ cat output.svg
 ----
 >>> from svgpy import PathParser, SVGParser, SVGPathSegment, formatter
 >>> parser = SVGParser()
->>> path = parser.create_element('path')
+>>> path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
 >>> path_data = list()
 >>> path_data.append(SVGPathSegment('M', 150, 10))
 >>> path_data.append(SVGPathSegment('B', 36))
@@ -104,8 +111,8 @@ $ cat output.svg
 >>> path_data.append(SVGPathSegment('h', 47))
 >>> path_data.append(SVGPathSegment('z'))
 >>> path.set_path_data(path_data)
->>> path.tostring()
-b'<path d="M150,10 B36 h47 b72 h47 b72 h47 b72 h47 z"/>'
+>>> path.get_attribute('d')
+'M150,10 B36 h47 b72 h47 b72 h47 b72 h47 z'
 >>> bbox = path.get_bbox()
 >>> bbox.x, bbox.y, bbox.width, bbox.height
 (111.97620126437747, 10.0, 76.04759747124507, 72.32556312361845)
@@ -113,59 +120,19 @@ b'<path d="M150,10 B36 h47 b72 h47 b72 h47 b72 h47 z"/>'
 235.0
 >>> normalized = PathParser.normalize(path_data)  # convert to 'M', 'L', 'C' and 'Z' path command
 >>> path.set_path_data(normalized)
->>> path.tostring()
-b'<path d="M150,10 L188.023799,37.625907 173.5,82.325563 126.5,82.325563 111.976201,37.625907 Z"/>'
+>>> path.get_attribute('d')
+'M150,10 L188.023799,37.625907 173.5,82.325563 126.5,82.325563 111.976201,37.625907 Z'
 >>> formatter.precision
 6  # default precision for a floating point value
 >>> formatter.precision = 3
 >>> path.set_path_data(normalized)
->>> path.tostring()
-b'<path d="M150,10 L188.024,37.626 173.5,82.326 126.5,82.326 111.976,37.626 Z"/>'
+>>> path.get_attribute('d')
+'M150,10 L188.024,37.626 173.5,82.326 126.5,82.326 111.976,37.626 Z'
 >>> bbox = path.get_bbox()
 >>> bbox.x, bbox.y, bbox.width, bbox.height
 (111.976, 10.0, 76.048, 72.326)
 >>> path.get_total_length()
 235.00121335747357
-----
-
-. DOM interface
-+
-[source,python]
-----
->>> from svgpy import window
->>> window.location = 'https://raw.githubusercontent.com/miute/svgpy/master/tests/svg/svg.svg'
->>> document = window.document
->>> document.content_type
-'image/svg+xml'
->>> document.location
-{'href': 'https://raw.githubusercontent.com/miute/svgpy/master/tests/svg/svg.svg', 'origin': 'https://raw.githubusercontent.com', 'protocol': 'https:', 'username': '', 'password': '', 'host': 'raw.githubusercontent.com', 'hostname': 'raw.githubusercontent.com', 'port': '', 'pathname': '/miute/svgpy/master/tests/svg/svg.svg', 'search': {}, 'hash': ''}
->>> document.origin
-'https://raw.githubusercontent.com'
->>> root = document.document_element
->>> for element in root.iter():
-...     print(element)
-...
-<Element {http://www.w3.org/2000/svg}svg at 0x7fd7390b2958>
-<Element {http://www.w3.org/2000/svg}g at 0x7fd7390b2e58>
-<Element {http://www.w3.org/2000/svg}g at 0x7fd7390b2ea8>
-<Element {http://www.w3.org/2000/svg}path at 0x7fd7390b2e08>
-<Element {http://www.w3.org/2000/svg}use at 0x7fd7390b2db8>
-<Element {http://www.w3.org/2000/svg}use at 0x7fd7390b2a98>
-<Element {http://www.w3.org/2000/svg}use at 0x7fd7390b2b88>
-<Element {http://www.w3.org/2000/svg}use at 0x7fd7390c8048>
->>> sheets = document.style_sheets
->>> len(sheets)
-1
->>> for rule in sheets[0].css_rules:
-...     print(rule)
-...
-('CSSNamespaceRule', {'namespaceURI': 'http://www.w3.org/2000/svg', 'prefix': ''})
-('CSSNamespaceRule', {'namespaceURI': 'http://www.w3.org/XML/1998/namespace', 'prefix': 'xml'})
-('CSSStyleRule', 'svg:not(:root), hatch, image, marker, pattern, symbol', ('CSSStyleDeclaration', {'overflow': ('hidden', '')}))
-('CSSStyleRule', '*:not(svg), *:not(foreignObject) > svg', ('CSSStyleDeclaration', {'transform-origin': ('0 0', '')}))
-('CSSStyleRule', '*[xml|space=preserve]', ('CSSStyleDeclaration', {'text-space-collapse': ('preserve-spaces', '')}))
-('CSSStyleRule', 'defs, clipPath, mask, marker, desc, title, metadata, pattern, hatch, linearGradient, radialGradient, meshGradient, script, style, symbol', ('CSSStyleDeclaration', {'display': ('none', 'important')}))
-('CSSStyleRule', ':host(use) > symbol', ('CSSStyleDeclaration', {'display': ('inline', 'important')}))
 ----
 
 == Dependencies
