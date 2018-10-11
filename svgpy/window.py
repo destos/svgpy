@@ -193,8 +193,7 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
     @property
     def parent_node(self):
         """Node: A parent node."""
-        root = self._document_element
-        return root.getparent() if root is not None else None
+        return None
 
     @property
     def previous_sibling(self):
