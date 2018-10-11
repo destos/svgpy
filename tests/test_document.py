@@ -517,6 +517,17 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual('style.css', pi.get('href'))
         self.assertEqual('text/css', pi.get('type'))
 
+    def test_document_extend(self):
+        doc = window.document
+        comment = doc.create_comment('demo')
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        # doc.extend([comment, root])
+        self.assertRaises(TypeError, lambda: doc.extend([comment, root]))
+
+        doc.extend([root, comment])
+        self.assertEqual(root, doc.document_element)
+        self.assertEqual([root, comment], doc.child_nodes)
+
     def test_document_get_elements(self):
         doc = window.document
 
@@ -860,6 +871,23 @@ class DocumentTestCase(unittest.TestCase):
         self.assertIsNone(doc.parent_node)
         self.assertEqual('about:blank', doc.location.href)
 
+    def test_document_insert(self):
+        impl = SVGDOMImplementation()
+        doc = impl.create_document(Element.SVG_NAMESPACE_URI)
+        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc.insert(0, root)
+        self.assertEqual(root, doc.document_element)
+
+        pi = doc.create_processing_instruction('xml-stylesheet')
+        doc.prepend(pi)
+        self.assertEqual([pi, root], doc.child_nodes)
+        comment = doc.create_comment('demo')
+        doc.insert(1, comment)
+        self.assertEqual([pi, comment, root], doc.child_nodes)
+        comment2 = doc.create_comment('comment2')
+        doc.insert(-1, comment2)
+        self.assertEqual([pi, comment, comment2, root], doc.child_nodes)
+
     def test_document_insert_before(self):
         impl = SVGDOMImplementation()
 
@@ -879,6 +907,12 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual(root, result)
         self.assertEqual(root, doc.document_element)
         self.assertEqual(doc, root.owner_document)
+
+        root2 = doc.create_element('svg')
+        comment = doc.create_comment('demo')
+        # doc.insert_before(comment, root2)
+        self.assertRaises(ValueError,
+                          lambda: doc.insert_before(comment, root2))
 
         # <defs/>
         defs = doc.create_element('defs')
@@ -986,6 +1020,57 @@ class DocumentTestCase(unittest.TestCase):
             '<title/><defs/><link/><style/><g><path/></g>' \
             '</svg>'
         self.assertEqual(expected, doc.tostring().decode())
+
+    def test_document_iter(self):
+        doc = window.document
+        doc.write(SVG_SVG)
+        comment = doc.create_comment('demo')
+        doc.prepend(comment)
+        pi = doc.create_processing_instruction('xml-stylesheet')
+        doc.prepend(pi)
+        children = [node for node in doc]
+        self.assertEqual(3, len(children))
+        self.assertEqual([pi, comment, doc.document_element], children)
+
+        children = [node for node in doc.iter()]
+        self.assertEqual(10, len(children))
+        self.assertEqual(pi, children[0])
+        self.assertEqual(comment, children[1])
+        self.assertEqual(doc.document_element, children[2])
+        self.assertEqual('svg', children[2].tag_name)
+        self.assertEqual('g', children[3].tag_name)
+        self.assertEqual('gtop', children[3].id)
+        self.assertEqual('g', children[4].tag_name)
+        self.assertEqual('svgstar', children[4].id)
+        self.assertEqual('path', children[5].tag_name)
+        self.assertEqual('svgbar', children[5].id)
+        self.assertEqual('use', children[6].tag_name)
+        self.assertEqual('use1', children[6].id)
+        self.assertEqual('use', children[7].tag_name)
+        self.assertEqual('use2', children[7].id)
+        self.assertEqual('use', children[8].tag_name)
+        self.assertEqual('use3', children[8].id)
+        self.assertEqual('use', children[9].tag_name)
+        self.assertEqual('usetop', children[9].id)
+
+        children = [node for node in doc.iter(tag='{*}use')]
+        self.assertEqual(4, len(children))
+        self.assertEqual('use', children[0].tag_name)
+        self.assertEqual('use1', children[0].id)
+        self.assertEqual('use', children[1].tag_name)
+        self.assertEqual('use2', children[1].id)
+        self.assertEqual('use', children[2].tag_name)
+        self.assertEqual('use3', children[2].id)
+        self.assertEqual('use', children[3].tag_name)
+        self.assertEqual('usetop', children[3].id)
+
+        children = [node for node in doc.iter(tag=('{*}svg', '{*}g'))]
+        self.assertEqual(3, len(children))
+        self.assertEqual('svg', children[0].tag_name)
+        self.assertEqual('g', children[1].tag_name)
+        self.assertEqual('gtop', children[1].id)
+        self.assertEqual('g', children[2].tag_name)
+        self.assertEqual('svgstar', children[2].id)
 
     def test_document_open(self):
         doc = window.document

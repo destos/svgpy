@@ -226,12 +226,14 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         Arguments:
             node (Node): A node to be added.
         """
-        if self._document_element is None:
+        root = self._document_element
+        if root is None:
             if not isinstance(node, Element):
-                raise TypeError('Expected Element, got {}'.format(
-                    repr(type(node))))
+                raise TypeError('Expected Element, got ' + repr(type(node)))
             node.attach_document(self)
             self._document_element = node
+        elif node == root:
+            pass  # do nothing
         else:
             children = self.child_nodes
             children[-1].addnext(node)
@@ -389,6 +391,12 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         """
         return None
 
+    def extend(self, nodes):
+        """Extends the current children by the nodes in the iterable."""
+        # not useful
+        for node in nodes:
+            self.append(node)
+
     def get_element_by_id(self, element_id, nsmap=None):
         """Finds the first matching sub-element, by id.
 
@@ -468,6 +476,22 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         """
         return self
 
+    def insert(self, index, node):
+        """Inserts a sub-node at the given position in this node.
+
+        Arguments:
+            index (int): An index position of the child nodes.
+            node (Node): A node to be inserted.
+        """
+        root = self._document_element
+        if root is None:
+            self.append(node)
+        elif node == root:
+            pass  # do nothing
+        else:
+            children = self.child_nodes
+            children[index].addprevious(node)
+
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
 
@@ -480,14 +504,30 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         if child is None:
             return self.append_child(node)
         root = self._document_element
-        children = self.child_nodes
-        if (root is None
-                or child not in children
-                or node.node_type == Node.ELEMENT_NODE):
+        if root is None:
             raise ValueError(
                 'The operation would yield an incorrect node tree')
-        child.addprevious(node)
+        elif node == root:
+            pass  # do nothing
+        else:
+            children = self.child_nodes
+            if child not in children:
+                raise ValueError('The object can not be found here: '
+                                 + repr(child))
+            child.addprevious(node)
         return node
+
+    def iter(self, tag=None, *tags):
+        """Iterates over all nodes in the subtree in document order
+        (depth first pre-order).
+        See also lxml.etree._Element.iter().
+        """
+        nodes = list()
+        for node in self.child_nodes:
+            children = node.iter(tag=tag, *tags)
+            for child in children:
+                nodes.append(child)
+        return iter(nodes)
 
     def open(self, replace=''):
         """Replaces the current document in-place.
@@ -502,12 +542,12 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         url = self._location.href
         logger = getLogger('{}.{}'.format(__name__, self.__class__.__name__))
         logger.debug('navigate to \'{}\''.format(url))
-        if self._document_element is not None:
-            del self._document_element
-            self._document_element = None
-        if not url.startswith('about:'):
+        root = self._document_element
+        if root is not None:
+            self.remove(root)
+        if self._location.protocol != 'about:':
             root = self._implementation.parse(url)
-            self.append_child(root)
+            self.append(root)
         return self
 
     def prepend(self, node):
@@ -516,8 +556,11 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         Arguments:
             node (Node): A node to be added.
         """
-        if self._document_element is None:
+        root = self._document_element
+        if root is None:
             self.append(node)
+        elif node == root:
+            pass  # do nothing
         else:
             children = self.child_nodes
             children[0].addprevious(node)
@@ -526,28 +569,59 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         root = self._document_element
         return root.query_selector_all(selectors) if root is not None else []
 
-    def remove_child(self, child):
+    def remove(self, node):
         """Removes a child node from this node.
 
         Arguments:
-            child (Node): A node to be removed.
-        Returns:
-            Node: A node to be removed.
+            node (Node): A node to be removed.
         """
         root = self._document_element
         if root is None:
             raise ValueError(
                 'The operation would yield an incorrect node tree')
-        elif child == root:
+        elif node == root:
             self._document_element = None
         else:
             children = self.child_nodes
-            if child not in children:
+            if node not in children:
                 raise ValueError('The object can not be found here: '
-                                 + repr(child))
-            root.append(child)  # move
-            root.remove(child)
-        return child
+                                 + repr(node))
+            root.append(node)  # move
+            root.remove(node)
+
+    def remove_child(self, node):
+        """Removes a child node from this node.
+
+        Arguments:
+            node (Node): A node to be removed.
+        Returns:
+            Node: A node to be removed.
+        """
+        self.remove(node)
+        return node
+
+    def replace(self, old_node, new_node):
+        """Replaces a sub-node with the node passed as second argument.
+
+        Arguments:
+            old_node (Node): A reference child node.
+            new_node (Node): A node to be replaced.
+        """
+        root = self._document_element
+        if root is None:
+            raise ValueError(
+                'The operation would yield an incorrect node tree')
+        elif old_node == root:
+            self.remove(old_node)
+            self.append(new_node)
+        else:
+            children = self.child_nodes
+            if old_node not in children:
+                raise ValueError('The object can not be found here: '
+                                 + repr(old_node))
+            pos = children.index(old_node)
+            children[pos].addprevious(new_node)
+            self.remove(old_node)
 
     def replace_child(self, node, child):
         """Replaces a child with node.
@@ -558,21 +632,7 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         Returns:
             Node: A node to be replaced.
         """
-        root = self._document_element
-        if root is None:
-            raise ValueError(
-                'The operation would yield an incorrect node tree')
-        elif child == root:
-            self.remove_child(root)
-            self.append_child(node)
-        else:
-            children = self.child_nodes
-            if child not in children:
-                raise ValueError('The object can not be found here: '
-                                 + repr(child))
-            pos = children.index(child)
-            children[pos].addprevious(node)
-            self.remove_child(child)
+        self.replace(child, node)
         return node
 
     def tostring(self, **kwargs):
@@ -760,7 +820,7 @@ class SVGDOMImplementation(DOMImplementation):
             root = doc.create_element_ns(namespace,
                                          qualified_name,
                                          nsmap=nsmap)
-            doc.append_child(root)
+            doc.append(root)
         return doc
 
     def create_svg_document(self, nsmap=None):
@@ -900,4 +960,3 @@ class XMLDocument(Document):
 
 
 window = Window(SVGDOMImplementation())
-document = window.document
