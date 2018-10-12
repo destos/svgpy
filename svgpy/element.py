@@ -49,6 +49,11 @@ class HTMLIFrameElement(HTMLElement):
 class HTMLLinkElement(HTMLElement, LinkStyle):
     """Represents the [HTML] <link> element."""
 
+    def _init(self):
+        super()._init()
+        self._rel_list = DOMTokenList(self, 'rel')
+        self._sizes = DOMTokenList(self, 'sizes')
+
     @property
     def as_(self):
         """str: The potential destination for a preload request
@@ -129,16 +134,14 @@ class HTMLLinkElement(HTMLElement, LinkStyle):
     @property
     def rel_list(self):
         """DOMTokenList: Reflects the 'rel' attribute, as a list of tokens."""
-        tokens = DOMTokenList(self, 'rel')
-        return tokens
+        return self._rel_list
 
     @property
     def sizes(self):
         """DOMTokenList: The sizes of the icons (for rel="icon"), as a list of
         tokens.
         """
-        tokens = DOMTokenList(self, 'sizes')
-        return tokens
+        return self._sizes
 
     @property
     def type(self):
