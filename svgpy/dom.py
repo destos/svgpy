@@ -1286,6 +1286,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
     def _init(self):
         Node.__init__(self)
         self._attributes = NamedNodeMap(self)
+        self._class_list = DOMTokenList(self, 'class')
 
     @property
     def attributes(self):
@@ -1321,8 +1322,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
     @property
     def class_list(self):
         """DOMTokenList: A list of classes."""
-        tokens = DOMTokenList(self, 'class')
-        return tokens
+        return self._class_list
 
     @property
     def class_name(self):
