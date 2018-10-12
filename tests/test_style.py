@@ -238,7 +238,9 @@ class StyleTestCase(unittest.TestCase):
         </svg>
         '''
         doc = window.document
-        doc.write(svg)
+        parser = doc.implementation.parser
+        root = parser.fromstring(svg)
+        doc.append(root)
         root = doc.document_element
 
         style_sheets = get_css_style_sheets_from_svg_document(root)

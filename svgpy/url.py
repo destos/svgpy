@@ -173,18 +173,15 @@ class Location(object):
         self._url.search = search
         self._navigate()
 
-    def _navigate(self, replace=False):
+    def _navigate(self):
         if self._browsing_context is not None:
-            if ((len(self._url.protocol) == 0 and len(self._url.host) == 0)
-                    or self._url.protocol in ['blob:', 'data:']
-                    or (self._url.protocol in ['about:', 'file:']
-                        and len(self._url.pathname) == 0)):
-                raise ValueError('Invalid URL: ' + repr(self._url.href))
-            if replace:
-                _replace = 'replace'
-            else:
-                _replace = ''
-            self._browsing_context.document.open(_replace)
+            url = self._url
+            if ((len(url.protocol) == 0 and len(url.host) == 0)
+                    or url.protocol in ['blob:', 'data:']
+                    or (url.protocol in ['about:', 'file:']
+                        and len(url.pathname) == 0)):
+                raise ValueError('Invalid URL: ' + repr(url.href))
+            self._browsing_context.document.navigate(url)
 
     def assign(self, url):
         """Navigates to the given URL.
@@ -196,7 +193,7 @@ class Location(object):
 
     def reload(self):
         """Reloads the current page."""
-        self._navigate(replace=True)
+        self._navigate()
 
     def tostring(self, exclude_fragment=False):
         """Serializes a Location object.

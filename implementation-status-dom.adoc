@@ -445,10 +445,10 @@
 :: methods
 ** object()
 ** getElementsByName()
-** open() [lime-background]#[✓]#
-** close()
-** write() [lime-background]#[✓]#
-** writeln() [lime-background]#[✓]#
+** open() [fuchsia-background]#[TBD]#
+** close() [fuchsia-background]#[TBD]#
+** write() [fuchsia-background]#[TBD]#
+** writeln() [fuchsia-background]#[TBD]#
 ** hasFocus()
 ** execCommand()
 ** queryCommandEnabled()

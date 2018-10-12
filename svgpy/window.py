@@ -529,24 +529,23 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
                 nodes.append(child)
         return iter(nodes)
 
-    def open(self, replace=''):
+    def navigate(self, url):
         """Replaces the current document in-place.
         See also Document.location.
 
         Arguments:
-            replace (str): Reserved.
+            url (URL): The entire URL.
         Returns:
             Document: Returns itself.
         """
-        _ = replace
-        url = self._location.href
+        resource = url.href
         logger = getLogger('{}.{}'.format(__name__, self.__class__.__name__))
-        logger.debug('navigate to \'{}\''.format(url))
+        logger.debug('navigate to \'{}\''.format(resource))
         root = self._document_element
         if root is not None:
             self.remove(root)
-        if self._location.protocol != 'about:':
-            root = self._implementation.parse(url)
+        if url.protocol != 'about:':
+            root = self._implementation.parse(resource)
             self.append(root)
         return self
 
@@ -648,33 +647,6 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         if root is None:
             return b''
         return etree.tostring(root.getroottree(), **kwargs)
-
-    def write(self, text):
-        """Parses an SVG document or fragment from a string, and adds to the
-        current document.
-
-        Arguments:
-            text (str): An SVG document or fragment.
-        """
-        implementation = self._implementation
-        if implementation is None:
-            raise ValueError('The object is in the wrong document.')
-        child = implementation.parse(StringIO(text))
-        root = self._document_element
-        if root is None:
-            self.append(child)
-        else:
-            root.append(child)
-
-    def writeln(self, text):
-        """Parses an SVG document or fragment from a string, and adds to the
-        current document.
-        Same as Document.write().
-
-        Arguments:
-            text (str): An SVG document or fragment.
-        """
-        self.write(text)
 
 
 class DOMImplementation(ABC):

@@ -556,7 +556,9 @@ class DocumentTestCase(unittest.TestCase):
                 'rect')
         self.assertEqual([], elements)
 
-        doc.write(SVG_CUBIC01)
+        parser = doc.implementation.parser
+        root = parser.fromstring(SVG_CUBIC01)
+        doc.append(root)
         for it in doc.document_element.iter():
             self.assertIsInstance(it, Node)
             self.assertEqual(doc, it.owner_document)
@@ -1023,7 +1025,9 @@ class DocumentTestCase(unittest.TestCase):
 
     def test_document_iter(self):
         doc = window.document
-        doc.write(SVG_SVG)
+        parser = doc.implementation.parser
+        root = parser.fromstring(SVG_SVG)
+        doc.append(root)
         comment = doc.create_comment('demo')
         doc.prepend(comment)
         pi = doc.create_processing_instruction('xml-stylesheet')
@@ -1072,14 +1076,14 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual('g', children[2].tag_name)
         self.assertEqual('svgstar', children[2].id)
 
-    def test_document_open(self):
+    def test_document_location_assign(self):
         doc = window.document
         self.assertIsNone(doc.document_element)
         self.assertEqual(window, doc.default_view)
 
         path = os.path.join(here, 'svg/svg.svg')
         src = Path(path).absolute().as_uri()
-        doc.location = src
+        doc.location.assign(src)
         self.assertEqual(src, doc.location.href)
         self.assertEqual(src, doc.url)
         self.assertEqual(src, doc.document_uri)
@@ -1090,6 +1094,21 @@ class DocumentTestCase(unittest.TestCase):
         for it in nodes:
             self.assertIsInstance(it, Node)
             self.assertEqual(doc, it.owner_document)
+        self.assertEqual('svg', nodes[0].tag_name)
+        self.assertEqual('g', nodes[1].tag_name)
+        self.assertEqual('gtop', nodes[1].id)
+        self.assertEqual('g', nodes[2].tag_name)
+        self.assertEqual('svgstar', nodes[2].id)
+        self.assertEqual('path', nodes[3].tag_name)
+        self.assertEqual('svgbar', nodes[3].id)
+        self.assertEqual('use', nodes[4].tag_name)
+        self.assertEqual('use1', nodes[4].id)
+        self.assertEqual('use', nodes[5].tag_name)
+        self.assertEqual('use2', nodes[5].id)
+        self.assertEqual('use', nodes[6].tag_name)
+        self.assertEqual('use3', nodes[6].id)
+        self.assertEqual('use', nodes[7].tag_name)
+        self.assertEqual('usetop', nodes[7].id)
 
         src = 'about:blank'
         doc.location = src
@@ -1150,7 +1169,9 @@ class DocumentTestCase(unittest.TestCase):
 
     def test_document_query_selector_all(self):
         doc = window.document
-        doc.write(SVG_SVG)
+        parser = doc.implementation.parser
+        root = parser.fromstring(SVG_SVG)
+        doc.append(root)
 
         sub_root = doc.create_element('svg', {'id': 'svg2'})
         root = doc.document_element
@@ -1400,60 +1421,6 @@ class DocumentTestCase(unittest.TestCase):
         # link = parser.makeelement('link')
         # self.assertNotIsInstance(link, Node)
         # self.assertRaises(TypeError, lambda: root.replace_child(link, style))
-
-    def test_document_write(self):
-        doc = window.document
-        root = doc.create_element('svg')
-        doc.append(root)
-
-        svg = '''
-        <desc>Two groups, each of two rectangles</desc>
-        '''
-        doc.write(svg.strip())
-        self.assertEqual(1, len(root))
-
-        svg = '''
-        <g id="group1" fill="red">
-          <rect x="1cm" y="1cm" width="1cm" height="1cm"/>
-          <rect x="3cm" y="1cm" width="1cm" height="1cm"/>
-        </g>
-        '''
-        doc.write(svg.strip())
-        self.assertEqual(2, len(root))
-
-        svg = '''
-        <g id="group2" fill="blue">
-          <rect x="1cm" y="3cm" width="1cm" height="1cm"/>
-          <rect x="3cm" y="3cm" width="1cm" height="1cm"/>
-        </g>
-        '''
-        doc.write(svg.strip())
-        self.assertEqual(3, len(root))
-
-        svg = '''
-        <!-- Show outline of viewport using 'rect' element -->
-        <rect x=".01cm" y=".01cm" width="4.98cm" height="4.98cm"
-          fill="none" stroke="blue" stroke-width=".02cm"/>
-        '''
-        doc.write(svg.strip())
-        self.assertEqual(4, len(root))
-
-        for it in root.iter():
-            self.assertIsInstance(it, Node)
-            self.assertEqual(doc, it.owner_document, msg=it)
-
-        children = root.getchildren()
-        self.assertEqual(4, len(children))
-        self.assertEqual('desc', children[0].node_name)
-        self.assertEqual('g', children[1].node_name)
-        self.assertEqual('g', children[2].node_name)
-        self.assertEqual('rect', children[3].node_name)
-
-        group = doc.get_element_by_id('group1')
-        children = group.getchildren()
-        self.assertEqual(2, len(children))
-        self.assertEqual('rect', children[0].node_name)
-        self.assertEqual('rect', children[1].node_name)
 
     def test_parser_create_document(self):
         # SVGParser.create_document()
