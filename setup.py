@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 NAME = 'svgpy'
 AUTHOR = 'Tetsuya Miura'
 AUTHOR_EMAIL = 'miute.dev@gmail.com'
-DESCRIPTION = 'SVG parser based on lxml'
+DESCRIPTION = 'SVG parser based on lxml.etree'
 LICENSE = 'Apache License 2.0'
 KEYWORDS = 'svg parser'
 URL = 'https://github.com/miute/svgpy'
