@@ -1,8 +1,0 @@
-cffi==1.11.4
-cssselect==1.0.3
-lxml==4.1.1
-numpy==1.14.0
-pycparser==2.18
-scipy==1.0.0
-tinycss2==0.6.1
-webencodings==0.5.1
