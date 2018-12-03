@@ -21,7 +21,16 @@ from svgpy.base import \
     SVGPathData, SVGPathDataSettings, SVGPreserveAspectRatio, \
     SVGURIReference, SVGZoomAndPan
 from svgpy.core import Font, SVGLength
-from svgpy.css.screen import Screen, ScreenOrientation
+from svgpy.css import CSS, CSSConditionRule, CSSFontFaceRule, \
+    CSSFontFeatureValuesRule, CSSGroupingRule, CSSImageValue, CSSImportRule, \
+    CSSKeywordValue, CSSMathClamp, CSSMathInvert, CSSMathMax, CSSMathMin, \
+    CSSMathNegate, CSSMathOperator, CSSMathProduct, CSSMathSum, CSSMathValue, \
+    CSSMediaRule, CSSNamespaceRule, CSSNumericBaseType, CSSNumericType, \
+    CSSNumericValue, CSSParser, CSSRule, CSSStyleDeclaration, CSSStyleRule, \
+    CSSStyleSheet, CSSStyleValue, CSSUnitValue, CSSUnparsedValue, \
+    CSSURLImageValue, CSSVariableReferenceValue, MediaList, \
+    PropertyDescriptor, PropertySyntax, Screen, ScreenOrientation, \
+    StylePropertyMap, StylePropertyMapReadOnly, StyleSheet, UnitType
 from svgpy.dom import Attr, Comment, DOMTokenList, Element, NamedNodeMap, \
     Node, ProcessingInstruction
 from svgpy.element import SVGElementClassLookup, SVGParser

@@ -15,12 +15,21 @@
 
 import re
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from collections.abc import MutableMapping, MutableSequence
 from logging import getLogger
 from urllib.error import URLError
 
 import tinycss2
 
+from .props import PropertyDescriptor, PropertySyntax, css_property_set
+from .screen import Screen, ScreenOrientation
+from .types import CSSKeywordValue, CSSImageValue, CSSMathClamp, \
+    CSSMathInvert, CSSMathMax, CSSMathMin, CSSMathNegate, CSSMathOperator, \
+    CSSMathProduct, CSSMathSum, CSSMathValue, CSSNumericBaseType, \
+    CSSNumericType, CSSNumericValue, CSSStyleValue, CSSURLImageValue, \
+    CSSUnitValue, CSSUnparsedValue, CSSVariableReferenceValue, \
+    StylePropertyMap, StylePropertyMapReadOnly, UnitType
 from ..utils import CaseInsensitiveMapping, dict_to_style, get_content_type, \
     load, normalize_url, style_to_dict
 
@@ -32,6 +41,452 @@ def normalize_text(text):
         '\r\n', ' ').replace('\r', ' ').replace('\n', ' ')
     out_text = _RE_COLLAPSIBLE_WHITESPACE.sub(' ', out_text)
     return out_text
+
+
+class CSS(object):
+    """The CSS-related functions."""
+    # TODO: implement CSS.supports(conditionText).
+
+    @staticmethod
+    def ch(value):
+        """Same as CSSUnitValue(`value`, 'ch').
+
+        Arguments:
+            value (float): The value in 'ch' unit, which relative to the
+                advance measure of the “0” (ZERO, U+0030) glyph in the
+                element’s font.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.CH)
+
+    @staticmethod
+    def cm(value):
+        """Same as CSSUnitValue(`value`, 'cm').
+
+        Arguments:
+            value (float): The value in centimeters.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.CM)
+
+    @staticmethod
+    def deg(value):
+        """Same as CSSUnitValue(`value`, 'deg').
+
+        Arguments:
+            value (float): The value in degrees.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.DEG)
+
+    @staticmethod
+    def dpcm(value):
+        """Same as CSSUnitValue(`value`, 'dpcm').
+
+        Arguments:
+            value (float): The value in dots per centimeter.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.DPCM)
+
+    @staticmethod
+    def dpi(value):
+        """Same as CSSUnitValue(`value`, 'dpi').
+
+        Arguments:
+            value (float): The value in dots per inch.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.DPI)
+
+    @staticmethod
+    def dppx(value):
+        """Same as CSSUnitValue(`value`, 'dppx').
+
+        Arguments:
+            value (float): The value in dots per 'px' unit.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.DPPX)
+
+    @staticmethod
+    def em(value):
+        """Same as CSSUnitValue(`value`, 'em').
+
+        Arguments:
+            value (float): The value in 'em' unit, which relative to the font
+                size of the element.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.EM)
+
+    @staticmethod
+    def escape(ident):
+        s = ''
+        for i, ch in enumerate(ident):
+            if ch == '\0':
+                ch = '\ufffd'
+            elif (('\u0001' <= ch <= '\u001f' or ch == '\u007f')
+                  or (i == 0 and '0' <= ch <= '9')
+                  or (i == 1 and '0' <= ch <= '9' and ident[0] == '-')):
+                # escape a character as code point
+                ch = '\\{:x} '.format(ord(ch))
+            elif i == 0 and ch == '-' and len(ident) == 1:
+                # escape a character
+                ch = '\\' + ch
+            elif (ch >= '\u0080'
+                  or ch in ('-', '_')
+                  or '0' <= ch <= '9'
+                  or 'A' <= ch <= 'Z'
+                  or 'a' <= ch <= 'z'):
+                pass
+            else:
+                # escape a character
+                ch = '\\' + ch
+            s += ch
+        return s
+
+    @staticmethod
+    def ex(value):
+        """Same as CSSUnitValue(`value`, 'ex').
+
+        Arguments:
+            value (float): The value in 'ex' unit, which relative to the
+                x-height of the element’s font.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.EX)
+
+    @staticmethod
+    def fr(value):
+        """Same as CSSUnitValue(`value`, 'fr').
+
+        Arguments:
+            value (float): The value in flexible length, which represents
+                a fraction of the leftover space in the grid container.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.FR)
+
+    @staticmethod
+    def grad(value):
+        """Same as CSSUnitValue(`value`, 'grad').
+
+        Arguments:
+            value (float): The value in gradians.
+                There are 400 gradians in a full circle.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.GRAD)
+
+    @staticmethod
+    def hz(value):
+        """Same as CSSUnitValue(`value`, 'Hz').
+
+        Arguments:
+            value (float): The value in hertz.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.HZ)
+
+    @staticmethod
+    def ic(value):
+        """Same as CSSUnitValue(`value`, 'ic').
+
+        Arguments:
+            value (float): The value in 'ic' unit, which relative to the
+                advance measure of the “水” (CJK water ideograph, U+6C34)
+                glyph in the element’s font.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.IC)
+
+    @staticmethod
+    def in_(value):
+        """Same as CSSUnitValue(`value`, 'in').
+
+        Arguments:
+            value (float): The value in inches.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.IN)
+
+    @staticmethod
+    def khz(value):
+        """Same as CSSUnitValue(`value`, 'kHz').
+
+        Arguments:
+            value (float): The value in kilohertz.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.KHZ)
+
+    @staticmethod
+    def lh(value):
+        """Same as CSSUnitValue(`value`, 'lh').
+
+        Arguments:
+            value (float): The value in 'lh' unit, which relative to the
+                line height of the element’s font.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.LH)
+
+    @staticmethod
+    def mm(value):
+        """Same as CSSUnitValue(`value`, 'mm').
+
+        Arguments:
+            value (float): The value in millimeters.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.MM)
+
+    @staticmethod
+    def ms(value):
+        """Same as CSSUnitValue(`value`, 'ms').
+
+        Arguments:
+            value (float): The value in milliseconds.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.MS)
+
+    @staticmethod
+    def number(value):
+        """Same as CSSUnitValue(`value`, 'number').
+
+        Arguments:
+            value (float): The real numbers.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.NUMBER)
+
+    @staticmethod
+    def percent(value):
+        """Same as CSSUnitValue(`value`, 'percent').
+
+        Arguments:
+            value (float): The percentage values.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.PERCENT)
+
+    @staticmethod
+    def pc(value):
+        """Same as CSSUnitValue(`value`, 'pc').
+
+        Arguments:
+            value (float): The value in picas.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.PC)
+
+    @staticmethod
+    def pt(value):
+        """Same as CSSUnitValue(`value`, 'pt').
+
+        Arguments:
+            value (float): The value in points.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.PT)
+
+    @staticmethod
+    def px(value):
+        """Same as CSSUnitValue(`value`, 'px').
+
+        Arguments:
+            value (float): The value in pixels.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.PX)
+
+    @staticmethod
+    def q(value):
+        """Same as CSSUnitValue(`value`, 'Q').
+
+        Arguments:
+            value (float): The value in quarter-millimeters.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.Q)
+
+    @staticmethod
+    def rad(value):
+        """Same as CSSUnitValue(`value`, 'rad').
+
+        Arguments:
+            value (float): The value in radians.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.RAD)
+
+    @staticmethod
+    def register_property(descriptor, context=None):
+        if not descriptor.name.startswith('--'):
+            raise ValueError('Invalid custom property name: '
+                             + repr(descriptor.name))
+        if context is None:
+            from ..window import window
+            context = window.document
+        property_set = context.registered_property_set
+        if descriptor.name in property_set:
+            raise ValueError('Custom property {} already exists'.format(
+                repr(descriptor.name)))
+        property_set[descriptor.name] = descriptor
+
+    @staticmethod
+    def rem(value):
+        """Same as CSSUnitValue(`value`, 'rem').
+
+        Arguments:
+            value (float): The value in 'rem' unit, which relative to the font
+                size of the root element.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.REM)
+
+    @staticmethod
+    def rlh(value):
+        """Same as CSSUnitValue(`value`, 'rlh').
+
+        Arguments:
+            value (float): The value in 'rlh' unit, which relative to the
+                line height of the root element’s font.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.RLH)
+
+    @staticmethod
+    def s(value):
+        """Same as CSSUnitValue(`value`, 's').
+
+        Arguments:
+            value (float): The value in seconds.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.S)
+
+    @staticmethod
+    def supports(property_name, value):
+        desc = css_property_set.get(property_name.lower())
+        if desc is None:
+            return False
+        return desc.supports(value)
+
+    @staticmethod
+    def turn(value):
+        """Same as CSSUnitValue(`value`, 'turn').
+
+        Arguments:
+            value (float): The value in turns.
+                There is 1 turn in a full circle.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.TURN)
+
+    @staticmethod
+    def vb(value):
+        """Same as CSSUnitValue(`value`, 'vb').
+
+        Arguments:
+            value (float): The value in 'vb' unit, which equal to 1% of the
+                size of the initial containing block in the direction of the
+                root element’s block axis.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.VB)
+
+    @staticmethod
+    def vh(value):
+        """Same as CSSUnitValue(`value`, 'vh').
+
+        Arguments:
+            value (float): The value in 'vh' unit, which equal to 1% of the
+                height of the initial containing block.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.VH)
+
+    @staticmethod
+    def vi(value):
+        """Same as CSSUnitValue(`value`, 'vi').
+
+        Arguments:
+            value (float): The value in 'vi' unit, which equal to 1% of the
+                size of the initial containing block in the direction of the
+                root element’s inline axis.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.VI)
+
+    @staticmethod
+    def vmax(value):
+        """Same as CSSUnitValue(`value`, 'vmax').
+
+        Arguments:
+            value (float): The value in 'vmax' unit, which equal to the
+                larger of 'vw' or 'vh'.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.VMAX)
+
+    @staticmethod
+    def vmin(value):
+        """Same as CSSUnitValue(`value`, 'vmin').
+
+        Arguments:
+            value (float): The value in 'vmin' unit, which equal to the
+                smaller of 'vw' or 'vh'.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.VMIN)
+
+    @staticmethod
+    def vw(value):
+        """Same as CSSUnitValue(`value`, 'vw').
+
+        Arguments:
+            value (float): The value in 'vw' unit, which equal to 1% of the
+                width of the initial containing block.
+        Returns:
+            CSSUnitValue: A new CSSUnitValue object.
+        """
+        return CSSUnitValue(value, UnitType.VW)
 
 
 class CSSRule(object):
@@ -646,7 +1101,7 @@ class CSSStyleDeclaration(MutableMapping):
         """
         self._parent_rule = parent_rule
         self._css_text = None
-        self._values = dict()
+        self._values = OrderedDict()
         self._priorities = dict()
         self._owner_node = owner_node
         if rule is not None:
@@ -704,9 +1159,9 @@ class CSSStyleDeclaration(MutableMapping):
         else:
             style = self._owner_node.get('style')
             if style is None:
-                return {}
+                return OrderedDict()
             items = style_to_dict(style)
-            return items
+            return OrderedDict(items)
 
     def _parse_content(self, content):
         nodes = tinycss2.parse_declaration_list(content,

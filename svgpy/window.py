@@ -94,6 +94,7 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
             self._location = default_view.location
         else:
             self._location = Location(self._browsing_context)
+        self._registered_property_set = dict()
 
     def __iter__(self):
         children = self.child_nodes
@@ -199,6 +200,12 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
     def previous_sibling(self):
         """Node: The first preceding sibling node or None."""
         return None
+
+    @property
+    def registered_property_set(self):
+        """dict: A set of records that describe registered custom properties.
+        """
+        return self._registered_property_set
 
     @property
     def style_sheets(self):

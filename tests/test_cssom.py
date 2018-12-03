@@ -10,7 +10,7 @@ import unittest
 sys.path.extend(['.', '..'])
 
 from svgpy import SVGParser, window
-from svgpy.css import CSSFontFaceRule, CSSFontFeatureValuesRule, \
+from svgpy.css import CSS, CSSFontFaceRule, CSSFontFeatureValuesRule, \
     CSSImportRule, CSSMediaRule, CSSNamespaceRule, CSSParser, CSSRule, \
     CSSStyleDeclaration, CSSStyleRule, CSSStyleSheet, MediaList, StyleSheet
 
@@ -35,6 +35,57 @@ class CSSOMTestCase(unittest.TestCase):
                             filename=filename,
                             format=fmt)
         window.location = 'about:blank'
+
+    def test_css_escape(self):
+        text = '\0\0'
+        result = CSS.escape(text)
+        expected = '\ufffd\ufffd'
+        self.assertEqual(expected, result)
+
+        text = "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f" \
+               "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e" \
+               "\x1f\x7f"
+        result = CSS.escape(text)
+        expected = "\\1 \\2 \\3 \\4 \\5 \\6 \\7 \\8 \\9 \\a \\b \\c \\d \\e " \
+                   "\\f \\10 \\11 \\12 \\13 \\14 \\15 \\16 \\17 \\18 \\19 " \
+                   "\\1a \\1b \\1c \\1d \\1e \\1f \\7f "
+        self.assertEqual(expected, result)
+
+        text = '00'
+        result = CSS.escape(text)
+        expected = '\\30 0'
+        self.assertEqual(expected, result)
+
+        text = '-'
+        result = CSS.escape(text)
+        expected = '\\-'
+        self.assertEqual(expected, result)
+
+        text = '--'
+        result = CSS.escape(text)
+        expected = '--'
+        self.assertEqual(expected, result)
+
+        text = '-0'
+        result = CSS.escape(text)
+        expected = '-\\30 '
+        self.assertEqual(expected, result)
+
+        text = '-00'
+        result = CSS.escape(text)
+        expected = '-\\30 0'
+        self.assertEqual(expected, result)
+
+        text = '_0'
+        result = CSS.escape(text)
+        expected = '_0'
+        self.assertEqual(expected, result)
+
+        text = ' !"#$%&\'()*+,-./09:;<=>?@AZ[\\]^_`az{|}~'
+        result = CSS.escape(text)
+        expected = "\\ \\!\\\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,-\\.\\/09" \
+                   "\\:\\;\\<\\=\\>\\?\\@AZ\\[\\\\\\]\\^_\\`az\\{\\|\\}\\~"
+        self.assertEqual(expected, result)
 
     def test_css_font_face_rule(self):
         stylesheet = '''
