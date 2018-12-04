@@ -702,6 +702,10 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, ml.length)
         self.assertEqual(0, len(ml))
 
+        ml.append_medium('screen, print')
+        self.assertEqual(0, ml.length)
+        self.assertEqual(0, len(ml))
+
         ml.append_medium(' screen ')
         ml.append_medium(' print ')
         self.assertEqual(2, ml.length)
@@ -721,6 +725,12 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('screen', ml.item(0))
         self.assertEqual('print and (color)', ml.item(1))
 
+        ml.delete_medium('screen, print and (color)')
+        self.assertEqual(2, ml.length)
+        self.assertEqual(2, len(ml))
+        self.assertEqual('screen', ml.item(0))
+        self.assertEqual('print and (color)', ml.item(1))
+
         ml.delete_medium(' screen ')
         self.assertEqual(1, ml.length)
         self.assertEqual(1, len(ml))
@@ -728,6 +738,14 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(expected, ml.media_text)
 
         self.assertRaises(ValueError, lambda: ml.delete_medium('print'))
+
+        ml.insert(0, 'screen')
+        self.assertEqual('screen', ml.item(0))
+        self.assertEqual('print and (color)', ml.item(1))
+
+        ml.media_text = ''
+        self.assertEqual(0, ml.length)
+        self.assertEqual(0, len(ml))
 
     def test_style_sheet(self):
         sheet = StyleSheet()

@@ -644,60 +644,81 @@ class MediaList(MutableSequence):
         return repr(self._items)
 
     def __setitem__(self, index, item):
-        self._items[index] = item.strip()
+        self._items[index] = item
 
     @property
     def length(self):
         """int: The number of media queries."""
-        return self.__len__()
+        return len(self)
 
     @property
     def media_text(self):
         """str: A serialization of the collection of media queries."""
-        return ', '.join(self._items)
+        # FIXME: implement serialize-a-media-query-list.
+        # https://drafts.csswg.org/cssom/#serialize-a-media-query-list
+        return ', '.join(self._items).lower()
 
     @media_text.setter
     def media_text(self, value):
         media_text = normalize_text(value)
         if len(media_text) == 0:
-            self._items.clear()
+            self.clear()
             return
-        self._items = [x.strip() for x in media_text.split(',')]
+        m = MediaList._parse_media_query_list(value)
+        self._items = m
 
-    def append(self, item):
+    @staticmethod
+    def _parse_media_query(medium):
+        m = MediaList._parse_media_query_list(medium)
+        return m[0] if len(m) == 1 else None
+
+    @staticmethod
+    def _parse_media_query_list(medium):
+        m = [x.strip() for x in medium.split(',')]
+        return m
+
+    def append(self, medium):
         """Adds the media query to the collection of media queries.
         Same as append_medium().
 
         Arguments:
-            item (str): The media query to be added.
+            medium (str): The media query to be added.
         """
-        self.append_medium(item)
+        self.append_medium(medium)
 
-    def append_medium(self, item):
+    def append_medium(self, medium):
         """Adds the media query to the collection of media queries.
 
         Arguments:
-            item (str): The media query to be added.
+            medium (str): The media query to be added.
         """
-        self._items.append(item.strip())
+        m = MediaList._parse_media_query(medium)
+        if m is None or m in self:
+            return
+        index = len(self)
+        self.insert(index, m)
 
-    def delete_medium(self, item):
+    def delete_medium(self, medium):
         """Removes the media query in the collection of media queries.
 
         Arguments:
-            item (str): The media query to be removed.
+            medium (str): The media query to be removed.
         """
-        self._items.remove(item.strip())
+        m = MediaList._parse_media_query(medium)
+        if m is None:
+            return
+        index = self.index(m)
+        del self[index]
 
-    def insert(self, index, item):
+    def insert(self, index, medium):
         """Inserts the media query into the collection of media queries at
         index.
 
         Arguments:
             index (int): An index position of the collection of media queries.
-            item (str): The media query to be added.
+            medium (str): The media query to be added.
         """
-        self._items.insert(index, item.strip())
+        self[index:index] = [medium.strip()]
 
     def item(self, index):
         """Returns a serialization of the media query in the collection of
@@ -708,7 +729,7 @@ class MediaList(MutableSequence):
         Returns:
             str: The media query.
         """
-        return self.__getitem__(index)
+        return self[index]
 
 
 class StyleSheet(object):
