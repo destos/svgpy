@@ -20,7 +20,7 @@ from collections import OrderedDict
 import tinycss2
 from tinycss2.ast import IdentToken, NumberToken
 
-from .props import css_property_set
+from .props import css_property_descriptor_map
 
 _RE_CSS_VERSION = re.compile(r'-css[0-9]$')
 
@@ -61,7 +61,7 @@ class Shorthand(object):
                 value = self.get_property_value(longhand_name)
                 priority = self.get_property_priority(longhand_name)
             else:
-                desc = css_property_set[longhand_name]
+                desc = css_property_descriptor_map[longhand_name]
                 if longhand_name not in declarations:
                     continue
                 value, priority = declarations[longhand_name]
@@ -133,7 +133,7 @@ class ShorthandProperty(object):
         previous_component = None
         longhand_names = shorthand_property_map[property_name]
         for longhand_name in longhand_names:
-            desc = css_property_set[longhand_name]
+            desc = css_property_descriptor_map[longhand_name]
             for component in list(components):
                 if (component.type == 'whitespace'
                         or (component == ','
@@ -146,7 +146,7 @@ class ShorthandProperty(object):
                 if (property_name == 'font'
                         and previous_component is not None
                         and previous_component == '/'):
-                    line_height = css_property_set['line-height']
+                    line_height = css_property_descriptor_map['line-height']
                     supported, _ = line_height.support(component)
                     if supported:
                         components_map['line-height'] = list([component])
@@ -169,7 +169,7 @@ class ShorthandProperty(object):
         if set_initial_value:
             for longhand_name in longhand_names:
                 if longhand_name not in components_map:
-                    desc = css_property_set[longhand_name]
+                    desc = css_property_descriptor_map[longhand_name]
                     initial_value = desc.initial_value
                     if initial_value.isdecimal():
                         component = NumberToken(0,
@@ -295,11 +295,11 @@ class ShorthandFont(ShorthandProperty):
                                                   font_family)):
             return ''
 
-        desc = css_property_set['font-variant-css2']
+        desc = css_property_descriptor_map['font-variant-css2']
         if not desc.supports(font_variant):
             return ''
 
-        desc = css_property_set['font-stretch-css3']
+        desc = css_property_descriptor_map['font-stretch-css3']
         if not desc.supports(font_stretch):
             return ''
 
@@ -310,7 +310,7 @@ class ShorthandFont(ShorthandProperty):
 
         values = list()
         for property_name, value in property_map.items():
-            desc = css_property_set[property_name]
+            desc = css_property_descriptor_map[property_name]
             if property_name == 'font-family' or value != desc.initial_value:
                 values.append(value)
 
@@ -329,7 +329,7 @@ class ShorthandFontVariant(ShorthandProperty):
                         and value == 'none'):
                     initial_value = 'none'
                 else:
-                    desc = css_property_set[longhand_name]
+                    desc = css_property_descriptor_map[longhand_name]
                     initial_value = desc.initial_value
                 components_map[longhand_name] = [
                     IdentToken(0, 0, initial_value)

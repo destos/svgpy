@@ -25,8 +25,8 @@ from enum import Enum
 
 import tinycss2
 
-from .props import PropertyDescriptor, PropertySyntax, css_property_set, \
-    css_wide_keyword_set
+from .props import PropertyDescriptor, PropertySyntax, \
+    css_property_descriptor_map, css_wide_keyword_set
 from ..formatter import format_number_sequence
 
 _RE_REAL_NUMBER = re.compile(r'[+-]?[0-9]*\.?[0-9]+(e[+-]?[0-9]+)?',
@@ -510,7 +510,7 @@ class CSSStyleValue(object):
         else:
             # registered custom property or
             # single property in CSS
-            desc = css_property_set.get(property_name)
+            desc = css_property_descriptor_map.get(property_name)
             if desc is None:
                 desc = PropertyDescriptor(
                     name=property_name,

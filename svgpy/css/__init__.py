@@ -23,7 +23,8 @@ from urllib.error import URLError
 import tinycss2
 
 from .longhands import Longhand
-from .props import PropertyDescriptor, PropertySyntax, css_property_set
+from .props import PropertyDescriptor, PropertySyntax, \
+    css_property_descriptor_map
 from .screen import Screen, ScreenOrientation
 from .shorthands import Shorthand
 from .types import CSSKeywordValue, CSSImageValue, CSSMathClamp, \
@@ -509,7 +510,7 @@ class CSS(object):
 
     @staticmethod
     def supports(property_name, value):
-        desc = css_property_set.get(property_name.lower())
+        desc = css_property_descriptor_map.get(property_name.lower())
         if desc is None:
             return False
         return desc.supports(value)

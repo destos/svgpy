@@ -1681,5 +1681,5 @@ _property_descriptors = [
     ),
 ]
 
-css_property_set = dict((x.name, x) for x in _property_descriptors)
+css_property_descriptor_map = dict((x.name, x) for x in _property_descriptors)
 del _property_descriptors
