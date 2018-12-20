@@ -6614,7 +6614,7 @@ class CSSTypesTestCase(unittest.TestCase):
         url2 = CSSURLImageValue('tr.png')
         style_map.set('background-image', url1, url2)
         result = decl.get_property_value('background-image')
-        expected = 'url(tl.png), url(tr.png)'
+        expected = 'url("tl.png"), url("tr.png")'
         self.assertEqual(expected, result)
 
     def test_style_property_map_read_only_get(self):

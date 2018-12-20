@@ -510,13 +510,13 @@ _property_descriptors = [
         #  | context-stroke
         # // [SVG2]
         #
-        # = <‘background’> = <bg-layer># , <final-bg-layer>
+        # = <background> = <bg-layer># , <final-bg-layer>
         # // [css-backgrounds-3]
         #
         # <bg-layer> = <bg-image> || <bg-position> [ / <bg-size> ]?
         #  || <repeat-style> || <attachment> || <box> || <box>
         #
-        # <final-bg-layer> =  <‘background-color’>
+        # <final-bg-layer> =  <background-color>
         #  || <bg-image>
         #  || <bg-position> [ / <bg-size> ]?
         #  || <repeat-style> || <attachment> || <box> || <box>
@@ -581,16 +581,16 @@ _property_descriptors = [
                " | monospace | system-ui | emoji | math | fangsong ] ]# ] ]"
                " | caption | icon | menu | message-box | small-caption"
                " | status-bar",
-        # = [ [ <‘font-style’> || <font-variant-css2> || <‘font-weight’>
-        #  || <font-stretch-css3> ]? <‘font-size’> [ / <‘line-height’> ]?
-        #  <‘font-family’> ] | caption | icon | menu | message-box
+        # = [ [ <font-style> || <font-variant-css2> || <font-weight>
+        #  || <font-stretch-css3> ]? <font-size> [ / <line-height> ]?
+        #  <font-family> ] | caption | icon | menu | message-box
         #  | small-caption | status-bar
         #
-        # <‘font-style’> = normal | italic | oblique <angle>?
+        # <font-style> = normal | italic | oblique <angle>?
         #
         # <font-variant-css2>= [normal | small-caps]
         #
-        # <‘font-weight’> = <font-weight-absolute> | bolder | lighter
+        # <font-weight> = <font-weight-absolute> | bolder | lighter
         #
         # <font-weight-absolute> = [normal | bold | <number>]
         #
@@ -598,7 +598,7 @@ _property_descriptors = [
         #  | condensed | semi-condensed | semi-expanded | expanded
         #  | extra-expanded | ultra-expanded]
         #
-        # <‘font-size’> = <absolute-size> | <relative-size>
+        # <font-size> = <absolute-size> | <relative-size>
         #  | <length-percentage>
         #
         # <absolute-size> = [ xx-small | x-small | small | medium | large
@@ -606,12 +606,13 @@ _property_descriptors = [
         #
         # <relative-size> = [ larger | smaller ]
         #
-        # <‘line-height’> = normal | <number> || <length-percentage>
+        # <line-height> = normal | <number> || <length-percentage>
         #
-        # <‘font-family’> = [ <family-name> | <generic-family> ]#
+        # <font-family> = [ <family-name> | <generic-family> ]#
         #
         # <generic-family> = serif | sans-serif | cursive | fantasy
         #  | monospace | system-ui | emoji | math | fangsong
+        initial_value='normal',
         inherits=True,
     ),
     PropertyDescriptor(
@@ -678,6 +679,21 @@ _property_descriptors = [
         inherits=True,
     ),
     PropertyDescriptor(
+        name='font-optical-sizing',  # [css-fonts-4]
+        syntax='auto | none',
+        initial_value='auto',
+        inherits=True,
+    ),
+    PropertyDescriptor(
+        name='font-palette',  # [css-fonts-4]
+        syntax='normal | light | dark | <custom-ident>',
+        # Value: normal | light | dark | <palette-identifier>
+        #
+        # <palette-identifier> = defined by using the '@font-palette-values'
+        initial_value='normal',
+        inherits=True,
+    ),
+    PropertyDescriptor(
         name='font-size',  # [css-fonts-4]
         syntax="[ xx-small | x-small | small | medium | large | x-large"
                " | xx-large ]"
@@ -703,6 +719,14 @@ _property_descriptors = [
         syntax="normal | <percentage> | ultra-condensed | extra-condensed"
                " | condensed | semi-condensed | semi-expanded | expanded"
                " | extra-expanded | ultra-expanded",
+        initial_value='normal',
+        inherits=True,
+    ),
+    PropertyDescriptor(
+        name='font-stretch-css3',  # for the 'font' property
+        syntax="normal | ultra-condensed | extra-condensed | condensed"
+               " | semi-condensed | semi-expanded | expanded | extra-expanded"
+               " | ultra-expanded",
         initial_value='normal',
         inherits=True,
     ),
@@ -739,12 +763,19 @@ _property_descriptors = [
     PropertyDescriptor(
         name='font-variant',  # [css-fonts-3]
         syntax="normal | none"
-               " | [ [ common-ligatures | no-common-ligatures ]"
+               " | ["
+               " [ common-ligatures | no-common-ligatures ]"
                " || [ discretionary-ligatures | no-discretionary-ligatures ]"
                " || [ historical-ligatures | no-historical-ligatures ]"
                " || [ contextual | no-contextual ]"
                " || [ small-caps | all-small-caps | petite-caps"
                " | all-petite-caps | unicase | titling-caps ]"
+               " || [ <stylistic(<feature-value-name>)> || historical-forms"
+               " || <styleset(<feature-value-name>#)>"
+               " || <character-variant(<feature-value-name>#)>"
+               " || <swash(<feature-value-name>)>"
+               " || <ornaments(<feature-value-name>)>"
+               " || <annotation(<feature-value-name>)> ]"
                " || [ lining-nums | oldstyle-nums ]"
                " || [ proportional-nums | tabular-nums ]"
                " || [ diagonal-fractions | stacked-fractions ]"
@@ -752,7 +783,9 @@ _property_descriptors = [
                " || [ jis78 | jis83 | jis90 | jis04 | simplified"
                " | traditional ]"
                " || [ full-width | proportional-width ]"
-               " || ruby || [ sub | super ] ]",
+               " || ruby"
+               " || [ sub | super ]"
+               " ]",
         # = normal | none
         #  | [ <common-lig-values>
         #  || <discretionary-lig-values>
@@ -817,6 +850,12 @@ _property_descriptors = [
         name='font-variant-caps',  # [css-fonts-3]
         syntax="normal | small-caps | all-small-caps | petite-caps"
                " | all-petite-caps | unicase | titling-caps",
+        initial_value='normal',
+        inherits=True,
+    ),
+    PropertyDescriptor(
+        name='font-variant-css2',  # for the 'font' property
+        syntax='normal | small-caps',
         initial_value='normal',
         inherits=True,
     ),

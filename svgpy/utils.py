@@ -16,6 +16,7 @@
 import base64
 import os
 import re
+from collections import OrderedDict
 from collections.abc import MutableMapping
 from pathlib import PurePath
 from urllib.parse import unquote
@@ -234,14 +235,15 @@ def style_to_dict(text):
     Arguments:
         text (str): The style attributes's value to be converted.
     Returns:
-        dict: A dictionary.
+        OrderedDict: A dictionary.
     """
-    if text is None:
-        return {}
+    if text is None or len(text.strip()) == 0:
+        return OrderedDict()
     items = [x.split(':') for x in iter(text.strip().split(';'))]
-    if [''] in items:
-        items.remove([''])
-    return {key.strip(): value.strip() for key, value in iter(items)}
+    items = [x for x in items if len(x) == 2]
+    return OrderedDict(
+        (key.strip(), value.strip()) for key, value in iter(items)
+    )
 
 
 class CaseInsensitiveMapping(MutableMapping):

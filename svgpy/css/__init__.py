@@ -22,8 +22,10 @@ from urllib.error import URLError
 
 import tinycss2
 
+from .longhands import Longhand
 from .props import PropertyDescriptor, PropertySyntax, css_property_set
 from .screen import Screen, ScreenOrientation
+from .shorthands import Shorthand
 from .types import CSSKeywordValue, CSSImageValue, CSSMathClamp, \
     CSSMathInvert, CSSMathMax, CSSMathMin, CSSMathNegate, CSSMathOperator, \
     CSSMathProduct, CSSMathSum, CSSMathValue, CSSNumericBaseType, \
@@ -41,6 +43,116 @@ def normalize_text(text):
         '\r\n', ' ').replace('\r', ' ').replace('\n', ' ')
     out_text = _RE_COLLAPSIBLE_WHITESPACE.sub(' ', out_text)
     return out_text
+
+
+class _StyleAttribute(object):
+
+    def __init__(self, declarations, owner_node):
+        self._declarations = declarations
+        self._owner_node = owner_node
+        style = owner_node.get('style', '')
+        self._style_map = style_to_dict(style)
+
+    def _set_longhand_from_shorthand(self, shorthand_name):
+        style_map = self._style_map
+        declarations = self._declarations
+        updated = False
+        if shorthand_name in style_map:
+            updated = True
+            del style_map[shorthand_name]
+        longhand_names = Shorthand.longhands(shorthand_name)
+        for longhand_name in longhand_names:
+            if longhand_name in declarations:
+                updated = True
+                longhand_value = declarations[longhand_name][0]
+                style_map[longhand_name] = longhand_value
+
+        return updated
+
+    def _set_shorthand(self, property_name):
+        style_map = self._style_map
+        updated = False
+        shorthand = Shorthand(self._declarations)
+        result = shorthand.get_property_value(property_name)
+        if len(result) > 0:
+            updated = True
+            style_map[property_name] = result
+            longhand_names = Shorthand.longhands(property_name)
+            for longhand_name in longhand_names:
+                if longhand_name in style_map:
+                    del style_map[longhand_name]
+
+        return updated
+
+    def _update_style(self):
+        if len(self._style_map) == 0:
+            if 'style' in self._owner_node.attrib:
+                del self._owner_node.attrib['style']
+            return
+        style = dict_to_style(self._style_map)
+        self._owner_node.set('style', style)
+
+    def remove(self, property_name):
+        style_map = self._style_map
+        if property_name in style_map:
+            del style_map[property_name]
+
+        if Shorthand.is_shorthand(property_name):
+            # shorthand
+            # remove shorthand's sub-properties
+            longhand_names = Shorthand.longhands(property_name)
+            for longhand_name in longhand_names:
+                if longhand_name in style_map:
+                    del style_map[longhand_name]
+
+        if (Shorthand.is_shorthand(property_name)
+                or Longhand.is_longhand(property_name)):
+            # shorthand or shorthand's sub-property
+            # try to set the shorthand
+            declarations = self._declarations
+            shorthand_names = Longhand.shorthands(property_name)
+            for shorthand_name in shorthand_names:
+                updated = self._set_shorthand(shorthand_name)
+                if not updated:
+                    if shorthand_name in style_map:
+                        del style_map[shorthand_name]
+                    longhand_names = Shorthand.longhands(shorthand_name)
+                    for longhand_name in longhand_names:
+                        if longhand_name in declarations:
+                            longhand_value = declarations[longhand_name][0]
+                            style_map[longhand_name] = longhand_value
+
+        self._update_style()
+
+    def set(self, property_name, value):
+        style_map = self._style_map
+        updated = False
+        if Longhand.is_longhand(property_name):
+            # longhand => shorthand
+            # e.g.: 'font-variant-caps: small-caps'
+            # => 'font: small-caps' or 'font-variant: small-caps'
+            shorthand_names = Longhand.shorthands(property_name)
+            for shorthand_name in shorthand_names:
+                updated = self._set_shorthand(shorthand_name)
+                if updated:
+                    for sub_shorthand_name in (set(shorthand_names)
+                                               - {shorthand_name}):
+                        if sub_shorthand_name in style_map:
+                            del style_map[sub_shorthand_name]
+                    break
+                else:
+                    # shorthand => longhand
+                    self._set_longhand_from_shorthand(shorthand_name)
+        elif Shorthand.is_shorthand(property_name):
+            # shorthand
+            updated = self._set_shorthand(property_name)
+            if not updated:
+                # shorthand => longhand
+                self._set_longhand_from_shorthand(property_name)
+
+        if not updated:
+            style_map[property_name] = value
+        self._update_style()
 
 
 class CSS(object):
@@ -1122,116 +1234,51 @@ class CSSStyleDeclaration(MutableMapping):
         """
         self._parent_rule = parent_rule
         self._css_text = None
-        self._values = OrderedDict()
-        self._priorities = dict()
+        self._property_map = OrderedDict()
         self._owner_node = owner_node
         if rule is not None:
             self._css_text = normalize_text(tinycss2.serialize(rule.content))
             self._parse_content(rule.content)
 
-    def __delitem__(self, name):
-        self._remove_item(name)
+    def __contains__(self, property_name):
+        if not property_name.startswith('--'):
+            property_name = property_name.lower()
+        return property_name in self._declarations
 
-    def __getitem__(self, name):
-        return self._get_item(name)
+    def __delitem__(self, property_name):
+        self.remove_property(property_name)
+
+    def __getitem__(self, property_name):
+        return self.get_property_value(property_name)
 
     def __iter__(self):
-        items = self._items()
-        return iter(items)
+        return iter(self._declarations)
 
     def __len__(self):
-        items = self._items()
-        return len(items)
+        return len(self._declarations)
 
     def __repr__(self):
-        items = self._items()
-        return repr((type(self).__name__, items))
+        return repr(self._declarations)
 
-    def __setitem__(self, name, value):
-        """Sets a CSS declaration property with a value and an important flag
-        in the declarations.
+    def __setitem__(self, property_name, value):
+        """Sets a CSS declaration property with a value in the declarations.
 
         Arguments:
-            name (str): A property name of a CSS declaration.
-            value (str, tuple[str, str], None): A CSS value of the
-                declarations with or without an important flag.
+            property_name (str): A property name of a CSS declaration.
+            value (str, None): A CSS value of the declarations.
         """
-        if value is None or isinstance(value, str):
-            priority = None
-        elif (isinstance(value, (tuple, list))
-              and len(value) == 2):
-            value, priority = value
-        else:
-            raise TypeError('Expected str or tuple[str, str], got '
-                            + repr(type(value)))
-        self._set_item(name, value, priority)
+        self.set_property(property_name, value)
 
-    def _get_item(self, name):
-        # TODO: support shorthand property.
+    @property
+    def _declarations(self):
         if self._owner_node is None:
-            items = self._values
-        else:
-            items = self._items()
-        return items[name]
-
-    def _items(self):
-        if self._owner_node is None:
-            return self._values
-        else:
-            style = self._owner_node.get('style')
-            if style is None:
-                return OrderedDict()
-            items = style_to_dict(style)
-            return OrderedDict(items)
-
-    def _parse_content(self, content):
-        nodes = tinycss2.parse_declaration_list(content,
-                                                skip_comments=True,
-                                                skip_whitespace=True)
-        for node in nodes:
-            if node.type == 'declaration':
-                name = node.lower_name
-                value = tinycss2.serialize(node.value)
-                self.__setitem__(
-                    name,
-                    (value, 'important' if node.important else ''))
-
-    def _remove_item(self, name):
-        items = self._items()
-        del items[name]
-        self._priorities.pop(name, None)
-        if self._owner_node is not None:
-            if len(items) == 0:
-                del self._owner_node.attrib['style']
-            else:
-                style = dict_to_style(items)
-                self._owner_node.set('style', style)
-
-    def _set_item(self, name, value, priority=None):
-        # TODO: support shorthand property.
-        if value is not None:
-            value = normalize_text(value)
-            value = value.replace('("', '(').replace('")', ')')
-            value = value.replace('(\'', '(').replace('\')', ')')
-        if value is None or len(value) == 0:
-            try:
-                self._remove_item(name)
-            except KeyError:
-                pass
-            return
-        if priority is None and name not in self._priorities:
-            priority = ''  # default
-        elif priority is not None:
-            priority = priority.lower()
-            if len(priority) > 0 and priority != 'important':
-                return
-        items = self._items()
-        items[name] = value
-        if self._owner_node is not None:
-            style = dict_to_style(items)
-            self._owner_node.set('style', style)
-        if priority is not None:
-            self._priorities[name] = priority
+            return self._property_map
+        style = self._owner_node.get('style', '')
+        property_map = style_to_dict(style)
+        declarations = self._property_map
+        for property_name, value in property_map.items():
+            self._set_property_internal(declarations, property_name, value, '')
+        return declarations
 
     @property
     def css_text(self):
@@ -1242,59 +1289,172 @@ class CSSStyleDeclaration(MutableMapping):
     @property
     def length(self):
         """int: The number of CSS declarations in the declarations."""
-        return self.__len__()
+        return len(self)
 
     @property
     def parent_rule(self):
         """CSSRule: The parent CSS rule."""
         return self._parent_rule
 
-    def get_property_priority(self, name):
+    def _parse_content(self, content):
+        nodes = tinycss2.parse_declaration_list(content,
+                                                skip_comments=True,
+                                                skip_whitespace=True)
+        for node in nodes:
+            if node.type == 'declaration':
+                property_name = node.name
+                value = tinycss2.serialize(node.value)
+                priority = 'important' if node.important else ''
+                self.set_property(property_name, value, priority)
+
+    def _set_css_declaration(self, declarations, property_name, components,
+                             priority):
+        _ = self
+        value = tinycss2.serialize(components).strip()
+        if len(value) == 0:
+            return False
+        declarations[property_name] = value, priority
+        return True
+
+    def _set_property_internal(self, declarations, property_name, value,
+                               priority):
+        components = tinycss2.parse_component_value_list(value,
+                                                         skip_comments=True)
+        if len(components) == 0:
+            return False, ''
+        result = ''
+        if Shorthand.is_shorthand(property_name):
+            shorthand = Shorthand(declarations)
+            updated = shorthand.set_css_declaration(property_name,
+                                                    components,
+                                                    priority)
+            if updated:
+                result = shorthand.get_property_value(property_name)
+        else:
+            updated = self._set_css_declaration(declarations,
+                                                property_name,
+                                                components,
+                                                priority)
+            if updated:
+                result = value
+        return updated, result
+
+    def _update_style_attribute(self, declarations, property_name, value):
+        if self._owner_node is None:
+            return
+        style = _StyleAttribute(declarations, self._owner_node)
+        if len(value) == 0:
+            style.remove(property_name)
+            return
+        style.set(property_name, value)
+
+    def get_property_priority(self, property_name):
         """Returns the important flag of the first exact match of name in the
         declarations.
 
         Arguments:
-            name (str): A property name of a CSS declaration.
+            property_name (str): A property name of a CSS declaration.
         Returns:
             str: The important flag of the declarations.
         """
-        items = self._items()
-        if name not in items:
-            raise KeyError(name)
-        priority = self._priorities.setdefault(name, '')
+        declarations = self._declarations
+        if not property_name.startswith('--'):
+            property_name = property_name.lower()
+            if Shorthand.is_shorthand(property_name):
+                shorthand = Shorthand(declarations)
+                priority = shorthand.get_property_priority(property_name)
+                return priority
+        if property_name not in declarations:
+            return ''
+        _, priority = declarations[property_name]
         return priority
 
-    def get_property_value(self, name):
+    def get_property_value(self, property_name):
         """Returns a CSS value of the first exact match of name in the
         declarations.
 
         Arguments:
-            name (str): A property name of a CSS declaration.
+            property_name (str): A property name of a CSS declaration.
         Returns:
             str: A CSS value of the declarations.
         """
-        return self.__getitem__(name)
+        declarations = self._declarations
+        if not property_name.startswith('--'):
+            property_name = property_name.lower()
+            if Shorthand.is_shorthand(property_name):
+                shorthand = Shorthand(declarations)
+                value = shorthand.get_property_value(property_name)
+                return value
+        if property_name not in declarations:
+            return ''
+        value, _ = declarations[property_name]
+        return value
 
-    def remove_property(self, name):
+    def item(self, index):
+        property_name = list(self.keys())[index]
+        return property_name
+
+    def items(self):
+        return self._declarations.items()
+
+    def keys(self):
+        return self._declarations.keys()
+
+    def remove_property(self, property_name):
         """Removes a CSS declaration property of the first exact match of name
         in the declarations.
 
         Arguments:
-            name (str): A property name of a CSS declaration.
+            property_name (str): A property name of a CSS declaration.
         """
-        self.__delitem__(name)
+        if not property_name.startswith('--'):
+            property_name = property_name.lower()
+        value = self.get_property_value(property_name)
+        removed = False
+        declarations = self._declarations
+        if Shorthand.is_shorthand(property_name):
+            shorthand = Shorthand(declarations)
+            removed = shorthand.remove_property(property_name)
+        elif property_name in declarations:
+            del declarations[property_name]
+            removed = True
+        if removed:
+            self._update_style_attribute(declarations, property_name, '')
+        return value
 
-    def set_property(self, name, value, priority=None):
+    def set_property(self, property_name, value, priority=None):
         """Sets a CSS declaration property with a value and an important flag
         in the declarations.
 
         Arguments:
-            name (str): A property name of a CSS declaration.
-            value (str, None): A CSS value of the declarations.
+            property_name (str): A property name of a CSS declaration.
+            value (str): A CSS value of the declarations.
             priority (str, optional): An important flag of the
                 declarations.
         """
-        self.__setitem__(name, (value, priority))
+        value = normalize_text(value)
+        if len(value) == 0:
+            self.remove_property(property_name)
+            return
+
+        if not property_name.startswith('--'):
+            property_name = property_name.lower()
+        declarations = self._declarations
+        if priority is None:
+            priority = declarations.get(property_name, ('', ''))[1]
+        else:
+            priority = priority.lower()
+        if priority not in ('', 'important'):
+            return
+        updated, result = self._set_property_internal(declarations,
+                                                      property_name,
+                                                      value,
+                                                      priority)
+        if updated:
+            self._update_style_attribute(declarations, property_name, result)
+
+    def values(self):
+        return self._declarations.values()
 
 
 class CSSStyleRule(CSSRule):

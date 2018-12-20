@@ -110,8 +110,9 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(3, style.length)
         self.assertEqual('MyGentium', style.get_property_value('font-family'))
         self.assertEqual('', style.get_property_priority('font-family'))
-        expected = \
-            'local(Gentium Bold), local(Gentium-Bold), url(GentiumBold.woff)'
+        expected = "local(Gentium Bold), " \
+                   "local(Gentium-Bold), " \
+                   "url(\"GentiumBold.woff\")"
         self.assertEqual(expected, style.get_property_value('src'))
         self.assertEqual('', style.get_property_priority('src'))
         self.assertEqual('bold', style.get_property_value('font-weight'))
@@ -380,6 +381,972 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('http://www.w3.org/XML/1998/namespace',
                          rule.namespace_uri)
 
+    def test_css_style_declaration01(self):
+        style = CSSStyleDeclaration()
+        self.assertEqual(0, style.length)
+        self.assertEqual(0, len(style))
+
+        style.set_property('display', 'none', 'important')
+        self.assertEqual(1, style.length)
+        self.assertEqual(1, len(style))
+        self.assertEqual('none', style.get_property_value('display'))
+        self.assertEqual('important', style.get_property_priority('display'))
+        self.assertEqual('none', style['display'])
+        self.assertEqual('display', style.item(0))
+
+        style.set_property('display', 'inline', 'unknown')
+        self.assertEqual('none', style.get_property_value('display'))
+        self.assertEqual('important', style.get_property_priority('display'))
+
+        style.set_property('display', 'inline', '')
+        self.assertEqual('inline', style.get_property_value('display'))
+        self.assertEqual('', style.get_property_priority('display'))
+
+        style.set_property('display', 'block', 'IMPORTANT')
+        self.assertEqual('block', style.get_property_value('display'))
+        self.assertEqual('important', style.get_property_priority('display'))
+
+        style['display'] = 'none'
+        self.assertEqual('none', style.get_property_value('display'))
+        self.assertEqual('important', style.get_property_priority('display'))
+
+        style.set_property('display', '')
+        self.assertEqual(0, style.length)
+        self.assertEqual(0, len(style))
+
+        style['display'] = 'none'
+        self.assertEqual(1, style.length)
+        self.assertEqual(1, len(style))
+        self.assertEqual('none', style.get_property_value('display'))
+        self.assertEqual('', style.get_property_priority('display'))
+
+        style.remove_property('display')
+        self.assertEqual(0, style.length)
+        self.assertEqual(0, len(style))
+
+        style.set_property('display', 'inline')
+        self.assertEqual(1, style.length)
+        self.assertEqual(1, len(style))
+        self.assertEqual('inline', style.get_property_value('display'))
+        self.assertEqual('', style.get_property_priority('display'))
+        del style['display']
+        self.assertEqual(0, style.length)
+        self.assertEqual(0, len(style))
+
+    def test_css_style_declaration02(self):
+        style = CSSStyleDeclaration()
+        self.assertEqual(0, style.length)
+        self.assertEqual(0, len(style))
+
+        # font: 12pt/14pt sans-serif;
+        style.set_property('font', '12pt/14pt sans-serif')
+
+        result = style.get_property_value('font')
+        self.assertEqual('12pt/14pt sans-serif', result)
+        result = style.get_property_priority('font')
+        self.assertEqual(0, len(result))
+
+        result = style.get_property_value('font-size')
+        self.assertEqual('12pt', result)
+        result = style.get_property_priority('font-size')
+        self.assertEqual(0, len(result))
+
+        result = style.get_property_value('line-height')
+        self.assertEqual('14pt', result)
+        result = style.get_property_priority('line-height')
+        self.assertEqual(0, len(result))
+
+        result = style.get_property_value('font-family')
+        self.assertEqual('sans-serif', result)
+        result = style.get_property_priority('font-family')
+        self.assertEqual(0, len(result))
+
+        # font-size: 12pt !important;
+        # line-height: 14pt;
+        # font-family: sans-serif;
+        style.set_property('font-size', '12pt', 'important')
+
+        result = style.get_property_value('font')
+        self.assertEqual(0, len(result))
+        result = style.get_property_priority('font')
+        self.assertEqual(0, len(result))
+
+        result = style.get_property_value('font-size')
+        self.assertEqual('12pt', result)
+        result = style.get_property_priority('font-size')
+        self.assertEqual('important', result)
+
+        result = style.get_property_value('line-height')
+        self.assertEqual('14pt', result)
+        result = style.get_property_priority('line-height')
+        self.assertEqual(0, len(result))
+
+        result = style.get_property_value('font-family')
+        self.assertEqual('sans-serif', result)
+        result = style.get_property_priority('font-family')
+        self.assertEqual(0, len(result))
+
+        # font-size: 12pt !important;
+        # line-height: 14pt !important;
+        # font-family: sans-serif !important;
+        style.set_property('line-height', '14pt', 'important')
+        style.set_property('font-family', 'sans-serif', 'important')
+        style.set_property('font-stretch', 'normal', 'important')
+        style.set_property('font-style', 'normal', 'important')
+        style.set_property('font-variant', 'normal', 'important')
+        style.set_property('font-weight', 'normal', 'important')
+
+        result = style.get_property_value('font')
+        self.assertEqual('12pt/14pt sans-serif', result)
+        result = style.get_property_priority('font')
+        self.assertEqual('important', result)
+
+        result = style.get_property_value('font-size')
+        self.assertEqual('12pt', result)
+        result = style.get_property_priority('font-size')
+        self.assertEqual('important', result)
+
+        result = style.get_property_value('line-height')
+        self.assertEqual('14pt', result)
+        result = style.get_property_priority('line-height')
+        self.assertEqual('important', result)
+
+        result = style.get_property_value('font-family')
+        self.assertEqual('sans-serif', result)
+        result = style.get_property_priority('font-family')
+        self.assertEqual('important', result)
+
+    def test_css_style_declaration_inline01(self):
+        parser = SVGParser()
+        rect = parser.create_element_ns('http://www.w3.org/2000/svg', 'rect')
+        self.assertIsInstance(rect.style, CSSStyleDeclaration)
+        self.assertIsNone(rect.style.parent_rule)
+        self.assertEqual(0, rect.style.length)
+        self.assertEqual(0, len(rect.attributes))
+
+        rect.style.set_property('fill', 'red')
+        rect.style.set_property('stroke', 'blue')
+        rect.style.set_property('stroke-width', '5')
+        self.assertEqual(3, rect.style.length)
+        self.assertEqual('red',
+                         rect.style.get_property_value('fill'))
+        self.assertEqual('blue',
+                         rect.style.get_property_value('stroke'))
+        self.assertEqual('5',
+                         rect.style.get_property_value('stroke-width'))
+        self.assertEqual(1, len(rect.attributes))
+        expected = 'fill: red; stroke-width: 5; stroke: blue;'
+        self.assertEqual(expected, rect.get('style'))
+
+        rect.style.remove_property('stroke-width')
+        self.assertEqual(2, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
+        expected = 'fill: red; stroke: blue;'
+        self.assertEqual(expected, rect.get('style'))
+
+        rect.style.set_property('fill', '')
+        rect.style.set_property('stroke', '')
+        rect.style.set_property('stroke', '')  # no error
+        self.assertEqual(0, rect.style.length)
+        self.assertEqual(0, len(rect.attributes))
+
+    def test_css_style_declaration_inline02(self):
+        parser = SVGParser()
+        rect = parser.create_element_ns('http://www.w3.org/2000/svg', 'rect')
+        rect.style.update({
+            'fill': 'red',
+            'stroke': 'blue',
+            'stroke-width': '5',
+        })
+        self.assertIsInstance(rect.style, CSSStyleDeclaration)
+        self.assertIsNone(rect.style.parent_rule)
+        self.assertEqual(3, rect.style.length)
+        self.assertEqual('red',
+                         rect.style.get_property_value('fill'))
+        self.assertEqual('blue',
+                         rect.style.get_property_value('stroke'))
+        self.assertEqual('5',
+                         rect.style.get_property_value('stroke-width'))
+        self.assertEqual(1, len(rect.attributes))
+        expected = 'fill: red; stroke-width: 5; stroke: blue;'
+        self.assertEqual(expected, rect.get('style'))
+
+        rect.style.update({'fill': 'white'})
+        self.assertEqual('white',
+                         rect.style.get_property_value('fill'))
+
+        self.assertEqual(3, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
+        del rect.style['fill']
+        self.assertEqual(2, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
+        rect.style['stroke'] = ''
+        self.assertEqual(1, rect.style.length)
+        self.assertEqual(1, len(rect.attributes))
+        rect.style['stroke-width'] = ''
+        self.assertEqual(0, len(rect.attributes))
+        self.assertEqual(0, rect.style.length)
+
+        rect.style.set_property('fill', 'white', 'IMPORTANT')
+        value = rect.style['fill']
+        priority = rect.style.get_property_priority('fill')
+        self.assertEqual('white', value)
+        self.assertEqual('', priority)  # ignored
+
+        rect.style['fill'] = 'black'  # value without priority
+        value = rect.style['fill']
+        priority = rect.style.get_property_priority('fill')
+        self.assertEqual('black', value)
+        self.assertEqual('', priority)  # ignored
+
+        rect.style.remove_property('fill')
+        rect.style.set_property('fill', 'none')
+        value = rect.style['fill']
+        priority = rect.style.get_property_priority('fill')
+        self.assertEqual('none', value)
+        self.assertEqual('', priority)  # ignored
+
+        rect.style.set_property('fill', 'blue', 'Important')
+        value = rect.style.get_property_value('fill')
+        priority = rect.style.get_property_priority('fill')
+        self.assertEqual('blue', value)
+        self.assertEqual('', priority)  # ignored
+
+    def test_css_style_declaration_inline_font01(self):
+        # [css-fonts-4] EXAMPLE 12 (1)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property(
+            'font',
+            '12pt/14pt sans-serif')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual('font: 12pt/14pt sans-serif;',
+                         root.attributes['style'].value)
+        self.assertEqual('12pt/14pt sans-serif', root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('12pt', root.style['font-size'])
+        self.assertEqual('14pt', root.style['line-height'])
+        self.assertEqual('sans-serif', root.style['font-family'])
+        # self.assertEqual('none', root.style['font-size-adjust'])
+        # self.assertEqual('auto', root.style['font-kerning'])
+        # self.assertEqual('normal', root.style['font-feature-settings'])
+        # self.assertEqual('normal', root.style['font-language-override'])
+        # self.assertEqual('0', root.style['font-min-size'])
+        # self.assertEqual('infinity', root.style['font-max-size'])
+        # self.assertEqual('auto', root.style['font-optical-sizing'])
+        # self.assertEqual('normal', root.style['font-variation-settings'])
+        # self.assertEqual('normal', root.style['font-palette'])
+
+        result = root.style.remove_property('font-style')
+        self.assertEqual('normal', result)
+        self.assertEqual("font-family: sans-serif; "
+                         "font-size: 12pt; "
+                         "font-stretch: normal; "
+                         "font-variant: normal; "
+                         "font-weight: normal; "
+                         "line-height: 14pt;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font'])
+        self.assertEqual('', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('12pt', root.style['font-size'])
+        self.assertEqual('14pt', root.style['line-height'])
+        self.assertEqual('sans-serif', root.style['font-family'])
+
+    def test_css_style_declaration_inline_font02(self):
+        # [css-fonts-4] EXAMPLE 12 (2)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property(
+            'font',
+            '80% sans-serif')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual('font: 80% sans-serif;',
+                         root.attributes['style'].value)
+        self.assertEqual('80% sans-serif', root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('80%', root.style['font-size'])
+        self.assertEqual('normal', root.style['line-height'])
+        self.assertEqual('sans-serif', root.style['font-family'])
+        # self.assertEqual('none', root.style['font-size-adjust'])
+        # self.assertEqual('auto', root.style['font-kerning'])
+        # self.assertEqual('normal', root.style['font-feature-settings'])
+        # self.assertEqual('normal', root.style['font-language-override'])
+        # self.assertEqual('0', root.style['font-min-size'])
+        # self.assertEqual('infinity', root.style['font-max-size'])
+        # self.assertEqual('auto', root.style['font-optical-sizing'])
+        # self.assertEqual('normal', root.style['font-variation-settings'])
+        # self.assertEqual('normal', root.style['font-palette'])
+
+    def test_css_style_declaration_inline_font03(self):
+        # [css-fonts-4] EXAMPLE 12 (3)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property(
+            'font',
+            'x-large/110% "new century schoolbook", serif')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual('font: x-large/110% "new century schoolbook", serif;',
+                         root.attributes['style'].value)
+        self.assertEqual('x-large/110% "new century schoolbook", serif',
+                         root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('x-large', root.style['font-size'])
+        self.assertEqual('110%', root.style['line-height'])
+        self.assertEqual('"new century schoolbook", serif',
+                         root.style['font-family'])
+        # self.assertEqual('none', root.style['font-size-adjust'])
+        # self.assertEqual('auto', root.style['font-kerning'])
+        # self.assertEqual('normal', root.style['font-feature-settings'])
+        # self.assertEqual('normal', root.style['font-language-override'])
+        # self.assertEqual('0', root.style['font-min-size'])
+        # self.assertEqual('infinity', root.style['font-max-size'])
+        # self.assertEqual('auto', root.style['font-optical-sizing'])
+        # self.assertEqual('normal', root.style['font-variation-settings'])
+        # self.assertEqual('normal', root.style['font-palette'])
+
+    def test_css_style_declaration_inline_font04(self):
+        # [css-fonts-4] EXAMPLE 12 (4)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property(
+            'font',
+            'bold italic large Palatino, serif')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual('font: italic bold large Palatino, serif;',
+                         root.attributes['style'].value)
+        self.assertEqual('italic bold large Palatino, serif',
+                         root.style['font'])
+        self.assertEqual('italic', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('bold', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('large', root.style['font-size'])
+        self.assertEqual('normal', root.style['line-height'])
+        self.assertEqual('Palatino, serif', root.style['font-family'])
+        # self.assertEqual('none', root.style['font-size-adjust'])
+        # self.assertEqual('auto', root.style['font-kerning'])
+        # self.assertEqual('normal', root.style['font-feature-settings'])
+        # self.assertEqual('normal', root.style['font-language-override'])
+        # self.assertEqual('0', root.style['font-min-size'])
+        # self.assertEqual('infinity', root.style['font-max-size'])
+        # self.assertEqual('auto', root.style['font-optical-sizing'])
+        # self.assertEqual('normal', root.style['font-variation-settings'])
+        # self.assertEqual('normal', root.style['font-palette'])
+
+        result = root.style.remove_property('font-size')
+        self.assertEqual('large', result)
+        self.assertEqual("font-family: Palatino, serif; "
+                         "font-stretch: normal; "
+                         "font-style: italic; "
+                         "font-variant: normal; "
+                         "font-weight: bold; "
+                         "line-height: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font'])
+        self.assertEqual('italic', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('bold', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('', root.style['font-size'])
+        self.assertEqual('normal', root.style['line-height'])
+        self.assertEqual('Palatino, serif', root.style['font-family'])
+
+    def test_css_style_declaration_inline_font05(self):
+        # [css-fonts-4] EXAMPLE 12 (5)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property(
+            'font',
+            'normal small-caps 120%/120% fantasy')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual('font: small-caps 120%/120% fantasy;',
+                         root.attributes['style'].value)
+        self.assertEqual('small-caps 120%/120% fantasy',
+                         root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('120%', root.style['font-size'])
+        self.assertEqual('120%', root.style['line-height'])
+        self.assertEqual('fantasy', root.style['font-family'])
+        # self.assertEqual('none', root.style['font-size-adjust'])
+        # self.assertEqual('auto', root.style['font-kerning'])
+        # self.assertEqual('normal', root.style['font-feature-settings'])
+        # self.assertEqual('normal', root.style['font-language-override'])
+        # self.assertEqual('0', root.style['font-min-size'])
+        # self.assertEqual('infinity', root.style['font-max-size'])
+        # self.assertEqual('auto', root.style['font-optical-sizing'])
+        # self.assertEqual('normal', root.style['font-variation-settings'])
+        # self.assertEqual('normal', root.style['font-palette'])
+
+        result = root.style.remove_property('font-family')
+        self.assertEqual('fantasy', result)
+        self.assertEqual("font-size: 120%; "
+                         "font-stretch: normal; "
+                         "font-style: normal; "
+                         "font-variant: small-caps; "
+                         "font-weight: normal; "
+                         "line-height: 120%;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('120%', root.style['font-size'])
+        self.assertEqual('120%', root.style['line-height'])
+        self.assertEqual('', root.style['font-family'])
+
+    def test_css_style_declaration_inline_font06(self):
+        # [css-fonts-4] EXAMPLE 12 (5)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property(
+            'font',
+            'normal small-caps 120%/120% fantasy')
+        self.assertEqual(1, len(root.attributes))
+
+        root.style.set_property('font-stretch', '75%')  # [css-font-4]
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font-family: fantasy; "
+                         "font-size: 120%; "
+                         "font-stretch: 75%; "
+                         "font-style: normal; "
+                         "font-variant: small-caps; "
+                         "font-weight: normal; "
+                         "line-height: 120%;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('75%', root.style['font-stretch'])
+        self.assertEqual('120%', root.style['font-size'])
+        self.assertEqual('120%', root.style['line-height'])
+        self.assertEqual('fantasy', root.style['font-family'])
+
+        root.style.set_property('font-stretch', 'condensed')  # [css-font-3]
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font: "
+                         "small-caps "
+                         "condensed "
+                         "120%/120% "
+                         "fantasy;",
+                         root.attributes['style'].value)
+        self.assertEqual('small-caps condensed 120%/120% fantasy',
+                         root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('condensed', root.style['font-stretch'])
+        self.assertEqual('120%', root.style['font-size'])
+        self.assertEqual('120%', root.style['line-height'])
+        self.assertEqual('fantasy', root.style['font-family'])
+
+        root.style.set_property('font-variant-ligatures',
+                                'no-common-ligatures')  # [css-font-3]
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font-family: fantasy; "
+                         "font-size: 120%; "
+                         "font-stretch: condensed; "
+                         "font-style: normal; "
+                         "font-variant: no-common-ligatures small-caps; "
+                         "font-weight: normal; "
+                         "line-height: 120%;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('no-common-ligatures small-caps',
+                         root.style['font-variant'])
+        self.assertEqual('no-common-ligatures',
+                         root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('condensed', root.style['font-stretch'])
+        self.assertEqual('120%', root.style['font-size'])
+        self.assertEqual('120%', root.style['line-height'])
+        self.assertEqual('fantasy', root.style['font-family'])
+
+        root.style.set_property('font-variant', 'normal')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font: "
+                         "condensed "
+                         "120%/120% "
+                         "fantasy;",
+                         root.attributes['style'].value)
+        self.assertEqual('condensed 120%/120% fantasy',
+                         root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('condensed', root.style['font-stretch'])
+        self.assertEqual('120%', root.style['font-size'])
+        self.assertEqual('120%', root.style['line-height'])
+        self.assertEqual('fantasy', root.style['font-family'])
+
+        root.style.set_property('font', 'monospace')
+        root.style.set_property('font-weight', '200')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font: "
+                         "200 "
+                         "monospace;",
+                         root.attributes['style'].value)
+        self.assertEqual('200 monospace',
+                         root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('200', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('medium', root.style['font-size'])
+        self.assertEqual('normal', root.style['line-height'])
+        self.assertEqual('monospace', root.style['font-family'])
+
+        root.style.set_property('font-variant-caps', 'all-small-caps')
+        root.style.set_property('font-variant-east-asian', 'ruby')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font-family: monospace; "
+                         "font-size: medium; "
+                         "font-stretch: normal; "
+                         "font-style: normal; "
+                         "font-variant: all-small-caps ruby; "
+                         "font-weight: 200; "
+                         "line-height: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('all-small-caps ruby',
+                         root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('all-small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('ruby', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('200', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('medium', root.style['font-size'])
+        self.assertEqual('normal', root.style['line-height'])
+        self.assertEqual('monospace', root.style['font-family'])
+
+        root.style.set_property('font-variant', 'normal')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font: "
+                         "200 "
+                         "monospace;",
+                         root.attributes['style'].value)
+        self.assertEqual('200 monospace',
+                         root.style['font'])
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('200', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('medium', root.style['font-size'])
+        self.assertEqual('normal', root.style['line-height'])
+        self.assertEqual('monospace', root.style['font-family'])
+
+    def test_css_style_declaration_inline_font07(self):
+        # [css-fonts-4] EXAMPLE 12 (7)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property(
+            'font',
+            'condensed oblique 25deg 753 12pt "Helvetica Neue", serif')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual("font: "
+                         "oblique 25deg "
+                         "753 "
+                         "condensed "
+                         "12pt "
+                         "\"Helvetica Neue\", serif;",
+                         root.attributes['style'].value)
+        self.assertEqual("oblique 25deg "
+                         "753 "
+                         "condensed "
+                         "12pt "
+                         "\"Helvetica Neue\", serif",
+                         root.style['font'])
+        self.assertEqual('oblique 25deg', root.style['font-style'])
+        self.assertEqual('normal', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+        self.assertEqual('753', root.style['font-weight'])
+        self.assertEqual('condensed', root.style['font-stretch'])
+        self.assertEqual('12pt', root.style['font-size'])
+        self.assertEqual('normal', root.style['line-height'])
+        self.assertEqual('"Helvetica Neue", serif', root.style['font-family'])
+
+    def test_css_style_declaration_inline_font08(self):
+        # [css-fonts-4] EXAMPLE 12 (5)
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property(
+            'font',
+            'normal small-caps 120%/120% fantasy')
+        self.assertEqual(1, len(root.attributes))
+        self.assertEqual('font: small-caps 120%/120% fantasy;',
+                         root.attributes['style'].value)
+        self.assertEqual('small-caps 120%/120% fantasy',
+                         root.style['font'])
+
+        result = root.style.remove_property('font-variant')
+        self.assertEqual('small-caps', result)
+        self.assertEqual("font-family: fantasy; "
+                         "font-size: 120%; "
+                         "font-stretch: normal; "
+                         "font-style: normal; "
+                         "font-weight: normal; "
+                         "line-height: 120%;",
+                         root.attributes['style'].value)
+        self.assertEqual('normal', root.style['font-style'])
+        self.assertEqual('', root.style['font-variant'])
+        self.assertEqual('', root.style['font-variant-ligatures'])
+        self.assertEqual('', root.style['font-variant-caps'])
+        self.assertEqual('', root.style['font-variant-alternates'])
+        self.assertEqual('', root.style['font-variant-numeric'])
+        self.assertEqual('', root.style['font-variant-east-asian'])
+        self.assertEqual('', root.style['font-variant-position'])
+        self.assertEqual('normal', root.style['font-weight'])
+        self.assertEqual('normal', root.style['font-stretch'])
+        self.assertEqual('120%', root.style['font-size'])
+        self.assertEqual('120%', root.style['line-height'])
+        self.assertEqual('fantasy', root.style['font-family'])
+
+    def test_css_style_declaration_inline_font_variant01(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property(
+            'font-variant',
+            'small-caps')
+        self.assertEqual("font-variant: small-caps;",
+                         root.attributes['style'].value)
+        self.assertEqual('small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+
+    def test_css_style_declaration_inline_font_variant02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property('font', 'small-caps sans-serif')
+        self.assertEqual("font: small-caps sans-serif;",
+                         root.attributes['style'].value)
+        self.assertEqual('small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+
+        root.style.set_property('font-variant', 'all-small-caps')
+        self.assertEqual("font-family: sans-serif; "
+                         "font-size: medium; "
+                         "font-stretch: normal; "
+                         "font-style: normal; "
+                         "font-variant: all-small-caps; "
+                         "font-weight: normal; "
+                         "line-height: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('all-small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('all-small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+
+        result = root.style.remove_property('font-variant')
+        self.assertEqual("font-family: sans-serif; "
+                         "font-size: medium; "
+                         "font-stretch: normal; "
+                         "font-style: normal; "
+                         "font-weight: normal; "
+                         "line-height: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('all-small-caps', result)
+        self.assertEqual('', root.style['font-variant'])
+        self.assertEqual('', root.style['font-variant-ligatures'])
+        self.assertEqual('', root.style['font-variant-caps'])
+        self.assertEqual('', root.style['font-variant-alternates'])
+        self.assertEqual('', root.style['font-variant-numeric'])
+        self.assertEqual('', root.style['font-variant-east-asian'])
+        self.assertEqual('', root.style['font-variant-position'])
+
+        root.style.set_property('font-variant', 'no-common-ligatures')
+        self.assertEqual("font-family: sans-serif; "
+                         "font-size: medium; "
+                         "font-stretch: normal; "
+                         "font-style: normal; "
+                         "font-variant: no-common-ligatures; "
+                         "font-weight: normal; "
+                         "line-height: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('all-small-caps', result)
+        self.assertEqual('no-common-ligatures', root.style['font-variant'])
+        self.assertEqual('no-common-ligatures',
+                         root.style['font-variant-ligatures'])
+        self.assertEqual('normal', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+
+        root.style.set_property('font-variant', 'small-caps')
+        self.assertEqual("font: small-caps sans-serif;",
+                         root.attributes['style'].value)
+        self.assertEqual('small-caps', root.style['font-variant'])
+        self.assertEqual('normal', root.style['font-variant-ligatures'])
+        self.assertEqual('small-caps', root.style['font-variant-caps'])
+        self.assertEqual('normal', root.style['font-variant-alternates'])
+        self.assertEqual('normal', root.style['font-variant-numeric'])
+        self.assertEqual('normal', root.style['font-variant-east-asian'])
+        self.assertEqual('normal', root.style['font-variant-position'])
+
+        result = root.style.remove_property('font')
+        self.assertEqual(0, root.attributes.length)
+        self.assertEqual("small-caps sans-serif", result)
+        self.assertEqual('', root.style['font-variant'])
+        self.assertEqual('', root.style['font-variant-ligatures'])
+        self.assertEqual('', root.style['font-variant-caps'])
+        self.assertEqual('', root.style['font-variant-alternates'])
+        self.assertEqual('', root.style['font-variant-numeric'])
+        self.assertEqual('', root.style['font-variant-east-asian'])
+        self.assertEqual('', root.style['font-variant-position'])
+
+    def test_css_style_declaration_inline_overflow01(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property('overflow', 'clip')
+        self.assertEqual("overflow: clip;",
+                         root.attributes['style'].value)
+        self.assertEqual('clip', root.style['overflow'])
+        self.assertEqual('clip', root.style['overflow-x'])
+        self.assertEqual('clip', root.style['overflow-y'])
+
+        result = root.style.remove_property('overflow-y')
+        self.assertEqual('clip', result)
+        self.assertEqual("overflow: clip;",
+                         root.attributes['style'].value)
+        self.assertEqual('clip', root.style['overflow'])
+        self.assertEqual('clip', root.style['overflow-x'])
+        self.assertEqual('clip', root.style['overflow-y'])
+
+    def test_css_style_declaration_inline_overflow02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property('overflow', 'clip')
+        self.assertEqual("overflow: clip;",
+                         root.attributes['style'].value)
+        self.assertEqual('clip', root.style['overflow'])
+        self.assertEqual('clip', root.style['overflow-x'])
+        self.assertEqual('clip', root.style['overflow-y'])
+
+        result = root.style.remove_property('overflow-x')
+        self.assertEqual('clip', result)
+        self.assertEqual("overflow-y: clip;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['overflow'])
+        self.assertEqual('', root.style['overflow-x'])
+        self.assertEqual('clip', root.style['overflow-y'])
+
+    def test_css_style_declaration_inline_overflow03(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property('overflow', 'clip auto')
+        self.assertEqual("overflow: clip auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('clip auto', root.style['overflow'])
+        self.assertEqual('clip', root.style['overflow-x'])
+        self.assertEqual('auto', root.style['overflow-y'])
+
+        result = root.style.remove_property('overflow-y')
+        self.assertEqual('auto', result)
+        self.assertEqual("overflow: clip;",
+                         root.attributes['style'].value)
+        self.assertEqual('clip', root.style['overflow'])
+        self.assertEqual('clip', root.style['overflow-x'])
+        self.assertEqual('clip', root.style['overflow-y'])
+
+    def test_css_style_declaration_inline_overflow04(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property('overflow', 'clip auto')
+        self.assertEqual("overflow: clip auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('clip auto', root.style['overflow'])
+        self.assertEqual('clip', root.style['overflow-x'])
+        self.assertEqual('auto', root.style['overflow-y'])
+
+        result = root.style.remove_property('overflow-x')
+        self.assertEqual('clip', result)
+        self.assertEqual("overflow-y: auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['overflow'])
+        self.assertEqual('', root.style['overflow-x'])
+        self.assertEqual('auto', root.style['overflow-y'])
+
+    def test_css_style_declaration_inline_overflow05(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property('overflow', 'clip auto')
+        self.assertEqual("overflow: clip auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('clip auto', root.style['overflow'])
+        self.assertEqual('clip', root.style['overflow-x'])
+        self.assertEqual('auto', root.style['overflow-y'])
+
+        result = root.style.remove_property('overflow')
+        self.assertEqual('clip auto', result)
+        self.assertEqual(0, root.attributes.length)
+        self.assertEqual('', root.style['overflow'])
+        self.assertEqual('', root.style['overflow-x'])
+        self.assertEqual('', root.style['overflow-y'])
+
+        root.style.set_property('overflow-x', 'auto')
+        self.assertEqual("overflow: auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('auto', root.style['overflow'])
+        self.assertEqual('auto', root.style['overflow-x'])
+        self.assertEqual('auto', root.style['overflow-y'])
+
     def test_css_style_rule(self):
         stylesheet = '''
         *:not(svg),
@@ -413,7 +1380,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('0 0', value)
         self.assertEqual('', priority)
 
-        style['transform-origin'] = 'center', 'important'
+        style.set_property('transform-origin', 'center', 'important')
         value = style.get_property_value('transform-origin')
         priority = style.get_property_priority('transform-origin')
         self.assertEqual('center', value)
@@ -425,7 +1392,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('50 50', value)
         self.assertEqual('important', priority)
 
-        style['transform-origin'] = None  # remove
+        style['transform-origin'] = ''  # remove
         self.assertEqual(0, style.length)
 
         rule = rules[1]
@@ -448,104 +1415,8 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('inline', value)
         self.assertEqual('important', priority)
 
-        style.set_property('display', None)  # remove
+        style.set_property('display', '')  # remove
         self.assertEqual(0, style.length)
-
-    def test_inline_style01(self):
-        parser = SVGParser()
-        rect = parser.create_element('rect')
-        self.assertIsInstance(rect.style, CSSStyleDeclaration)
-        self.assertIsNone(rect.style.parent_rule)
-        self.assertEqual(0, rect.style.length)
-        self.assertEqual(0, len(rect.attributes))
-
-        rect.style.set_property('fill', 'red')
-        rect.style.set_property('stroke', 'blue')
-        rect.style.set_property('stroke-width', '5')
-        self.assertEqual(3, rect.style.length)
-        self.assertEqual('red',
-                         rect.style.get_property_value('fill'))
-        self.assertEqual('blue',
-                         rect.style.get_property_value('stroke'))
-        self.assertEqual('5',
-                         rect.style.get_property_value('stroke-width'))
-        self.assertEqual(1, len(rect.attributes))
-        expected = 'fill: red; stroke-width: 5; stroke: blue;'
-        self.assertEqual(expected, rect.get('style'))
-
-        rect.style.remove_property('stroke-width')
-        self.assertEqual(2, rect.style.length)
-        self.assertEqual(1, len(rect.attributes))
-        expected = 'fill: red; stroke: blue;'
-        self.assertEqual(expected, rect.get('style'))
-
-        rect.style.set_property('fill', None)
-        rect.style.set_property('stroke', '')
-        rect.style.set_property('stroke', '')  # no error
-        self.assertEqual(0, rect.style.length)
-        self.assertEqual(0, len(rect.attributes))
-
-    def test_inline_style02(self):
-        parser = SVGParser()
-        rect = parser.create_element('rect')
-        rect.style.update({
-            'fill': 'red',
-            'stroke': 'blue',
-            'stroke-width': '5',
-        })
-        self.assertIsInstance(rect.style, CSSStyleDeclaration)
-        self.assertIsNone(rect.style.parent_rule)
-        self.assertEqual(3, rect.style.length)
-        self.assertEqual('red',
-                         rect.style.get_property_value('fill'))
-        self.assertEqual('blue',
-                         rect.style.get_property_value('stroke'))
-        self.assertEqual('5',
-                         rect.style.get_property_value('stroke-width'))
-        self.assertEqual(1, len(rect.attributes))
-        expected = 'fill: red; stroke-width: 5; stroke: blue;'
-        self.assertEqual(expected, rect.get('style'))
-
-        rect.style.update({'fill': 'white'})
-        self.assertEqual('white',
-                         rect.style.get_property_value('fill'))
-
-        self.assertEqual(3, rect.style.length)
-        self.assertEqual(1, len(rect.attributes))
-        del rect.style['fill']
-        self.assertEqual(2, rect.style.length)
-        self.assertEqual(1, len(rect.attributes))
-        rect.style['stroke'] = None
-        self.assertEqual(1, rect.style.length)
-        self.assertEqual(1, len(rect.attributes))
-        rect.style['stroke-width'] = ''
-        self.assertEqual(0, len(rect.attributes))
-        self.assertEqual(0, rect.style.length)
-
-        rect.style['fill'] = 'white', 'IMPORTANT'  # value with priority
-        value = rect.style['fill']
-        priority = rect.style.get_property_priority('fill')
-        self.assertEqual('white', value)
-        self.assertEqual('important', priority)
-
-        rect.style['fill'] = 'black'  # value without priority
-        value = rect.style['fill']
-        priority = rect.style.get_property_priority('fill')
-        self.assertEqual('black', value)
-        self.assertEqual('important', priority)
-
-        rect.style.remove_property('fill')
-        rect.style.set_property('fill', 'none')
-        value = rect.style['fill']
-        priority = rect.style.get_property_priority('fill')
-        self.assertEqual('none', value)
-        self.assertEqual('', priority)
-
-        rect.style.set_property('fill', 'blue', 'Important')
-        value = rect.style.get_property_value('fill')
-        priority = rect.style.get_property_priority('fill')
-        self.assertEqual('blue', value)
-        self.assertEqual('important', priority)
 
     def test_link_style_sheet_link(self):
         # HTMLLinkElement#sheet
