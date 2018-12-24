@@ -59,6 +59,17 @@ symbol {
 :host(use) > symbol {
   display: inline !important;
 }
+
+/* [fill-stroke-3] */
+/* svg:svg:root, *|*:not(svg|*) > svg:svg */
+svg|svg:root, 
+svg:root {
+  fill-color: black;
+}
+
+svg|svg, svg {
+  fill-origin: content-box;
+}
 '''
 
 # _OPENTYPE_UA_CSS_STYLESHEET = '''
