@@ -932,7 +932,11 @@ class CSSFontFaceRule(CSSRule):
         self._style = CSSStyleDeclaration(rule, parent_rule=self)
 
     def __repr__(self):
-        return repr((type(self).__name__, self.style))
+        return repr({
+            type(self).__name__: {
+                type(self._style).__name__: self._style,
+            }
+        })
 
     @property
     def style(self):
@@ -968,15 +972,17 @@ class CSSFontFeatureValuesRule(CSSRule):
         self._parse_content(rule.content)
 
     def __repr__(self):
-        return repr((type(self).__name__, {
-            'font_family': self.font_family,
-            'annotation': self.annotation,
-            'character_variant': self.character_variant,
-            'ornaments': self.ornaments,
-            'styleset': self.styleset,
-            'stylistic': self.stylistic,
-            'swash': self.swash,
-        }))
+        return repr({
+            type(self).__name__: {
+                'font_family': self._font_family,
+                'annotation': self._annotation,
+                'character_variant': self._character_variant,
+                'ornaments': self._ornaments,
+                'styleset': self._styleset,
+                'stylistic': self._stylistic,
+                'swash': self._swash,
+            }
+        })
 
     def _parse_content(self, content):
         nodes = tinycss2.parse_rule_list(content,
@@ -1075,11 +1081,13 @@ class CSSImportRule(CSSRule):
         self._parse_prelude(rule.prelude)
 
     def __repr__(self):
-        return repr((type(self).__name__, {
-            'href': self.href,
-            'media': self.media,
-            'style_sheet': self.style_sheet,
-        }))
+        return repr({
+            type(self).__name__: {
+                'href': self._href,
+                'media': self._media,
+                'style_sheet': self._style_sheet,
+            }
+        })
 
     def _parse_prelude(self, prelude):
         if self.parent_style_sheet is not None:
@@ -1155,10 +1163,12 @@ class CSSMediaRule(CSSConditionRule):
         self.css_rules.extend(css_rules)
 
     def __repr__(self):
-        return repr((type(self).__name__, {
-            'media': self.media,
-            'css_rules': self.css_rules,
-        }))
+        return repr({
+            type(self).__name__: {
+                'media': self._media,
+                'css_rules': self._css_rules,
+            }
+        })
 
     @property
     def condition_text(self):
@@ -1198,10 +1208,12 @@ class CSSNamespaceRule(CSSRule):
         self._parse_prelude(rule.prelude)
 
     def __repr__(self):
-        return repr((type(self).__name__, {
-            'namespace_uri': self.namespace_uri,
-            'prefix': self.prefix,
-        }))
+        return repr({
+            type(self).__name__: {
+                'namespace_uri': self._namespace_uri,
+                'prefix': self._prefix,
+            }
+        })
 
     def _parse_prelude(self, prelude):
         for token in prelude:
@@ -1478,7 +1490,12 @@ class CSSStyleRule(CSSRule):
         self._style = CSSStyleDeclaration(rule, parent_rule=self)
 
     def __repr__(self):
-        return repr((type(self).__name__, self.selector_text, self.style))
+        return repr({
+            type(self).__name__: {
+                'selector_text': self._selector_text,
+                'style': self._style,
+            }
+        })
 
     @property
     def selector_text(self):
@@ -1508,12 +1525,14 @@ class CSSStyleSheet(StyleSheet):
         self._css_rules = list()
 
     def __repr__(self):
-        return repr((type(self).__name__, {
-            'href': self.href,
-            'media': self.media,
-            'title': self.title,
-            'css_rules': self.css_rules,
-        }))
+        return repr({
+            type(self).__name__: {
+                'href': self._href,
+                'media': self._media,
+                'title': self._title,
+                'css_rules': self._css_rules,
+            }
+        })
 
     @property
     def owner_rule(self):
