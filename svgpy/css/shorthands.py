@@ -318,6 +318,61 @@ class ShorthandFont(ShorthandProperty):
         return s
 
 
+class ShorthandFontSynthesis(ShorthandProperty):
+
+    def set_css_declaration(self, components, priority):
+        components_map = OrderedDict()
+        values = [tinycss2.serialize([x]) for x in components
+                  if x.type != 'whitespace']
+        font_synthesis_weight = None
+        font_synthesis_style = None
+        if len(values) == 1:
+            if values[0] == 'none':
+                font_synthesis_weight = 'none'
+                font_synthesis_style = 'none'
+            elif values[0] == 'weight':
+                font_synthesis_weight = 'auto'
+                font_synthesis_style = 'none'
+            elif values[0] == 'style':
+                font_synthesis_weight = 'none'
+                font_synthesis_style = 'auto'
+        elif len(values) == 2 and 'weight' in values and 'style' in values:
+            font_synthesis_weight = 'auto'
+            font_synthesis_style = 'auto'
+
+        if font_synthesis_weight:
+            components_map['font-synthesis-weight'] = [
+                IdentToken(0, 0, font_synthesis_weight)
+            ]
+        if font_synthesis_style:
+            components_map['font-synthesis-style'] = [
+                IdentToken(0, 0, font_synthesis_style)
+            ]
+
+        updated = self._set_css_declarations(components_map, priority)
+        return updated
+
+    def tostring(self, property_map):
+        _ = self
+        font_synthesis_weight = property_map.get('font-synthesis-weight')
+        font_synthesis_style = property_map.get('font-synthesis-style')
+        if font_synthesis_weight is None or font_synthesis_style is None:
+            return ''
+        elif (font_synthesis_weight == 'none'
+              and font_synthesis_style == 'none'):
+            return 'none'
+        elif (font_synthesis_weight == 'auto'
+              and font_synthesis_style == 'none'):
+            return 'weight'
+        elif (font_synthesis_weight == 'none'
+              and font_synthesis_style == 'auto'):
+            return 'style'
+        elif (font_synthesis_weight == 'auto'
+              and font_synthesis_style == 'auto'):
+            return 'weight style'
+        return ''
+
+
 class ShorthandFontVariant(ShorthandProperty):
 
     def set_css_declaration(self, components, priority):
@@ -408,6 +463,7 @@ class ShorthandOverflow(ShorthandProperty):
 
 _shorthand_property_class_map = {
     'font': ShorthandFont,
+    'font-synthesis': ShorthandFontSynthesis,
     'font-variant': ShorthandFontVariant,
     'overflow': ShorthandOverflow,
 }
@@ -421,6 +477,10 @@ shorthand_property_map = {
         'font-size',
         'line-height',
         'font-family',
+    ),
+    'font-synthesis': (
+        'font-synthesis-weight',
+        'font-synthesis-style',
     ),
     'font-variant': (
         'font-variant-ligatures',

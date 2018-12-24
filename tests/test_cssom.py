@@ -1121,6 +1121,56 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('120%', root.style['line-height'])
         self.assertEqual('fantasy', root.style['font-family'])
 
+    def test_css_style_declaration_inline_font_synthesis(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('font-synthesis', 'invalid-value')
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('font-synthesis', 'none')
+        self.assertEqual("font-synthesis: none;",
+                         root.attributes['style'].value)
+        self.assertEqual('none', root.style['font-synthesis'])
+        self.assertEqual('none', root.style['font-synthesis-weight'])
+        self.assertEqual('none', root.style['font-synthesis-style'])
+
+        root.style.remove_property('font-synthesis-weight')
+        self.assertEqual("font-synthesis-style: none;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font-synthesis'])
+        self.assertEqual('', root.style['font-synthesis-weight'])
+        self.assertEqual('none', root.style['font-synthesis-style'])
+
+        root.style.set_property('font-synthesis-weight', 'auto')
+        self.assertEqual("font-synthesis: weight;",
+                         root.attributes['style'].value)
+        self.assertEqual('weight', root.style['font-synthesis'])
+        self.assertEqual('auto', root.style['font-synthesis-weight'])
+        self.assertEqual('none', root.style['font-synthesis-style'])
+
+        root.style.set_property('font-synthesis-style', 'auto')
+        self.assertEqual("font-synthesis: weight style;",
+                         root.attributes['style'].value)
+        self.assertEqual('weight style', root.style['font-synthesis'])
+        self.assertEqual('auto', root.style['font-synthesis-weight'])
+        self.assertEqual('auto', root.style['font-synthesis-style'])
+
+        root.style.set_property('font-synthesis-weight', 'none')
+        self.assertEqual("font-synthesis: style;",
+                         root.attributes['style'].value)
+        self.assertEqual('style', root.style['font-synthesis'])
+        self.assertEqual('none', root.style['font-synthesis-weight'])
+        self.assertEqual('auto', root.style['font-synthesis-style'])
+
+        root.style.remove_property('font-synthesis')
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
     def test_css_style_declaration_inline_font_variant01(self):
         parser = SVGParser()
         root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')

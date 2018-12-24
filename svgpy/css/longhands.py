@@ -37,6 +37,9 @@ longhand_property_map = {
     'font-size': ('font', 'font-variant'),
     'line-height': ('font', 'font-variant'),
     'font-family': ('font', 'font-variant'),
+    # 'font-synthesis'
+    'font-synthesis-weight': ('font-synthesis',),
+    'font-synthesis-style': ('font-synthesis',),
     # 'font-variant'
     'font-variant-ligatures': ('font', 'font-variant'),
     'font-variant-caps': ('font', 'font-variant'),
