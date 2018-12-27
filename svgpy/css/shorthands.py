@@ -218,7 +218,7 @@ class ShorthandProperty(object):
         raise NotImplementedError
 
 
-class ShorthandFont(ShorthandProperty):
+class FontShorthand(ShorthandProperty):
 
     def set_css_declaration(self, components, priority):
         components_map = ShorthandProperty._parse_css_declaration(
@@ -515,7 +515,7 @@ class TextDecorationShorthand(ShorthandProperty):
 
 
 _shorthand_property_class_map = {
-    'font': ShorthandFont,
+    'font': FontShorthand,
     'font-synthesis': ShorthandFontSynthesis,
     'font-variant': ShorthandFontVariant,
     'overflow': ShorthandOverflow,
