@@ -24,7 +24,7 @@ import tinycss2
 
 from .longhands import Longhand
 from .props import PropertyDescriptor, PropertySyntax, \
-    css_property_descriptor_map
+    css_property_descriptor_map, css_color_keyword_set, css_wide_keyword_set
 from .screen import Screen, ScreenOrientation
 from .shorthands import Shorthand
 from .types import CSSKeywordValue, CSSImageValue, CSSMathClamp, \
@@ -1326,6 +1326,8 @@ class CSSStyleDeclaration(MutableMapping):
         value = tinycss2.serialize(components).strip()
         if len(value) == 0:
             return False
+        if value.lower() in css_color_keyword_set | css_wide_keyword_set:
+            value = value.lower()
         declarations[property_name] = value, priority
         return True
 
@@ -1349,7 +1351,7 @@ class CSSStyleDeclaration(MutableMapping):
                                                 components,
                                                 priority)
             if updated:
-                result = value
+                result = declarations[property_name][0]
         return updated, result
 
     def _update_style_attribute(self, declarations, property_name, value):

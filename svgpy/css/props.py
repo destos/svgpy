@@ -29,6 +29,10 @@ _RE_SYNTAX_COMBINATOR = re.compile(r' |\|{1,2}|&&|\[|\]')
 _RE_SYNTAX_MULTIPLIERS = re.compile(
     r'(\*|\+|\?|#|!)?(\{[0-9]+(,([0-9]+)?)?\}|(\*|\+|\?|#|!))?$')
 
+css_color_keyword_set = {
+    'currentcolor', 'transparent',
+}
+
 css_wide_keyword_set = {
     'default', 'inherit', 'initial', 'revert', 'unset',
 }
@@ -128,8 +132,7 @@ class PropertyDescriptor(object):
         self._functions = set(functions)
         components = {x for x in components
                       if (x[0] != '<' and x[-1] != '>'
-                          and x.lower() not in ({'currentcolor',
-                                                 'transparent'}
+                          and x.lower() not in (css_color_keyword_set
                                                 | css_wide_keyword_set))}
         self._identifiers = components
 
