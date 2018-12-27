@@ -20,7 +20,8 @@ from collections import OrderedDict
 import tinycss2
 from tinycss2.ast import IdentToken, NumberToken
 
-from .props import css_property_descriptor_map
+from .props import css_color_keyword_set, css_property_descriptor_map, \
+    css_wide_keyword_set
 
 _RE_CSS_VERSION = re.compile(r'-css[0-9]$')
 
@@ -156,12 +157,19 @@ class ShorthandProperty(object):
                 else:
                     supported, _ = desc.support(component)
                     if supported:
+                        components.remove(component)
                         target = components_map.setdefault(
                             longhand_name,
                             list())
+                        if (component.type == 'ident'
+                                and component.lower_value
+                                in css_color_keyword_set
+                                | css_wide_keyword_set):
+                            component = IdentToken(component.source_line,
+                                                   component.source_column,
+                                                   component.lower_value)
                         target.append(component)
                         target_components = target
-                        components.remove(component)
                     else:
                         target_components = None
                 previous_component = component
@@ -461,11 +469,57 @@ class ShorthandOverflow(ShorthandProperty):
         return s
 
 
+class TextDecorationShorthand(ShorthandProperty):
+
+    def set_css_declaration(self, components, priority):
+        components_map = ShorthandProperty._parse_css_declaration(
+            'text-decoration',
+            components,
+            set_initial_value=False,
+        )
+
+        for property_name in shorthand_property_map['text-decoration']:
+            if property_name not in components_map:
+                components_map[property_name] = [IdentToken(0, 0, 'initial')]
+
+        updated = self._set_css_declarations(components_map, priority)
+        return updated
+
+    def tostring(self, property_map):
+        _ = self
+        text_decoration_line = property_map.get('text-decoration-line')
+        if text_decoration_line is None:
+            return ''
+
+        text_decoration_style = property_map.get('text-decoration-style')
+        if text_decoration_style is None:
+            return ''
+
+        text_decoration_color = property_map.get('text-decoration-color')
+        if text_decoration_color is None:
+            return ''
+
+        values = (text_decoration_line, text_decoration_style,
+                  text_decoration_color)
+        if all(x in css_wide_keyword_set for x in values):
+            if (text_decoration_line == text_decoration_style
+                    == text_decoration_color):
+                return text_decoration_line
+            else:
+                return ''
+        elif any(x in css_wide_keyword_set - {'initial'} for x in values):
+            return ''
+
+        s = ' '.join(x for x in values if x != 'initial')
+        return s
+
+
 _shorthand_property_class_map = {
     'font': ShorthandFont,
     'font-synthesis': ShorthandFontSynthesis,
     'font-variant': ShorthandFontVariant,
     'overflow': ShorthandOverflow,
+    'text-decoration': TextDecorationShorthand,
 }
 
 shorthand_property_map = {
@@ -493,5 +547,10 @@ shorthand_property_map = {
     'overflow': (
         'overflow-x',
         'overflow-y',
+    ),
+    'text-decoration': (
+        'text-decoration-line',
+        'text-decoration-style',
+        'text-decoration-color',
     ),
 }

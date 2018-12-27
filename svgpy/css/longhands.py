@@ -50,4 +50,8 @@ longhand_property_map = {
     # 'overflow'
     'overflow-x': ('overflow',),
     'overflow-y': ('overflow',),
+    # 'text-decoration'
+    'text-decoration-line': ('text-decoration',),
+    'text-decoration-style': ('text-decoration',),
+    'text-decoration-color': ('text-decoration',),
 }

@@ -1397,6 +1397,97 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('auto', root.style['overflow-x'])
         self.assertEqual('auto', root.style['overflow-y'])
 
+    def test_css_style_declaration_inline_text_decoration01(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('text-decoration', 'initial')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('initial', root.style['text-decoration-line'])
+        self.assertEqual('initial', root.style['text-decoration-style'])
+        self.assertEqual('initial', root.style['text-decoration-color'])
+
+        root.style.set_property('text-decoration-line', 'inherit')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration-color: initial; "
+                         "text-decoration-line: inherit; "
+                         "text-decoration-style: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('inherit', root.style['text-decoration-line'])
+        self.assertEqual('initial', root.style['text-decoration-style'])
+        self.assertEqual('initial', root.style['text-decoration-color'])
+
+        root.style.set_property('text-decoration-color', 'currentColor')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration-color: currentcolor; "
+                         "text-decoration-line: inherit; "
+                         "text-decoration-style: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('inherit', root.style['text-decoration-line'])
+        self.assertEqual('initial', root.style['text-decoration-style'])
+        self.assertEqual('currentcolor', root.style['text-decoration-color'])
+
+        root.style.set_property('text-decoration-line', 'none')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration: none currentcolor;",
+                         root.attributes['style'].value)
+        self.assertEqual('none', root.style['text-decoration-line'])
+        self.assertEqual('initial', root.style['text-decoration-style'])
+        self.assertEqual('currentcolor', root.style['text-decoration-color'])
+
+        root.style.set_property('text-decoration-style', '')
+        self.assertEqual(2, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration-color: currentcolor; "
+                         "text-decoration-line: none;",
+                         root.attributes['style'].value)
+        self.assertEqual('none', root.style['text-decoration-line'])
+        self.assertEqual('currentcolor', root.style['text-decoration-color'])
+
+        root.style.set_property('text-decoration-style', 'solid')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration: none solid currentcolor;",
+                         root.attributes['style'].value)
+        self.assertEqual('none', root.style['text-decoration-line'])
+        self.assertEqual('solid', root.style['text-decoration-style'])
+        self.assertEqual('currentcolor', root.style['text-decoration-color'])
+
+    def test_css_style_declaration_inline_text_decoration02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg',
+                                        'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('text-decoration', 'navy dotted underline')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration: underline dotted navy;",
+                         root.attributes['style'].value)
+        self.assertEqual('underline', root.style['text-decoration-line'])
+        self.assertEqual('dotted', root.style['text-decoration-style'])
+        self.assertEqual('navy', root.style['text-decoration-color'])
+
+        root.style.set_property('text-decoration-color', 'TRANSPARENT')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-decoration: underline dotted transparent;",
+                         root.attributes['style'].value)
+        self.assertEqual('underline', root.style['text-decoration-line'])
+        self.assertEqual('dotted', root.style['text-decoration-style'])
+        self.assertEqual('transparent', root.style['text-decoration-color'])
+
     def test_css_style_rule(self):
         stylesheet = '''
         *:not(svg),
