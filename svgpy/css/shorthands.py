@@ -435,7 +435,7 @@ class FontVariantShorthand(ShorthandProperty):
         return s
 
 
-class ShorthandOverflow(ShorthandProperty):
+class OverflowShorthand(ShorthandProperty):
 
     def set_css_declaration(self, components, priority):
         components_map = ShorthandProperty._parse_css_declaration(
@@ -518,7 +518,7 @@ _shorthand_property_class_map = {
     'font': FontShorthand,
     'font-synthesis': FontSynthesisShorthand,
     'font-variant': FontVariantShorthand,
-    'overflow': ShorthandOverflow,
+    'overflow': OverflowShorthand,
     'text-decoration': TextDecorationShorthand,
 }
 
