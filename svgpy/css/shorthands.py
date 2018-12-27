@@ -326,7 +326,7 @@ class FontShorthand(ShorthandProperty):
         return s
 
 
-class ShorthandFontSynthesis(ShorthandProperty):
+class FontSynthesisShorthand(ShorthandProperty):
 
     def set_css_declaration(self, components, priority):
         components_map = OrderedDict()
@@ -516,7 +516,7 @@ class TextDecorationShorthand(ShorthandProperty):
 
 _shorthand_property_class_map = {
     'font': FontShorthand,
-    'font-synthesis': ShorthandFontSynthesis,
+    'font-synthesis': FontSynthesisShorthand,
     'font-variant': ShorthandFontVariant,
     'overflow': ShorthandOverflow,
     'text-decoration': TextDecorationShorthand,
