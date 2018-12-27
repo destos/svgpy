@@ -227,7 +227,7 @@ class FontShorthand(ShorthandProperty):
         )
 
         font_variant_components = components_map.pop('font-variant-css2')
-        shorthand = ShorthandFontVariant(self._declarations)
+        shorthand = FontVariantShorthand(self._declarations)
         shorthand.set_css_declaration(font_variant_components, priority)
 
         font_stretch_components = components_map.pop('font-stretch-css3')
@@ -381,7 +381,7 @@ class FontSynthesisShorthand(ShorthandProperty):
         return ''
 
 
-class ShorthandFontVariant(ShorthandProperty):
+class FontVariantShorthand(ShorthandProperty):
 
     def set_css_declaration(self, components, priority):
         value = tinycss2.serialize(components).strip()
@@ -517,7 +517,7 @@ class TextDecorationShorthand(ShorthandProperty):
 _shorthand_property_class_map = {
     'font': FontShorthand,
     'font-synthesis': FontSynthesisShorthand,
-    'font-variant': ShorthandFontVariant,
+    'font-variant': FontVariantShorthand,
     'overflow': ShorthandOverflow,
     'text-decoration': TextDecorationShorthand,
 }
