@@ -1121,7 +1121,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('120%', root.style['line-height'])
         self.assertEqual('fantasy', root.style['font-family'])
 
-    def test_css_style_declaration_inline_font_synthesis(self):
+    def test_css_style_declaration_inline_font_synthesis01(self):
         parser = SVGParser()
         root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
@@ -1170,6 +1170,35 @@ class CSSOMTestCase(unittest.TestCase):
         root.style.remove_property('font-synthesis')
         self.assertEqual(0, root.style.length)
         self.assertEqual(0, root.attributes.length)
+
+    def test_css_style_declaration_inline_font_synthesis02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('font-synthesis', 'initial')
+        self.assertEqual("font-synthesis: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('initial', root.style['font-synthesis'])
+        self.assertEqual('initial', root.style['font-synthesis-weight'])
+        self.assertEqual('initial', root.style['font-synthesis-style'])
+
+        root.style.set_property('font-synthesis-weight', 'inherit')
+        self.assertEqual("font-synthesis-style: initial; "
+                         "font-synthesis-weight: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font-synthesis'])
+        self.assertEqual('inherit', root.style['font-synthesis-weight'])
+        self.assertEqual('initial', root.style['font-synthesis-style'])
+
+        root.style.set_property('font-synthesis-style', 'inherit')
+        self.assertEqual("font-synthesis: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('inherit', root.style['font-synthesis'])
+        self.assertEqual('inherit', root.style['font-synthesis-weight'])
+        self.assertEqual('inherit', root.style['font-synthesis-style'])
 
     def test_css_style_declaration_inline_font_variant01(self):
         parser = SVGParser()

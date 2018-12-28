@@ -344,6 +344,9 @@ class FontSynthesisShorthand(ShorthandProperty):
             elif values[0] == 'style':
                 font_synthesis_weight = 'none'
                 font_synthesis_style = 'auto'
+            elif values[0] in css_wide_keyword_set:
+                font_synthesis_weight = values[0]
+                font_synthesis_style = values[0]
         elif len(values) == 2 and 'weight' in values and 'style' in values:
             font_synthesis_weight = 'auto'
             font_synthesis_style = 'auto'
@@ -378,6 +381,9 @@ class FontSynthesisShorthand(ShorthandProperty):
         elif (font_synthesis_weight == 'auto'
               and font_synthesis_style == 'auto'):
             return 'weight style'
+        elif (font_synthesis_weight == font_synthesis_style
+              and font_synthesis_weight in css_wide_keyword_set):
+            return font_synthesis_weight
         return ''
 
 
