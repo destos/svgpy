@@ -462,8 +462,13 @@ class OverflowShorthand(ShorthandProperty):
             return ''
 
         overflow_y = property_map.get('overflow-y')
-        if overflow_y is None or overflow_x == overflow_y:
+        if overflow_y is None:
+            return ''
+        elif overflow_x == overflow_y:
             return overflow_x
+        elif (overflow_x in css_wide_keyword_set
+              or overflow_y in css_wide_keyword_set):
+            return ''
 
         s = ' '.join([overflow_x, overflow_y])
         return s

@@ -1297,11 +1297,11 @@ class CSSOMTestCase(unittest.TestCase):
 
         result = root.style.remove_property('overflow-y')
         self.assertEqual('clip', result)
-        self.assertEqual("overflow: clip;",
+        self.assertEqual("overflow-x: clip;",
                          root.attributes['style'].value)
-        self.assertEqual('clip', root.style['overflow'])
+        self.assertEqual('', root.style['overflow'])
         self.assertEqual('clip', root.style['overflow-x'])
-        self.assertEqual('clip', root.style['overflow-y'])
+        self.assertEqual('', root.style['overflow-y'])
 
     def test_css_style_declaration_inline_overflow02(self):
         parser = SVGParser()
@@ -1341,11 +1341,11 @@ class CSSOMTestCase(unittest.TestCase):
 
         result = root.style.remove_property('overflow-y')
         self.assertEqual('auto', result)
-        self.assertEqual("overflow: clip;",
+        self.assertEqual("overflow-x: clip;",
                          root.attributes['style'].value)
-        self.assertEqual('clip', root.style['overflow'])
+        self.assertEqual('', root.style['overflow'])
         self.assertEqual('clip', root.style['overflow-x'])
-        self.assertEqual('clip', root.style['overflow-y'])
+        self.assertEqual('', root.style['overflow-y'])
 
     def test_css_style_declaration_inline_overflow04(self):
         parser = SVGParser()
@@ -1391,11 +1391,48 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('', root.style['overflow-y'])
 
         root.style.set_property('overflow-x', 'auto')
-        self.assertEqual("overflow: auto;",
+        self.assertEqual("overflow-x: auto;",
                          root.attributes['style'].value)
-        self.assertEqual('auto', root.style['overflow'])
+        self.assertEqual('', root.style['overflow'])
         self.assertEqual('auto', root.style['overflow-x'])
+        self.assertEqual('', root.style['overflow-y'])
+
+    def test_css_style_declaration_inline_overflow06(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property('overflow', 'initial')
+        self.assertEqual("overflow: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('initial', root.style['overflow'])
+        self.assertEqual('initial', root.style['overflow-x'])
+        self.assertEqual('initial', root.style['overflow-y'])
+
+        root.style.set_property('overflow-y', 'auto')
+        self.assertEqual("overflow-x: initial; "
+                         "overflow-y: auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['overflow'])
+        self.assertEqual('initial', root.style['overflow-x'])
         self.assertEqual('auto', root.style['overflow-y'])
+
+        root.style.remove_property('overflow-y')
+        self.assertEqual("overflow-x: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['overflow'])
+        self.assertEqual('initial', root.style['overflow-x'])
+        self.assertEqual('', root.style['overflow-y'])
+
+        root.style.set_property('overflow-y', 'inherit')
+        self.assertEqual("overflow-x: initial; "
+                         "overflow-y: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['overflow'])
+        self.assertEqual('initial', root.style['overflow-x'])
+        self.assertEqual('inherit', root.style['overflow-y'])
 
     def test_css_style_declaration_inline_text_decoration01(self):
         parser = SVGParser()
