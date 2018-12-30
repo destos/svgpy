@@ -1310,6 +1310,81 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('', root.style['font-variant-east-asian'])
         self.assertEqual('', root.style['font-variant-position'])
 
+    def test_css_style_declaration_inline_font_variant03(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, len(root.style))
+
+        root.style.set_property(
+            'font-variant',
+            'initial')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("font-variant: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('initial', root.style['font-variant'])
+        self.assertEqual('initial', root.style['font-variant-ligatures'])
+        self.assertEqual('initial', root.style['font-variant-caps'])
+        self.assertEqual('initial', root.style['font-variant-alternates'])
+        self.assertEqual('initial', root.style['font-variant-numeric'])
+        self.assertEqual('initial', root.style['font-variant-east-asian'])
+        self.assertEqual('initial', root.style['font-variant-position'])
+
+        root.style.set_property('font-variant-ligatures', 'none')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("font-variant-alternates: initial; "
+                         "font-variant-caps: initial; "
+                         "font-variant-east-asian: initial; "
+                         "font-variant-ligatures: none; "
+                         "font-variant-numeric: initial; "
+                         "font-variant-position: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font-variant'])
+        self.assertEqual('none', root.style['font-variant-ligatures'])
+        self.assertEqual('initial', root.style['font-variant-caps'])
+        self.assertEqual('initial', root.style['font-variant-alternates'])
+        self.assertEqual('initial', root.style['font-variant-numeric'])
+        self.assertEqual('initial', root.style['font-variant-east-asian'])
+        self.assertEqual('initial', root.style['font-variant-position'])
+
+        root.style.set_property('font-variant-ligatures', 'inherit')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("font-variant-alternates: initial; "
+                         "font-variant-caps: initial; "
+                         "font-variant-east-asian: initial; "
+                         "font-variant-ligatures: inherit; "
+                         "font-variant-numeric: initial; "
+                         "font-variant-position: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['font-variant'])
+        self.assertEqual('inherit', root.style['font-variant-ligatures'])
+        self.assertEqual('initial', root.style['font-variant-caps'])
+        self.assertEqual('initial', root.style['font-variant-alternates'])
+        self.assertEqual('initial', root.style['font-variant-numeric'])
+        self.assertEqual('initial', root.style['font-variant-east-asian'])
+        self.assertEqual('initial', root.style['font-variant-position'])
+
+        root.style.set_property('font-variant-alternates', 'inherit')
+        root.style.set_property('font-variant-caps', 'inherit')
+        root.style.set_property('font-variant-east-asian', 'inherit')
+        root.style.set_property('font-variant-numeric', 'inherit')
+        root.style.set_property('font-variant-position', 'inherit')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("font-variant: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('inherit', root.style['font-variant'])
+        self.assertEqual('inherit', root.style['font-variant-ligatures'])
+        self.assertEqual('inherit', root.style['font-variant-caps'])
+        self.assertEqual('inherit', root.style['font-variant-alternates'])
+        self.assertEqual('inherit', root.style['font-variant-numeric'])
+        self.assertEqual('inherit', root.style['font-variant-east-asian'])
+        self.assertEqual('inherit', root.style['font-variant-position'])
+
     def test_css_style_declaration_inline_overflow01(self):
         parser = SVGParser()
         root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')

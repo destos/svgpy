@@ -132,6 +132,7 @@ class ShorthandProperty(object):
         components_map = OrderedDict()
         target_components = None
         previous_component = None
+        css_wide_keywords = list()
         longhand_names = shorthand_property_map[property_name]
         for longhand_name in longhand_names:
             desc = css_property_descriptor_map[longhand_name]
@@ -154,6 +155,10 @@ class ShorthandProperty(object):
                     target_components = None
                     components.remove(previous_component)
                     components.remove(component)
+                elif (component.type == 'ident'
+                      and component.lower_value in css_wide_keyword_set):
+                    components.remove(component)
+                    css_wide_keywords.append(component.lower_value)
                 else:
                     supported, _ = desc.support(component)
                     if supported:
@@ -174,7 +179,14 @@ class ShorthandProperty(object):
                         target_components = None
                 previous_component = component
 
-        if set_initial_value:
+        if len(css_wide_keywords) > 1:
+            components_map.clear()
+        elif len(css_wide_keywords) == 1:
+            for longhand_name in longhand_names:
+                components_map[longhand_name] = [
+                    IdentToken(0, 0, css_wide_keywords[0])
+                ]
+        elif set_initial_value:
             for longhand_name in longhand_names:
                 if longhand_name not in components_map:
                     desc = css_property_descriptor_map[longhand_name]
@@ -434,6 +446,11 @@ class FontVariantShorthand(ShorthandProperty):
                                            font_variant_east_asian,
                                            font_variant_position)):
                 return 'none'
+            else:
+                return ''
+        elif any(x in css_wide_keyword_set for x in values):
+            if all(x == font_variant_ligatures for x in values):
+                return font_variant_ligatures
             else:
                 return ''
 
