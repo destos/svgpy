@@ -588,7 +588,7 @@ class StyleTestCase(unittest.TestCase):
         symbol = parser.create_element_ns('http://www.w3.org/2000/svg',
                                           'symbol')
         child = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        use = parser.create_element('use')
+        use = parser.create_element_ns('http://www.w3.org/2000/svg', 'use')
         root.append(defs)
         defs.append(symbol)
         root.append(use)
