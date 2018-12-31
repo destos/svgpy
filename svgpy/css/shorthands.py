@@ -306,14 +306,20 @@ class FontShorthand(ShorthandProperty):
         font_size = property_map.get('font-size')
         line_height = property_map.get('line-height')
         font_family = property_map.get('font-family')
-        if any(x is None or len(x) == 0 for x in (font_style,
-                                                  font_variant,
-                                                  font_weight,
-                                                  font_stretch,
-                                                  font_size,
-                                                  line_height,
-                                                  font_family)):
+        values = (font_style,
+                  font_variant,
+                  font_weight,
+                  font_stretch,
+                  font_size,
+                  line_height,
+                  font_family)
+        if any(x is None or len(x) == 0 for x in values):
             return ''
+        elif any(x in css_wide_keyword_set for x in values):
+            if all(x == font_style for x in values):
+                return font_style
+            else:
+                return ''
 
         desc = css_property_descriptor_map['font-variant-css2']
         if not desc.supports(font_variant):
