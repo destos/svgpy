@@ -1707,6 +1707,234 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('dotted', root.style['text-decoration-style'])
         self.assertEqual('transparent', root.style['text-decoration-color'])
 
+    def test_css_style_declaration_inline_white_space01(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('white-space', 'initial')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('initial', root.style['white-space'])
+        self.assertEqual('initial', root.style['text-space-collapse'])
+        self.assertEqual('initial', root.style['text-wrap'])
+        self.assertEqual('initial', root.style['text-space-trim'])
+
+        root.style.set_property('text-wrap', 'inherit')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-space-collapse: initial; "
+                         "text-space-trim: initial; "
+                         "text-wrap: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['white-space'])
+        self.assertEqual('initial', root.style['text-space-collapse'])
+        self.assertEqual('inherit', root.style['text-wrap'])
+        self.assertEqual('initial', root.style['text-space-trim'])
+
+        root.style.set_property('text-space-collapse', 'inherit')
+        root.style.set_property('text-space-trim', 'inherit')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('inherit', root.style['white-space'])
+        self.assertEqual('inherit', root.style['text-space-collapse'])
+        self.assertEqual('inherit', root.style['text-wrap'])
+        self.assertEqual('inherit', root.style['text-space-trim'])
+
+        root.style.remove_property('text-space-trim')
+        self.assertEqual(2, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-space-collapse: inherit; "
+                         "text-wrap: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['white-space'])
+        self.assertEqual('inherit', root.style['text-space-collapse'])
+        self.assertEqual('inherit', root.style['text-wrap'])
+        self.assertEqual('', root.style['text-space-trim'])
+
+    def test_css_style_declaration_inline_white_space02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('white-space', 'normal')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('normal', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('white-space', 'pre')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: pre;",
+                         root.attributes['style'].value)
+        self.assertEqual('pre', root.style['white-space'])
+        self.assertEqual('preserve', root.style['text-space-collapse'])
+        self.assertEqual('nowrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('white-space', 'nowrap')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: nowrap;",
+                         root.attributes['style'].value)
+        self.assertEqual('nowrap', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('nowrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('white-space', 'pre-wrap')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: pre-wrap;",
+                         root.attributes['style'].value)
+        self.assertEqual('pre-wrap', root.style['white-space'])
+        self.assertEqual('preserve', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('white-space', 'pre-line')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: pre-line;",
+                         root.attributes['style'].value)
+        self.assertEqual('pre-line', root.style['white-space'])
+        self.assertEqual('preserve-breaks', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+    def test_css_style_declaration_inline_white_space03(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('white-space', 'normal')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('normal', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('text-space-collapse', 'preserve-spaces')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-space-collapse: preserve-spaces; "
+                         "text-space-trim: none; "
+                         "text-wrap: wrap;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['white-space'])
+        self.assertEqual('preserve-spaces', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('text-space-collapse', 'preserve')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: pre-wrap;",
+                         root.attributes['style'].value)
+        self.assertEqual('pre-wrap', root.style['white-space'])
+        self.assertEqual('preserve', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+    def test_css_style_declaration_inline_white_space04(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('white-space', 'normal')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('normal', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('text-wrap', 'balance')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-space-collapse: collapse; "
+                         "text-space-trim: none; "
+                         "text-wrap: balance;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('balance', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('text-wrap', 'nowrap')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: nowrap;",
+                         root.attributes['style'].value)
+        self.assertEqual('nowrap', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('nowrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+    def test_css_style_declaration_inline_white_space05(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        self.assertEqual(0, root.style.length)
+        self.assertEqual(0, root.attributes.length)
+
+        root.style.set_property('white-space', 'normal')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('normal', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
+        root.style.set_property('text-space-trim',
+                                'trim-inner discard-before discard-after')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("text-space-collapse: collapse; "
+                         "text-space-trim: "
+                         "trim-inner discard-before discard-after; "
+                         "text-wrap: wrap;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('trim-inner discard-before discard-after',
+                         root.style['text-space-trim'])
+
+        root.style.set_property('text-space-trim', 'none')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('normal', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
     def test_css_style_rule(self):
         stylesheet = '''
         *:not(svg),

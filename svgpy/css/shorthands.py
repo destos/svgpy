@@ -548,12 +548,95 @@ class TextDecorationShorthand(ShorthandProperty):
         return s
 
 
+class WhiteSpaceShorthand(ShorthandProperty):
+
+    def set_css_declaration(self, components, priority):
+        components_map = OrderedDict()
+        values = [tinycss2.serialize([x]) for x in components
+                  if x.type != 'whitespace']
+        if len(values) != 1:
+            return False
+        elif values[0] == 'normal':
+            text_space_collapse = 'collapse'
+            text_wrap = 'wrap'
+            text_space_trim = 'none'
+        elif values[0] == 'pre':
+            text_space_collapse = 'preserve'
+            text_wrap = 'nowrap'
+            text_space_trim = 'none'
+        elif values[0] == 'nowrap':
+            text_space_collapse = 'collapse'
+            text_wrap = 'nowrap'
+            text_space_trim = 'none'
+        elif values[0] == 'pre-wrap':
+            text_space_collapse = 'preserve'
+            text_wrap = 'wrap'
+            text_space_trim = 'none'
+        elif values[0] == 'pre-line':
+            text_space_collapse = 'preserve-breaks'
+            text_wrap = 'wrap'
+            text_space_trim = 'none'
+        elif values[0] in css_wide_keyword_set:
+            text_space_collapse = values[0]
+            text_wrap = values[0]
+            text_space_trim = values[0]
+        else:
+            return False
+
+        components_map['text-space-collapse'] = [
+            IdentToken(0, 0, text_space_collapse)
+        ]
+        components_map['text-wrap'] = [
+            IdentToken(0, 0, text_wrap)
+        ]
+        components_map['text-space-trim'] = [
+            IdentToken(0, 0, text_space_trim)
+        ]
+
+        updated = self._set_css_declarations(components_map, priority)
+        return updated
+
+    def tostring(self, property_map):
+        _ = self
+        text_space_collapse = property_map.get('text-space-collapse')
+        text_wrap = property_map.get('text-wrap')
+        text_space_trim = property_map.get('text-space-trim')
+        values = text_space_collapse, text_wrap, text_space_trim
+        if all(x is None for x in values):
+            return ''
+        elif (text_space_collapse == 'collapse'
+              and text_wrap == 'wrap'
+              and text_space_trim == 'none'):
+            return 'normal'
+        elif (text_space_collapse == 'preserve'
+              and text_wrap == 'nowrap'
+              and text_space_trim == 'none'):
+            return 'pre'
+        elif (text_space_collapse == 'collapse'
+              and text_wrap == 'nowrap'
+              and text_space_trim == 'none'):
+            return 'nowrap'
+        elif (text_space_collapse == 'preserve'
+              and text_wrap == 'wrap'
+              and text_space_trim == 'none'):
+            return 'pre-wrap'
+        elif (text_space_collapse == 'preserve-breaks'
+              and text_wrap == 'wrap'
+              and text_space_trim == 'none'):
+            return 'pre-line'
+        elif (any(x in css_wide_keyword_set for x in values)
+              and all(x == text_space_collapse for x in values)):
+            return text_space_collapse
+        return ''
+
+
 _shorthand_property_class_map = {
     'font': FontShorthand,
     'font-synthesis': FontSynthesisShorthand,
     'font-variant': FontVariantShorthand,
     'overflow': OverflowShorthand,
     'text-decoration': TextDecorationShorthand,
+    'white-space': WhiteSpaceShorthand,
 }
 
 shorthand_property_map = {
@@ -586,5 +669,10 @@ shorthand_property_map = {
         'text-decoration-line',
         'text-decoration-style',
         'text-decoration-color',
+    ),
+    'white-space': (
+        'text-space-collapse',
+        'text-wrap',
+        'text-space-trim',
     ),
 }

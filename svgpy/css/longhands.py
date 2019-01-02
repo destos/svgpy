@@ -54,4 +54,8 @@ longhand_property_map = {
     'text-decoration-line': ('text-decoration',),
     'text-decoration-style': ('text-decoration',),
     'text-decoration-color': ('text-decoration',),
+    # 'white-space'
+    'text-space-collapse': ('white-space',),
+    'text-wrap': ('white-space',),
+    'text-space-trim': ('white-space',),
 }
