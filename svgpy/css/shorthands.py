@@ -602,7 +602,7 @@ class WhiteSpaceShorthand(ShorthandProperty):
         text_wrap = property_map.get('text-wrap')
         text_space_trim = property_map.get('text-space-trim')
         values = text_space_collapse, text_wrap, text_space_trim
-        if all(x is None for x in values):
+        if any(x is None for x in values):
             return ''
         elif (text_space_collapse == 'collapse'
               and text_wrap == 'wrap'
