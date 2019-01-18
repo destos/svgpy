@@ -19,16 +19,17 @@ from collections import OrderedDict
 
 import tinycss2
 
-from .props import css_color_keyword_set, css_property_descriptor_map, \
-    css_wide_keyword_set
+from .props import css_property_descriptor_map, css_wide_keyword_set, \
+    PropertySyntax
 
 _RE_CSS_VERSION = re.compile(r'-css[0-9]$')
 
 
 def create_component_list(value):
-    components = tinycss2.parse_component_value_list(value,
-                                                     skip_comments=True)
-    return components
+    component_list = tinycss2.parse_component_value_list(
+        value,
+        skip_comments=True)
+    return component_list
 
 
 class Shorthand(object):
@@ -115,13 +116,13 @@ class Shorthand(object):
 
         return removed
 
-    def set_css_declaration(self, property_name, components, priority):
+    def set_css_declaration(self, property_name, component_list, priority):
         property_name = property_name.lower()
         if property_name not in shorthand_property_map:
             return False
 
         shorthand = self._shorthand(property_name)
-        updated = shorthand.set_css_declaration(components, priority)
+        updated = shorthand.set_css_declaration(component_list, priority)
         return updated
 
 
@@ -131,71 +132,85 @@ class ShorthandProperty(object):
         self._declarations = declarations
 
     @staticmethod
+    def _parse_component_list(property_name, component_list, components_map,
+                              css_wide_keywords):
+        desc = css_property_descriptor_map[property_name]
+        found_solidus = False
+        target = None
+        for component in list(component_list):
+            if component.type == 'whitespace':
+                if target:
+                    target.append(component)
+                    component_list.remove(component)
+                continue
+            elif (component.type == 'ident'
+                  and component.lower_value in css_wide_keyword_set):
+                css_wide_keywords.append(component.lower_value)
+                component_list.remove(component)
+                continue
+            elif component == ',':
+                if '#' not in desc.syntax and ',' not in desc.syntax:
+                    if property_name in components_map:
+                        del components_map[property_name]
+                    break
+                elif target:
+                    target.append(component)
+                    component_list.remove(component)
+                continue
+            elif component == '/':
+                if (property_name not in _with_solidus_properties
+                        and '/' not in desc.syntax):
+                    if target and len(target) > 0:
+                        break
+                    continue
+                elif found_solidus:
+                    break
+                else:
+                    found_solidus = True
+                    target = components_map.setdefault(property_name, list())
+                    if '/' in desc.syntax:
+                        target.append(component)
+                    component_list.remove(component)
+                    continue
+            elif (property_name in _with_solidus_properties
+                  and not found_solidus):
+                continue
+
+            supported, syntax = desc.support(component)
+            if supported:
+                target = components_map.setdefault(property_name, list())
+                target.append(component)
+                component_list.remove(component)
+                if (property_name == 'mask-border-slice'
+                        and syntax == PropertySyntax.CUSTOM_IDENT):
+                    # <mask-border-slice> = <number-percentage>{1,4} fill?
+                    break
+            elif found_solidus or (target and len(target) > 0):
+                break
+
+        if (property_name in components_map
+                and len(components_map[property_name]) == 0):
+            del components_map[property_name]
+        return components_map, css_wide_keywords
+
+    @staticmethod
     def _parse_css_declaration(property_name, component_list,
                                set_initial_value=True):
-        component_list = component_list.copy()
         components_map = OrderedDict()
-        target_components = None
-        previous_component = None
         css_wide_keywords = list()
         longhand_names = shorthand_property_map[property_name]
         for longhand_name in longhand_names:
-            desc = css_property_descriptor_map[longhand_name]
-            for component in list(component_list):
-                if (component.type == 'whitespace'
-                        or (component == ','
-                            and ('#' in desc.syntax
-                                 or ',' in desc.syntax))):
-                    if target_components:
-                        target_components.append(component)
-                        component_list.remove(component)
-                    continue
-                if (property_name in ('font', 'mask')
-                        and previous_component is not None
-                        and previous_component == '/'):
-                    # 'font': ... <font-size> [ / <line-height> ]? ...
-                    # 'mask': ... <position> [ / <bg-size> ]? ...
-                    ext_property_name = {
-                        'font': 'line-height',
-                        'mask': 'mask-size',
-                    }[property_name]
-                    ext_desc = css_property_descriptor_map[ext_property_name]
-                    supported, _ = ext_desc.support(component)
-                    if supported:
-                        components_map[ext_property_name] = list([component])
-                    target_components = None
-                    component_list.remove(previous_component)
-                    component_list.remove(component)
-                elif (component.type == 'ident'
-                      and component.lower_value in css_wide_keyword_set):
-                    component_list.remove(component)
-                    css_wide_keywords.append(component.lower_value)
-                else:
-                    supported, _ = desc.support(component)
-                    if supported:
-                        component_list.remove(component)
-                        target = components_map.setdefault(
-                            longhand_name,
-                            list())
-                        if (component.type == 'ident'
-                                and component.lower_value
-                                in css_color_keyword_set
-                                | css_wide_keyword_set):
-                            # convert to lowercase
-                            component = create_component_list(
-                                component.lower_value)[0]
-                        target.append(component)
-                        target_components = target
-                    else:
-                        target_components = None
-                previous_component = component
+            ShorthandProperty._parse_component_list(longhand_name,
+                                                    component_list,
+                                                    components_map,
+                                                    css_wide_keywords)
 
-        if len(css_wide_keywords) > 1:
+        if len(css_wide_keywords) > 0:
             components_map.clear()
-        elif len(css_wide_keywords) == 1:
-            _components = create_component_list(css_wide_keywords[0])
+        if len(css_wide_keywords) == 1 and set_initial_value:
+            initial_value = create_component_list(css_wide_keywords[0])
             for longhand_name in longhand_names:
-                components_map[longhand_name] = _components.copy()
+                components_map[longhand_name] = initial_value.copy()
         elif set_initial_value:
             for longhand_name in longhand_names:
                 if longhand_name not in components_map:
@@ -203,28 +218,22 @@ class ShorthandProperty(object):
                     components_map[longhand_name] = create_component_list(
                         desc.initial_value)
 
-        return components_map
+        return components_map, css_wide_keywords
 
-    def _set_css_declarations(self, components_map, priority):
-        declarations = self._declarations
+    def _set_css_declaration_map(self, components_map, priority):
+        declarations = self._declarations  # type: OrderedDict
         updated = False
-        for property_name, components in components_map.items():
-            needs_update = False
-            value = tinycss2.serialize(components).strip()
-            if property_name not in declarations:
-                needs_update = True
-            else:
-                target_value, target_priority = declarations[property_name]
-                if target_value != value or target_priority != priority:
-                    needs_update = True
-            if needs_update:
-                updated = True
-                declarations[property_name] = value, priority
+        for property_name, component_list in components_map.items():
+            value = tinycss2.serialize(component_list).strip()
+            updated = True
+            if property_name in declarations:
+                declarations.move_to_end(property_name)
+            declarations[property_name] = value, priority
 
         return updated
 
     @abstractmethod
-    def set_css_declaration(self, components, priority):
+    def set_css_declaration(self, component_list, priority):
         raise NotImplementedError
 
     @abstractmethod
@@ -234,11 +243,10 @@ class ShorthandProperty(object):
 
 class FontShorthand(ShorthandProperty):
 
-    def set_css_declaration(self, components, priority):
-        components_map = ShorthandProperty._parse_css_declaration(
+    def set_css_declaration(self, component_list, priority):
+        components_map, _ = ShorthandProperty._parse_css_declaration(
             'font',
-            components
-        )
+            component_list)
 
         font_variant_components = components_map.pop('font-variant-css2')
         shorthand = FontVariantShorthand(self._declarations)
@@ -296,7 +304,7 @@ class FontShorthand(ShorthandProperty):
         #     IdentToken(0, 0, desc.initial_value)
         # ]
 
-        updated = self._set_css_declarations(components_map, priority)
+        updated = self._set_css_declaration_map(components_map, priority)
         return updated
 
     def tostring(self, property_map):
@@ -308,13 +316,15 @@ class FontShorthand(ShorthandProperty):
         font_size = property_map.get('font-size')
         line_height = property_map.get('line-height')
         font_family = property_map.get('font-family')
-        values = (font_style,
-                  font_variant,
-                  font_weight,
-                  font_stretch,
-                  font_size,
-                  line_height,
-                  font_family)
+        values = (
+            font_style,
+            font_variant,
+            font_weight,
+            font_stretch,
+            font_size,
+            line_height,
+            font_family,
+        )
         if any(x is None or len(x) == 0 for x in values):
             return ''
         elif any(x in css_wide_keyword_set for x in values):
@@ -349,9 +359,9 @@ class FontShorthand(ShorthandProperty):
 
 class FontSynthesisShorthand(ShorthandProperty):
 
-    def set_css_declaration(self, components, priority):
+    def set_css_declaration(self, component_list, priority):
         components_map = OrderedDict()
-        values = [tinycss2.serialize([x]) for x in components
+        values = [tinycss2.serialize([x]) for x in component_list
                   if x.type != 'whitespace']
         font_synthesis_weight = None
         font_synthesis_style = None
@@ -373,13 +383,13 @@ class FontSynthesisShorthand(ShorthandProperty):
             font_synthesis_style = 'auto'
 
         if font_synthesis_weight:
-            components_map['font-synthesis-weight'] = create_component_list(
-                font_synthesis_weight)
+            components_map['font-synthesis-weight'] = \
+                create_component_list(font_synthesis_weight)
         if font_synthesis_style:
-            components_map['font-synthesis-style'] = create_component_list(
-                font_synthesis_style)
+            components_map['font-synthesis-style'] = \
+                create_component_list(font_synthesis_style)
 
-        updated = self._set_css_declarations(components_map, priority)
+        updated = self._set_css_declaration_map(components_map, priority)
         return updated
 
     def tostring(self, property_map):
@@ -408,8 +418,8 @@ class FontSynthesisShorthand(ShorthandProperty):
 
 class FontVariantShorthand(ShorthandProperty):
 
-    def set_css_declaration(self, components, priority):
-        value = tinycss2.serialize(components).strip()
+    def set_css_declaration(self, component_list, priority):
+        value = tinycss2.serialize(component_list).strip()
         if value in ('normal', 'none'):
             components_map = OrderedDict()
             for longhand_name in shorthand_property_map['font-variant']:
@@ -422,12 +432,11 @@ class FontVariantShorthand(ShorthandProperty):
                 components_map[longhand_name] = create_component_list(
                     initial_value)
         else:
-            components_map = ShorthandProperty._parse_css_declaration(
+            components_map, _ = ShorthandProperty._parse_css_declaration(
                 'font-variant',
-                components
-            )
+                component_list)
 
-        updated = self._set_css_declarations(components_map, priority)
+        updated = self._set_css_declaration_map(components_map, priority)
         return updated
 
     def tostring(self, property_map):
@@ -438,9 +447,14 @@ class FontVariantShorthand(ShorthandProperty):
         font_variant_numeric = property_map.get('font-variant-numeric')
         font_variant_east_asian = property_map.get('font-variant-east-asian')
         font_variant_position = property_map.get('font-variant-position')
-        values = (font_variant_ligatures, font_variant_caps,
-                  font_variant_alternates, font_variant_numeric,
-                  font_variant_east_asian, font_variant_position)
+        values = (
+            font_variant_ligatures,
+            font_variant_caps,
+            font_variant_alternates,
+            font_variant_numeric,
+            font_variant_east_asian,
+            font_variant_position,
+        )
         if any(x is None for x in values):
             return ''
         elif all(x == 'normal' for x in values):
@@ -465,17 +479,269 @@ class FontVariantShorthand(ShorthandProperty):
         return s
 
 
-class OverflowShorthand(ShorthandProperty):
+class MaskBorderShorthand(ShorthandProperty):
 
-    def set_css_declaration(self, components, priority):
-        components_map = ShorthandProperty._parse_css_declaration(
-            'overflow',
-            components,
-            set_initial_value=False
+    def set_css_declaration(self, component_list, priority):
+        components_map = OrderedDict()
+        css_wide_keywords = list()
+
+        ShorthandProperty._parse_component_list(
+            'mask-border-source',
+            component_list,
+            components_map,
+            css_wide_keywords)
+
+        ShorthandProperty._parse_component_list(
+            'mask-border-slice',
+            component_list,
+            components_map,
+            css_wide_keywords)
+
+        if 'mask-border-slice' in components_map:
+            ShorthandProperty._parse_component_list(
+                'mask-border-width',
+                component_list,
+                components_map,
+                css_wide_keywords)
+
+        if 'mask-border-width' in components_map:
+            ShorthandProperty._parse_component_list(
+                'mask-border-outset',
+                component_list,
+                components_map,
+                css_wide_keywords)
+
+        ShorthandProperty._parse_component_list(
+            'mask-border-repeat',
+            component_list,
+            components_map,
+            css_wide_keywords)
+
+        ShorthandProperty._parse_component_list(
+            'mask-border-mode',
+            component_list,
+            components_map,
+            css_wide_keywords)
+
+        if len(css_wide_keywords) > 1:
+            return False
+        elif len(css_wide_keywords) == 1:
+            components_map.clear()
+            initial_value = create_component_list(css_wide_keywords[0])
+        else:
+            initial_value = create_component_list('initial')
+
+        for property_name in shorthand_property_map['mask-border']:
+            if property_name not in components_map:
+                components_map[property_name] = initial_value.copy()
+
+        updated = self._set_css_declaration_map(components_map, priority)
+        return updated
+
+    def tostring(self, property_map):
+        keys = list(self._declarations.keys())
+        index_of_mask_border = -1
+        for property_name in shorthand_property_map['mask-border']:
+            if property_name not in keys:
+                index_of_mask_border = -1
+                break
+            else:
+                index_of_mask_border = max(index_of_mask_border,
+                                           keys.index(property_name))
+
+        index_of_mask = -1
+        for property_name in shorthand_property_map['mask']:
+            if property_name not in keys:
+                index_of_mask = -1
+                break
+            else:
+                index_of_mask = max(index_of_mask,
+                                    keys.index(property_name))
+
+        if index_of_mask_border < index_of_mask:
+            # in the order of 'mask-border', 'mask'
+            return ''
+
+        mask_border_source = property_map.get('mask-border-source')
+        mask_border_slice = property_map.get('mask-border-slice')
+        mask_border_width = property_map.get('mask-border-width')
+        mask_border_outset = property_map.get('mask-border-outset')
+        mask_border_repeat = property_map.get('mask-border-repeat')
+        mask_border_mode = property_map.get('mask-border-mode')
+        values = (
+            mask_border_source,
+            mask_border_slice,
+            mask_border_width,
+            mask_border_outset,
+            mask_border_repeat,
+            mask_border_mode,
         )
 
-        if ('overflow-x' in components_map
-                and 'overflow-y' not in components_map):
+        if any(x is None for x in values):
+            return ''
+        elif (all(x in css_wide_keyword_set for x in values)
+              and all(x == values[0] for x in values[1:])):
+            return values[0]
+        elif any(x in css_wide_keyword_set - {'initial'} for x in values):
+            return ''
+        elif ((mask_border_slice == 'initial'
+               and mask_border_width != 'initial')
+              or ((mask_border_slice == 'initial'
+                   or mask_border_width == 'initial')
+                  and mask_border_outset != 'initial')):
+            # <mask-border-slice> [ / <mask-border-width>?
+            #  [ / <mask-border-outset> ]? ]?
+            return ''
+
+        values = list()
+        for property_name in shorthand_property_map['mask-border']:
+            value = property_map[property_name]
+            if value == 'initial':
+                continue
+            elif (property_name == 'mask-border-width'
+                  or property_name == 'mask-border-outset'):
+                # <mask-border-slice> [ / <mask-border-width>?
+                #  [ / <mask-border-outset> ]? ]?
+                values.extend(['/', value])
+            else:
+                values.append(value)
+
+        s = ' '.join(values)
+        return s
+
+
+class MaskShorthand(ShorthandProperty):
+
+    def set_css_declaration(self, component_list, priority):
+        components_map, css_wide_keywords = \
+            ShorthandProperty._parse_css_declaration(
+                'mask',
+                component_list,
+                set_initial_value=False)
+
+        mask_origin = components_map.get('mask-origin')
+        if mask_origin:
+            geometry_box = [x for x in mask_origin if x.type != 'whitespace']
+            mask_clip = components_map.get('mask-clip')
+            if len(geometry_box) == 1 and mask_clip is None:
+                components_map['mask-clip'] = [geometry_box[0]]
+            elif len(geometry_box) == 2 and mask_clip is None:
+                components_map['mask-origin'] = [geometry_box[0]]
+                components_map['mask-clip'] = [geometry_box[1]]
+            elif len(geometry_box) >= 2:
+                del components_map['mask-origin']
+
+        if len(css_wide_keywords) > 1:
+            return False
+        elif len(css_wide_keywords) == 1:
+            components_map.clear()
+            initial_value = create_component_list(css_wide_keywords[0])
+        else:
+            initial_value = create_component_list('initial')
+
+        for property_name in shorthand_property_map['mask']:
+            if property_name not in components_map:
+                components_map[property_name] = initial_value.copy()
+
+        updated = self._set_css_declaration_map(components_map, priority)
+        return updated
+
+    def tostring(self, property_map):
+        keys = list(self._declarations.keys())
+        index_of_mask_border = -1
+        values_of_mask_border = list()
+        for property_name in shorthand_property_map['mask-border']:
+            if property_name not in keys:
+                index_of_mask_border = -1
+                break
+            else:
+                index_of_mask_border = max(index_of_mask_border,
+                                           keys.index(property_name))
+                values_of_mask_border.append(
+                    self._declarations[property_name][0])
+
+        index_of_mask = -1
+        for property_name in shorthand_property_map['mask']:
+            if property_name not in keys:
+                index_of_mask = -1
+                break
+            else:
+                index_of_mask = max(index_of_mask,
+                                    keys.index(property_name))
+
+        if (index_of_mask < index_of_mask_border
+                and any(x != 'initial' for x in values_of_mask_border)):
+            # in the order of 'mask', 'mask-border'
+            return ''
+
+        mask_image = property_map.get('mask-image')
+        mask_position = property_map.get('mask-position')
+        mask_size = property_map.get('mask-size')
+        mask_repeat = property_map.get('mask-repeat')
+        mask_origin = property_map.get('mask-origin')
+        mask_clip = property_map.get('mask-clip')
+        mask_composite = property_map.get('mask-composite')
+        mask_mode = property_map.get('mask-mode')
+        values = (
+            mask_image,
+            mask_position,
+            mask_size,
+            mask_repeat,
+            mask_origin,
+            mask_clip,
+            mask_composite,
+            mask_mode,
+        )
+
+        if any(x is None for x in values):
+            return ''
+        elif any(x in css_wide_keyword_set for x in values):
+            if (all(x in css_wide_keyword_set for x in values)
+                    and all(x == values[0] for x in values[1:])):
+                return values[0]
+            elif any(x in css_wide_keyword_set - {'initial'} for x in values):
+                return ''
+        if mask_position == 'initial' and mask_size != 'initial':
+            # <position> [ / <bg-size> ]?
+            return ''
+
+        values = list()
+        for property_name in shorthand_property_map['mask']:
+            value = property_map[property_name]
+            if value == 'initial':
+                continue
+            elif property_name == 'mask-clip' and mask_origin == mask_clip:
+                continue
+            elif property_name == 'mask-size':
+                # <position> [ / <bg-size> ]?
+                values.extend(['/', value])
+            else:
+                values.append(value)
+
+        s = ' '.join(values)
+        return s
+
+
+class OverflowShorthand(ShorthandProperty):
+
+    def set_css_declaration(self, component_list, priority):
+        components_map = OrderedDict()
+        css_wide_keywords = list()
+
+        ShorthandProperty._parse_component_list(
+            'overflow-x',
+            component_list,
+            components_map,
+            css_wide_keywords)
+
+        if len(css_wide_keywords) > 1:
+            return False
+        elif len(css_wide_keywords) == 1:
+            components_map.clear()
+            initial_value = create_component_list(css_wide_keywords[0])
+            for property_name in shorthand_property_map['overflow']:
+                components_map[property_name] = initial_value.copy()
+        else:
             temp = [x for x in components_map['overflow-x']
                     if x.type != 'whitespace']
             if not (1 <= len(temp) <= 2):
@@ -484,7 +750,7 @@ class OverflowShorthand(ShorthandProperty):
             components_map['overflow-y'] = [temp[0] if len(temp) == 1
                                             else temp[1]]
 
-        updated = self._set_css_declarations(components_map, priority)
+        updated = self._set_css_declaration_map(components_map, priority)
         return updated
 
     def tostring(self, property_map):
@@ -508,19 +774,26 @@ class OverflowShorthand(ShorthandProperty):
 
 class TextDecorationShorthand(ShorthandProperty):
 
-    def set_css_declaration(self, components, priority):
-        components_map = ShorthandProperty._parse_css_declaration(
-            'text-decoration',
-            components,
-            set_initial_value=False,
-        )
+    def set_css_declaration(self, component_list, priority):
+        components_map, css_wide_keywords = \
+            ShorthandProperty._parse_css_declaration(
+                'text-decoration',
+                component_list,
+                set_initial_value=False)
 
-        _components = create_component_list('initial')
+        if len(css_wide_keywords) > 1:
+            return False
+        elif len(css_wide_keywords) == 1:
+            components_map.clear()
+            initial_value = create_component_list(css_wide_keywords[0])
+        else:
+            initial_value = create_component_list('initial')
+
         for property_name in shorthand_property_map['text-decoration']:
             if property_name not in components_map:
-                components_map[property_name] = _components.copy()
+                components_map[property_name] = initial_value.copy()
 
-        updated = self._set_css_declarations(components_map, priority)
+        updated = self._set_css_declaration_map(components_map, priority)
         return updated
 
     def tostring(self, property_map):
@@ -545,49 +818,44 @@ class TextDecorationShorthand(ShorthandProperty):
 
 class WhiteSpaceShorthand(ShorthandProperty):
 
-    def set_css_declaration(self, components, priority):
-        components_map = OrderedDict()
-        values = [tinycss2.serialize([x]) for x in components
-                  if x.type != 'whitespace']
-        if len(values) != 1:
-            return False
-        elif values[0] == 'normal':
+    def set_css_declaration(self, component_list, priority):
+        value = tinycss2.serialize(component_list).strip()
+        if value == 'normal':
             text_space_collapse = 'collapse'
             text_wrap = 'wrap'
             text_space_trim = 'none'
-        elif values[0] == 'pre':
+        elif value == 'pre':
             text_space_collapse = 'preserve'
             text_wrap = 'nowrap'
             text_space_trim = 'none'
-        elif values[0] == 'nowrap':
+        elif value == 'nowrap':
             text_space_collapse = 'collapse'
             text_wrap = 'nowrap'
             text_space_trim = 'none'
-        elif values[0] == 'pre-wrap':
+        elif value == 'pre-wrap':
             text_space_collapse = 'preserve'
             text_wrap = 'wrap'
             text_space_trim = 'none'
-        elif values[0] == 'pre-line':
+        elif value == 'pre-line':
             text_space_collapse = 'preserve-breaks'
             text_wrap = 'wrap'
             text_space_trim = 'none'
-        elif values[0] in css_wide_keyword_set:
-            text_space_collapse = values[0]
-            text_wrap = values[0]
-            text_space_trim = values[0]
+        elif value in css_wide_keyword_set:
+            text_space_collapse = text_wrap = text_space_trim = value
         else:
             return False
 
-        components_map['text-space-collapse'] = create_component_list(
-            text_space_collapse)
+        components_map = OrderedDict()
+        components_map['text-space-collapse'] = \
+            create_component_list(text_space_collapse)
 
-        components_map['text-wrap'] = create_component_list(
-            text_wrap)
+        components_map['text-wrap'] = \
+            create_component_list(text_wrap)
 
-        components_map['text-space-trim'] = create_component_list(
-            text_space_trim)
+        components_map['text-space-trim'] = \
+            create_component_list(text_space_trim)
 
-        updated = self._set_css_declarations(components_map, priority)
+        updated = self._set_css_declaration_map(components_map, priority)
         return updated
 
     def tostring(self, property_map):
@@ -628,10 +896,21 @@ _shorthand_property_class_map = {
     'font': FontShorthand,
     'font-synthesis': FontSynthesisShorthand,
     'font-variant': FontVariantShorthand,
+    'mask': MaskShorthand,
+    'mask-border': MaskBorderShorthand,
     'overflow': OverflowShorthand,
     'text-decoration': TextDecorationShorthand,
     'white-space': WhiteSpaceShorthand,
 }
+
+_with_solidus_properties = (
+    # 'font': <font-size> [ / <line-height> ]?
+    'line-height',
+    # 'mask-border': <mask-border-slice> [ / <mask-border-width>?
+    'mask-border-width',
+    # 'mask-border': <mask-border-width>? [ / <mask-border-outset> ]?
+    'mask-border-outset',
+)
 
 shorthand_property_map = {
     'font': (
@@ -654,6 +933,24 @@ shorthand_property_map = {
         'font-variant-numeric',
         'font-variant-east-asian',
         'font-variant-position',
+    ),
+    'mask': (
+        'mask-image',
+        'mask-position',
+        'mask-size',
+        'mask-repeat',
+        'mask-origin',
+        'mask-clip',
+        'mask-composite',
+        'mask-mode',
+    ),
+    'mask-border': (
+        'mask-border-source',
+        'mask-border-slice',
+        'mask-border-width',
+        'mask-border-outset',
+        'mask-border-repeat',
+        'mask-border-mode',
     ),
     'overflow': (
         'overflow-x',

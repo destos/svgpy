@@ -1463,6 +1463,580 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('inherit', root.style['font-variant-east-asian'])
         self.assertEqual('inherit', root.style['font-variant-position'])
 
+    def test_css_style_declaration_inline_mask01(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property('mask', 'initial')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('initial', root.style['mask'])
+        self.assertEqual('initial', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        root.style.set_property('mask-size', 'inherit')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-clip: initial; "
+                         "mask-composite: initial; "
+                         "mask-image: initial; "
+                         "mask-mode: initial; "
+                         "mask-origin: initial; "
+                         "mask-position: initial; "
+                         "mask-repeat: initial; "
+                         "mask-size: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['mask'])
+        self.assertEqual('initial', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('inherit', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        root.style.set_property('mask-image', 'inherit')
+        root.style.set_property('mask-position', 'inherit')
+        root.style.set_property('mask-repeat', 'inherit')
+        root.style.set_property('mask-origin', 'inherit')
+        root.style.set_property('mask-clip', 'inherit')
+        root.style.set_property('mask-composite', 'inherit')
+        root.style.set_property('mask-mode', 'inherit')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('inherit', root.style['mask'])
+        self.assertEqual('inherit', root.style['mask-image'])
+        self.assertEqual('inherit', root.style['mask-position'])
+        self.assertEqual('inherit', root.style['mask-size'])
+        self.assertEqual('inherit', root.style['mask-repeat'])
+        self.assertEqual('inherit', root.style['mask-origin'])
+        self.assertEqual('inherit', root.style['mask-clip'])
+        self.assertEqual('inherit', root.style['mask-composite'])
+        self.assertEqual('inherit', root.style['mask-mode'])
+
+    def test_css_style_declaration_inline_mask02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property('mask',
+                                "url(#mask) "
+                                "0% 0%/auto "
+                                "repeat "
+                                "border-box "
+                                "border-box "
+                                "add "
+                                "match-source")
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: "
+                         "url(\"#mask\") "
+                         "0% 0% / auto "
+                         "repeat "
+                         "border-box "
+                         "add "
+                         "match-source;",
+                         root.attributes['style'].value)
+        self.assertEqual("url(\"#mask\") "
+                         "0% 0% / auto "
+                         "repeat "
+                         "border-box "
+                         "add "
+                         "match-source",
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0% 0%', root.style['mask-position'])
+        self.assertEqual('auto', root.style['mask-size'])
+        self.assertEqual('repeat', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('border-box', root.style['mask-clip'])
+        self.assertEqual('add', root.style['mask-composite'])
+        self.assertEqual('match-source', root.style['mask-mode'])
+
+        result = root.style.remove_property('mask-clip')
+        self.assertEqual('border-box', result)
+        self.assertEqual(7, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-composite: add; "
+                         "mask-image: url(\"#mask\"); "
+                         "mask-mode: match-source; "
+                         "mask-origin: border-box; "
+                         "mask-position: 0% 0%; "
+                         "mask-repeat: repeat; "
+                         "mask-size: auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0% 0%', root.style['mask-position'])
+        self.assertEqual('auto', root.style['mask-size'])
+        self.assertEqual('repeat', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('', root.style['mask-clip'])
+        self.assertEqual('add', root.style['mask-composite'])
+        self.assertEqual('match-source', root.style['mask-mode'])
+
+    def test_css_style_declaration_inline_mask03(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        # one <geometry-box> value and the 'no-clip' keyword are present
+        root.style.set_property('mask', 'url(#mask) border-box no-clip')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\") border-box no-clip;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask") border-box no-clip',
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('no-clip', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        # one <geometry-box> value and no 'no-clip' keyword are present
+        root.style.set_property('mask', 'url(#mask) border-box')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\") border-box;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask") border-box',
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('border-box', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        # two <geometry-box> values are present
+        root.style.set_property('mask', 'url(#mask) border-box padding-box')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\") border-box padding-box;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask") border-box padding-box',
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('padding-box', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        root.style.set_property('mask',
+                                'url(#mask) border-box padding-box no-clip')
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('no-clip', root.style['mask-clip'])
+
+    def test_css_style_declaration_inline_mask04(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property('mask', 'url(#mask) 0px 0%/50% auto')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\") 0px 0% / 50% auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask") 0px 0% / 50% auto',
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0px 0%', root.style['mask-position'])
+        self.assertEqual('50% auto', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        root.style.set_property('mask-position', 'initial')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-clip: initial; "
+                         "mask-composite: initial; "
+                         "mask-image: url(\"#mask\"); "
+                         "mask-mode: initial; "
+                         "mask-origin: initial; "
+                         "mask-position: initial; "
+                         "mask-repeat: initial; "
+                         "mask-size: 50% auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('50% auto', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        root.style.set_property('mask-size', 'initial')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\");",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask")',
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        root.style.set_property('mask-position', '0px 0%')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\") 0px 0%;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask") 0px 0%',
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0px 0%', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+        root.style.set_property('mask-size', '50% auto')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\") 0px 0% / 50% auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask") 0px 0% / 50% auto',
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0px 0%', root.style['mask-position'])
+        self.assertEqual('50% auto', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('initial', root.style['mask-mode'])
+
+    def test_css_style_declaration_inline_mask_border01(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property('mask-border', 'initial')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('initial', root.style['mask-border'])
+        self.assertEqual('initial', root.style['mask-border-source'])
+        self.assertEqual('initial', root.style['mask-border-slice'])
+        self.assertEqual('initial', root.style['mask-border-width'])
+        self.assertEqual('initial', root.style['mask-border-outset'])
+        self.assertEqual('initial', root.style['mask-border-repeat'])
+        self.assertEqual('initial', root.style['mask-border-mode'])
+
+        root.style.set_property('mask-border-mode', 'inherit')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border-mode: inherit; "
+                         "mask-border-outset: initial; "
+                         "mask-border-repeat: initial; "
+                         "mask-border-slice: initial; "
+                         "mask-border-source: initial; "
+                         "mask-border-width: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['mask-border'])
+        self.assertEqual('initial', root.style['mask-border-source'])
+        self.assertEqual('initial', root.style['mask-border-slice'])
+        self.assertEqual('initial', root.style['mask-border-width'])
+        self.assertEqual('initial', root.style['mask-border-outset'])
+        self.assertEqual('initial', root.style['mask-border-repeat'])
+        self.assertEqual('inherit', root.style['mask-border-mode'])
+
+        root.style.set_property('mask-border-source', 'inherit')
+        root.style.set_property('mask-border-slice', 'inherit')
+        root.style.set_property('mask-border-width', 'inherit')
+        root.style.set_property('mask-border-outset', 'inherit')
+        root.style.set_property('mask-border-repeat', 'inherit')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border: inherit;",
+                         root.attributes['style'].value)
+        self.assertEqual('inherit', root.style['mask-border'])
+        self.assertEqual('inherit', root.style['mask-border-source'])
+        self.assertEqual('inherit', root.style['mask-border-slice'])
+        self.assertEqual('inherit', root.style['mask-border-width'])
+        self.assertEqual('inherit', root.style['mask-border-outset'])
+        self.assertEqual('inherit', root.style['mask-border-repeat'])
+        self.assertEqual('inherit', root.style['mask-border-mode'])
+
+    def test_css_style_declaration_inline_mask_border02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.style.set_property('mask-border',
+                                '25 fill stretch url(mask.png)')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border: url(\"mask.png\") 25 fill stretch;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("mask.png") 25 fill stretch',
+                         root.style['mask-border'])
+        self.assertEqual('url("mask.png")', root.style['mask-border-source'])
+        self.assertEqual('25 fill', root.style['mask-border-slice'])
+        self.assertEqual('initial', root.style['mask-border-width'])
+        self.assertEqual('initial', root.style['mask-border-outset'])
+        self.assertEqual('stretch', root.style['mask-border-repeat'])
+        self.assertEqual('initial', root.style['mask-border-mode'])
+
+        # <mask-border-slice> [ / <mask-border-width>?
+        #  [ / <mask-border-outset> ]? ]?
+        root.style.set_property('mask-border-outset', '0')
+        self.assertEqual("mask-border-mode: initial; "
+                         "mask-border-outset: 0; "
+                         "mask-border-repeat: stretch; "
+                         "mask-border-slice: 25 fill; "
+                         "mask-border-source: url(\"mask.png\"); "
+                         "mask-border-width: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['mask-border'])
+        self.assertEqual('url("mask.png")', root.style['mask-border-source'])
+        self.assertEqual('25 fill', root.style['mask-border-slice'])
+        self.assertEqual('initial', root.style['mask-border-width'])
+        self.assertEqual('0', root.style['mask-border-outset'])
+        self.assertEqual('stretch', root.style['mask-border-repeat'])
+        self.assertEqual('initial', root.style['mask-border-mode'])
+
+        root.style.set_property('mask-border-width', 'auto')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border: "
+                         "url(\"mask.png\") "
+                         "25 fill / auto / 0 stretch;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("mask.png") 25 fill / auto / 0 stretch',
+                         root.style['mask-border'])
+        self.assertEqual('url("mask.png")', root.style['mask-border-source'])
+        self.assertEqual('25 fill', root.style['mask-border-slice'])
+        self.assertEqual('auto', root.style['mask-border-width'])
+        self.assertEqual('0', root.style['mask-border-outset'])
+        self.assertEqual('stretch', root.style['mask-border-repeat'])
+        self.assertEqual('initial', root.style['mask-border-mode'])
+
+        root.style.set_property('mask-border-mode', 'alpha')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border: "
+                         "url(\"mask.png\") "
+                         "25 fill / auto / 0 stretch alpha;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("mask.png") 25 fill / auto / 0 stretch alpha',
+                         root.style['mask-border'])
+        self.assertEqual('url("mask.png")', root.style['mask-border-source'])
+        self.assertEqual('25 fill', root.style['mask-border-slice'])
+        self.assertEqual('auto', root.style['mask-border-width'])
+        self.assertEqual('0', root.style['mask-border-outset'])
+        self.assertEqual('stretch', root.style['mask-border-repeat'])
+        self.assertEqual('alpha', root.style['mask-border-mode'])
+
+    def test_css_style_declaration_inline_mask_border03(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        # 'mask-border' shorthand
+        root.style.set_property('mask-border', 'url(#mask2) 25 fill stretch')
+        self.assertEqual(6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual('url("#mask2") 25 fill stretch',
+                         root.style['mask-border'])
+        self.assertEqual('url("#mask2")', root.style['mask-border-source'])
+        self.assertEqual('25 fill', root.style['mask-border-slice'])
+        self.assertEqual('initial', root.style['mask-border-width'])
+        self.assertEqual('initial', root.style['mask-border-outset'])
+        self.assertEqual('stretch', root.style['mask-border-repeat'])
+        self.assertEqual('initial', root.style['mask-border-mode'])
+
+        # 'mask-border' shorthand + 'mask' shorthand => 'mask' shorthand
+        root.style.set_property('mask', 'url(#mask) alpha')
+        self.assertEqual(8 + 6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: url(\"#mask\") alpha;",
+                         root.attributes['style'].value)
+        self.assertEqual('url("#mask") alpha', root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('alpha', root.style['mask-mode'])
+        self.assertEqual('', root.style['mask-border'])
+        # self.assertEqual('initial', root.style['mask-border-source'])
+        # self.assertEqual('initial', root.style['mask-border-slice'])
+        # self.assertEqual('initial', root.style['mask-border-width'])
+        # self.assertEqual('initial', root.style['mask-border-outset'])
+        # self.assertEqual('initial', root.style['mask-border-repeat'])
+        # self.assertEqual('initial', root.style['mask-border-mode'])
+
+        # 'mask' shorthand + 'mask-border' shorthand
+        #  => 'mask' longhand + 'mask-border' shorthand
+        root.style.set_property('mask-border', 'url(#mask2) 25 fill stretch')
+        self.assertEqual(8 + 6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border: url(\"#mask2\") 25 fill stretch; "
+                         "mask-clip: initial; "
+                         "mask-composite: initial; "
+                         "mask-image: url(\"#mask\"); "
+                         "mask-mode: alpha; "
+                         "mask-origin: initial; "
+                         "mask-position: initial; "
+                         "mask-repeat: initial; "
+                         "mask-size: initial;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('initial', root.style['mask-position'])
+        self.assertEqual('initial', root.style['mask-size'])
+        self.assertEqual('initial', root.style['mask-repeat'])
+        self.assertEqual('initial', root.style['mask-origin'])
+        self.assertEqual('initial', root.style['mask-clip'])
+        self.assertEqual('initial', root.style['mask-composite'])
+        self.assertEqual('alpha', root.style['mask-mode'])
+        self.assertEqual('url("#mask2") 25 fill stretch',
+                         root.style['mask-border'])
+        self.assertEqual('url("#mask2")', root.style['mask-border-source'])
+        self.assertEqual('25 fill', root.style['mask-border-slice'])
+        self.assertEqual('initial', root.style['mask-border-width'])
+        self.assertEqual('initial', root.style['mask-border-outset'])
+        self.assertEqual('stretch', root.style['mask-border-repeat'])
+        self.assertEqual('initial', root.style['mask-border-mode'])
+
+    def test_css_style_declaration_inline_mask_border04(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        # 'mask' shorthand
+        root.style.set_property('mask',
+                                "url(#mask) "
+                                "0% 0%/auto "
+                                "repeat "
+                                "border-box "
+                                "border-box "
+                                "add "
+                                "match-source")
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: "
+                         "url(\"#mask\") "
+                         "0% 0% / auto "
+                         "repeat "
+                         "border-box "
+                         "add "
+                         "match-source;",
+                         root.attributes['style'].value)
+        self.assertEqual("url(\"#mask\") "
+                         "0% 0% / auto "
+                         "repeat "
+                         "border-box "
+                         "add "
+                         "match-source",
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0% 0%', root.style['mask-position'])
+        self.assertEqual('auto', root.style['mask-size'])
+        self.assertEqual('repeat', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('border-box', root.style['mask-clip'])
+        self.assertEqual('add', root.style['mask-composite'])
+        self.assertEqual('match-source', root.style['mask-mode'])
+
+        # 'mask' shorthand + 'mask-border' shorthand
+        #  => 'mask' longhand + 'mask-border' shorthand
+        root.style.set_property('mask-border', 'url(#mask2) 25 fill stretch')
+        self.assertEqual(8 + 6, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask-border: url(\"#mask2\") 25 fill stretch; "
+                         "mask-clip: border-box; "
+                         "mask-composite: add; "
+                         "mask-image: url(\"#mask\"); "
+                         "mask-mode: match-source; "
+                         "mask-origin: border-box; "
+                         "mask-position: 0% 0%; "
+                         "mask-repeat: repeat; "
+                         "mask-size: auto;",
+                         root.attributes['style'].value)
+        self.assertEqual('', root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0% 0%', root.style['mask-position'])
+        self.assertEqual('auto', root.style['mask-size'])
+        self.assertEqual('repeat', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('border-box', root.style['mask-clip'])
+        self.assertEqual('add', root.style['mask-composite'])
+        self.assertEqual('match-source', root.style['mask-mode'])
+        self.assertEqual('url("#mask2") 25 fill stretch',
+                         root.style['mask-border'])
+        self.assertEqual('url("#mask2")', root.style['mask-border-source'])
+        self.assertEqual('25 fill', root.style['mask-border-slice'])
+        self.assertEqual('initial', root.style['mask-border-width'])
+        self.assertEqual('initial', root.style['mask-border-outset'])
+        self.assertEqual('stretch', root.style['mask-border-repeat'])
+        self.assertEqual('initial', root.style['mask-border-mode'])
+
+        # 'mask' longhand + 'mask-border' shorthand - 'mask-border' shorthand
+        #  => 'mask' shorthand
+        root.style.remove_property('mask-border')
+        self.assertEqual(8, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("mask: "
+                         "url(\"#mask\") "
+                         "0% 0% / auto "
+                         "repeat "
+                         "border-box "
+                         "add "
+                         "match-source;",
+                         root.attributes['style'].value)
+        self.assertEqual("url(\"#mask\") "
+                         "0% 0% / auto "
+                         "repeat "
+                         "border-box "
+                         "add "
+                         "match-source",
+                         root.style['mask'])
+        self.assertEqual('url("#mask")', root.style['mask-image'])
+        self.assertEqual('0% 0%', root.style['mask-position'])
+        self.assertEqual('auto', root.style['mask-size'])
+        self.assertEqual('repeat', root.style['mask-repeat'])
+        self.assertEqual('border-box', root.style['mask-origin'])
+        self.assertEqual('border-box', root.style['mask-clip'])
+        self.assertEqual('add', root.style['mask-composite'])
+        self.assertEqual('match-source', root.style['mask-mode'])
+        self.assertEqual('', root.style['mask-border'])
+        self.assertEqual('', root.style['mask-border-source'])
+        self.assertEqual('', root.style['mask-border-slice'])
+        self.assertEqual('', root.style['mask-border-width'])
+        self.assertEqual('', root.style['mask-border-outset'])
+        self.assertEqual('', root.style['mask-border-repeat'])
+        self.assertEqual('', root.style['mask-border-mode'])
+
     def test_css_style_declaration_inline_overflow01(self):
         parser = SVGParser()
         root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')

@@ -49,10 +49,85 @@ def normalize_text(text):
 class _StyleAttribute(object):
 
     def __init__(self, declarations, owner_node):
-        self._declarations = declarations
+        self._declarations = declarations  # type: OrderedDict
         self._owner_node = owner_node
         style = owner_node.get('style', '')
         self._style_map = style_to_dict(style)
+
+    def _remove(self, property_name, force=False):
+        style_map = self._style_map
+        updated = False
+        if property_name in style_map:
+            updated = True
+            del style_map[property_name]
+
+        if Shorthand.is_shorthand(property_name):
+            # shorthand
+            # remove shorthand's sub-properties
+            longhand_names = Shorthand.longhands(property_name)
+            for longhand_name in longhand_names:
+                if longhand_name in style_map:
+                    updated = True
+                    del style_map[longhand_name]
+
+        if force:
+            return updated
+
+        if (Shorthand.is_shorthand(property_name)
+                or Longhand.is_longhand(property_name)):
+            # shorthand or shorthand's sub-property
+            # try to set the shorthand
+            declarations = self._declarations
+            shorthand_names = Longhand.shorthands(property_name)
+            for shorthand_name in shorthand_names:
+                _updated = self._set_shorthand(shorthand_name)
+                if _updated:
+                    updated = True
+                else:
+                    if shorthand_name in style_map:
+                        updated = True
+                        del style_map[shorthand_name]
+                    longhand_names = Shorthand.longhands(shorthand_name)
+                    for longhand_name in longhand_names:
+                        if longhand_name in declarations:
+                            updated = True
+                            longhand_value = declarations[longhand_name][0]
+                            style_map[longhand_name] = longhand_value
+
+        return updated
+
+    def _set(self, property_name, value):
+        style_map = self._style_map
+        updated = False
+        if Longhand.is_longhand(property_name):
+            # longhand => shorthand
+            # e.g.: 'font-variant-caps: small-caps'
+            # => 'font: small-caps' or 'font-variant: small-caps'
+            shorthand_names = Longhand.shorthands(property_name)
+            for shorthand_name in shorthand_names:
+                _updated = self._set_shorthand(shorthand_name)
+                if _updated:
+                    updated = True
+                    for sub_shorthand_name in (set(shorthand_names)
+                                               - {shorthand_name}):
+                        if sub_shorthand_name in style_map:
+                            del style_map[sub_shorthand_name]
+                    break
+                else:
+                    # shorthand => longhand
+                    updated |= self._set_longhand_from_shorthand(
+                        shorthand_name)
+        elif Shorthand.is_shorthand(property_name):
+            # shorthand
+            updated = self._set_shorthand(property_name)
+            if not updated:
+                # shorthand => longhand
+                updated = self._set_longhand_from_shorthand(property_name)
+
+        if not updated and len(value) > 0:
+            updated = True
+            style_map[property_name] = value
+        return updated
 
     def _set_longhand_from_shorthand(self, shorthand_name):
         style_map = self._style_map
@@ -93,67 +168,21 @@ class _StyleAttribute(object):
         style = dict_to_style(self._style_map)
         self._owner_node.set('style', style)
 
-    def remove(self, property_name):
-        style_map = self._style_map
-        if property_name in style_map:
-            del style_map[property_name]
-
-        if Shorthand.is_shorthand(property_name):
-            # shorthand
-            # remove shorthand's sub-properties
-            longhand_names = Shorthand.longhands(property_name)
-            for longhand_name in longhand_names:
-                if longhand_name in style_map:
-                    del style_map[longhand_name]
-
-        if (Shorthand.is_shorthand(property_name)
-                or Longhand.is_longhand(property_name)):
-            # shorthand or shorthand's sub-property
-            # try to set the shorthand
-            declarations = self._declarations
-            shorthand_names = Longhand.shorthands(property_name)
-            for shorthand_name in shorthand_names:
-                updated = self._set_shorthand(shorthand_name)
-                if not updated:
-                    if shorthand_name in style_map:
-                        del style_map[shorthand_name]
-                    longhand_names = Shorthand.longhands(shorthand_name)
-                    for longhand_name in longhand_names:
-                        if longhand_name in declarations:
-                            longhand_value = declarations[longhand_name][0]
-                            style_map[longhand_name] = longhand_value
-
-        self._update_style()
-
-    def set(self, property_name, value):
-        style_map = self._style_map
+    def update(self, property_name, value):
         updated = False
-        if Longhand.is_longhand(property_name):
-            # longhand => shorthand
-            # e.g.: 'font-variant-caps: small-caps'
-            # => 'font: small-caps' or 'font-variant: small-caps'
-            shorthand_names = Longhand.shorthands(property_name)
-            for shorthand_name in shorthand_names:
-                updated = self._set_shorthand(shorthand_name)
-                if updated:
-                    for sub_shorthand_name in (set(shorthand_names)
-                                               - {shorthand_name}):
-                        if sub_shorthand_name in style_map:
-                            del style_map[sub_shorthand_name]
-                    break
-                else:
-                    # shorthand => longhand
-                    self._set_longhand_from_shorthand(shorthand_name)
-        elif Shorthand.is_shorthand(property_name):
-            # shorthand
-            updated = self._set_shorthand(property_name)
-            if not updated:
-                # shorthand => longhand
-                self._set_longhand_from_shorthand(property_name)
+        if len(value) == 0:
+            updated = self._remove(property_name)
+            if property_name == 'mask-border':
+                updated |= self._set_shorthand('mask')
+        else:
+            if property_name == 'mask':
+                updated |= self._remove('mask-border', force=True)
+            elif property_name == 'mask-border' and value != 'initial':
+                updated |= self._set_longhand_from_shorthand('mask')
+            updated |= self._set(property_name, value)
 
-        if not updated:
-            style_map[property_name] = value
-        self._update_style()
+        if updated:
+            self._update_style()
 
 
 class CSS(object):
@@ -1256,7 +1285,7 @@ class CSSStyleDeclaration(MutableMapping):
     def __contains__(self, property_name):
         if not property_name.startswith('--'):
             property_name = property_name.lower()
-        return property_name in self._declarations
+        return property_name in self._declarations()
 
     def __delitem__(self, property_name):
         self.remove_property(property_name)
@@ -1265,13 +1294,13 @@ class CSSStyleDeclaration(MutableMapping):
         return self.get_property_value(property_name)
 
     def __iter__(self):
-        return iter(self._declarations)
+        return iter(self._declarations())
 
     def __len__(self):
-        return len(self._declarations)
+        return len(self._declarations())
 
     def __repr__(self):
-        return repr(self._declarations)
+        return repr(self._declarations())
 
     def __setitem__(self, property_name, value):
         """Sets a CSS declaration property with a value in the declarations.
@@ -1281,17 +1310,6 @@ class CSSStyleDeclaration(MutableMapping):
             value (str, None): A CSS value of the declarations.
         """
         self.set_property(property_name, value)
-
-    @property
-    def _declarations(self):
-        if self._owner_node is None:
-            return self._property_map
-        style = self._owner_node.get('style', '')
-        property_map = style_to_dict(style)
-        declarations = self._property_map
-        for property_name, value in property_map.items():
-            self._set_property_internal(declarations, property_name, value, '')
-        return declarations
 
     @property
     def css_text(self):
@@ -1309,6 +1327,26 @@ class CSSStyleDeclaration(MutableMapping):
         """CSSRule: The parent CSS rule."""
         return self._parent_rule
 
+    def _declarations(self):
+        if self._owner_node is None:
+            return self._property_map
+        style = self._owner_node.get('style', '')
+        property_map = style_to_dict(style)
+        declarations = self._property_map
+        for property_name in list(declarations):
+            if property_name in property_map:
+                value = property_map.pop(property_name)
+                self._set_property_internal(declarations,
+                                            property_name,
+                                            value,
+                                            '')
+        for property_name, value in property_map.items():
+            self._set_property_internal(declarations,
+                                        property_name,
+                                        value,
+                                        '')
+        return declarations
+
     def _parse_content(self, content):
         nodes = tinycss2.parse_declaration_list(content,
                                                 skip_comments=True,
@@ -1320,35 +1358,38 @@ class CSSStyleDeclaration(MutableMapping):
                 priority = 'important' if node.important else ''
                 self.set_property(property_name, value, priority)
 
-    def _set_css_declaration(self, declarations, property_name, components,
-                             priority):
+    def _set_css_declaration(self, declarations, property_name,
+                             component_list, priority):
         _ = self
-        value = tinycss2.serialize(components).strip()
+        value = tinycss2.serialize(component_list).strip()
         if len(value) == 0:
             return False
         if value.lower() in css_color_keyword_set | css_wide_keyword_set:
             value = value.lower()
+        if property_name in declarations:
+            declarations.move_to_end(property_name)
         declarations[property_name] = value, priority
         return True
 
     def _set_property_internal(self, declarations, property_name, value,
                                priority):
-        components = tinycss2.parse_component_value_list(value,
-                                                         skip_comments=True)
-        if len(components) == 0:
+        component_list = tinycss2.parse_component_value_list(
+            value,
+            skip_comments=True)
+        if len(component_list) == 0:
             return False, ''
         result = ''
         if Shorthand.is_shorthand(property_name):
             shorthand = Shorthand(declarations)
             updated = shorthand.set_css_declaration(property_name,
-                                                    components,
+                                                    component_list,
                                                     priority)
             if updated:
                 result = shorthand.get_property_value(property_name)
         else:
             updated = self._set_css_declaration(declarations,
                                                 property_name,
-                                                components,
+                                                component_list,
                                                 priority)
             if updated:
                 result = declarations[property_name][0]
@@ -1358,10 +1399,7 @@ class CSSStyleDeclaration(MutableMapping):
         if self._owner_node is None:
             return
         style = _StyleAttribute(declarations, self._owner_node)
-        if len(value) == 0:
-            style.remove(property_name)
-            return
-        style.set(property_name, value)
+        style.update(property_name, value)
 
     def get_property_priority(self, property_name):
         """Returns the important flag of the first exact match of name in the
@@ -1372,7 +1410,7 @@ class CSSStyleDeclaration(MutableMapping):
         Returns:
             str: The important flag of the declarations.
         """
-        declarations = self._declarations
+        declarations = self._declarations()
         if not property_name.startswith('--'):
             property_name = property_name.lower()
             if Shorthand.is_shorthand(property_name):
@@ -1393,7 +1431,7 @@ class CSSStyleDeclaration(MutableMapping):
         Returns:
             str: A CSS value of the declarations.
         """
-        declarations = self._declarations
+        declarations = self._declarations()
         if not property_name.startswith('--'):
             property_name = property_name.lower()
             if Shorthand.is_shorthand(property_name):
@@ -1410,10 +1448,10 @@ class CSSStyleDeclaration(MutableMapping):
         return property_name
 
     def items(self):
-        return self._declarations.items()
+        return self._declarations().items()
 
     def keys(self):
-        return self._declarations.keys()
+        return self._declarations().keys()
 
     def remove_property(self, property_name):
         """Removes a CSS declaration property of the first exact match of name
@@ -1426,7 +1464,7 @@ class CSSStyleDeclaration(MutableMapping):
             property_name = property_name.lower()
         value = self.get_property_value(property_name)
         removed = False
-        declarations = self._declarations
+        declarations = self._declarations()
         if Shorthand.is_shorthand(property_name):
             shorthand = Shorthand(declarations)
             removed = shorthand.remove_property(property_name)
@@ -1454,7 +1492,7 @@ class CSSStyleDeclaration(MutableMapping):
 
         if not property_name.startswith('--'):
             property_name = property_name.lower()
-        declarations = self._declarations
+        declarations = self._declarations()
         if priority is None:
             priority = declarations.get(property_name, ('', ''))[1]
         else:
@@ -1469,7 +1507,7 @@ class CSSStyleDeclaration(MutableMapping):
             self._update_style_attribute(declarations, property_name, result)
 
     def values(self):
-        return self._declarations.values()
+        return self._declarations().values()
 
 
 class CSSStyleRule(CSSRule):

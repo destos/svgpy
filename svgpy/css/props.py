@@ -1098,6 +1098,64 @@ _property_descriptors = [
         inherits=False,
     ),
     PropertyDescriptor(
+        name='mask-border',  # [css-masking-1]
+        syntax="[ none | <image> ]"
+               " || [ [ <number> | <percentage> ]{1,4} fill? ]"
+               " [ / [ [ <length-percentage> | <number> | auto ]{1,4} ]?"
+               " [ / [ <length> | <number> ]{1,4}"
+               " ]? ]?"
+               " || [ stretch | repeat | round | space ]{1,2}"
+               " || [ luminance | alpha ]",
+        # = <mask-border-source>
+        #  || <mask-border-slice>
+        #  [ / <mask-border-width>?
+        #  [ / <mask-border-outset>
+        #  ]? ]?
+        #  || <mask-border-repeat>
+        #  || <mask-border-mode>
+        inherits=False,
+    ),
+    PropertyDescriptor(
+        name='mask-border-mode',  # [css-masking-1]
+        syntax='luminance | alpha',
+        initial_value='alpha',
+        inherits=False,
+    ),
+    PropertyDescriptor(
+        name='mask-border-outset',  # [css-masking-1]
+        syntax='[ <length> | <number> ]{1,4}',
+        initial_value='0',
+        inherits=False,
+    ),
+    PropertyDescriptor(
+        name='mask-border-repeat',  # [css-masking-1]
+        syntax='[ stretch | repeat | round | space ]{1,2}',
+        initial_value='stretch',
+        inherits=False,
+    ),
+    PropertyDescriptor(
+        name='mask-border-slice',  # [css-masking-1]
+        syntax='[ <number> | <percentage> ]{1,4} fill?',
+        # = <number-percentage>{1,4} fill?
+        #
+        # <number-percentage> = [ <number> | <percentage> ]
+        # // [css-values-3]
+        initial_value='0',
+        inherits=False,
+    ),
+    PropertyDescriptor(
+        name='mask-border-source',  # [css-masking-1]
+        syntax='none | <image>',
+        initial_value='none',
+        inherits=False,
+    ),
+    PropertyDescriptor(
+        name='mask-border-width',  # [css-masking-1]
+        syntax='[ <length-percentage> | <number> | auto ]{1,4}',
+        initial_value='auto',
+        inherits=False,
+    ),
+    PropertyDescriptor(
         name='mask-clip',  # [css-masking-1]
         syntax="[ [ [ [ border-box | padding-box | content-box ]"
                " | margin-box ] | fill-box | stroke-box | view-box ]"

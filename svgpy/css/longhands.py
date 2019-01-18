@@ -47,6 +47,22 @@ longhand_property_map = {
     'font-variant-numeric': ('font', 'font-variant'),
     'font-variant-east-asian': ('font', 'font-variant'),
     'font-variant-position': ('font', 'font-variant'),
+    # 'mask'
+    'mask-image': ('mask',),
+    'mask-position': ('mask',),
+    'mask-size': ('mask',),
+    'mask-repeat': ('mask',),
+    'mask-origin': ('mask',),
+    'mask-clip': ('mask',),
+    'mask-composite': ('mask',),
+    'mask-mode': ('mask',),
+    # 'mask-border'
+    'mask-border-source': ('mask-border',),
+    'mask-border-slice': ('mask-border',),
+    'mask-border-width': ('mask-border',),
+    'mask-border-outset': ('mask-border',),
+    'mask-border-repeat': ('mask-border',),
+    'mask-border-mode': ('mask-border',),
     # 'overflow'
     'overflow-x': ('overflow',),
     'overflow-y': ('overflow',),
