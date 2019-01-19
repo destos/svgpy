@@ -1128,7 +1128,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, root.style.length)
         self.assertEqual(0, len(root.style))
 
-        root.style.set_property('font', 'initial')
+        root.style.set_property('font', 'INITIAL')
         self.assertEqual(1, len(root.attributes))
         self.assertEqual("font: initial;",
                          root.attributes['style'].value)
@@ -1148,7 +1148,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('initial', root.style['line-height'])
         self.assertEqual('initial', root.style['font-family'])
 
-        root.style.set_property('font-variant', 'inherit')
+        root.style.set_property('font-variant', 'INHERIT')
         self.assertEqual(1, len(root.attributes))
         self.assertEqual("font-family: initial; "
                          "font-size: initial; "
@@ -1256,14 +1256,14 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, root.style.length)
         self.assertEqual(0, root.attributes.length)
 
-        root.style.set_property('font-synthesis', 'initial')
+        root.style.set_property('font-synthesis', 'INITIAL')
         self.assertEqual("font-synthesis: initial;",
                          root.attributes['style'].value)
         self.assertEqual('initial', root.style['font-synthesis'])
         self.assertEqual('initial', root.style['font-synthesis-weight'])
         self.assertEqual('initial', root.style['font-synthesis-style'])
 
-        root.style.set_property('font-synthesis-weight', 'inherit')
+        root.style.set_property('font-synthesis-weight', 'INHERIT')
         self.assertEqual("font-synthesis-style: initial; "
                          "font-synthesis-weight: inherit;",
                          root.attributes['style'].value)
@@ -1395,9 +1395,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, root.style.length)
         self.assertEqual(0, len(root.style))
 
-        root.style.set_property(
-            'font-variant',
-            'initial')
+        root.style.set_property('font-variant', 'INITIAL')
         self.assertEqual(6, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("font-variant: initial;",
@@ -1428,7 +1426,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('initial', root.style['font-variant-east-asian'])
         self.assertEqual('initial', root.style['font-variant-position'])
 
-        root.style.set_property('font-variant-ligatures', 'inherit')
+        root.style.set_property('font-variant-ligatures', 'INHERIT')
         self.assertEqual(6, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("font-variant-alternates: initial; "
@@ -1467,7 +1465,7 @@ class CSSOMTestCase(unittest.TestCase):
         parser = SVGParser()
         root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
-        root.style.set_property('mask', 'initial')
+        root.style.set_property('mask', 'INITIAL')
         self.assertEqual(8, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("mask: initial;",
@@ -1482,7 +1480,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('initial', root.style['mask-composite'])
         self.assertEqual('initial', root.style['mask-mode'])
 
-        root.style.set_property('mask-size', 'inherit')
+        root.style.set_property('mask-size', 'INHERIT')
         self.assertEqual(8, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("mask-clip: initial; "
@@ -1739,7 +1737,7 @@ class CSSOMTestCase(unittest.TestCase):
         parser = SVGParser()
         root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
-        root.style.set_property('mask-border', 'initial')
+        root.style.set_property('mask-border', 'INITIAL')
         self.assertEqual(6, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("mask-border: initial;",
@@ -1752,7 +1750,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('initial', root.style['mask-border-repeat'])
         self.assertEqual('initial', root.style['mask-border-mode'])
 
-        root.style.set_property('mask-border-mode', 'inherit')
+        root.style.set_property('mask-border-mode', 'INHERIT')
         self.assertEqual(6, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("mask-border-mode: inherit; "
@@ -2160,7 +2158,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, root.style.length)
         self.assertEqual(0, len(root.style))
 
-        root.style.set_property('overflow', 'initial')
+        root.style.set_property('overflow', 'INITIAL')
         self.assertEqual("overflow: initial;",
                          root.attributes['style'].value)
         self.assertEqual('initial', root.style['overflow'])
@@ -2182,7 +2180,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('initial', root.style['overflow-x'])
         self.assertEqual('', root.style['overflow-y'])
 
-        root.style.set_property('overflow-y', 'inherit')
+        root.style.set_property('overflow-y', 'INHERIT')
         self.assertEqual("overflow-x: initial; "
                          "overflow-y: inherit;",
                          root.attributes['style'].value)
@@ -2197,7 +2195,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, root.style.length)
         self.assertEqual(0, root.attributes.length)
 
-        root.style.set_property('text-decoration', 'initial')
+        root.style.set_property('text-decoration', 'INITIAL')
         self.assertEqual(3, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("text-decoration: initial;",
@@ -2206,7 +2204,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('initial', root.style['text-decoration-style'])
         self.assertEqual('initial', root.style['text-decoration-color'])
 
-        root.style.set_property('text-decoration-line', 'inherit')
+        root.style.set_property('text-decoration-line', 'INHERIT')
         self.assertEqual(3, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("text-decoration-color: initial; "
@@ -2288,7 +2286,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, root.style.length)
         self.assertEqual(0, root.attributes.length)
 
-        root.style.set_property('white-space', 'initial')
+        root.style.set_property('white-space', 'INITIAL')
         self.assertEqual(3, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("white-space: initial;",
@@ -2298,7 +2296,7 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('initial', root.style['text-wrap'])
         self.assertEqual('initial', root.style['text-space-trim'])
 
-        root.style.set_property('text-wrap', 'inherit')
+        root.style.set_property('text-wrap', 'INHERIT')
         self.assertEqual(3, root.style.length)
         self.assertEqual(1, root.attributes.length)
         self.assertEqual("text-space-collapse: initial; "

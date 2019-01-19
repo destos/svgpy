@@ -375,9 +375,9 @@ class FontSynthesisShorthand(ShorthandProperty):
             elif values[0] == 'style':
                 font_synthesis_weight = 'none'
                 font_synthesis_style = 'auto'
-            elif values[0] in css_wide_keyword_set:
-                font_synthesis_weight = values[0]
-                font_synthesis_style = values[0]
+            elif values[0].lower() in css_wide_keyword_set:
+                value = values[0].lower()
+                font_synthesis_weight = font_synthesis_style = value
         elif len(values) == 2 and 'weight' in values and 'style' in values:
             font_synthesis_weight = 'auto'
             font_synthesis_style = 'auto'
@@ -801,9 +801,11 @@ class TextDecorationShorthand(ShorthandProperty):
         text_decoration_line = property_map.get('text-decoration-line')
         text_decoration_style = property_map.get('text-decoration-style')
         text_decoration_color = property_map.get('text-decoration-color')
-        values = (text_decoration_line,
-                  text_decoration_style,
-                  text_decoration_color)
+        values = (
+            text_decoration_line,
+            text_decoration_style,
+            text_decoration_color,
+        )
         if any(x is None for x in values):
             return ''
         elif (all(x in css_wide_keyword_set for x in values)
@@ -840,8 +842,8 @@ class WhiteSpaceShorthand(ShorthandProperty):
             text_space_collapse = 'preserve-breaks'
             text_wrap = 'wrap'
             text_space_trim = 'none'
-        elif value in css_wide_keyword_set:
-            text_space_collapse = text_wrap = text_space_trim = value
+        elif value.lower() in css_wide_keyword_set:
+            text_space_collapse = text_wrap = text_space_trim = value.lower()
         else:
             return False
 
