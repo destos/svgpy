@@ -525,27 +525,26 @@ class MaskBorderShorthand(ShorthandProperty):
 
     def tostring(self, property_map):
         keys = list(self._declarations.keys())
-        index_of_mask_border = -1
+        max_index_of_mask_border = -1
+        min_index_of_mask_border = -1
         for property_name in shorthand_property_map['mask-border']:
             if property_name not in keys:
-                index_of_mask_border = -1
-                break
+                return ''
+            index = keys.index(property_name)
+            max_index_of_mask_border = max(max_index_of_mask_border, index)
+            if min_index_of_mask_border < 0:
+                min_index_of_mask_border = index
             else:
-                index_of_mask_border = max(index_of_mask_border,
-                                           keys.index(property_name))
+                min_index_of_mask_border = min(min_index_of_mask_border, index)
 
-        index_of_mask = -1
+        # in the order of 'mask-border', 'mask'
         for property_name in shorthand_property_map['mask']:
             if property_name not in keys:
-                index_of_mask = -1
-                break
-            else:
-                index_of_mask = max(index_of_mask,
-                                    keys.index(property_name))
-
-        if index_of_mask_border < index_of_mask:
-            # in the order of 'mask-border', 'mask'
-            return ''
+                continue
+            index = keys.index(property_name)
+            if (min_index_of_mask_border < index < max_index_of_mask_border
+                    or max_index_of_mask_border < index):
+                return ''
 
         mask_border_source = property_map.get('mask-border-source')
         mask_border_slice = property_map.get('mask-border-slice')
@@ -632,32 +631,29 @@ class MaskShorthand(ShorthandProperty):
         return updated
 
     def tostring(self, property_map):
+        declarations = self._declarations
         keys = list(self._declarations.keys())
-        index_of_mask_border = -1
-        values_of_mask_border = list()
-        for property_name in shorthand_property_map['mask-border']:
-            if property_name not in keys:
-                index_of_mask_border = -1
-                break
-            else:
-                index_of_mask_border = max(index_of_mask_border,
-                                           keys.index(property_name))
-                values_of_mask_border.append(
-                    self._declarations[property_name][0])
-
-        index_of_mask = -1
+        max_index_of_mask = -1
+        min_index_of_mask = -1
         for property_name in shorthand_property_map['mask']:
             if property_name not in keys:
-                index_of_mask = -1
-                break
+                return ''
+            index = keys.index(property_name)
+            max_index_of_mask = max(max_index_of_mask, index)
+            if min_index_of_mask < 0:
+                min_index_of_mask = index
             else:
-                index_of_mask = max(index_of_mask,
-                                    keys.index(property_name))
+                min_index_of_mask = min(min_index_of_mask, index)
 
-        if (index_of_mask < index_of_mask_border
-                and any(x != 'initial' for x in values_of_mask_border)):
-            # in the order of 'mask', 'mask-border'
-            return ''
+        # in the order of 'mask', 'mask-border'
+        for property_name in shorthand_property_map['mask-border']:
+            if property_name not in keys:
+                continue
+            index = keys.index(property_name)
+            if (min_index_of_mask < index < max_index_of_mask
+                    or (max_index_of_mask < index
+                        and declarations[property_name][0] != 'initial')):
+                return ''
 
         mask_image = property_map.get('mask-image')
         mask_position = property_map.get('mask-position')
