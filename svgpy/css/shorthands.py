@@ -32,6 +32,17 @@ def create_component_list(value):
     return component_list
 
 
+def get_longhand_list(shorthand_name):
+    longhand_list = list()
+    for property_name in Shorthand.longhands(shorthand_name):
+        if Shorthand.is_shorthand(property_name):
+            longhand_list.extend(get_longhand_list(property_name))
+        else:
+            longhand_list.append(property_name)
+
+    return longhand_list
+
+
 class Shorthand(object):
 
     def __init__(self, declarations):
@@ -255,60 +266,34 @@ class FontShorthand(ShorthandProperty):
         font_stretch_components = components_map.pop('font-stretch-css3')
         components_map['font-stretch'] = font_stretch_components
 
-        # desc = css_property_set['font-size-adjust']
-        # components_map['font-size-adjust'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-kerning']
-        # components_map['font-kerning'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-feature-settings']
-        # components_map['font-feature-settings'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-language-override']
-        # components_map['font-language-override'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-min-size']
-        # components_map['font-min-size'] = [
-        #     NumberToken(0,
-        #                 0,
-        #                 int(desc.initial_value),
-        #                 True,
-        #                 desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-max-size']
-        # components_map['font-max-size'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-optical-sizing']
-        # components_map['font-optical-sizing'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-variation-settings']
-        # components_map['font-variation-settings'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
-        # desc = css_property_set['font-palette']
-        # components_map['font-palette'] = [
-        #     IdentToken(0, 0, desc.initial_value)
-        # ]
-
         updated = self._set_css_declaration_map(components_map, priority)
         return updated
 
     def tostring(self, property_map):
-        _ = self
+        declarations = self._declarations
+        keys = list(declarations.keys())
+        max_index_of_font = -1
+        min_index_of_font = -1
+        longhand_names = get_longhand_list('font')
+        for property_name in longhand_names:
+            if property_name not in keys:
+                return ''
+            index = keys.index(property_name)
+            max_index_of_font = max(max_index_of_font, index)
+            if min_index_of_font < 0:
+                min_index_of_font = index
+            else:
+                min_index_of_font = min(min_index_of_font, index)
+
+        for property_name in font_sub_property_list:
+            if property_name not in keys:
+                continue
+            index = keys.index(property_name)
+            if (min_index_of_font < index < max_index_of_font
+                    or (max_index_of_font < index
+                        and declarations[property_name][0] != 'initial')):
+                return ''
+
         font_style = property_map.get('font-style')
         font_variant = property_map.get('font-variant')
         font_weight = property_map.get('font-weight')
@@ -912,6 +897,18 @@ _with_solidus_properties = (
     'mask-border-width',
     # 'mask-border': <mask-border-width>? [ / <mask-border-outset> ]?
     'mask-border-outset',
+)
+
+font_sub_property_list = (
+    'font-size-adjust',
+    'font-kerning',
+    'font-feature-settings',
+    'font-language-override',
+    'font-min-size',
+    'font-max-size',
+    'font-optical-sizing',
+    'font-variation-settings',
+    'font-palette',
 )
 
 shorthand_property_map = {
