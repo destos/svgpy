@@ -33,6 +33,7 @@ from .types import CSSKeywordValue, CSSImageValue, CSSMathClamp, \
     CSSNumericType, CSSNumericValue, CSSStyleValue, CSSURLImageValue, \
     CSSUnitValue, CSSUnparsedValue, CSSVariableReferenceValue, \
     StylePropertyMap, StylePropertyMapReadOnly, UnitType
+from ..exception import NoModificationAllowedError
 from ..utils import CaseInsensitiveMapping, dict_to_style, get_content_type, \
     load, normalize_url, style_to_dict
 
@@ -1292,7 +1293,8 @@ class CSSNamespaceRule(CSSRule):
 class CSSStyleDeclaration(MutableMapping):
     """Represents a CSS declaration block."""
 
-    def __init__(self, rule=None, parent_rule=None, owner_node=None):
+    def __init__(self, rule=None, parent_rule=None, owner_node=None,
+                 inline_style=False):
         """Constructs a CSSStyleDeclaration object.
 
         Arguments:
@@ -1300,11 +1302,14 @@ class CSSStyleDeclaration(MutableMapping):
             parent_rule (CSSRule, optional): The parent CSS rule.
             owner_node (Element, optional): The owner node of the inline style
                 properties.
+            inline_style (bool, optional): Enables the inline CSS styles.
         """
         self._parent_rule = parent_rule
         self._css_text = None
         self._property_map = OrderedDict()
         self._owner_node = owner_node
+        self._inline_style = inline_style
+        self._readonly = False
         if rule is not None:
             self._css_text = normalize_text(tinycss2.serialize(rule.content))
             self._parse_content(rule.content)
@@ -1354,8 +1359,18 @@ class CSSStyleDeclaration(MutableMapping):
         """CSSRule: The parent CSS rule."""
         return self._parent_rule
 
+    @property
+    def readonly(self):
+        return self._readonly
+
+    @readonly.setter
+    def readonly(self, readonly):
+        self._readonly = readonly
+
     def _declarations(self):
-        if self._owner_node is None:
+        if self._readonly:
+            return self._property_map.copy()
+        elif self._owner_node is None or not self._inline_style:
             return self._property_map
 
         # 'style' attribute => CSS declarations
@@ -1514,6 +1529,8 @@ class CSSStyleDeclaration(MutableMapping):
         Arguments:
             property_name (str): A property name of a CSS declaration.
         """
+        if self._readonly:
+            raise NoModificationAllowedError('The object can not be modified')
         if not property_name.startswith('--'):
             property_name = property_name.lower()
         value = self.get_property_value(property_name)
@@ -1525,7 +1542,7 @@ class CSSStyleDeclaration(MutableMapping):
         elif property_name in declarations:
             del declarations[property_name]
             removed = True
-        if removed:
+        if removed and self._inline_style:
             self._update_style_attribute(declarations, property_name, '')
         return value
 
@@ -1539,6 +1556,8 @@ class CSSStyleDeclaration(MutableMapping):
             priority (str, optional): An important flag of the
                 declarations.
         """
+        if self._readonly:
+            raise NoModificationAllowedError('The object can not be modified')
         value = normalize_text(value)
         if len(value) == 0:
             self.remove_property(property_name)
@@ -1557,7 +1576,7 @@ class CSSStyleDeclaration(MutableMapping):
                                                       property_name,
                                                       value,
                                                       priority)
-        if updated:
+        if updated and self._inline_style:
             self._update_style_attribute(declarations, property_name, result)
 
     def values(self):

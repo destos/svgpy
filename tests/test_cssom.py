@@ -13,6 +13,7 @@ from svgpy import SVGParser, window
 from svgpy.css import CSS, CSSFontFaceRule, CSSFontFeatureValuesRule, \
     CSSImportRule, CSSMediaRule, CSSNamespaceRule, CSSParser, CSSRule, \
     CSSStyleDeclaration, CSSStyleRule, CSSStyleSheet, MediaList, StyleSheet
+from svgpy.exception import DOMException
 
 # LOGGING_LEVEL = logging.DEBUG
 LOGGING_LEVEL = logging.WARNING
@@ -2795,6 +2796,164 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('collapse', root.style['text-space-collapse'])
         self.assertEqual('wrap', root.style['text-wrap'])
         self.assertEqual('none', root.style['text-space-trim'])
+
+    def test_css_style_declaration_readonly01(self):
+        style = CSSStyleDeclaration()
+        style.set_property('fill', 'none', 'important')
+        style.readonly = True
+        self.assertEqual(1, style.length)
+        self.assertEqual('none', style.get_property_value('fill'))
+        self.assertEqual('none', style['fill'])
+        self.assertEqual('important', style.get_property_priority('fill'))
+
+        try:
+            style.set_property('fill', 'black', '')
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            style['fill'] = 'black'
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            style.remove_property('fill')
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            del style['fill']
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_css_style_declaration_readonly02(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        style = CSSStyleDeclaration(owner_node=root)
+        style.set_property('fill', 'none', 'important')
+        style.readonly = True
+        self.assertEqual(1, style.length)
+        self.assertEqual('none', style.get_property_value('fill'))
+        self.assertEqual('none', style['fill'])
+        self.assertEqual('important', style.get_property_priority('fill'))
+        self.assertEqual(0, root.attributes.length)
+
+        root.attributes['style'] = 'fill: black;'
+        self.assertEqual(1, style.length)
+        self.assertEqual('none', style.get_property_value('fill'))
+        self.assertEqual('none', style['fill'])
+        self.assertEqual('important', style.get_property_priority('fill'))
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual('fill: black;', root.attributes['style'].value)
+
+        try:
+            style.set_property('fill', 'black', '')
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            style['fill'] = 'black'
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            style.remove_property('fill')
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            del style['fill']
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_css_style_declaration_readonly03(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        style = CSSStyleDeclaration(owner_node=root, inline_style=True)
+        style.set_property('fill', 'none', 'important')
+        style.readonly = True
+        self.assertEqual(1, style.length)
+        self.assertEqual('none', style.get_property_value('fill'))
+        self.assertEqual('none', style['fill'])
+        self.assertEqual('important', style.get_property_priority('fill'))
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual('fill: none;', root.attributes['style'].value)
+
+        root.attributes['style'] = 'fill: black;'
+        self.assertEqual(1, style.length)
+        self.assertEqual('none', style.get_property_value('fill'))
+        self.assertEqual('none', style['fill'])
+        self.assertEqual('important', style.get_property_priority('fill'))
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual('fill: black;', root.attributes['style'].value)
+
+        try:
+            style.set_property('fill', 'black', '')
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            style['fill'] = 'black'
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            style.remove_property('fill')
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+        try:
+            del style['fill']
+            self.assertTrue(False, msg='Unexpected success')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
 
     def test_css_style_rule(self):
         stylesheet = '''

@@ -2228,7 +2228,7 @@ class ElementCSSInlineStyle(Element):
 
     def _init(self):
         super()._init()
-        self._style = CSSStyleDeclaration(owner_node=self)
+        self._style = CSSStyleDeclaration(owner_node=self, inline_style=True)
 
     @property
     def style(self):
