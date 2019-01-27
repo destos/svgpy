@@ -34,6 +34,14 @@ from svgpy.css import CSS, CSSConditionRule, CSSFontFaceRule, \
 from svgpy.dom import Attr, Comment, DOMTokenList, Element, NamedNodeMap, \
     Node, ProcessingInstruction
 from svgpy.element import SVGElementClassLookup, SVGParser
+from svgpy.exception import AbortError, ConstraintError, DataCloneError, \
+    DataError, DOMException, EncodingError, HierarchyRequestError, \
+    InUseAttributeError, InvalidCharacterError, InvalidModificationError, \
+    InvalidNodeTypeError, InvalidStateError, NamespaceError, NetworkError, \
+    NoModificationAllowedError, NotAllowedError, NotFoundError, \
+    NotReadableError, NotSupportedError, OperationError, QuotaExceededError, \
+    ReadOnlyError, SecurityError, TransactionInactiveError, UnknownError, \
+    URLMismatchError, VersionError, WrongDocumentError
 from svgpy.geometry import DOMMatrix, DOMMatrixReadOnly, DOMRect, \
     DOMRectReadOnly
 from svgpy.path import PathParser, SVGPathSegment

@@ -9,6 +9,14 @@ sys.path.extend(['.', '..'])
 from svgpy import Attr, Comment, DOMTokenList, Element, HTMLElement, \
     NamedNodeMap, Node, SVGElement, SVGParser, formatter, window
 from svgpy.dom import DOMStringMap
+from svgpy.exception import AbortError, ConstraintError, DataCloneError, \
+    DataError, DOMException, EncodingError, HierarchyRequestError, \
+    InUseAttributeError, InvalidCharacterError, InvalidModificationError, \
+    InvalidNodeTypeError, InvalidStateError, NamespaceError, NetworkError, \
+    NoModificationAllowedError, NotAllowedError, NotFoundError, \
+    NotReadableError, NotSupportedError, OperationError, QuotaExceededError, \
+    ReadOnlyError, SecurityError, TransactionInactiveError, UnknownError, \
+    URLMismatchError, VersionError, WrongDocumentError
 
 SVG_CUBIC01 = '''
 <svg width="5cm" height="4cm" viewBox="0 0 500 400"
@@ -624,6 +632,343 @@ class DOMTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError,
                           lambda: c0.replace(c1, c2))
+
+    def test_dom_exception(self):
+        e = DOMException()
+        self.assertEqual(e.code, 0)
+        self.assertEqual('Error', e.name)
+        self.assertEqual('', e.message)
+        self.assertEqual((), e.args)
+        self.assertEqual('', str(e))
+
+        e = DOMException('arg1')
+        self.assertEqual(e.code, 0)
+        self.assertEqual('Error', e.name)
+        self.assertEqual('arg1', e.message)
+        self.assertEqual(('arg1',), e.args)
+        self.assertEqual('arg1', str(e))
+
+        e = DOMException('arg1',
+                         name='TestError')
+        self.assertEqual(e.code, 0)
+        self.assertEqual('TestError', e.name)
+        self.assertEqual('arg1', e.message)
+        self.assertEqual(('arg1',), e.args)
+        self.assertEqual('arg1', str(e))
+
+        e = DOMException('arg1', 'arg2', 100, None,
+                         name='TestError')
+        self.assertEqual(e.code, 0)
+        self.assertEqual('TestError', e.name)
+        self.assertEqual('arg1 arg2 100 None', e.message)
+        self.assertEqual(('arg1', 'arg2', 100, None), e.args)
+        self.assertEqual("('arg1', 'arg2', 100, None)", str(e))
+
+        e = DOMException(message='test message',
+                         name='TestError')
+        self.assertEqual(e.code, 0)
+        self.assertEqual('TestError', e.name)
+        self.assertEqual('test message', e.message)
+        self.assertEqual(('test message',), e.args)
+        self.assertEqual('test message', str(e))
+
+        e = DOMException('arg1', 'arg2', 100, None,
+                         message='test message',
+                         name='TestError')
+        self.assertEqual(e.code, 0)
+        self.assertEqual('TestError', e.name)
+        self.assertEqual('test message', e.message)
+        self.assertEqual(('arg1', 'arg2', 100, None), e.args)
+        self.assertEqual("('arg1', 'arg2', 100, None)", str(e))
+
+        e = DOMException('arg1', name='WrongDocumentError')
+        self.assertEqual(e.code, 4)
+        self.assertEqual('WrongDocumentError', e.name)
+        self.assertEqual('arg1', e.message)
+        self.assertEqual(('arg1',), e.args)
+        self.assertEqual('arg1', str(e))
+
+        # invalid argument
+        self.assertRaises(TypeError,
+                          lambda: DOMException(code=100))
+
+        e = WrongDocumentError(message='test message',
+                               name='Error')
+        self.assertEqual(e.code, 4)
+        self.assertEqual('WrongDocumentError', e.name)
+        self.assertEqual('test message', e.message)
+        self.assertEqual(('test message',), e.args)
+        self.assertEqual('test message', str(e))
+
+    def test_dom_exception_abort_error(self):
+        try:
+            raise AbortError('test message')
+        except DOMException as e:
+            self.assertEqual(20, e.code)
+            self.assertEqual('AbortError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_constraint_error(self):
+        try:
+            raise ConstraintError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('ConstraintError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_data_clone_error(self):
+        try:
+            raise DataCloneError('test message')
+        except DOMException as e:
+            self.assertEqual(25, e.code)
+            self.assertEqual('DataCloneError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_data_error(self):
+        try:
+            raise DataError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('DataError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_encoding_error(self):
+        try:
+            raise EncodingError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('EncodingError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_hierarchy_request_error(self):
+        try:
+            raise HierarchyRequestError('test message')
+        except DOMException as e:
+            self.assertEqual(3, e.code)
+            self.assertEqual('HierarchyRequestError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_in_use_attribute_error(self):
+        try:
+            raise InUseAttributeError('test message')
+        except DOMException as e:
+            self.assertEqual(10, e.code)
+            self.assertEqual('InUseAttributeError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_invalid_character_error(self):
+        try:
+            raise InvalidCharacterError('test message')
+        except DOMException as e:
+            self.assertEqual(5, e.code)
+            self.assertEqual('InvalidCharacterError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_invalid_modification_error(self):
+        try:
+            raise InvalidModificationError('test message')
+        except DOMException as e:
+            self.assertEqual(13, e.code)
+            self.assertEqual('InvalidModificationError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_invalid_node_type_error(self):
+        try:
+            raise InvalidNodeTypeError('test message')
+        except DOMException as e:
+            self.assertEqual(24, e.code)
+            self.assertEqual('InvalidNodeTypeError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_invalid_state_error(self):
+        try:
+            raise InvalidStateError('test message')
+        except DOMException as e:
+            self.assertEqual(11, e.code)
+            self.assertEqual('InvalidStateError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_namespace_error(self):
+        try:
+            raise NamespaceError('test message')
+        except DOMException as e:
+            self.assertEqual(14, e.code)
+            self.assertEqual('NamespaceError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_network_error(self):
+        try:
+            raise NetworkError('test message')
+        except DOMException as e:
+            self.assertEqual(19, e.code)
+            self.assertEqual('NetworkError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_no_modification_allowed_error(self):
+        try:
+            raise NoModificationAllowedError('test message')
+        except DOMException as e:
+            self.assertEqual(7, e.code)
+            self.assertEqual('NoModificationAllowedError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_not_allowed_error(self):
+        try:
+            raise NotAllowedError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('NotAllowedError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_not_found_error(self):
+        try:
+            raise NotFoundError('test message')
+        except DOMException as e:
+            self.assertEqual(8, e.code)
+            self.assertEqual('NotFoundError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_not_readable_error(self):
+        try:
+            raise NotReadableError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('NotReadableError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_not_supported_error(self):
+        try:
+            raise NotSupportedError('test message')
+        except DOMException as e:
+            self.assertEqual(9, e.code)
+            self.assertEqual('NotSupportedError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_operation_error(self):
+        try:
+            raise OperationError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('OperationError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_quota_exceeded_error(self):
+        try:
+            raise QuotaExceededError('test message')
+        except DOMException as e:
+            self.assertEqual(22, e.code)
+            self.assertEqual('QuotaExceededError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_read_only_error(self):
+        try:
+            raise ReadOnlyError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('ReadOnlyError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_security_error(self):
+        try:
+            raise SecurityError('test message')
+        except DOMException as e:
+            self.assertEqual(18, e.code)
+            self.assertEqual('SecurityError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_transaction_inactive_error(self):
+        try:
+            raise TransactionInactiveError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('TransactionInactiveError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_unknown_error(self):
+        try:
+            raise UnknownError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('UnknownError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_url_mismatch_error(self):
+        try:
+            raise URLMismatchError('test message')
+        except DOMException as e:
+            self.assertEqual(21, e.code)
+            self.assertEqual('URLMismatchError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_version_error(self):
+        try:
+            raise VersionError('test message')
+        except DOMException as e:
+            self.assertEqual(0, e.code)
+            self.assertEqual('VersionError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
+
+    def test_dom_exception_wrong_document_error(self):
+        try:
+            raise WrongDocumentError('test message')
+        except DOMException as e:
+            self.assertEqual(4, e.code)
+            self.assertEqual('WrongDocumentError', e.name)
+            self.assertEqual('test message', e.message)
+        except Exception as e:
+            self.assertTrue(False, msg=repr(e))
 
     def test_dom_string_map(self):
         # DOMStringMap()
