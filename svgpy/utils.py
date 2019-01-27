@@ -22,12 +22,21 @@ from pathlib import PurePath
 from urllib.parse import unquote
 from urllib.request import urlopen
 
+from .exception import InvalidCharacterError, NamespaceError
 from .url import Location, URL
 
 _ASCII_WHITESPACE = '\t\n\f\r\x20'
 
 _RE_QUALIFIED_NAME = re.compile(
     r'{(?P<namespace>[^}]*)}(?P<local_name>.*)')
+
+_namespace_map = {
+    'html': 'http://www.w3.org/1999/xhtml',
+    'xlink': 'http://www.w3.org/1999/xlink',
+    'xml': 'http://www.w3.org/XML/1998/namespace',
+    'xmlns': 'http://www.w3.org/2000/xmlns/',
+    None: 'http://www.w3.org/2000/svg',
+}
 
 
 def dict_to_style(d):
@@ -297,43 +306,69 @@ class CaseInsensitiveMapping(MutableMapping):
 class QualifiedName(object):
     """Utility class for the qualified name."""
 
-    def __init__(self, namespace, qualified_name):
+    def __init__(self, namespace, qualified_name, nsmap=None):
         """Constructs a QualifiedName object.
 
         Arguments:
             namespace (str, None): The namespace URI.
             qualified_name (str): The qualified name or the local part of the
                 qualified name.
+            nsmap (dict, optional): A map of a namespace prefix to the URI.
         """
+        if nsmap is None:
+            nsmap = _namespace_map
         if namespace is not None:
             if len(namespace) == 0:
                 namespace = None
             elif is_ascii_whitespace(namespace):
-                raise ValueError('Invalid character: ' + repr(namespace))
-        if is_ascii_whitespace(qualified_name):
-            raise ValueError('Invalid character: ' + repr(qualified_name))
+                raise InvalidCharacterError("The string contains invalid "
+                                            "characters: " + repr(namespace))
+        if len(qualified_name) == 0:
+            raise ValueError('Expected non-empty qualified name')
+        elif is_ascii_whitespace(qualified_name):
+            raise InvalidCharacterError("The string contains invalid "
+                                        "characters: " + repr(qualified_name))
         matched = _RE_QUALIFIED_NAME.match(qualified_name)
-        if matched is None:
-            self._namespace = namespace
-            self._local_name = qualified_name
-            if self._namespace is None:
-                self._qualified_name = qualified_name
-            else:
-                self._qualified_name = '{{{0}}}{1}'.format(self._namespace,
-                                                           self._local_name)
+        if matched is not None:
+            # e.g.: '{http://www.w3.org/XML/1998/namespace}lang'
+            prefix = None
+            local_name = matched.group('local_name')
+            ns = matched.group('namespace')
         else:
-            self._namespace = matched.group('namespace')
-            if len(self._namespace) == 0:
-                raise ValueError('Missing namespace')
-            if (namespace is not None
-                    and self._namespace is not None
-                    and namespace != self._namespace):
-                raise ValueError('Namespace did not match: '
-                                 + repr((namespace, self._namespace)))
-            self._local_name = matched.group('local_name')
-            self._qualified_name = qualified_name
-        if len(self._local_name) == 0:
-            raise ValueError('Missing local name')
+            # e.g.: 'lang' or 'xml:lang'
+            parts = qualified_name.split(':', maxsplit=1)
+            if len(parts) == 2:
+                prefix = parts[0]
+                local_name = parts[1]
+            else:
+                prefix = None
+                local_name = qualified_name
+            if prefix is not None:
+                ns = nsmap.get(prefix)
+            else:
+                ns = None
+        if ((prefix is not None and len(prefix) == 0)
+                or len(local_name) == 0
+                or (ns is not None and len(ns) == 0)):
+            raise ValueError('The qualified name is not valid: '
+                             + repr(qualified_name))
+        if ((prefix is not None
+             and (namespace is None
+                  or ns is None))
+                or (namespace is not None
+                    and ns is not None
+                    and ns != namespace)):
+            raise NamespaceError(
+                "The namespace {} is not valid for the qualified name "
+                "'{}'".format(repr(namespace), qualified_name))
+        if namespace is None and ns is not None:
+            namespace = ns
+        self._namespace = namespace
+        self._local_name = local_name
+        if namespace is None:
+            self._qualified_name = local_name
+        else:
+            self._qualified_name = '{{{0}}}{1}'.format(namespace, local_name)
 
     def __repr__(self):
         return repr({
