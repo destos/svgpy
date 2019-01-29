@@ -1497,8 +1497,13 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual(0, root.attributes.length)
 
         root.style.set_property('font-synthesis', 'invalid-value')
-        self.assertEqual(0, root.style.length)
-        self.assertEqual(0, root.attributes.length)
+        self.assertEqual(2, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("font-synthesis: weight style;",
+                         root.attributes['style'].value)
+        self.assertEqual('weight style', root.style['font-synthesis'])
+        self.assertEqual('auto', root.style['font-synthesis-weight'])
+        self.assertEqual('auto', root.style['font-synthesis-style'])
 
         root.style.set_property('font-synthesis', 'none')
         self.assertEqual("font-synthesis: none;",

@@ -367,12 +367,17 @@ class FontSynthesisShorthand(ShorthandProperty):
             font_synthesis_weight = 'auto'
             font_synthesis_style = 'auto'
 
-        if font_synthesis_weight:
-            components_map['font-synthesis-weight'] = \
-                create_component_list(font_synthesis_weight)
-        if font_synthesis_style:
-            components_map['font-synthesis-style'] = \
-                create_component_list(font_synthesis_style)
+        if font_synthesis_weight is None:
+            desc = css_property_descriptor_map['font-synthesis-weight']
+            font_synthesis_weight = desc.initial_value
+        if font_synthesis_style is None:
+            desc = css_property_descriptor_map['font-synthesis-style']
+            font_synthesis_style = desc.initial_value
+
+        components_map['font-synthesis-weight'] = \
+            create_component_list(font_synthesis_weight)
+        components_map['font-synthesis-style'] = \
+            create_component_list(font_synthesis_style)
 
         updated = self._set_css_declaration_map(components_map, priority)
         return updated
