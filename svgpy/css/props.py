@@ -1592,7 +1592,7 @@ _property_descriptors = [
     PropertyDescriptor(
         name='text-space-trim',  # [css-text-4]
         syntax='none | trim-inner || discard-before || discard-after',
-        initial_value='collapse',
+        initial_value='none',
         inherits=True,
     ),
     PropertyDescriptor(

@@ -2682,6 +2682,16 @@ class CSSOMTestCase(unittest.TestCase):
         self.assertEqual('wrap', root.style['text-wrap'])
         self.assertEqual('none', root.style['text-space-trim'])
 
+        root.style.set_property('white-space', 'invalid-value')
+        self.assertEqual(3, root.style.length)
+        self.assertEqual(1, root.attributes.length)
+        self.assertEqual("white-space: normal;",
+                         root.attributes['style'].value)
+        self.assertEqual('normal', root.style['white-space'])
+        self.assertEqual('collapse', root.style['text-space-collapse'])
+        self.assertEqual('wrap', root.style['text-wrap'])
+        self.assertEqual('none', root.style['text-space-trim'])
+
     def test_css_style_declaration_inline_white_space03(self):
         parser = SVGParser()
         root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')

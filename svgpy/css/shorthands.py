@@ -831,7 +831,12 @@ class WhiteSpaceShorthand(ShorthandProperty):
         elif value.lower() in css_wide_keyword_set:
             text_space_collapse = text_wrap = text_space_trim = value.lower()
         else:
-            return False
+            desc = css_property_descriptor_map['text-space-collapse']
+            text_space_collapse = desc.initial_value
+            desc = css_property_descriptor_map['text-wrap']
+            text_wrap = desc.initial_value
+            desc = css_property_descriptor_map['text-space-trim']
+            text_space_trim = desc.initial_value
 
         components_map = OrderedDict()
         components_map['text-space-collapse'] = \
