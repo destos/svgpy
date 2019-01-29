@@ -1298,15 +1298,8 @@ class SVGParser(object):
         Returns:
             Element: A new element.
         """
-        if nsmap is None:
-            nsmap = dict()
-        if None not in nsmap:
-            nsmap[None] = Element.SVG_NAMESPACE_URI
-        element = self._parser.makeelement(local_name,
-                                           attrib=attrib,
-                                           nsmap=nsmap,
-                                           **_extra)
-        return element
+        return self.create_element_ns(None, local_name, attrib=attrib,
+                                      nsmap=nsmap, **_extra)
 
     def create_element_ns(self, namespace, qualified_name, attrib=None,
                           nsmap=None, **_extra):
@@ -1327,23 +1320,23 @@ class SVGParser(object):
         Returns:
             Element: A new element.
         Examples:
-            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
-            >>> element = parser.create_element_ns('http://www.w3.org/1999/xhtml', 'source')
-            >>> element.tag
-            '{http://www.w3.org/1999/xhtml}source'
-            >>> element.node_name
-            'html:source'
-            >>> element.tag_name
-            'html:source'
-            >>> element.local_name
-            'source'
+            >>> e = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+            >>> e.tag, e.node_name, e.tag_name, e.local_name
+            ('{http://www.w3.org/2000/svg}svg', 'svg', 'svg', 'svg')
+            >>> e = parser.create_element_ns('http://www.w3.org/1999/xhtml', 'source')
+            >>> e.tag, e.node_name, e.tag_name, e.local_name
+            ('{http://www.w3.org/1999/xhtml}source', 'html:source', 'html:source', 'source')
         """
-        name = QualifiedName(namespace, qualified_name)
-        element = self.create_element(name.name,
-                                      attrib=attrib,
-                                      nsmap=nsmap,
-                                      **_extra)
+        if nsmap is None:
+            nsmap = dict()
+        if None not in nsmap:
+            nsmap[None] = Element.SVG_NAMESPACE_URI
+        qname = QualifiedName(namespace, qualified_name)
+        element = self._parser.makeelement(qname.name,
+                                           attrib=attrib,
+                                           nsmap=nsmap,
+                                           **_extra)
         return element
 
     def create_processing_instruction(self, target, data=None):
@@ -1355,7 +1348,6 @@ class SVGParser(object):
         Returns:
             ProcessingInstruction: A new processing instruction.
         Examples:
-            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
             >>> pi = parser.create_processing_instruction('xml-stylesheet', 'href="style.css" media="print"')
             >>> pi.tostring()

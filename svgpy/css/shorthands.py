@@ -14,7 +14,7 @@
 
 
 import re
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from collections import OrderedDict
 
 import tinycss2
@@ -61,7 +61,7 @@ class Shorthand(object):
             else:
                 if longhand_name not in declarations:
                     continue
-                _, priority = declarations[longhand_name]
+                priority = declarations[longhand_name][1]
             priorities.append(priority)
 
         if (len(priorities) == 0
@@ -79,9 +79,9 @@ class Shorthand(object):
                 value = self.get_property_value(longhand_name)
                 priority = self.get_property_priority(longhand_name)
             else:
-                desc = css_property_descriptor_map[longhand_name]
                 if longhand_name not in declarations:
                     continue
+                desc = css_property_descriptor_map[longhand_name]
                 value, priority = declarations[longhand_name]
                 if len(value) == 0 or not desc.supports(value):
                     return ''
@@ -137,10 +137,10 @@ class Shorthand(object):
         return updated
 
 
-class ShorthandProperty(object):
+class ShorthandProperty(ABC):
 
     def __init__(self, declarations):
-        self._declarations = declarations
+        self._declarations = declarations  # type: OrderedDict
 
     @staticmethod
     def _parse_component_list(property_name, component_list, components_map,
@@ -150,7 +150,7 @@ class ShorthandProperty(object):
         target = None
         for component in list(component_list):
             if component.type == 'whitespace':
-                if target:
+                if target is not None:
                     target.append(component)
                     component_list.remove(component)
                 continue
@@ -164,14 +164,14 @@ class ShorthandProperty(object):
                     if property_name in components_map:
                         del components_map[property_name]
                     break
-                elif target:
+                elif target is not None:
                     target.append(component)
                     component_list.remove(component)
                 continue
             elif component == '/':
                 if (property_name not in _with_solidus_properties
                         and '/' not in desc.syntax):
-                    if target and len(target) > 0:
+                    if target is not None and len(target) > 0:
                         break
                     continue
                 elif found_solidus:
@@ -196,7 +196,7 @@ class ShorthandProperty(object):
                         and syntax == PropertySyntax.CUSTOM_IDENT):
                     # <mask-border-slice> = <number-percentage>{1,4} fill?
                     break
-            elif found_solidus or (target and len(target) > 0):
+            elif found_solidus or (target is not None and len(target) > 0):
                 break
 
         if (property_name in components_map
@@ -232,7 +232,7 @@ class ShorthandProperty(object):
         return components_map, css_wide_keywords
 
     def _set_css_declaration_map(self, components_map, priority):
-        declarations = self._declarations  # type: OrderedDict
+        declarations = self._declarations
         updated = False
         for property_name, component_list in components_map.items():
             value = tinycss2.serialize(component_list).strip()
@@ -637,7 +637,7 @@ class MaskShorthand(ShorthandProperty):
 
     def tostring(self, property_map):
         declarations = self._declarations
-        keys = list(self._declarations.keys())
+        keys = list(declarations.keys())
         max_index_of_mask = -1
         min_index_of_mask = -1
         for property_name in shorthand_property_map['mask']:

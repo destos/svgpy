@@ -40,7 +40,6 @@ class HTMLOrSVGElement(Element):
         attributes.
 
         Examples:
-            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
             >>> root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
             >>> root.dataset['foo'] = 'foo'
@@ -96,7 +95,6 @@ class SVGAnimatedPoints(Element):
         """list[tuple[float, float]]: A list of coordinates pair.
 
         Examples:
-            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
             >>> polygon = parser.create_element_ns('http://www.w3.org/2000/svg', 'polygon')
             >>> polygon.set('points', '100,300 300,300 200,100')
@@ -184,7 +182,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
         root = None
         element = self
         while element is not None:
-            if element.local_name in ['svg', 'symbol']:
+            if element.local_name in ('svg', 'symbol'):
                 root = element
             element = element.getparent()
         return root
@@ -200,7 +198,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
     def get_nearest_viewport_element(self):
         element = self
         while element is not None:
-            if element.local_name in ['svg', 'symbol']:
+            if element.local_name in ('svg', 'symbol'):
                 return element
             element = element.getparent()
         return None
@@ -274,7 +272,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
                                 context=root,
                                 direction=SVGLength.DIRECTION_HORIZONTAL)
                 unit = vpw.unit
-                if unit in [SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VW]:
+                if unit in (SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VW):
                     vpw = vpw.value(SVGLength.TYPE_PERCENTAGE) / 100 \
                           * parent_vpw
                 elif unit == SVGLength.TYPE_VH:
@@ -296,7 +294,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
                                 context=root,
                                 direction=SVGLength.DIRECTION_VERTICAL)
                 unit = vph.unit
-                if unit in [SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VH]:
+                if unit in (SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VH):
                     vph = vph.value(SVGLength.TYPE_PERCENTAGE) / 100 \
                           * parent_vph
                 elif unit == SVGLength.TYPE_VW:
@@ -316,7 +314,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
                             context=root,
                             direction=SVGLength.DIRECTION_HORIZONTAL)
             unit = vpx.unit
-            if unit in [SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VW]:
+            if unit in (SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VW):
                 vpx = vpx.value(SVGLength.TYPE_PERCENTAGE) / 100 * vpw
             elif unit == SVGLength.TYPE_VH:
                 vpx = vpx.value(SVGLength.TYPE_PERCENTAGE) / 100 * vph
@@ -329,7 +327,7 @@ class SVGElement(ElementCSSInlineStyle, HTMLOrSVGElement):
                             context=root,
                             direction=SVGLength.DIRECTION_VERTICAL)
             unit = vpy.unit
-            if unit in [SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VH]:
+            if unit in (SVGLength.TYPE_PERCENTAGE, SVGLength.TYPE_VH):
                 vpy = vpy.value(SVGLength.TYPE_PERCENTAGE) / 100 * vph
             elif unit == SVGLength.TYPE_VW:
                 vpy = vpy.value(SVGLength.TYPE_PERCENTAGE) / 100 * vpw
@@ -385,7 +383,7 @@ class SVGGraphicsElement(SVGElement):
                     break
                 roots.insert(0, root)
                 if viewport_type == SVGElement.NEAREST_VIEWPORT:
-                    if (self.local_name not in ['svg', 'symbol']
+                    if (self.local_name not in ('svg', 'symbol')
                             or len(roots) >= 2):
                         break
                 element = root.getparent()
@@ -407,7 +405,7 @@ class SVGGraphicsElement(SVGElement):
                 transform = element.transform
                 if transform is not None:
                     transform_list[0:0] = transform
-            if element.local_name in ['svg', 'symbol']:
+            if element.local_name in ('svg', 'symbol'):
                 break
             element = element.getparent()
         if len(transform_list) > 0:
@@ -427,7 +425,7 @@ class SVGGraphicsElement(SVGElement):
         # TODO: implement SVGBoundingBoxOptions option.
         _depth += 1
         bbox = DOMRect()
-        if self.local_name in ['defs', 'symbol']:
+        if self.local_name in ('defs', 'symbol'):
             return bbox  # not rendered directly
         if self.iscontainer():
             for child in iter(self):
@@ -543,24 +541,24 @@ class SVGGraphicsElement(SVGElement):
                     sx = sy
         tx = ex - vbx * sx
         ty = ey - vby * sy
-        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMIN,
+        if align in (SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMIN,
                      SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID,
-                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMAX]:
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMAX):
             # 'xMid'
             tx += (ew - vbw * sx) / 2
-        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMIN,
+        if align in (SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMIN,
                      SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMID,
-                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMAX]:
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMAX):
             # 'xMax'
             tx += ew - vbw * sx
-        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMID,
+        if align in (SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMID,
                      SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMID,
-                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMID]:
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMID):
             # 'YMid'
             ty += (eh - vbh * sy) / 2
-        if align in [SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMAX,
+        if align in (SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMINYMAX,
                      SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMIDYMAX,
-                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMAX]:
+                     SVGPreserveAspectRatio.SVG_PRESERVEASPECTRATIO_XMAXYMAX):
             # 'YMax'
             ty += eh - vbh * sy
         ctm.translate_self(tx.value(), ty.value())
@@ -785,8 +783,8 @@ class SVGURIReference(Element):
     def href(self):
         href = self.get('href', '')
         if len(href) == 0:
-            name = QualifiedName(Element.XLINK_NAMESPACE_URI, 'href')
-            href = self.get(name.name, '')
+            qname = QualifiedName(Element.XLINK_NAMESPACE_URI, 'href')
+            href = self.get(qname.name, '')
         return href
 
 

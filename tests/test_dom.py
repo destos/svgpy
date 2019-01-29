@@ -68,6 +68,7 @@ SVG_CUBIC01 = '''
 
 
 class DOMTestCase(unittest.TestCase):
+
     def setUp(self):
         formatter.precision = 3
         window.location = 'about:blank'
@@ -132,7 +133,7 @@ class DOMTestCase(unittest.TestCase):
     def test_attr02(self):
         # Attr()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         namespace = None
         local_name = 'fill'
         qualified_name = local_name
@@ -195,7 +196,7 @@ class DOMTestCase(unittest.TestCase):
     def test_attr03(self):
         # remove attribute
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         namespace = None
         local_name = 'fill'
         qualified_name = local_name
@@ -239,7 +240,7 @@ class DOMTestCase(unittest.TestCase):
         local_name = 'href'
         qualified_name = '{{{}}}{}'.format(namespace, local_name)
         value = '#0'
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+        root = parser.create_element_ns('http://www.w3.org/2000/svg',
                                         'svg',
                                         nsmap={
                                             prefix: namespace,
@@ -357,7 +358,7 @@ class DOMTestCase(unittest.TestCase):
     def test_attr_append_child(self):
         # Attr.append_child()
         parser = SVGParser()
-        node = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         attr = parser.create_attribute('fill')
         self.assertRaises(ValueError, lambda: attr.append_child(node))
 
@@ -369,7 +370,7 @@ class DOMTestCase(unittest.TestCase):
         # Node.previous_sibling
         # Node.has_child_nodes()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         attr = parser.create_attribute('viewBox')
         attr.value = '0 0 600 400'
         root.set_attribute_node(attr)
@@ -395,21 +396,21 @@ class DOMTestCase(unittest.TestCase):
     def test_attr_insert_before(self):
         # Attr.insert_before()
         parser = SVGParser()
-        node = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         attr = parser.create_attribute('fill')
         self.assertRaises(ValueError, lambda: attr.insert_before(node, None))
 
     def test_attr_remove_child(self):
         # Attr.remove_child()
         parser = SVGParser()
-        node = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         attr = parser.create_attribute('fill')
         self.assertRaises(ValueError, lambda: attr.remove_child(node))
 
     def test_attr_replace_child(self):
         # Attr.replace_child()
         parser = SVGParser()
-        node = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         attr = parser.create_attribute('fill')
         self.assertRaises(ValueError, lambda: attr.replace_child(node, None))
 
@@ -452,11 +453,11 @@ class DOMTestCase(unittest.TestCase):
         parser = SVGParser()
         c1 = parser.create_comment('#1')
         self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         self.assertIsNone(group.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         c0 = doc.create_comment('#0')
         root.append(c0)
@@ -472,11 +473,11 @@ class DOMTestCase(unittest.TestCase):
         parser = SVGParser()
         c1 = parser.create_comment('#1')
         self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         self.assertIsNone(group.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         c0 = doc.create_comment('#0')
         root.append(c0)
@@ -494,7 +495,7 @@ class DOMTestCase(unittest.TestCase):
         c2 = parser.create_comment('#2')
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
 
         doc.append(c1)
@@ -509,7 +510,7 @@ class DOMTestCase(unittest.TestCase):
         # Node.previous_sibling
         # Node.has_child_nodes()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         start = parser.create_comment('start')
         root.addprevious(start)
         comment = parser.create_comment('comment')
@@ -564,7 +565,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertIsNone(c3.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         c0 = doc.create_comment('#0')
         root.append(c0)
@@ -612,7 +613,7 @@ class DOMTestCase(unittest.TestCase):
     def test_comment_remove(self):
         # Comment.remove()
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         c0 = doc.create_comment('#0')
         root.append(c0)
@@ -623,7 +624,7 @@ class DOMTestCase(unittest.TestCase):
     def test_comment_replace(self):
         # Comment.replace()
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         c0 = doc.create_comment('#0')
         root.append(c0)
@@ -973,7 +974,7 @@ class DOMTestCase(unittest.TestCase):
     def test_dom_string_map(self):
         # DOMStringMap()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         root.set('viewBox', '0 0 600 400')
         root.set('data-foo', '0')
         root.set('data-foo-bar', '10')
@@ -1071,7 +1072,7 @@ class DOMTestCase(unittest.TestCase):
     def test_dom_token_list(self):
         # DOMTokenList()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         attr_name = 'class'
 
         s = DOMTokenList(root, attr_name)
@@ -1103,7 +1104,7 @@ class DOMTestCase(unittest.TestCase):
     def test_dom_token_list_add(self):
         # DOMTokenList.add()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         attr_name = 'class'
 
         s = DOMTokenList(root, attr_name)
@@ -1182,7 +1183,7 @@ class DOMTestCase(unittest.TestCase):
     def test_dom_token_list_insert(self):
         # DOMTokenList.insert()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         attr_name = 'class'
         root.set(attr_name, 'id0 id2 id5')
 
@@ -1244,7 +1245,7 @@ class DOMTestCase(unittest.TestCase):
     def test_dom_token_list_remove(self):
         # DOMTokenList.remove()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         attr_name = 'class'
         root.set(attr_name, 'id0 id1 id2 id3 id4')
 
@@ -1311,7 +1312,7 @@ class DOMTestCase(unittest.TestCase):
     def test_dom_token_list_replace(self):
         # DOMTokenList.replace()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         attr_name = 'class'
         root.set(attr_name, 'id0 id2 id3')
 
@@ -1343,7 +1344,7 @@ class DOMTestCase(unittest.TestCase):
     def test_dom_token_list_toggle(self):
         # DOMTokenList.toggle()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         attr_name = 'class'
         root.set(attr_name, 'id0 id2 id3')
 
@@ -1418,16 +1419,16 @@ class DOMTestCase(unittest.TestCase):
         # Element()
         parser = SVGParser()
         root = parser.create_element_ns(
-            Element.SVG_NAMESPACE_URI,
+            'http://www.w3.org/2000/svg',
             'svg',
             attrib={
                 'viewBox': '0 0 400 300',
             },
             nsmap={
-                'html': Element.XHTML_NAMESPACE_URI,
+                'html': 'http://www.w3.org/1999/xhtml',
             })
         video = parser.create_element_ns(
-            Element.XHTML_NAMESPACE_URI,
+            'http://www.w3.org/1999/xhtml',
             'video',
             attrib={
                 'width': '400',
@@ -1442,7 +1443,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('svg', root.tag_name)
         self.assertEqual('svg', root.local_name)
         self.assertIsNone(root.node_value)
-        self.assertEqual(Element.SVG_NAMESPACE_URI, root.namespace_uri)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
         self.assertIsNone(root.prefix)
         self.assertEqual('0 0 400 300', root.get('viewBox'))
 
@@ -1452,7 +1453,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('html:video', video.tag_name)
         self.assertEqual('video', video.local_name)
         self.assertIsNone(video.node_value)
-        self.assertEqual(Element.XHTML_NAMESPACE_URI, video.namespace_uri)
+        self.assertEqual('http://www.w3.org/1999/xhtml', video.namespace_uri)
         self.assertEqual('html', video.prefix)
         self.assertEqual('400', video.get('width'))
         self.assertEqual('300', video.get('height'))
@@ -1462,20 +1463,20 @@ class DOMTestCase(unittest.TestCase):
         parser = SVGParser()
         c1 = parser.create_comment('#1')
         self.assertIsNone(c1.owner_document)
-        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
+        style = parser.create_element_ns('http://www.w3.org/2000/svg', 'style')
         self.assertIsNone(style.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
+        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertIsNone(group.owner_document)
         self.assertIsNone(path.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        title = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'title')
+        title = doc.create_element_ns('http://www.w3.org/2000/svg', 'title')
         root.append(title)
-        desc = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'desc')
+        desc = doc.create_element_ns('http://www.w3.org/2000/svg', 'desc')
         root.append(desc)
 
         title.addnext(c1)
@@ -1506,16 +1507,16 @@ class DOMTestCase(unittest.TestCase):
         self.assertIsNone(p1.owner_document)
         c1 = parser.create_comment('#1')
         self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
+        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertIsNone(group.owner_document)
         self.assertIsNone(path.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        rect = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'rect')
+        rect = doc.create_element_ns('http://www.w3.org/2000/svg', 'rect')
         root.append(rect)
 
         root.addprevious(p1)
@@ -1539,15 +1540,15 @@ class DOMTestCase(unittest.TestCase):
         # Element.append()
         parser = SVGParser()
         c1 = parser.create_comment('#1')
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
+        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertIsNone(c1.owner_document)
         self.assertIsNone(group.owner_document)
         self.assertIsNone(path.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
 
         root.append(c1)
@@ -1566,12 +1567,12 @@ class DOMTestCase(unittest.TestCase):
         # Element.append_child()
         parser = SVGParser()
         c1 = parser.create_comment('#1')
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
         self.assertIsNone(c1.owner_document)
         self.assertIsNone(group.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
 
         node = root.append_child(c1)
@@ -1585,7 +1586,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_del(self):
         # NamedNodeMap.__delitem__()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
         root.id = value = 'toc'
         self.assertEqual(1, len(root.attributes))
@@ -1617,7 +1618,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_get(self):
         # NamedNodeMap.__getitem__()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         root.id = 'toc'
         root.class_name = 'toc-sidebar'
         self.assertEqual(2, len(root.attributes))
@@ -1649,7 +1650,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_set(self):
         # NamedNodeMap.__setitem__()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         root.id = 'toc'
         self.assertEqual(1, len(root.attributes))
         self.assertEqual(1, root.attributes.length)
@@ -1681,7 +1682,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_get_named_item(self):
         # NamedNodeMap.get_named_item()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         root.id = 'toc'
         self.assertEqual(1, len(root.attributes))
         self.assertEqual(1, root.attributes.length)
@@ -1702,7 +1703,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_get_named_item_ns(self):
         # NamedNodeMap.get_named_item_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         namespace = 'http://www.w3.org/XML/1998/namespace'
         local_name = 'lang'
         qualified_name = '{{{0}}}{1}'.format(namespace, local_name)
@@ -1751,7 +1752,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_item(self):
         # NamedNodeMap.item()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         root.id = 'toc'
         root.class_name = 'toc-sidebar'
         self.assertEqual(2, len(root.attributes))
@@ -1774,7 +1775,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_remove_named_item(self):
         # NamedNodeMap.remove_named_item()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         root.id = 'toc'
         root.class_name = 'toc-sidebar'
         self.assertEqual(2, len(root.attributes))
@@ -1805,7 +1806,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_remove_named_item_ns(self):
         # NamedNodeMap.remove_named_item_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         namespace = 'http://www.w3.org/XML/1998/namespace'
         local_name = 'lang'
         qualified_name = '{{{0}}}{1}'.format(namespace, local_name)
@@ -1831,7 +1832,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_set_named_item(self):
         # NamedNodeMap.set_named_item()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertEqual(0, len(root.attributes))
         self.assertEqual(0, root.attributes.length)
 
@@ -1865,7 +1866,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_attributes_set_named_item_ns(self):
         # NamedNodeMap.set_named_item()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertEqual(0, len(root.attributes))
         self.assertEqual(0, root.attributes.length)
 
@@ -1916,7 +1917,7 @@ class DOMTestCase(unittest.TestCase):
         # <text/>
         # </svg>
         # <!--end-->'
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         pi = parser.create_processing_instruction('xml-stylesheet')
         root.addprevious(pi)
         start = parser.create_comment('start')
@@ -1925,11 +1926,11 @@ class DOMTestCase(unittest.TestCase):
         root.addnext(end)
         comment = parser.create_comment('inner')
         root.append(comment)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         root.append(group)
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
-        text = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'text')
+        text = parser.create_element_ns('http://www.w3.org/2000/svg', 'text')
         root.append(text)
         # window.document.append(root)
         # print(window.document.tostring())
@@ -1973,14 +1974,14 @@ class DOMTestCase(unittest.TestCase):
     def test_element_children(self):
         # ParentNode.children
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         comment = parser.create_comment('comment')
         root.append(comment)
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         root.append(group)
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
-        text = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'text')
+        text = parser.create_element_ns('http://www.w3.org/2000/svg', 'text')
         root.append(text)
 
         children = root.children
@@ -2051,7 +2052,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('Border', class_list[0])
         self.assertEqual('Label', class_list[1])
 
-        rect = root.get_elements_by_tag_name_ns(Element.SVG_NAMESPACE_URI,
+        rect = root.get_elements_by_tag_name_ns('http://www.w3.org/2000/svg',
                                                 'rect')[0]
         self.assertEqual('Border', rect.get('class'))
         self.assertEqual('Border', rect.class_name)
@@ -2066,7 +2067,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_dataset(self):
         # HTMLOrSVGElement.dataset
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertIsInstance(root.dataset, DOMStringMap)
         root.attributes['viewBox'] = '0 0 600 400'
         root.dataset['foo'] = 'foo'
@@ -2164,10 +2165,10 @@ class DOMTestCase(unittest.TestCase):
     def test_element_extend(self):
         # Element.extend()
         parser = SVGParser()
-        desc = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'desc')
+        desc = parser.create_element_ns('http://www.w3.org/2000/svg', 'desc')
         comment = parser.create_comment('comment')
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
-        path = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
+        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertIsNone(desc.owner_document)
         self.assertIsNone(comment.owner_document)
@@ -2175,7 +2176,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertIsNone(path.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertEqual(doc, root.owner_document)
         doc.append(root)
 
@@ -2189,10 +2190,11 @@ class DOMTestCase(unittest.TestCase):
     def test_element_get_attribute(self):
         # Element.get_attribute()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
         root.set('viewBox', '0 0 600 400')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
         root.set(xml_lang, 'ja')
 
         value = root.get_attribute('viewBox')
@@ -2207,10 +2209,11 @@ class DOMTestCase(unittest.TestCase):
     def test_element_get_attribute_ns(self):
         # Element.get_attribute_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
         root.set('viewBox', '0 0 600 400')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
         root.set(xml_lang, 'ja')
 
         value = root.get_attribute_ns(None, 'viewBox')
@@ -2219,10 +2222,12 @@ class DOMTestCase(unittest.TestCase):
         value = root.get_attribute_ns(None, xml_lang)
         self.assertEqual('ja', value)
 
-        value = root.get_attribute_ns(Element.XML_NAMESPACE_URI, xml_lang)
+        value = root.get_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                      xml_lang)
         self.assertEqual('ja', value)
 
-        value = root.get_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        value = root.get_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                      'lang')
         self.assertEqual('ja', value)
 
         self.assertIsNone(root.get_attribute_ns(None, 'x'))
@@ -2231,7 +2236,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_get_attribute_names(self):
         # Element.get_attribute_names()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
         names = root.get_attribute_names()
         self.assertEqual(0, len(names))
@@ -2252,11 +2257,13 @@ class DOMTestCase(unittest.TestCase):
     def test_element_get_attribute_node(self):
         # Element.get_attribute_node()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
 
-        src_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang')
+        src_attr = parser.create_attribute_ns(
+            'http://www.w3.org/XML/1998/namespace',
+            'lang')
         src_attr.value = 'ja'
         root.attributes.set_named_item_ns(src_attr)
 
@@ -2270,11 +2277,13 @@ class DOMTestCase(unittest.TestCase):
     def test_element_get_attribute_node_ns(self):
         # Element.get_attribute_node_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
 
-        src_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang')
+        src_attr = parser.create_attribute_ns(
+            'http://www.w3.org/XML/1998/namespace',
+            'lang')
         src_attr.value = 'ja'
         root.attributes.set_named_item_ns(src_attr)
 
@@ -2283,12 +2292,14 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(id(src_attr), id(attr))
         self.assertEqual('ja', attr.value)
 
-        attr = root.get_attribute_node_ns(Element.XML_NAMESPACE_URI, xml_lang)
+        attr = root.get_attribute_node_ns(
+            'http://www.w3.org/XML/1998/namespace', xml_lang)
         self.assertIsInstance(attr, Attr)
         self.assertEqual(id(src_attr), id(attr))
         self.assertEqual('ja', attr.value)
 
-        attr = root.get_attribute_node_ns(Element.XML_NAMESPACE_URI, 'lang')
+        attr = root.get_attribute_node_ns(
+            'http://www.w3.org/XML/1998/namespace', 'lang')
         self.assertIsInstance(attr, Attr)
         self.assertEqual(id(src_attr), id(attr))
         self.assertEqual('ja', attr.value)
@@ -2298,8 +2309,9 @@ class DOMTestCase(unittest.TestCase):
     def test_element_has_attribute(self):
         # Element.has_attribute()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
 
         self.assertFalse(root.has_attribute('viewBox'))
 
@@ -2308,7 +2320,8 @@ class DOMTestCase(unittest.TestCase):
 
         self.assertFalse(root.has_attribute(xml_lang))
 
-        attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        attr = parser.create_attribute_ns(
+            'http://www.w3.org/XML/1998/namespace', 'lang')
         attr.value = 'ja'
         root.attributes.set_named_item_ns(attr)
         self.assertTrue(root.has_attribute(xml_lang))
@@ -2316,8 +2329,9 @@ class DOMTestCase(unittest.TestCase):
     def test_element_has_attribute_ns(self):
         # Element.has_attribute_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
 
         self.assertFalse(root.has_attribute_ns(None, 'viewBox'))
 
@@ -2325,24 +2339,29 @@ class DOMTestCase(unittest.TestCase):
         self.assertTrue(root.has_attribute_ns(None, 'viewBox'))
 
         self.assertFalse(root.has_attribute_ns(None, xml_lang))
-        self.assertFalse(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                               xml_lang))
-        self.assertFalse(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                               'lang'))
+        self.assertFalse(
+            root.has_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                  xml_lang))
+        self.assertFalse(
+            root.has_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                  'lang'))
 
-        attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        attr = parser.create_attribute_ns(
+            'http://www.w3.org/XML/1998/namespace', 'lang')
         attr.value = 'ja'
         root.attributes.set_named_item_ns(attr)
         self.assertTrue(root.has_attribute_ns(None, xml_lang))
-        self.assertTrue(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              xml_lang))
-        self.assertTrue(root.has_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang'))
+        self.assertTrue(
+            root.has_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                  xml_lang))
+        self.assertTrue(
+            root.has_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                  'lang'))
 
     def test_element_has_attributes(self):
         # Element.has_attributes()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertEqual(0, len(root.attrib))
         self.assertFalse(root.has_attributes())
 
@@ -2362,7 +2381,7 @@ class DOMTestCase(unittest.TestCase):
     def test_element_id(self):
         # Element.id
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         self.assertIsNone(root.get('id'))
         self.assertEqual(0, len(root.id))
 
@@ -2378,37 +2397,37 @@ class DOMTestCase(unittest.TestCase):
     def test_element_namespace_uri(self):
         # Element.namespace_uri
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        self.assertEqual(Element.SVG_NAMESPACE_URI, root.namespace_uri)
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
         self.assertIsNone(root.prefix)
 
         nsmap = {
-            'html': Element.XHTML_NAMESPACE_URI,
+            'html': 'http://www.w3.org/1999/xhtml',
         }
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+        root = parser.create_element_ns('http://www.w3.org/2000/svg',
                                         'svg',
                                         nsmap=nsmap)
-        self.assertEqual(Element.SVG_NAMESPACE_URI, root.namespace_uri)
+        self.assertEqual('http://www.w3.org/2000/svg', root.namespace_uri)
         self.assertIsNone(root.prefix)
 
-        video = parser.create_element_ns(Element.XHTML_NAMESPACE_URI,
+        video = parser.create_element_ns('http://www.w3.org/1999/xhtml',
                                          'video',
                                          nsmap=nsmap)
-        self.assertEqual(Element.XHTML_NAMESPACE_URI, video.namespace_uri)
+        self.assertEqual('http://www.w3.org/1999/xhtml', video.namespace_uri)
         self.assertEqual('html', video.prefix)
 
     def test_element_insert(self):
         # Element.insert()
         parser = SVGParser()
         c1 = parser.create_comment('#1')
-        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
+        style = parser.create_element_ns('http://www.w3.org/2000/svg', 'style')
         self.assertIsNone(c1.owner_document)
         self.assertIsNone(style.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
         root.append(group)
 
         root.insert(0, style)
@@ -2421,14 +2440,14 @@ class DOMTestCase(unittest.TestCase):
         # Element.insert_before()
         parser = SVGParser()
         c1 = parser.create_comment('#1')
-        style = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'style')
+        style = parser.create_element_ns('http://www.w3.org/2000/svg', 'style')
         self.assertIsNone(c1.owner_document)
         self.assertIsNone(style.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
         root.append(group)
 
         node = root.insert_before(style, group)
@@ -2500,11 +2519,11 @@ class DOMTestCase(unittest.TestCase):
     def test_element_remove(self):
         # Element.remove()
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
         root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertTrue(group in root)
         self.assertEqual(doc, group.owner_document)
@@ -2518,9 +2537,10 @@ class DOMTestCase(unittest.TestCase):
     def test_element_remove_attribute(self):
         # Element.remove_attribute()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
         root.set('viewBox', '0 0 600 400')
         attr = parser.create_attribute(xml_lang)
         attr.value = 'ja'
@@ -2541,8 +2561,9 @@ class DOMTestCase(unittest.TestCase):
     def test_element_remove_attribute_node(self):
         # Element.remove_attribute_node()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
 
         root.set('viewBox', '0 0 600 400')
         self.assertTrue('viewBox' in root.attrib)
@@ -2569,9 +2590,10 @@ class DOMTestCase(unittest.TestCase):
     def test_element_remove_attribute_ns(self):
         # Element.remove_attribute_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
         root.set('viewBox', '0 0 600 400')
         attr = parser.create_attribute(xml_lang)
         attr.value = 'ja'
@@ -2590,28 +2612,31 @@ class DOMTestCase(unittest.TestCase):
         root.attributes[xml_lang] = attr
         self.assertEqual(1, len(root.attrib))
         self.assertEqual(root, attr.owner_element)
-        root.remove_attribute_ns(Element.XML_NAMESPACE_URI, xml_lang)
+        root.remove_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                 xml_lang)
         self.assertEqual(0, len(root.attrib))
         self.assertIsNone(attr.owner_element)
 
         root.attributes[xml_lang] = attr
         self.assertEqual(1, len(root.attrib))
         self.assertEqual(root, attr.owner_element)
-        root.remove_attribute_ns(Element.XML_NAMESPACE_URI, 'lang')
+        root.remove_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                 'lang')
         self.assertEqual(0, len(root.attrib))
         self.assertIsNone(attr.owner_element)
 
         # no effect
-        root.remove_attribute_ns(Element.XML_NAMESPACE_URI, 'space')
+        root.remove_attribute_ns('http://www.w3.org/XML/1998/namespace',
+                                 'space')
 
     def test_element_remove_child(self):
         # Element.remove_child()
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
         root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertTrue(group in root)
         self.assertEqual(doc, group.owner_document)
@@ -2630,11 +2655,11 @@ class DOMTestCase(unittest.TestCase):
         self.assertIsNone(c1.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
         root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertTrue(group in root)
         self.assertEqual(doc, group.owner_document)
@@ -2654,11 +2679,11 @@ class DOMTestCase(unittest.TestCase):
         self.assertIsNone(c1.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'group')
+        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
         root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
         self.assertTrue(group in root)
         self.assertEqual(doc, group.owner_document)
@@ -2675,9 +2700,10 @@ class DOMTestCase(unittest.TestCase):
     def test_element_set_attribute(self):
         # Element.set_attribute()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
         root.set_attribute('viewBox', '0 0 600 400')
         root.set_attribute(xml_lang, 'ja')
         self.assertEqual(2, len(root.attrib))
@@ -2687,8 +2713,9 @@ class DOMTestCase(unittest.TestCase):
     def test_element_set_attribute_node(self):
         # Element.set_attribute_node()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
 
         src_attr = parser.create_attribute(xml_lang)
         src_attr.value = 'ja'
@@ -2711,11 +2738,13 @@ class DOMTestCase(unittest.TestCase):
     def test_element_set_attribute_node_ns(self):
         # Element.set_attribute_node_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
 
-        src_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang')
+        src_attr = parser.create_attribute_ns(
+            'http://www.w3.org/XML/1998/namespace',
+            'lang')
         src_attr.value = 'ja'
         attr = root.set_attribute_node_ns(src_attr)
         self.assertEqual('ja', root.get(xml_lang))
@@ -2723,8 +2752,9 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(root, src_attr.owner_element)
         self.assertIsNone(attr)
 
-        new_attr = parser.create_attribute_ns(Element.XML_NAMESPACE_URI,
-                                              'lang')
+        new_attr = parser.create_attribute_ns(
+            'http://www.w3.org/XML/1998/namespace',
+            'lang')
         new_attr.value = 'en'
         attr = root.set_attribute_node_ns(new_attr)
         self.assertEqual('en', root.get(xml_lang))
@@ -2737,21 +2767,24 @@ class DOMTestCase(unittest.TestCase):
     def test_element_set_attribute_ns(self):
         # Element.set_attribute_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
 
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
         root.set_attribute_ns(None, 'viewBox', '0 0 600 400')
         root.set_attribute_ns(None, xml_lang, 'ja')
         self.assertEqual(2, len(root.attrib))
         self.assertEqual('0 0 600 400', root.get('viewBox'))
         self.assertEqual('ja', root.get(xml_lang))
 
-        root.set_attribute_ns(Element.XML_NAMESPACE_URI, xml_lang, 'es')
+        root.set_attribute_ns('http://www.w3.org/XML/1998/namespace', xml_lang,
+                              'es')
         self.assertEqual(2, len(root.attrib))
         self.assertEqual('0 0 600 400', root.get('viewBox'))
         self.assertEqual('es', root.get(xml_lang))
 
-        root.set_attribute_ns(Element.XML_NAMESPACE_URI, 'lang', 'fr')
+        root.set_attribute_ns('http://www.w3.org/XML/1998/namespace', 'lang',
+                              'fr')
         self.assertEqual(2, len(root.attrib))
         self.assertEqual('0 0 600 400', root.get('viewBox'))
         self.assertEqual('fr', root.get(xml_lang))
@@ -2759,8 +2792,9 @@ class DOMTestCase(unittest.TestCase):
     def test_element_toggle_attribute(self):
         # Element.toggle_attribute()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        xml_lang = '{{{}}}{}'.format(Element.XML_NAMESPACE_URI, 'lang')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        xml_lang = '{{{}}}{}'.format('http://www.w3.org/XML/1998/namespace',
+                                     'lang')
         self.assertEqual(0, len(root.attrib))
 
         # not exist, force=None => add
@@ -2800,7 +2834,7 @@ class DOMTestCase(unittest.TestCase):
     def test_named_node_map(self):
         # NamedNodeMap()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
 
         attributes = NamedNodeMap(root)
         self.assertEqual(0, len(attributes))
@@ -2899,7 +2933,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertRaises(ValueError,
                           lambda: _set_value(attributes, 'fill', attr))
 
-        group = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         attr = Attr(None,
                     'fill',
                     owner_element=group)  # element already in use
@@ -2927,7 +2961,7 @@ class DOMTestCase(unittest.TestCase):
         stroke = 'black'
         stroke_width = '1'
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+        root = parser.create_element_ns('http://www.w3.org/2000/svg',
                                         'g',
                                         attrib={
                                             'fill': fill,
@@ -2965,8 +2999,8 @@ class DOMTestCase(unittest.TestCase):
     def test_named_node_map_get_named_item_ns(self):
         # NamedNodeMap.get_named_item_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        namespace = Element.XML_NAMESPACE_URI
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        namespace = 'http://www.w3.org/XML/1998/namespace'
         local_name = 'lang'
         name = '{{{}}}{}'.format(namespace, local_name)
         value = 'ja'
@@ -2992,7 +3026,7 @@ class DOMTestCase(unittest.TestCase):
         stroke = 'black'
         stroke_width = '1'
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+        root = parser.create_element_ns('http://www.w3.org/2000/svg',
                                         'g',
                                         attrib={
                                             'fill': fill,
@@ -3032,7 +3066,7 @@ class DOMTestCase(unittest.TestCase):
         stroke = 'black'
         stroke_width = '1'
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI,
+        root = parser.create_element_ns('http://www.w3.org/2000/svg',
                                         'g',
                                         attrib={
                                             'fill': fill,
@@ -3065,8 +3099,8 @@ class DOMTestCase(unittest.TestCase):
     def test_named_node_map_remove_named_item_ns(self):
         # NamedNodeMap.remove_named_item_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        namespace = Element.XML_NAMESPACE_URI
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        namespace = 'http://www.w3.org/XML/1998/namespace'
         local_name = 'lang'
         name = '{{{}}}{}'.format(namespace, local_name)
         value = 'ja'
@@ -3096,8 +3130,8 @@ class DOMTestCase(unittest.TestCase):
     def test_named_node_map_set_named_item_ns(self):
         # NamedNodeMap.set_named_item_ns()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
-        namespace = Element.XML_NAMESPACE_URI
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        namespace = 'http://www.w3.org/XML/1998/namespace'
         local_name = 'lang'
         qualified_name = '{{{}}}{}'.format(namespace, local_name)
         value = 'ja'
@@ -3154,7 +3188,7 @@ class DOMTestCase(unittest.TestCase):
         # <?xml-stylesheet href="0.css"?>
         # <svg>
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         p0 = doc.create_processing_instruction('xml-stylesheet',
                                                'href="0.css"')
@@ -3186,7 +3220,7 @@ class DOMTestCase(unittest.TestCase):
         # <?xml-stylesheet href="1.css"?>
         # <svg>
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         doc.insert_before(p1, root)
         self.assertEqual(doc, p1.owner_document)
@@ -3204,7 +3238,7 @@ class DOMTestCase(unittest.TestCase):
                                                   'href="1.css"')
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         p0 = doc.create_processing_instruction('xml-stylesheet',
                                                'href="0.css"')
@@ -3222,7 +3256,7 @@ class DOMTestCase(unittest.TestCase):
         # Node.previous_sibling
         # Node.has_child_nodes()
         parser = SVGParser()
-        root = parser.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         comment = parser.create_comment('comment')
         root.addprevious(comment)
         pi = parser.create_processing_instruction('xml-stylesheet',
@@ -3255,7 +3289,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertIsNone(p3.owner_document)
 
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         p0 = doc.create_processing_instruction('xml-stylesheet',
                                                'href="0.css"')
@@ -3269,7 +3303,7 @@ class DOMTestCase(unittest.TestCase):
     def test_pi_remove(self):
         # ProcessingInstruction.remove()
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         p0 = doc.create_processing_instruction('xml-stylesheet',
                                                'href="0.css"')
@@ -3281,7 +3315,7 @@ class DOMTestCase(unittest.TestCase):
     def test_pi_replace(self):
         # ProcessingInstruction.replace()
         doc = window.document
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
         p0 = doc.create_processing_instruction('xml-stylesheet',
                                                'href="0.css"')

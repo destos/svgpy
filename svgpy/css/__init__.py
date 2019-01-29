@@ -52,7 +52,7 @@ class _StyleAttribute(object):
     def __init__(self, declarations, owner_node):
         self._declarations = declarations  # type: OrderedDict
         self._owner_node = owner_node
-        attr = owner_node.attributes.get_named_item('style')
+        attr = owner_node.attributes.get_named_item_ns(None, 'style')
         style = '' if attr is None else attr.value
         self._style_map = style_to_dict(style)
 
@@ -1160,7 +1160,7 @@ class CSSImportRule(CSSRule):
         mediums = list()
         for token in prelude:
             if self._href is None:
-                if token.type in ['string', 'url']:
+                if token.type in ('string', 'url'):
                     url = normalize_url(token.value, base_url)
                     self._href = url.href
             else:
@@ -1374,11 +1374,11 @@ class CSSStyleDeclaration(MutableMapping):
             return self._property_map
 
         # 'style' attribute => CSS declarations
-        attr = self._owner_node.attributes.get_named_item('style')
+        attr = self._owner_node.attributes.get_named_item_ns(None, 'style')
         style = '' if attr is None else attr.value
         property_map = style_to_dict(style)
         declarations = self._property_map
-        for property_name in list(declarations):
+        for property_name in declarations:
             if Longhand.is_longhand(property_name):
                 shorthand_names = Longhand.shorthands(property_name)
                 for shorthand_name in shorthand_names:
@@ -1488,7 +1488,7 @@ class CSSStyleDeclaration(MutableMapping):
                 return priority
         if property_name not in declarations:
             return ''
-        _, priority = declarations[property_name]
+        priority = declarations[property_name][1]
         return priority
 
     def get_property_value(self, property_name):
@@ -1509,7 +1509,7 @@ class CSSStyleDeclaration(MutableMapping):
                 return value
         if property_name not in declarations:
             return ''
-        value, _ = declarations[property_name]
+        value = declarations[property_name][0]
         return value
 
     def item(self, index):
@@ -1565,13 +1565,13 @@ class CSSStyleDeclaration(MutableMapping):
 
         if not property_name.startswith('--'):
             property_name = property_name.lower()
-        declarations = self._declarations()
         if priority is None:
-            priority = declarations.get(property_name, ('', ''))[1]
+            priority = self.get_property_priority(property_name)
         else:
             priority = priority.lower()
         if priority not in ('', 'important'):
             return
+        declarations = self._declarations()
         updated, result = self._set_property_internal(declarations,
                                                       property_name,
                                                       value,

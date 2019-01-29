@@ -87,6 +87,7 @@ os.chdir(here)
 
 
 class DocumentTestCase(unittest.TestCase):
+
     def setUp(self):
         logging_level = int(os.getenv('LOGGING_LEVEL', str(LOGGING_LEVEL)))
         filename = os.path.join(tempfile.gettempdir(),
@@ -100,7 +101,7 @@ class DocumentTestCase(unittest.TestCase):
     def test_document_append_child(self):
         impl = SVGDOMImplementation()
 
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI)
+        doc = impl.create_document('http://www.w3.org/2000/svg')
         self.assertIsNone(doc.owner_document)
         self.assertIsNone(doc.document_element)
 
@@ -221,13 +222,13 @@ class DocumentTestCase(unittest.TestCase):
         # <g><path/></g>
         # <text/>
         # </svg>
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.append(root)
-        group = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'g')
+        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'g')
         root.append(group)
-        path = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'path')
+        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
         group.append(path)
-        text = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'text')
+        text = doc.create_element_ns('http://www.w3.org/2000/svg', 'text')
         root.append(text)
         comment = doc.create_comment('comment')
         doc.insert_before(comment, root)
@@ -348,7 +349,7 @@ class DocumentTestCase(unittest.TestCase):
     def test_document_create_attribute_ns(self):
         doc = window.document
 
-        namespace = Element.XML_NAMESPACE_URI
+        namespace = 'http://www.w3.org/XML/1998/namespace'
         local_name = 'lang'
         qualified_name = '{{{}}}{}'.format(namespace, local_name)
         attr = doc.create_attribute_ns(namespace, local_name)
@@ -452,7 +453,7 @@ class DocumentTestCase(unittest.TestCase):
         doc = window.document
 
         root = doc.create_element_ns(
-            Element.SVG_NAMESPACE_URI,
+            'http://www.w3.org/2000/svg',
             'svg',
             attrib={
                'viewBox': '0 0 200 300',
@@ -469,7 +470,7 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual('0 0 200 300', root.get_attribute('viewBox'))
 
         video = doc.create_element_ns(
-            Element.XHTML_NAMESPACE_URI,
+            'http://www.w3.org/1999/xhtml',
             'video',
             attrib={
                 'width': '100',
@@ -520,7 +521,7 @@ class DocumentTestCase(unittest.TestCase):
     def test_document_extend(self):
         doc = window.document
         comment = doc.create_comment('demo')
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         # doc.extend([comment, root])
         self.assertRaises(TypeError, lambda: doc.extend([comment, root]))
 
@@ -547,12 +548,12 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual([], elements)
 
         elements = doc.get_elements_by_tag_name_ns(
-                Element.SVG_NAMESPACE_URI,
+                'http://www.w3.org/2000/svg',
                 'rect')
         self.assertEqual([], elements)
 
         elements = doc.get_elements_by_tag_name_ns(
-                Element.XHTML_NAMESPACE_URI,
+                'http://www.w3.org/1999/xhtml',
                 'rect')
         self.assertEqual([], elements)
 
@@ -617,7 +618,7 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual(root, elements[0])
 
         elements = doc.get_elements_by_tag_name_ns(
-            Element.SVG_NAMESPACE_URI,
+            'http://www.w3.org/2000/svg',
             'svg')
         self.assertEqual(1, len(elements))
         self.assertEqual(root, elements[0])
@@ -629,12 +630,12 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEqual(1, len(elements))
 
         elements = doc.get_elements_by_tag_name_ns(
-            Element.SVG_NAMESPACE_URI,
+            'http://www.w3.org/2000/svg',
             'rect')
         self.assertEqual(1, len(elements))
 
         elements = doc.get_elements_by_tag_name_ns(
-            Element.XHTML_NAMESPACE_URI,
+            'http://www.w3.org/1999/xhtml',
             'rect')
         self.assertEqual(0, len(elements))
 
@@ -663,12 +664,12 @@ class DocumentTestCase(unittest.TestCase):
                           lambda: doc.create_element('svg'))
         self.assertRaises(ValueError,
                           lambda: doc.create_element_ns(
-                              Element.SVG_NAMESPACE_URI,
+                              'http://www.w3.org/2000/svg',
                               'svg'))
         self.assertEqual([], doc.get_elements_by_class_name('test'))
         self.assertEqual([], doc.get_elements_by_tag_name('svg'))
         self.assertEqual([], doc.get_elements_by_tag_name_ns(
-            Element.SVG_NAMESPACE_URI,
+            'http://www.w3.org/2000/svg',
             'svg'))
         self.assertEqual(doc, doc.get_root_node())
 
@@ -697,12 +698,12 @@ class DocumentTestCase(unittest.TestCase):
                           lambda: doc.create_element('svg'))
         self.assertRaises(ValueError,
                           lambda: doc.create_element_ns(
-                              Element.SVG_NAMESPACE_URI,
+                              'http://www.w3.org/2000/svg',
                               'svg'))
         self.assertEqual([], doc.get_elements_by_class_name('test'))
         self.assertEqual([], doc.get_elements_by_tag_name('svg'))
         self.assertEqual([], doc.get_elements_by_tag_name_ns(
-            Element.SVG_NAMESPACE_URI,
+            'http://www.w3.org/2000/svg',
             'svg'))
         self.assertEqual(doc, doc.get_root_node())
 
@@ -740,7 +741,7 @@ class DocumentTestCase(unittest.TestCase):
         # Window: window
         # Document: SVGDOMImplementation.create_document()
         impl = SVGDOMImplementation()
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI, '')
+        doc = impl.create_document('http://www.w3.org/2000/svg', '')
         self.assertIsInstance(doc, XMLDocument)
         self.assertEqual(9, Node.DOCUMENT_NODE)
         self.assertEqual(9, doc.node_type)
@@ -770,7 +771,7 @@ class DocumentTestCase(unittest.TestCase):
         # Window: window
         # Document: SVGDOMImplementation.create_document()
         impl = SVGDOMImplementation()
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI, 'svg')
+        doc = impl.create_document('http://www.w3.org/2000/svg', 'svg')
         self.assertIsInstance(doc, XMLDocument)
         self.assertEqual(9, Node.DOCUMENT_NODE)
         self.assertEqual(9, doc.node_type)
@@ -796,7 +797,7 @@ class DocumentTestCase(unittest.TestCase):
         # Document: SVGDOMImplementation.create_svg_document()
         impl = SVGDOMImplementation()
         doc = impl.create_svg_document(
-            nsmap={'html': Element.XHTML_NAMESPACE_URI}
+            nsmap={'html': 'http://www.w3.org/1999/xhtml'}
         )
         self.assertEqual(9, Node.DOCUMENT_NODE)
         self.assertEqual(9, doc.node_type)
@@ -815,10 +816,11 @@ class DocumentTestCase(unittest.TestCase):
         self.assertIsInstance(root, SVGSVGElement)
         self.assertEqual(0, len(root.keys()))
 
-        video = doc.create_element_ns(Element.XHTML_NAMESPACE_URI, 'video')
+        video = doc.create_element_ns('http://www.w3.org/1999/xhtml', 'video')
         root.append_child(video)
 
-        source = doc.create_element_ns(Element.XHTML_NAMESPACE_URI, 'source')
+        source = doc.create_element_ns('http://www.w3.org/1999/xhtml',
+                                       'source')
         video.append_child(source)
 
         expected = \
@@ -875,8 +877,8 @@ class DocumentTestCase(unittest.TestCase):
 
     def test_document_insert(self):
         impl = SVGDOMImplementation()
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI)
-        root = doc.create_element_ns(Element.SVG_NAMESPACE_URI, 'svg')
+        doc = impl.create_document('http://www.w3.org/2000/svg')
+        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
         doc.insert(0, root)
         self.assertEqual(root, doc.document_element)
 
@@ -893,7 +895,7 @@ class DocumentTestCase(unittest.TestCase):
     def test_document_insert_before(self):
         impl = SVGDOMImplementation()
 
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI)
+        doc = impl.create_document('http://www.w3.org/2000/svg')
         self.assertIsNone(doc.owner_document)
         self.assertIsNone(doc.document_element)
 
@@ -1120,7 +1122,7 @@ class DocumentTestCase(unittest.TestCase):
 
     def test_document_prepend(self):
         impl = SVGDOMImplementation()
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI)
+        doc = impl.create_document('http://www.w3.org/2000/svg')
 
         parser = etree.XMLParser()
         root = parser.makeelement('svg')
@@ -1221,7 +1223,7 @@ class DocumentTestCase(unittest.TestCase):
     def test_document_remove_child(self):
         impl = SVGDOMImplementation()
 
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI)
+        doc = impl.create_document('http://www.w3.org/2000/svg')
         self.assertIsNone(doc.owner_document)
         self.assertIsNone(doc.document_element)
 
@@ -1341,7 +1343,7 @@ class DocumentTestCase(unittest.TestCase):
     def test_document_replace_child(self):
         impl = SVGDOMImplementation()
 
-        doc = impl.create_document(Element.SVG_NAMESPACE_URI, 'svg')
+        doc = impl.create_document('http://www.w3.org/2000/svg', 'svg')
         self.assertIsNone(doc.owner_document)
         root = doc.document_element
         self.assertEqual(doc, root.owner_document)
@@ -1433,10 +1435,10 @@ class DocumentTestCase(unittest.TestCase):
                             doc1.implementation)
 
         doc2 = parser.create_document(
-            Element.SVG_NAMESPACE_URI,
+            'http://www.w3.org/2000/svg',
             'svg',
             nsmap={
-                'html': Element.XHTML_NAMESPACE_URI,
+                'html': 'http://www.w3.org/1999/xhtml',
             })
         self.assertIsInstance(doc2, XMLDocument)
         self.assertEqual(window, doc2.default_view)
@@ -1473,7 +1475,7 @@ class DocumentTestCase(unittest.TestCase):
 
         doc2 = parser.create_svg_document(
             nsmap={
-                'html': Element.XHTML_NAMESPACE_URI,
+                'html': 'http://www.w3.org/1999/xhtml',
             })
         self.assertIsInstance(doc2, XMLDocument)
         self.assertEqual(window, doc2.default_view)

@@ -26,7 +26,7 @@ from enum import Enum
 import tinycss2
 
 from .props import PropertyDescriptor, PropertySyntax, \
-    css_property_descriptor_map, css_wide_keyword_set
+    css_color_keyword_set, css_property_descriptor_map, css_wide_keyword_set
 from ..formatter import format_number_sequence
 
 _RE_REAL_NUMBER = re.compile(r'[+-]?[0-9]*\.?[0-9]+(e[+-]?[0-9]+)?',
@@ -492,8 +492,7 @@ class CSSStyleValue(object):
         if not property_name.startswith('--'):
             property_name = property_name.lower()
 
-        if css_text.lower() in ({'currentcolor', 'transparent'}
-                                | css_wide_keyword_set):
+        if css_text.lower() in css_color_keyword_set | css_wide_keyword_set:
             css_text = css_text.lower()
 
         css_wide_keywords = 0
@@ -515,8 +514,7 @@ class CSSStyleValue(object):
                 desc = PropertyDescriptor(
                     name=property_name,
                     syntax=PropertySyntax.ANY,
-                    inherits=False,
-                )
+                    inherits=False)
 
             values = list()
             tokens = [token for token in tokens if token.type != 'whitespace']
@@ -632,7 +630,7 @@ class CSSStyleValue(object):
     @staticmethod
     def _reify_css_style_value(property_name, components):
         css_text = ' '.join([text for text, _ in components])
-        if css_text.lower() in ({'currentcolor'} | css_wide_keyword_set):
+        if css_text.lower() in css_color_keyword_set | css_wide_keyword_set:
             css_text = css_text.lower()
 
         if css_text in css_wide_keyword_set:

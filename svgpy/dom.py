@@ -281,11 +281,11 @@ class DOMTokenList(MutableSequence):
             bool: Returns True if `token` is now present, and False otherwise.
         """
         if token in self._tokens:
-            if force in [None, False]:
+            if force in (None, False):
                 self.remove(token)
                 return False
             return True
-        elif force in [None, True]:
+        elif force in (None, True):
             self.add(token)
             return True
         return False
@@ -414,7 +414,7 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object or None.
         """
-        return self.get(qualified_name)
+        return self.get_named_item_ns(None, qualified_name)
 
     def get_named_item_ns(self, namespace, local_name):
         """Gets an attribute given the namespace URI and local name.
@@ -425,8 +425,8 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object or None.
         """
-        qualified_name = QualifiedName(namespace, local_name)
-        return self.get_named_item(qualified_name.name)
+        qname = QualifiedName(namespace, local_name)
+        return self.get(qname.name)
 
     def item(self, index):
         """Returns the attribute list[`index`].
@@ -458,9 +458,7 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object to be removed.
         """
-        attr = self[qualified_name]
-        del self[qualified_name]
-        return attr
+        return self.remove_named_item_ns(None, qualified_name)
 
     def remove_named_item_ns(self, namespace, local_name):
         """Removes an attribute given the namespace URI and local name.
@@ -471,8 +469,10 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object to be removed.
         """
-        qualified_name = QualifiedName(namespace, local_name)
-        return self.remove_named_item(qualified_name.name)
+        qname = QualifiedName(namespace, local_name)
+        attr = self[qname.name]
+        del self[qname.name]
+        return attr
 
     def set_named_item(self, attr):
         """Sets an attribute given `attr`.
@@ -482,9 +482,7 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object to be removed or None.
         """
-        old_attr = self.get(attr.name)
-        self[attr.name] = attr
-        return old_attr
+        return self.set_named_item_ns(attr)
 
     def set_named_item_ns(self, attr):
         """Sets an attribute given `attr`.
@@ -495,7 +493,9 @@ class NamedNodeMap(MutableMapping):
         Returns:
             Attr: An attribute object to be removed.
         """
-        return self.set_named_item(attr)
+        old = self.get(attr.name)
+        self[attr.name] = attr
+        return old
 
     def values(self):
         values = [self[key] for key in self.keys()]
@@ -807,10 +807,10 @@ class Attr(Node):
         super().__init__()
         if value is None and owner_element is None:
             raise ValueError("Expected 'value' or 'owner_element'")
-        name = QualifiedName(namespace, qualified_name)
-        self._qualified_name = name.name
-        self._local_name = name.local_name
-        self._namespace_uri = name.namespace_uri
+        qname = QualifiedName(namespace, qualified_name)
+        self._qualified_name = qname.name
+        self._local_name = qname.local_name
+        self._namespace_uri = qname.namespace_uri
         self._prefix = None
         self._value = value
         self._owner_element = owner_element
@@ -1293,7 +1293,6 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """NamedNodeMap: A dictionary of an element attributes.
 
         Examples:
-            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
             >>> root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
             >>> root.attributes['viewBox'] = '0 0 600 400'
@@ -1463,7 +1462,6 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         element.attach_document(self.owner_document)
         super().addnext(element)
 
-
     def addprevious(self, element):
         """Reimplemented from lxml.etree.ElementBase.addprevious().
 
@@ -1512,7 +1510,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
     def create_sub_element(self, local_name, index=None, attrib=None,
                            nsmap=None, **_extra):
-        """Creates a sub-element instance, and adds to the end of this element.
+        """[DEPRECATED]
+        Creates a sub-element instance, and adds to the end of this element.
         See also Element.create_sub_element_ns(), Document.create_element(),
         Document.create_element_ns(), SVGParser.create_element() and
         SVGParser.create_element_ns().
@@ -1528,6 +1527,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             Element: A new element.
         """
+        # TODO: remove Element.create_sub_element().
         element = self.makeelement(local_name,
                                    attrib=attrib,
                                    nsmap=nsmap,
@@ -1540,7 +1540,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
 
     def create_sub_element_ns(self, namespace, local_name, index=None,
                               attrib=None, nsmap=None, **_extra):
-        """Creates a sub-element instance with the specified namespace URI,
+        """[DEPRECATED]
+        Creates a sub-element instance with the specified namespace URI,
         and adds to the end of this element.
         See also Element.create_sub_element(), Document.create_element(),
         Document.create_element_ns(), SVGParser.create_element() and
@@ -1559,7 +1560,6 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             Element: A new element.
         Examples:
-            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
             >>> root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg', nsmap={'html': 'http://www.w3.org/1999/xhtml'})
             >>> video = root.create_sub_element_ns('http://www.w3.org/1999/xhtml', 'video')
@@ -1568,8 +1568,9 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
               <html:video/>
             </svg>
         """
-        qualified_name = QualifiedName(namespace, local_name)
-        element = self.create_sub_element(qualified_name.name,
+        # TODO: remove Element.create_sub_element_ns().
+        qname = QualifiedName(namespace, local_name)
+        element = self.create_sub_element(qname.name,
                                           index=index,
                                           attrib=attrib,
                                           nsmap=nsmap,
@@ -1607,7 +1608,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             str: The attribute's value or None.
         """
-        return self.get(qualified_name)
+        return self.get_attribute_ns(None, qualified_name)
 
     def get_attribute_names(self):
         """Returns a list of attribute names in order.
@@ -1647,8 +1648,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             str: The attribute's value or None.
         """
-        name = QualifiedName(namespace, local_name)
-        return self.get_attribute(name.name)
+        qname = QualifiedName(namespace, local_name)
+        return self.get(qname.name)
 
     def get_computed_geometry(self):
         return {}  # override with a subclass
@@ -1983,7 +1984,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             bool: Returns True if the attribute exists, else False.
         """
-        return qualified_name in self.attrib
+        return self.has_attribute_ns(None, qualified_name)
 
     def has_attribute_ns(self, namespace, local_name):
         """Returns True if an attribute with the specified namespace and name
@@ -1995,8 +1996,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             bool: Returns True if the attribute exists, else False.
         """
-        name = QualifiedName(namespace, local_name)
-        return self.has_attribute(name.name)
+        qname = QualifiedName(namespace, local_name)
+        return qname.name in self.attrib
 
     def has_attributes(self):
         """Returns True if attribute list is not empty; otherwise returns
@@ -2089,9 +2090,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Arguments:
             qualified_name (str): The qualified name of the attribute.
         """
-        attr = self.attributes.pop(qualified_name, None)
-        if attr is not None:
-            attr.detach_element()
+        self.remove_attribute_ns(None, qualified_name)
 
     def remove_attribute_node(self, attr):
         """Removes an attribute given `attr`.
@@ -2101,7 +2100,10 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             Attr: An attribute object to be removed.
         """
-        del self.attributes[attr]
+        attr = self.attributes.remove_named_item_ns(attr.namespace_uri,
+                                                    attr.local_name)
+        if attr is not None:
+            attr.detach_element()
         return attr
 
     def remove_attribute_ns(self, namespace, local_name):
@@ -2111,8 +2113,9 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
         """
-        name = QualifiedName(namespace, local_name)
-        self.remove_attribute(name.name)
+        attr = self.attributes.remove_named_item_ns(namespace, local_name)
+        if attr is not None:
+            attr.detach_element()
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -2154,7 +2157,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             qualified_name (str): The qualified name of the attribute.
             value (str): The attribute's value.
         """
-        self.attributes[qualified_name] = value
+        self.set_attribute_ns(None, qualified_name, value)
 
     def set_attribute_node(self, attr):
         """Sets an attribute given `attr`.
@@ -2185,8 +2188,8 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             qualified_name (str): The qualified name of the attribute.
             value (str): The attribute's value.
         """
-        name = QualifiedName(namespace, qualified_name)
-        self.set_attribute(name.name, value)
+        qname = QualifiedName(namespace, qualified_name)
+        self.attributes[qname.name] = value
 
     def toggle_attribute(self, qualified_name, force=None):
         """If `force` is not given, "toggles" `qualified_name`, removing it if
@@ -2202,11 +2205,11 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
                 False otherwise.
         """
         if qualified_name in self.attrib:
-            if force in [None, False]:
+            if force in (None, False):
                 self.remove_attribute(qualified_name)
                 return False
             return True
-        elif force in [None, True]:
+        elif force in (None, True):
             self.set(qualified_name, '')
             return True
         return False
@@ -2235,10 +2238,13 @@ class ElementCSSInlineStyle(Element):
         """CSSStyleDeclaration: A CSS declaration block object.
 
         Examples:
-            >>> from svgpy import SVGParser
             >>> parser = SVGParser()
             >>> g = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
             >>> g.attributes['style'] = 'fill: none; stroke: red;'
+            >>> g.style['fill']
+            'none'
+            >>> g.style['stroke']
+            'red'
             >>> g.style['stroke'] = 'blue'
             >>> g.style['stroke-width'] = '3'
             >>> g.attributes['style'].value
