@@ -1800,7 +1800,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertTrue('id' not in root.attrib)
         self.assertTrue('class' in root.attrib)
 
-        self.assertRaises(KeyError,
+        self.assertRaises(NotFoundError,
                           lambda: root.attributes.remove_named_item('id'))
 
     def test_element_attributes_remove_named_item_ns(self):
@@ -1825,7 +1825,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(value, attr.value)
         self.assertIsNone(attr.owner_element)
 
-        self.assertRaises(KeyError,
+        self.assertRaises(NotFoundError,
                           lambda: root.attributes.remove_named_item_ns(
                               namespace, local_name))
 
@@ -2584,7 +2584,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('ja', attr.value)
         self.assertIsNone(attr.owner_element)
 
-        self.assertRaises(KeyError,
+        self.assertRaises(NotFoundError,
                           lambda: root.remove_attribute_node(attr))
 
     def test_element_remove_attribute_ns(self):
@@ -3093,7 +3093,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertTrue('stroke-width' in root.attrib)
 
         # attr = attributes.remove_named_item('background')
-        self.assertRaises(KeyError,
+        self.assertRaises(NotFoundError,
                           lambda: attributes.remove_named_item('background'))
 
     def test_named_node_map_remove_named_item_ns(self):
@@ -3123,7 +3123,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(0, len(root.keys()))
 
         # attr = attributes.remove_named_item_ns(namespace, 'space')
-        self.assertRaises(KeyError,
+        self.assertRaises(NotFoundError,
                           lambda: attributes.remove_named_item_ns(
                               namespace, 'space'))
 

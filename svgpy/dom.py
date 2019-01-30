@@ -22,6 +22,7 @@ from lxml import cssselect, etree
 
 from .core import CSSUtils, Font, SVGLength
 from .css import CSSStyleDeclaration
+from .exception import NotFoundError
 from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
 from .utils import QualifiedName, get_elements_by_class_name, \
@@ -316,7 +317,7 @@ class NamedNodeMap(MutableMapping):
         """Removes an attribute with the specified `name`.
 
         Arguments:
-            name (str): The qualified name of the attribute.
+            name (str, Attr): The qualified name of the attribute.
         """
         if isinstance(name, Attr):
             name = name.name
@@ -470,8 +471,11 @@ class NamedNodeMap(MutableMapping):
             Attr: An attribute object to be removed.
         """
         qname = QualifiedName(namespace, local_name)
-        attr = self[qname.name]
-        del self[qname.name]
+        attr = self.get(qname.name)
+        if attr is not None:
+            del self[qname.name]
+        else:
+            raise NotFoundError('The object can not be found here')
         return attr
 
     def set_named_item(self, attr):
