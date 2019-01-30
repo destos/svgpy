@@ -2117,9 +2117,12 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             namespace (str, None): The namespace URI.
             local_name (str): The local name of the attribute.
         """
-        attr = self.attributes.remove_named_item_ns(namespace, local_name)
-        if attr is not None:
-            attr.detach_element()
+        try:
+            attr = self.attributes.remove_named_item_ns(namespace, local_name)
+            if attr is not None:
+                attr.detach_element()
+        except NotFoundError:
+            pass
 
     def remove_child(self, child):
         """Removes a child node from this node.
