@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import unittest
 from io import StringIO
@@ -65,6 +66,8 @@ SVG_CUBIC01 = '''
     </text>
 </svg>
 '''
+
+test_level = int(os.getenv('TEST_LEVEL', '0'))
 
 
 class DOMTestCase(unittest.TestCase):
@@ -1068,6 +1071,94 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('a--X', root.get('data-a---x'))
         self.assertEqual('x', root.get('data-'))
         self.assertEqual('0 0 600 400', root.get('viewBox'))
+
+    @unittest.skipIf(not (test_level & 0x01),
+                     'This test will take some time. Run manually.')
+    def test_dom_string_map_validate(self):
+        # DOMStringMap()
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        # https://www.w3.org/TR/xml/#NT-Name
+        # Name ::= NameStartChar (NameChar)*
+        test_pattern = (
+            # start | end | expected
+            (0x00, 0x2c, False),
+            (0x2d, 0x2e, True),  # "-", "."
+            (0x2f, 0x2f, False),  # "/"
+            (0x30, 0x39, True),  # "0" - "9"
+            # 0x3a (":") => lxml cause ValueError
+            (0x3b, 0x40, False),  # ";<=>?@"
+            (0x41, 0x5a, True),  # "A" - "Z"
+            (0x5b, 0x5e, False),
+            (0x5f, 0x5f, True),  # "_"
+            (0x60, 0x60, False),
+            (0x61, 0x7a, True),  # "a" - "z"
+            (0x7b, 0xb6, False),
+            (0xb7, 0xb7, True),  # NameChar
+            (0xb8, 0xbf, False),
+            (0xc0, 0xd6, True),
+            (0xd7, 0xd7, False),
+            (0xd8, 0xf6, True),
+            (0xf7, 0xf7, False),
+            (0x00f8, 0x02ff, True),
+            (0x0300, 0x036f, True),  # NameChar
+            (0x0370, 0x037d, True),
+            (0x037e, 0x037e, False),
+            (0x037f, 0x1fff, True),
+            (0x2000, 0x200b, False),
+            (0x200c, 0x200d, True),
+            (0x200e, 0x203e, False),
+            (0x203f, 0x2040, True),  # NameChar
+            (0x2041, 0x206f, False),
+            (0x2070, 0x218f, True),
+            (0x2190, 0x2bff, False),
+            (0x2c00, 0x2fef, True),
+            (0x2ff0, 0x3000, False),
+            (0x3001, 0xd7ff, True),
+            (0xd800, 0xf8ff, False),
+            (0xf900, 0xfdcf, True),
+            (0xfdd0, 0xfdef, False),
+            (0xfdf0, 0xfffd, True),
+            (0xfffe, 0xffff, False),
+            # (0x10000, 0xeffff, True),
+        )
+        for start, end, expected in test_pattern:
+            for code in range(start, end + 1):
+                name = 'foo{}Bar'.format(chr(code))
+                with self.subTest(code=code, name=name, expected=expected):
+                    if expected:
+                        root.dataset[name] = '1'
+                    else:
+                        msg = "'{}' (0x{:x})".format(name, code)
+                        with self.assertRaises(InvalidCharacterError,
+                                               msg=msg):
+                            root.dataset[name] = '0'
+
+    def test_dom_string_map_view(self):
+        # DOMStringMap()
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.attributes['width'] = '600'
+        root.attributes['height'] = '400'
+        root.dataset['foo'] = '100'
+        root.dataset['fooBar'] = '200'
+        root.dataset['fooBarBuz'] = '300'
+        self.assertEqual(5, root.attributes.length)
+        self.assertEqual(3, len(root.dataset))
+
+        keys = list(root.dataset.keys())
+        self.assertEqual(['foo', 'fooBar', 'fooBarBuz'], keys)
+
+        values = list(root.dataset.values())
+        self.assertEqual(['100', '200', '300'], values)
+
+        items = list(root.dataset.items())
+        self.assertEqual([('foo', '100'),
+                          ('fooBar', '200'),
+                          ('fooBarBuz', '300')],
+                         items)
 
     def test_dom_token_list(self):
         # DOMTokenList()

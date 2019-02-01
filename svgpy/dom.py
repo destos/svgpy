@@ -22,7 +22,7 @@ from lxml import cssselect, etree
 
 from .core import CSSUtils, Font, SVGLength
 from .css import CSSStyleDeclaration
-from .exception import NotFoundError
+from .exception import InvalidCharacterError, NotFoundError
 from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
 from .utils import QualifiedName, get_elements_by_class_name, \
@@ -30,7 +30,19 @@ from .utils import QualifiedName, get_elements_by_class_name, \
     is_ascii_whitespace, style_to_dict
 
 
-_RE_DATASET_INVALID_KEY = re.compile(r'-[a-z]')
+_RE_DOM_STRING_MAP_INVALID_SYNTAX = re.compile(r'-[a-z]')
+
+# https://www.w3.org/TR/xml/#NT-Name
+_RE_XML_NAME = re.compile(
+    r"^(:|[A-Z]|_|[a-z]|[\xc0-\xd6]|[\xd8-\xf6]"
+    r"|[\u00f8-\u02ff]|[\u0370-\u037d]|[\u037f-\u1fff]|[\u200c-\u200d]"
+    r"|[\u2070-\u218f]|[\u2c00-\u2fef]|[\u3001-\ud7ff]|[\uf900-\ufdcf]"
+    r"|[\ufdf0-\ufffd]|[\U00010000-\U000effff])"
+    r"(:|[A-Z]|_|[a-z]|[\xc0-\xd6]|[\xd8-\xf6]"
+    r"|[\u00f8-\u02ff]|[\u0370-\u037d]|[\u037f-\u1fff]|[\u200c-\u200d]"
+    r"|[\u2070-\u218f]|[\u2c00-\u2fef]|[\u3001-\ud7ff]|[\uf900-\ufdcf]"
+    r"|[\ufdf0-\ufffd]|[\U00010000-\U000effff]"
+    r"|-|\.|[0-9]|\xb7|[\u0300-\u036f]|[\u203f-\u2040])*$")
 
 
 class DOMStringMap(MutableMapping):
@@ -49,11 +61,12 @@ class DOMStringMap(MutableMapping):
 
     def __delitem__(self, key):
         name = self._convert_name(key)
-        del self._owner_element.attrib[name]
+        del self._owner_element.attributes[name]
 
     def __getitem__(self, key):
         name = self._convert_name(key)
-        return self._owner_element.attrib[name]
+        attr = self._owner_element.attributes[name]
+        return attr.value
 
     def __iter__(self):
         return iter(self.keys())
@@ -69,7 +82,10 @@ class DOMStringMap(MutableMapping):
             del self[key]
             return
         name = self._convert_name(key)
-        self._owner_element.set(name, value)
+        if not self._validate_name(name):
+            raise InvalidCharacterError("The string contains invalid "
+                                        "characters: " + repr(name))
+        self._owner_element.attributes[name] = value
 
     def _convert_key(self, name):
         _name = name[len(self._prefix):]
@@ -91,8 +107,8 @@ class DOMStringMap(MutableMapping):
         return key
 
     def _convert_name(self, key):
-        if _RE_DATASET_INVALID_KEY.search(key) is not None:
-            raise ValueError('Invalid key: ' + repr(key))
+        if _RE_DOM_STRING_MAP_INVALID_SYNTAX.search(key) is not None:
+            raise ValueError('Invalid syntax: ' + repr(key))
         name = self._prefix
         for ch in key:
             if ch.isupper():
@@ -100,19 +116,18 @@ class DOMStringMap(MutableMapping):
             name += ch
         return name.lower()
 
-    def items(self):
-        items = [(key, self[key]) for key in self.keys()]
-        return ItemsView(items)
+    def _validate_name(self, name):
+        _ = self
+        matched = _RE_XML_NAME.fullmatch(name)
+        if matched is not None:
+            return True
+        return False
 
     def keys(self):
-        keys = [self._convert_key(name)
-                for name in self._owner_element.attrib
-                if name.startswith(self._prefix) and name.islower()]
+        keys = [self._convert_key(attr.name)
+                for attr in self._owner_element.attributes
+                if attr.name.startswith(self._prefix) and attr.name.islower()]
         return KeysView(keys)
-
-    def values(self):
-        values = [self[key] for key in self.keys()]
-        return ValuesView(values)
 
 
 class DOMTokenList(MutableSequence):
