@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 import unittest
+from collections.abc import ItemsView, KeysView, ValuesView
 
 sys.path.extend(['.', '..'])
 
@@ -2969,6 +2970,37 @@ class CSSOMTestCase(unittest.TestCase):
             self.assertEqual('NoModificationAllowedError', e.name)
         except Exception as e:
             self.assertTrue(False, msg=repr(e))
+
+    def test_css_style_declaration_view(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+        root.style.set_property('foo', '100')
+        root.style.set_property('foo-bar', '200', 'important')
+        root.style.set_property('foo-bar-baz', '300')
+
+        view = root.style.keys()
+        self.assertIsInstance(view, KeysView)
+
+        keys = list(view)
+        self.assertEqual(['foo', 'foo-bar', 'foo-bar-baz'], keys)
+
+        view = root.style.values()
+        self.assertIsInstance(view, ValuesView)
+
+        values = list(view)
+        self.assertEqual(
+            [('100', ''), ('200', 'important'), ('300', '')],
+            values)
+
+        view = root.style.items()
+        self.assertIsInstance(view, ItemsView)
+
+        items = list(view)
+        self.assertEqual(
+            [('foo', ('100', '')),
+             ('foo-bar', ('200', 'important')),
+             ('foo-bar-baz', ('300', ''))],
+            items)
 
     def test_css_style_rule(self):
         stylesheet = '''
