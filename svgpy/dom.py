@@ -22,7 +22,7 @@ from lxml import cssselect, etree
 
 from .core import CSSUtils, Font, SVGLength
 from .css import CSSStyleDeclaration
-from .exception import InvalidCharacterError, NotFoundError
+from .exception import InUseAttributeError, InvalidCharacterError
 from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
 from .utils import QualifiedName, get_elements_by_class_name, \
@@ -124,9 +124,9 @@ class DOMStringMap(MutableMapping):
         return False
 
     def keys(self):
-        keys = [self._convert_key(attr.name)
-                for attr in self._owner_element.attributes
-                if attr.name.startswith(self._prefix) and attr.name.islower()]
+        keys = [self._convert_key(name)
+                for name in self._owner_element.attributes
+                if name.startswith(self._prefix) and name.islower()]
         return KeysView(keys)
 
 
@@ -359,9 +359,7 @@ class NamedNodeMap(MutableMapping):
         return self._set_default_named_item(name)
 
     def __iter__(self):
-        for name in self._attrib:
-            attr = self._set_default_named_item(name)
-            yield attr
+        return iter(self.keys())
 
     def __len__(self):
         return len(self._attrib)
@@ -386,11 +384,11 @@ class NamedNodeMap(MutableMapping):
             self._set_default_named_item(name)
         elif isinstance(value, Attr):
             if name != value.name:
-                raise ValueError('Name did not match: '
-                                 + repr((name, value.name)))
+                raise ValueError("The attribute name '{}' did not match: "
+                                 "{}".format(name, repr(value.name)))
             elif value.owner_element is not None:
                 if value.owner_element != self._owner_element:
-                    raise ValueError('Element already in use')
+                    raise InUseAttributeError('The attribute is in use')
                 return  # already exist
             elif value.value is None or len(value.value) == 0:
                 if name in self._attrib:
@@ -459,10 +457,6 @@ class NamedNodeMap(MutableMapping):
         except IndexError:
             return None
 
-    def items(self):
-        items = [(key, self[key]) for key in self.keys()]
-        return ItemsView(items)
-
     def keys(self):
         return KeysView(self._attrib.keys())
 
@@ -486,11 +480,9 @@ class NamedNodeMap(MutableMapping):
             Attr: An attribute object to be removed.
         """
         qname = QualifiedName(namespace, local_name)
-        attr = self.get(qname.name)
+        attr = self[qname.name]
         if attr is not None:
             del self[qname.name]
-        else:
-            raise NotFoundError('The object can not be found here')
         return attr
 
     def set_named_item(self, attr):
@@ -515,10 +507,6 @@ class NamedNodeMap(MutableMapping):
         old = self.get(attr.name)
         self[attr.name] = attr
         return old
-
-    def values(self):
-        values = [self[key] for key in self.keys()]
-        return ValuesView(values)
 
 
 class Node(ABC):
@@ -2136,7 +2124,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             attr = self.attributes.remove_named_item_ns(namespace, local_name)
             if attr is not None:
                 attr.detach_element()
-        except NotFoundError:
+        except KeyError:
             pass
 
     def remove_child(self, child):

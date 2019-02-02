@@ -3,6 +3,7 @@
 import os
 import sys
 import unittest
+from collections.abc import ItemsView, KeysView, ValuesView
 from io import StringIO
 
 sys.path.extend(['.', '..'])
@@ -1148,13 +1149,22 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(5, root.attributes.length)
         self.assertEqual(3, len(root.dataset))
 
-        keys = list(root.dataset.keys())
+        view = root.dataset.keys()
+        self.assertIsInstance(view, KeysView)
+
+        keys = list(view)
         self.assertEqual(['foo', 'fooBar', 'fooBarBuz'], keys)
 
-        values = list(root.dataset.values())
+        view = root.dataset.values()
+        self.assertIsInstance(view, ValuesView)
+
+        values = list(view)
         self.assertEqual(['100', '200', '300'], values)
 
-        items = list(root.dataset.items())
+        view = root.dataset.items()
+        self.assertIsInstance(view, ItemsView)
+
+        items = list(view)
         self.assertEqual([('foo', '100'),
                           ('fooBar', '200'),
                           ('fooBarBuz', '300')],
@@ -1891,7 +1901,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertTrue('id' not in root.attrib)
         self.assertTrue('class' in root.attrib)
 
-        self.assertRaises(NotFoundError,
+        self.assertRaises(KeyError,
                           lambda: root.attributes.remove_named_item('id'))
 
     def test_element_attributes_remove_named_item_ns(self):
@@ -1916,7 +1926,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(value, attr.value)
         self.assertIsNone(attr.owner_element)
 
-        self.assertRaises(NotFoundError,
+        self.assertRaises(KeyError,
                           lambda: root.attributes.remove_named_item_ns(
                               namespace, local_name))
 
@@ -2675,7 +2685,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('ja', attr.value)
         self.assertIsNone(attr.owner_element)
 
-        self.assertRaises(NotFoundError,
+        self.assertRaises(KeyError,
                           lambda: root.remove_attribute_node(attr))
 
     def test_element_remove_attribute_ns(self):
@@ -3014,29 +3024,26 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(stroke, root.get('stroke'))
         self.assertEqual(stroke_width, root.get('stroke-width'))
 
-        def _set_value(d, k, v):
-            d[k] = v
-
-        self.assertRaises(TypeError,
-                          lambda: _set_value(attributes, 'stroke-width', 1))
+        with self.assertRaises(TypeError):
+            attributes['stroke-width'] = 1
 
         attr = Attr(None, 'color', 'blue')  # name not matched
-        self.assertRaises(ValueError,
-                          lambda: _set_value(attributes, 'fill', attr))
+        with self.assertRaises(ValueError):
+            attributes['fill'] = attr
 
         group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
         attr = Attr(None,
                     'fill',
                     owner_element=group)  # element already in use
-        self.assertRaises(ValueError,
-                          lambda: _set_value(attributes, 'fill', attr))
+        with self.assertRaises(InUseAttributeError):
+            attributes['fill'] = attr
         self.assertEqual(group, attr.owner_element)
 
-        self.assertRaises(KeyError,
-                          lambda: attributes['background'])
+        with self.assertRaises(KeyError):
+            _ = attributes['background']
 
-        self.assertRaises(KeyError,
-                          lambda: attributes.pop('background'))
+        with self.assertRaises(KeyError):
+            _ = attributes.pop('background')
 
         # remove attributes
         del attributes['fill']
@@ -3184,7 +3191,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertTrue('stroke-width' in root.attrib)
 
         # attr = attributes.remove_named_item('background')
-        self.assertRaises(NotFoundError,
+        self.assertRaises(KeyError,
                           lambda: attributes.remove_named_item('background'))
 
     def test_named_node_map_remove_named_item_ns(self):
@@ -3214,7 +3221,7 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(0, len(root.keys()))
 
         # attr = attributes.remove_named_item_ns(namespace, 'space')
-        self.assertRaises(NotFoundError,
+        self.assertRaises(KeyError,
                           lambda: attributes.remove_named_item_ns(
                               namespace, 'space'))
 
@@ -3266,6 +3273,34 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(namespace, old.namespace_uri)
         self.assertEqual(local_name, old.local_name)
         self.assertEqual(old_value, old.value)
+
+    def test_named_node_map_view(self):
+        parser = SVGParser()
+        root = parser.create_element_ns('http://www.w3.org/2000/svg', 'svg')
+
+        root.attributes['foo'] = '100'
+        root.set('foo-bar', '200')
+        root.attributes['foo-bar-baz'] = '300'
+
+        view = root.attributes.keys()
+        self.assertIsInstance(view, KeysView)
+
+        keys = list(view)
+        self.assertEqual(['foo', 'foo-bar', 'foo-bar-baz'], keys)
+
+        view = root.attributes.values()
+        self.assertIsInstance(view, ValuesView)
+
+        values = [attr.value for attr in view]
+        self.assertEqual(['100', '200', '300'], values)
+
+        view = root.attributes.items()
+        self.assertIsInstance(view, ItemsView)
+
+        items = [(name, attr.value) for name, attr in view]
+        self.assertEqual(
+            [('foo', '100'), ('foo-bar', '200'), ('foo-bar-baz', '300')],
+            items)
 
     def test_pi_addnext(self):
         # ProcessingInstruction.addnext()
