@@ -360,11 +360,36 @@ class DOMTestCase(unittest.TestCase):
         self.assertIsNone(attr.parent_node)
 
     def test_attr_append_child(self):
-        # Attr.append_child()
+        # Attr
+        # Node.append_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
-        attr = parser.create_attribute('fill')
-        self.assertRaises(ValueError, lambda: attr.append_child(node))
+        parent = parser.create_attribute('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.append_child(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.append_child(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.append_child(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'g')
+        # parent.append_child(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.append_child(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(pi))
 
     def test_attr_child_nodes(self):
         # Node.child_nodes
@@ -398,25 +423,100 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(attr, attr.get_root_node())
 
     def test_attr_insert_before(self):
-        # Attr.insert_before()
+        # Attr
+        # Node.insert_before()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
-        attr = parser.create_attribute('fill')
-        self.assertRaises(ValueError, lambda: attr.insert_before(node, None))
+        parent = parser.create_attribute('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.insert_before(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.insert_before(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert_before(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.insert_before(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.insert_before(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(pi, None))
 
     def test_attr_remove_child(self):
-        # Attr.remove_child()
+        # Attr
+        # Node.remove_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
-        attr = parser.create_attribute('fill')
-        self.assertRaises(ValueError, lambda: attr.remove_child(node))
+        parent = parser.create_attribute('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.remove_child(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.remove_child(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.remove_child(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.remove_child(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.remove_child(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(pi))
 
     def test_attr_replace_child(self):
-        # Attr.replace_child()
+        # Attr
+        # Node.replace_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        node = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
-        attr = parser.create_attribute('fill')
-        self.assertRaises(ValueError, lambda: attr.replace_child(node, None))
+        parent = parser.create_attribute('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.replace_child(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.replace_child(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.replace_child(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.replace_child(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.replace_child(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(pi, None))
 
     def test_comment(self):
         parser = SVGParser()
@@ -453,58 +553,145 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(expected, comment.tostring().decode())
 
     def test_comment_addnext(self):
-        # Comment.addnext()
+        # CommentBase.addnext()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
-        self.assertIsNone(group.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_comment('foo-bar')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
+        attr = parser.create_attribute('foo')
+        # parent.addnext(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addnext(attr))
 
-        c0.addnext(c1)
-        self.assertEqual(doc, c1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.addnext(comment)
+        self.assertEqual([parent, comment], list(root))
+        self.assertEqual(doc, comment.owner_document)
 
-        c0.addnext(group)
-        self.assertEqual(doc, group.owner_document)
+        doc2 = parser.create_document(svg_ns)
+        # parent.addnext(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addnext(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.addnext(element)
+        self.assertEqual([parent, element, comment], list(root))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.addnext(pi)
+        self.assertEqual([parent, pi, element, comment], list(root))
+        self.assertEqual(doc, pi.owner_document)
 
     def test_comment_addprevious(self):
-        # Comment.addprevious()
+        # CommentBase.addprevious()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'g')
-        self.assertIsNone(group.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_comment('foo-bar')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
+        attr = parser.create_attribute('foo')
+        # parent.addprevious(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addprevious(attr))
 
-        c0.addprevious(c1)
-        self.assertEqual(doc, c1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.addprevious(comment)
+        self.assertEqual([comment, parent], list(root))
+        self.assertEqual(doc, comment.owner_document)
 
-        c0.addprevious(group)
-        self.assertEqual(doc, group.owner_document)
+        doc2 = parser.create_document(svg_ns)
+        # parent.addprevious(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addprevious(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.addprevious(element)
+        self.assertEqual([comment, element, parent], list(root))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.addprevious(pi)
+        self.assertEqual([comment, element, pi, parent], list(root))
+        self.assertEqual(doc, pi.owner_document)
+
+    def test_comment_append(self):
+        # CommentBase.append()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_comment('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.append(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.append(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.append(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.append(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.append(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(pi))
 
     def test_comment_append_child(self):
-        # Comment.append_child()
+        # Comment
+        # Node.append_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        c2 = parser.create_comment('#2')
+        parent = parser.create_comment('foo-bar')
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
+        attr = parser.create_attribute('foo')
+        # parent.append_child(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(attr))
 
-        doc.append(c1)
-        self.assertRaises(ValueError,
-                          lambda: c1.append_child(c2))
+        comment = parser.create_comment('foo')
+        # parent.append_child(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.append_child(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.append_child(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.append_child(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(pi))
 
     def test_comment_child_nodes(self):
         # Node.child_nodes
@@ -559,24 +746,98 @@ class DOMTestCase(unittest.TestCase):
         self.assertFalse(end.has_child_nodes())
 
     def test_comment_extend(self):
-        # Comment.extend()
+        # CommentBase.extend()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        c2 = parser.create_comment('#2')
-        c3 = parser.create_comment('#3')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(c2.owner_document)
-        self.assertIsNone(c3.owner_document)
+        parent = parser.create_comment('foo-bar')
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
-        c0.extend([c1, c2, c3])  # no effect, no error
-        self.assertEqual(doc, c1.owner_document)
-        self.assertEqual(doc, c2.owner_document)
-        self.assertEqual(doc, c3.owner_document)
+        attr = parser.create_attribute('foo')
+        # parent.extend([attr])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([attr]))
+
+        comment = parser.create_comment('foo')
+        # parent.extend([comment])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([comment]))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.extend([doc2])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([doc2]))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.extend([element])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([element]))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.extend([pi])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([pi]))
+
+    def test_comment_insert(self):
+        # CommentBase.insert()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_comment('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.insert(1, attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, attr))
+
+        comment = parser.create_comment('foo')
+        # parent.insert(1, comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert(1, doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.insert(1, element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.insert(1, pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, pi))
+
+    def test_comment_insert_before(self):
+        # Comment
+        # Node.insert_before()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_comment('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.insert_before(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.insert_before(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert_before(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.insert_before(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.insert_before(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(pi, None))
 
     def test_comment_next_element_sibling(self):
         # Comment.next_element_sibling
@@ -615,28 +876,130 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual(desc, e)
 
     def test_comment_remove(self):
-        # Comment.remove()
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
+        # CommentBase.remove()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_comment('foo-bar')
 
-        self.assertRaises(ValueError,
-                          lambda: c0.remove(root))
+        attr = parser.create_attribute('foo')
+        # parent.remove(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.remove(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.remove(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.remove(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.remove(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(pi))
+
+    def test_comment_remove_child(self):
+        # Comment
+        # Node.remove_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_comment('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.remove_child(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.remove_child(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.remove_child(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.remove_child(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.remove_child(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(pi))
 
     def test_comment_replace(self):
-        # Comment.replace()
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        c0 = doc.create_comment('#0')
-        root.append(c0)
-        c1 = doc.create_comment('#1')
-        c2 = doc.create_comment('#2')
+        # CommentBase.replace()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_comment('foo-bar')
 
-        self.assertRaises(ValueError,
-                          lambda: c0.replace(c1, c2))
+        attr = parser.create_attribute('foo')
+        # parent.replace(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.replace(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.replace(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.replace(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.replace(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(pi, None))
+
+    def test_comment_replace_child(self):
+        # Comment
+        # Node.replace_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_comment('foo-bar')
+
+        attr = parser.create_attribute('foo')
+        # parent.replace_child(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.replace_child(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.replace_child(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.replace_child(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.replace_child(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(pi, None))
 
     def test_dom_exception(self):
         e = DOMException()
@@ -1560,129 +1923,204 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('300', video.get('height'))
 
     def test_element_addnext(self):
-        # Element.addnext()
+        # ElementBase.addnext()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        style = parser.create_element_ns('http://www.w3.org/2000/svg', 'style')
-        self.assertIsNone(style.owner_document)
-        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        title = doc.create_element_ns('http://www.w3.org/2000/svg', 'title')
-        root.append(title)
-        desc = doc.create_element_ns('http://www.w3.org/2000/svg', 'desc')
-        root.append(desc)
+        attr = parser.create_attribute('foo')
+        # parent.addnext(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addnext(attr))
 
-        title.addnext(c1)
-        self.assertEqual(doc, c1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.addnext(comment)
+        self.assertEqual([parent, comment], list(root))
+        self.assertEqual(doc, comment.owner_document)
 
-        desc.addnext(style)
-        self.assertEqual(doc, style.owner_document)
+        doc2 = parser.create_document(svg_ns)
+        # parent.addnext(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addnext(doc2))
 
-        # <svg>
-        #   <title/>
-        #   <!--#1-->
-        #   <desc/>
-        #   <style/>
-        #   <group><path/></group>
-        # </svg>
-        style.addnext(group)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.addnext(element)
+        self.assertEqual([parent, element, comment], list(root))
+        self.assertEqual(doc, element.owner_document)
 
-        nodes = [e for e in root]
-        self.assertEqual([title, c1, desc, style, group], nodes)
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.addnext(pi)
+        self.assertEqual([parent, pi, element, comment], list(root))
+        self.assertEqual(doc, pi.owner_document)
 
     def test_element_addprevious(self):
-        # Element.addprevious()
+        # ElementBase.addprevious()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        self.assertIsNone(p1.owner_document)
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
-        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        rect = doc.create_element_ns('http://www.w3.org/2000/svg', 'rect')
-        root.append(rect)
+        attr = parser.create_attribute('foo')
+        # parent.addprevious(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addprevious(attr))
 
-        root.addprevious(p1)
-        self.assertEqual(doc, p1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.addprevious(comment)
+        self.assertEqual([comment, parent], list(root))
+        self.assertEqual(doc, comment.owner_document)
 
-        rect.addprevious(group)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+        doc2 = parser.create_document(svg_ns)
+        # parent.addprevious(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addprevious(doc2))
 
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        #   <!--#1-->
-        #   <group><path/></group>
-        #   <rect/>
-        # </svg>
-        group.addprevious(c1)
-        self.assertEqual(doc, c1.owner_document)
-        # print(doc.tostring())
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.addprevious(element)
+        self.assertEqual([comment, element, parent], list(root))
+        self.assertEqual(doc, element.owner_document)
 
-    def test_element_append(self):
-        # Element.append()
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.addprevious(pi)
+        self.assertEqual([comment, element, pi, parent], list(root))
+        self.assertEqual(doc, pi.owner_document)
+
+    def test_element_append01(self):
+        # ElementBase.append()
+        # ParentNode.append()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
+        attr = parser.create_attribute('foo')
+        # parent.append(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(attr))
 
-        root.append(c1)
-        self.assertEqual(doc, c1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.append(comment)
+        self.assertEqual([comment], list(parent))
+        self.assertEqual(doc, comment.owner_document)
 
-        # <svg>
-        #   <!--#1-->
-        #   <group><path/></group>
-        # </svg>
-        root.append(group)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-        # print(doc.tostring())
+        doc2 = parser.create_document(svg_ns)
+        # parent.append(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.append(element)
+        self.assertEqual([comment, element], list(parent))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.append(pi)
+        self.assertEqual([comment, element, pi], list(parent))
+        self.assertEqual(doc, pi.owner_document)
+
+    def test_element_append02(self):
+        # Element
+        # ParentNode.append()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        root = parser.create_element_ns(svg_ns, 'svg')
+        text = parser.create_element_ns(svg_ns, 'text')
+        text.text = 'foo '
+        root.append(text)
+
+        # "<text>foo </text>"
+        text.append('bar ', 'baz ', 'qux')
+        # "<text>foo bar baz qux</text>"
+        self.assertEqual(0, len(text))
+        self.assertEqual('foo bar baz qux', text.text)
+        self.assertEqual('foo bar baz qux', text.text_content)
+
+    def test_element_append03(self):
+        # Element
+        # ParentNode.append()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        root = parser.create_element_ns(svg_ns, 'svg')
+        text = parser.create_element_ns(svg_ns, 'text')
+        text.text = 'foo '
+        root.append(text)
+        tspan = parser.create_element_ns(svg_ns, 'tspan')
+        tspan.text = 'baz '
+
+        # "<text>foo </text>"
+        text.append('bar ', tspan, 'qux')
+        # "<text>foo bar <tspan>baz </tspan>qux</text>"
+        self.assertEqual(1, len(text))
+        self.assertEqual([tspan], list(text))
+        self.assertEqual('foo bar ', text.text)
+        self.assertEqual('baz ', tspan.text)
+        self.assertEqual('qux', tspan.tail)
+        self.assertEqual('foo bar baz qux', text.text_content)
 
     def test_element_append_child(self):
-        # Element.append_child()
+        # Element
+        # Node.append_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(group.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
+        attr = parser.create_attribute('fill')
+        # parent.append_child(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(attr))
 
-        node = root.append_child(c1)
-        self.assertEqual(c1, node)
-        self.assertEqual(doc, c1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        result = parent.append_child(comment)
+        self.assertEqual(comment, result)
+        self.assertEqual([comment], list(parent))
+        self.assertEqual(doc, comment.owner_document)
 
-        node = root.append_child(group)
-        self.assertEqual(group, node)
-        self.assertEqual(doc, group.owner_document)
+        doc2 = parser.create_document(svg_ns)
+        # parent.append_child(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        result = parent.append_child(element)
+        self.assertEqual(element, result)
+        self.assertEqual([comment, element], list(parent))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        result = parent.append_child(pi)
+        self.assertEqual(pi, result)
+        self.assertEqual([comment, element, pi], list(parent))
+        self.assertEqual(doc, pi.owner_document)
 
     def test_element_attributes_del(self):
         # NamedNodeMap.__delitem__()
@@ -2264,29 +2702,43 @@ class DOMTestCase(unittest.TestCase):
         # print(root.tostring())
 
     def test_element_extend(self):
-        # Element.extend()
+        # ElementBase.extend()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        desc = parser.create_element_ns('http://www.w3.org/2000/svg', 'desc')
-        comment = parser.create_comment('comment')
-        group = parser.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        path = parser.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertIsNone(desc.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
+
+        attr = parser.create_attribute('foo')
+        # parent.extend([attr])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([attr]))
+
+        comment = parser.create_comment('foo')
         self.assertIsNone(comment.owner_document)
-        self.assertIsNone(group.owner_document)
-        self.assertIsNone(path.owner_document)
-
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        self.assertEqual(doc, root.owner_document)
-        doc.append(root)
-
-        root.extend([desc, comment, group])
-        self.assertEqual(doc, desc.owner_document)
+        parent.extend([comment])
+        self.assertEqual([comment], list(parent))
         self.assertEqual(doc, comment.owner_document)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
-        # print(doc.tostring())
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.extend([doc2])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([doc2]))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.extend([element])
+        self.assertEqual([comment, element], list(parent))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.extend([pi])
+        self.assertEqual([comment, element, pi], list(parent))
+        self.assertEqual(doc, pi.owner_document)
 
     def test_element_get_attribute(self):
         # Element.get_attribute()
@@ -2518,50 +2970,136 @@ class DOMTestCase(unittest.TestCase):
         self.assertEqual('html', video.prefix)
 
     def test_element_insert(self):
-        # Element.insert()
+        # ElementBase.insert()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        style = parser.create_element_ns('http://www.w3.org/2000/svg', 'style')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(style.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        root.append(group)
+        attr = parser.create_attribute('foo')
+        # parent.insert(1, attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, attr))
 
-        root.insert(0, style)
-        self.assertEqual(doc, style.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.insert(1, comment)
+        self.assertEqual([comment], list(parent))
+        self.assertEqual(doc, comment.owner_document)
 
-        root.insert(0, c1)
-        self.assertEqual(doc, c1.owner_document)
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert(1, doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, doc2))
 
-    def test_element_insert_before(self):
-        # Element.insert_before()
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.insert(1, element)
+        self.assertEqual([comment, element], list(parent))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.insert(1, pi)
+        self.assertEqual([comment, pi, element], list(parent))
+        self.assertEqual(doc, pi.owner_document)
+
+    def test_element_insert_before01(self):
+        # Element
+        # Node.insert_before()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        style = parser.create_element_ns('http://www.w3.org/2000/svg', 'style')
-        self.assertIsNone(c1.owner_document)
-        self.assertIsNone(style.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        root.append(group)
+        group = parser.create_element_ns(svg_ns, 'g')
+        self.assertIsNone(group.owner_document)
+        parent.append(group)
+        self.assertEqual(doc, group.owner_document)
 
-        node = root.insert_before(style, group)
-        self.assertEqual(style, node)
-        self.assertEqual(doc, style.owner_document)
+        attr = parser.create_attribute('foo')
+        # parent.insert_before(attr, group)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(attr, group))
 
-        node = root.insert_before(c1, style)
-        self.assertEqual(c1, node)
-        self.assertEqual(doc, c1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        result = parent.insert_before(comment, group)
+        self.assertEqual(comment, result)
+        self.assertEqual([comment, group], list(parent))
+        self.assertEqual(doc, comment.owner_document)
 
-        children = [e for e in root]
-        self.assertEqual([c1, style, group], children)
-        # print(doc.tostring())
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert_before(doc2, group)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(doc2, group))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        result = parent.insert_before(element, group)
+        self.assertEqual(element, result)
+        self.assertEqual([comment, element, group], list(parent))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        result = parent.insert_before(pi, group)
+        self.assertEqual(pi, result)
+        self.assertEqual([comment, element, pi, group], list(parent))
+        self.assertEqual(doc, pi.owner_document)
+
+    def test_element_insert_before02(self):
+        # Element
+        # Node.insert_before()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
+
+        group = parser.create_element_ns(svg_ns, 'g')
+        self.assertIsNone(group.owner_document)
+        parent.append(group)
+        self.assertEqual(doc, group.owner_document)
+
+        attr = parser.create_attribute('foo')
+        # parent.insert_before(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(attr, None))
+
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.insert_before(comment, None)
+        self.assertEqual([group, comment], list(parent))
+        self.assertEqual(doc, comment.owner_document)
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert_before(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.insert_before(element, None)
+        self.assertEqual([group, comment, element], list(parent))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.insert_before(pi, None)
+        self.assertEqual([group, comment, element, pi], list(parent))
+        self.assertEqual(doc, pi.owner_document)
 
     def test_element_next_element_sibling(self):
         # Element.next_element_sibling
@@ -2590,6 +3128,95 @@ class DOMTestCase(unittest.TestCase):
         e = path.next_element_sibling
         self.assertIsNone(e)
 
+    def test_element_prepend01(self):
+        # Element
+        # ParentNode.prepend()
+        parser = SVGParser()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
+
+        attr = parser.create_attribute('foo')
+        # parent.prepend(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.prepend(attr))
+
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.prepend(comment)
+        self.assertEqual(1, len(parent))
+        self.assertEqual([comment], list(parent))
+        self.assertEqual(doc, comment.owner_document)
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.prepend(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.prepend(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.prepend(element)
+        self.assertEqual(2, len(parent))
+        self.assertEqual([element, comment], list(parent))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.prepend(pi)
+        self.assertEqual(3, len(parent))
+        self.assertEqual([pi, element, comment], list(parent))
+        self.assertEqual(doc, pi.owner_document)
+
+    def test_element_prepend02(self):
+        # Element
+        # ParentNode.prepend()
+        parser = SVGParser()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        root = parser.create_element_ns(svg_ns, 'svg')
+        text = parser.create_element_ns(svg_ns, 'text')
+        text.text = 'qux'
+        root.prepend(text)
+
+        # "<text>qux</text>"
+        text.prepend('foo ', 'bar ', 'baz ')
+        # "<text>foo bar baz qux</text>"
+        self.assertEqual(0, len(text))
+        self.assertEqual('foo bar baz qux', text.text)
+        self.assertEqual('foo bar baz qux', text.text_content)
+
+    def test_element_prepend03(self):
+        # Element
+        # ParentNode.prepend()
+        parser = SVGParser()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        root = parser.create_element_ns(svg_ns, 'svg')
+        text = parser.create_element_ns(svg_ns, 'text')
+        text.text = 'qux'
+        root.prepend(text)
+        tspan = parser.create_element_ns(svg_ns, 'tspan')
+        tspan.text = 'bar '
+
+        # "<text>qux</text>"
+        text.prepend('foo ', tspan, 'baz ')
+        # "<text>foo <tspan>bar </tspan>baz qux</text>"
+        self.assertEqual([tspan], list(text))
+        self.assertEqual('foo ', text.text)
+        self.assertEqual('bar ', tspan.text)
+        self.assertEqual('baz qux', tspan.tail)
+        self.assertEqual('foo bar baz qux', text.text_content)
+
+        tspan1 = parser.create_element_ns(svg_ns, 'tspan')
+        tspan1.text = 'quux '
+        tspan2 = parser.create_element_ns(svg_ns, 'tspan')
+        tspan2.text = 'corge '
+        text.prepend(tspan1, tspan2)
+        self.assertEqual([tspan1, tspan2, tspan], list(text))
+        self.assertEqual('quux corge foo bar baz qux', text.text_content)
+
     def test_element_previous_element_sibling(self):
         # Element.previous_element_sibling
         parser = SVGParser()
@@ -2617,23 +3244,48 @@ class DOMTestCase(unittest.TestCase):
         e = path.previous_element_sibling
         self.assertEqual(rect, e)
 
-    def test_element_remove(self):
-        # Element.remove()
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        root.append(group)
-        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+    def test_element_remove01(self):
+        # ElementBase.remove()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_element_ns(svg_ns, 'svg')
 
-        root.remove(group)
-        self.assertFalse(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+        comment = parser.create_comment('foo')
+        parent.append(comment)
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        parent.append(element)
+        self.assertEqual([comment, element], list(parent))
+
+        parent.remove(element)
+        self.assertEqual([comment], list(parent))
+
+        parent.remove(comment)
+        self.assertEqual([], list(parent))
+
+        # parent.remove(comment)
+        self.assertRaises(NotFoundError,
+                          lambda: parent.remove(comment))
+
+    def test_element_remove02(self):
+        # Element
+        # ChildNode.remove()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_element_ns(svg_ns, 'svg')
+
+        comment = parser.create_comment('foo')
+        parent.append(comment)
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        parent.append(element)
+        self.assertEqual([comment, element], list(parent))
+
+        element.remove()
+        self.assertEqual([comment], list(parent))
+
+        element.remove()  # non-error
+        self.assertEqual([comment], list(parent))
 
     def test_element_remove_attribute(self):
         # Element.remove_attribute()
@@ -2731,72 +3383,100 @@ class DOMTestCase(unittest.TestCase):
                                  'space')
 
     def test_element_remove_child(self):
-        # Element.remove_child()
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        root.append(group)
-        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+        # Element
+        # Node.remove_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        doc = parser.create_svg_document()
+        parent = doc.document_element
 
-        node = root.remove_child(group)
-        self.assertEqual(group, node)
-        self.assertTrue(group not in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+        comment = parser.create_comment('foo')
+        parent.append(comment)
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        parent.append(element)
+        self.assertEqual([comment, element], list(parent))
+
+        result = parent.remove_child(element)
+        self.assertEqual(element, result)
+        self.assertEqual([comment], list(parent))
+
+        result = parent.remove_child(comment)
+        self.assertEqual(comment, result)
+        self.assertEqual([], list(parent))
+
+        # parent.remove_child(comment)
+        self.assertRaises(NotFoundError,
+                          lambda: parent.remove_child(comment))
 
     def test_element_replace(self):
-        # Element.replace()
+        # ElementBase.replace()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
+        doc = parser.create_svg_document()
+        parent = doc.document_element
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        root.append(group)
-        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+        comment = parser.create_comment('foo')
+        parent.append(comment)
 
-        root.replace(group, c1)
-        self.assertTrue(c1 in root)
-        self.assertTrue(group not in root)
-        self.assertEqual(doc, c1.owner_document)
+        style = parser.create_element_ns(svg_ns, 'style')
+        parent.append(style)
+
+        text = parser.create_element_ns(svg_ns, 'text')
+        parent.append(text)
+        self.assertEqual([comment, style, text], list(parent))
+
+        group = parser.create_element_ns(svg_ns, 'g')
+        self.assertIsNone(group.owner_document)
+        parent.replace(style, group)
+        self.assertEqual([comment, group, text], list(parent))
+        self.assertEqual(doc, style.owner_document)
         self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+
+        # parent.replace(style, group)
+        self.assertRaises(NotFoundError,
+                          lambda: parent.replace(style, group))
+
+        parent.replace(group, style)
+        self.assertEqual([comment, style, text], list(parent))
+        self.assertEqual(doc, style.owner_document)
+        self.assertEqual(doc, group.owner_document)
 
     def test_element_replace_child(self):
-        # Element.replace_child()
+        # Element
+        # Node.replace_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        c1 = parser.create_comment('#1')
-        self.assertIsNone(c1.owner_document)
+        doc = parser.create_svg_document()
+        parent = doc.document_element
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        group = doc.create_element_ns('http://www.w3.org/2000/svg', 'group')
-        root.append(group)
-        path = doc.create_element_ns('http://www.w3.org/2000/svg', 'path')
-        group.append(path)
-        self.assertTrue(group in root)
-        self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+        comment = parser.create_comment('foo')
+        parent.append(comment)
 
-        node = root.replace_child(c1, group)
-        self.assertEqual(c1, node)
-        self.assertTrue(c1 in root)
-        self.assertTrue(group not in root)
-        self.assertEqual(doc, c1.owner_document)
+        style = parser.create_element_ns(svg_ns, 'style')
+        parent.append(style)
+
+        text = parser.create_element_ns(svg_ns, 'text')
+        parent.append(text)
+        self.assertEqual([comment, style, text], list(parent))
+
+        group = parser.create_element_ns(svg_ns, 'g')
+        self.assertIsNone(group.owner_document)
+        result = parent.replace_child(group, style)
+        self.assertEqual(style, result)
+        self.assertEqual([comment, group, text], list(parent))
+        self.assertEqual(doc, style.owner_document)
         self.assertEqual(doc, group.owner_document)
-        self.assertEqual(doc, path.owner_document)
+
+        # parent.replace_child(group, style)
+        self.assertRaises(NotFoundError,
+                          lambda: parent.replace_child(group, style))
+
+        result = parent.replace_child(style, group)
+        self.assertEqual(group, result)
+        self.assertEqual([comment, style, text], list(parent))
+        self.assertEqual(doc, style.owner_document)
+        self.assertEqual(doc, group.owner_document)
 
     def test_element_set_attribute(self):
         # Element.set_attribute()
@@ -3303,76 +3983,145 @@ class DOMTestCase(unittest.TestCase):
             items)
 
     def test_pi_addnext(self):
-        # ProcessingInstruction.addnext()
+        # PIBase.addnext()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        self.assertIsNone(p1.owner_document)
-        c1 = parser.create_comment('c1')
-        self.assertIsNone(c1.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        # <?xml-stylesheet href="0.css"?>
-        # <svg>
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
+        attr = parser.create_attribute('foo')
+        # parent.addnext(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addnext(attr))
 
-        # <?xml-stylesheet href="0.css"?>
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        p0.addnext(p1)
-        self.assertEqual(doc, p1.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.addnext(comment)
+        self.assertEqual([parent, comment], list(root))
+        self.assertEqual(doc, comment.owner_document)
 
-        # <?xml-stylesheet href="0.css"?>
-        # <?xml-stylesheet href="1.css"?>
-        # <!--c1-->
-        # <svg>
-        p1.addnext(c1)
-        self.assertEqual(doc, c1.owner_document)
+        doc2 = parser.create_document(svg_ns)
+        # parent.addnext(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addnext(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.addnext(element)
+        self.assertEqual([parent, element, comment], list(root))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.addnext(pi)
+        self.assertEqual([parent, pi, element, comment], list(root))
+        self.assertEqual(doc, pi.owner_document)
 
     def test_pi_addprevious(self):
-        # ProcessingInstruction.addprevious()
+        # PIBase.addprevious()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        p0 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="0.css"')
-        self.assertIsNone(p0.owner_document)
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        self.assertIsNone(p1.owner_document)
+        doc = parser.create_svg_document()
+        root = doc.document_element
+        parent = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(parent.owner_document)
+        root.append(parent)
+        self.assertEqual(doc, parent.owner_document)
 
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        doc.insert_before(p1, root)
-        self.assertEqual(doc, p1.owner_document)
+        attr = parser.create_attribute('foo')
+        # parent.addprevious(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addprevious(attr))
 
-        # <?xml-stylesheet href="0.css"?>
-        # <?xml-stylesheet href="1.css"?>
-        # <svg>
-        p1.addprevious(p0)
-        self.assertEqual(doc, p0.owner_document)
+        comment = parser.create_comment('foo')
+        self.assertIsNone(comment.owner_document)
+        parent.addprevious(comment)
+        self.assertEqual([comment, parent], list(root))
+        self.assertEqual(doc, comment.owner_document)
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.addprevious(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.addprevious(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        self.assertIsNone(element.owner_document)
+        parent.addprevious(element)
+        self.assertEqual([comment, element, parent], list(root))
+        self.assertEqual(doc, element.owner_document)
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        self.assertIsNone(pi.owner_document)
+        parent.addprevious(pi)
+        self.assertEqual([comment, element, pi, parent], list(root))
+        self.assertEqual(doc, pi.owner_document)
+
+    def test_pi_append(self):
+        # PIBase.append()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_processing_instruction('xml-stylesheet')
+
+        attr = parser.create_attribute('foo')
+        # parent.append(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.append(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(comment))
+
+        doc = parser.create_document(svg_ns)
+        # parent.append(doc)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(doc))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.append(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.append(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append(pi))
 
     def test_pi_append_child(self):
-        # ProcessingInstruction.append_child()
+        # ProcessingInstruction
+        # Node.append_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
+        parent = parser.create_processing_instruction('xml-stylesheet')
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-        # print(doc.tostring())
+        attr = parser.create_attribute('foo')
+        # parent.append_child(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(attr))
 
-        self.assertRaises(ValueError,
-                          lambda: p0.append_child(p1))
+        comment = parser.create_comment('foo')
+        # parent.append(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(comment))
+
+        doc = parser.create_document(svg_ns)
+        # parent.append_child(doc)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(doc))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.append_child(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.append_child(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.append_child(pi))
 
     def test_pi_child_nodes(self):
         # Node.child_nodes
@@ -3402,57 +4151,224 @@ class DOMTestCase(unittest.TestCase):
         self.assertFalse(pi.has_child_nodes())
 
     def test_pi_extend(self):
-        # ProcessingInstruction.extend()
+        # PIBase.extend()
+        svg_ns = 'http://www.w3.org/2000/svg'
         parser = SVGParser()
-        p1 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="1.css"')
-        p2 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="2.css"')
-        p3 = parser.create_processing_instruction('xml-stylesheet',
-                                                  'href="3.css"')
-        self.assertIsNone(p1.owner_document)
-        self.assertIsNone(p2.owner_document)
-        self.assertIsNone(p3.owner_document)
+        parent = parser.create_processing_instruction('xml-stylesheet')
 
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-        p0.extend([p1, p2, p3])  # no effect, no error
-        self.assertEqual(doc, p1.owner_document)
-        self.assertEqual(doc, p2.owner_document)
-        self.assertEqual(doc, p3.owner_document)
-        # print(doc.tostring())
+        attr = parser.create_attribute('foo')
+        # parent.extend([attr])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([attr]))
+
+        comment = parser.create_comment('foo')
+        # parent.extend([comment])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([comment]))
+
+        doc = parser.create_document(svg_ns)
+        # parent.extend([doc])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([doc]))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.extend([element])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([element]))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.extend([pi])
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.extend([pi]))
+
+    def test_pi_insert(self):
+        # PIBase.insert()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_processing_instruction('xml-stylesheet')
+
+        attr = parser.create_attribute('foo')
+        # parent.insert(1, attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, attr))
+
+        comment = parser.create_comment('foo')
+        # parent.insert(1, comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert(1, doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.insert(1, element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.insert(1, pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert(1, pi))
+
+    def test_pi_insert_before(self):
+        # ProcessingInstruction
+        # Node.insert_before()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_processing_instruction('xml-stylesheet')
+
+        attr = parser.create_attribute('foo')
+        # parent.insert_before(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.insert_before(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.insert_before(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.insert_before(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.insert_before(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.insert_before(pi, None))
 
     def test_pi_remove(self):
-        # ProcessingInstruction.remove()
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
+        # PIBase.remove()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_processing_instruction('xml-stylesheet')
 
-        self.assertRaises(ValueError,
-                          lambda: p0.remove(root))
+        attr = parser.create_attribute('foo')
+        # parent.remove(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.remove(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.remove(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.remove(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.remove(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove(pi))
+
+    def test_pi_remove_child(self):
+        # ProcessingInstruction
+        # Node.remove_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_processing_instruction('xml-stylesheet')
+
+        attr = parser.create_attribute('foo')
+        # parent.remove_child(attr)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(attr))
+
+        comment = parser.create_comment('foo')
+        # parent.remove_child(comment)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(comment))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.remove_child(doc2)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(doc2))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.remove_child(element)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(element))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.remove_child(pi)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.remove_child(pi))
 
     def test_pi_replace(self):
-        # ProcessingInstruction.replace()
-        doc = window.document
-        root = doc.create_element_ns('http://www.w3.org/2000/svg', 'svg')
-        doc.append(root)
-        p0 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="0.css"')
-        doc.insert_before(p0, root)
-        p1 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="1.css"')
-        p2 = doc.create_processing_instruction('xml-stylesheet',
-                                               'href="2.css"')
+        # PIBase.replace()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_processing_instruction('xml-stylesheet')
 
-        self.assertRaises(ValueError,
-                          lambda: p0.replace(p1, p2))
+        attr = parser.create_attribute('foo')
+        # parent.replace(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.replace(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.replace(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.replace(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.replace(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace(pi, None))
+
+    def test_pi_replace_child(self):
+        # ProcessingInstruction
+        # Node.replace_child()
+        svg_ns = 'http://www.w3.org/2000/svg'
+        parser = SVGParser()
+        parent = parser.create_processing_instruction('xml-stylesheet')
+
+        attr = parser.create_attribute('foo')
+        # parent.replace_child(attr, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(attr, None))
+
+        comment = parser.create_comment('foo')
+        # parent.replace_child(comment, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(comment, None))
+
+        doc2 = parser.create_document(svg_ns)
+        # parent.replace_child(doc2, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(doc2, None))
+
+        element = parser.create_element_ns(svg_ns, 'svg')
+        # parent.replace_child(element, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(element, None))
+
+        pi = parser.create_processing_instruction('xml-stylesheet')
+        # parent.replace_child(pi, None)
+        self.assertRaises(HierarchyRequestError,
+                          lambda: parent.replace_child(pi, None))
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@
 
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Collection
 from fractions import Fraction
 from io import StringIO
 from logging import getLogger
@@ -24,7 +24,9 @@ from lxml import etree
 from .core import SVGLength
 from .css import mediaquery as mq
 from .css.screen import Screen
-from .dom import Element, Node, NonElementParentNode, ParentNode
+from .dom import Element, Node, NonElementParentNode, ParentNode, \
+    node_insert_before
+from .exception import HierarchyRequestError
 from .style import get_css_style_sheets
 from .url import Location
 from .utils import get_content_type, get_element_by_id, \
@@ -65,7 +67,7 @@ class BrowsingContext(object):
         return self._window
 
 
-class Document(Node, NonElementParentNode, ParentNode, Iterable):
+class Document(Node, NonElementParentNode, ParentNode, Collection):
     """Represents the [DOM] Document."""
 
     def __init__(self, content_type=None, default_view=None,
@@ -96,10 +98,15 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
             self._location = Location(self._browsing_context)
         self._registered_property_set = dict()
 
+    def __contains__(self, node):
+        return node in self.child_nodes
+
     def __iter__(self):
         children = self.child_nodes
-        for node in children:
-            yield node
+        return iter(children)
+
+    def __len__(self):
+        return len(self.child_nodes)
 
     @property
     def child_nodes(self):
@@ -227,23 +234,34 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         """str: The entire URL of the current document."""
         return self._location.href
 
-    def append(self, node):
-        """Inserts a sub-node after the last child node.
+    def append(self, *nodes):
+        """Inserts sub-nodes after the last child node.
 
         Arguments:
-            node (Node): A node to be added.
+            *nodes (Node, str, ...): A list of nodes to be added.
         """
         root = self._document_element
-        if root is None:
-            if not isinstance(node, Element):
-                raise TypeError('Expected Element, got ' + repr(type(node)))
-            node.attach_document(self)
-            self._document_element = node
-        elif node == root:
-            pass  # do nothing
-        else:
-            children = self.child_nodes
-            children[-1].addnext(node)
+        last_child = None
+        for node in nodes:
+            if isinstance(node, str):
+                raise HierarchyRequestError(
+                    "This node type '{}' cannot insert inside nodes of type "
+                    "'{}'".format('#text',
+                                  self.__class__.__name__))
+            self.ensure_pre_insertion_validity(node)
+            if root is None:
+                if not isinstance(node, Element):
+                    raise HierarchyRequestError(
+                        "The Element node must be insert first")
+                node.attach_document(self)
+                root = self._document_element = node
+            elif node == root:
+                continue  # do nothing
+            else:
+                if last_child is None:
+                    last_child = self.last_child
+                last_child.addnext(node)
+                last_child = node
 
     def append_child(self, node):
         """Adds a sub-node to the end of this node.
@@ -399,8 +417,11 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         return None
 
     def extend(self, nodes):
-        """Extends the current children by the nodes in the iterable."""
-        # not useful
+        """Extends the current children by the nodes in the iterable.
+        """
+        if isinstance(nodes, (list, tuple)):
+            self.append(*nodes)
+            return
         for node in nodes:
             self.append(node)
 
@@ -508,20 +529,8 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         Returns:
             Node: A node to be inserted.
         """
-        if child is None:
-            return self.append_child(node)
-        root = self._document_element
-        if root is None:
-            raise ValueError(
-                'The operation would yield an incorrect node tree')
-        elif node == root:
-            pass  # do nothing
-        else:
-            children = self.child_nodes
-            if child not in children:
-                raise ValueError('The object can not be found here: '
-                                 + repr(child))
-            child.addprevious(node)
+        self.ensure_pre_insertion_validity(node, child)
+        node_insert_before(self, node, child)
         return node
 
     def iter(self, tag=None, *tags):
@@ -556,20 +565,30 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
             self.append(root)
         return self
 
-    def prepend(self, node):
-        """Inserts a sub-node before the first child node.
+    def prepend(self, *nodes):
+        """Inserts sub-nodes before the first child node.
 
         Arguments:
-            node (Node): A node to be added.
+            *nodes (Node, str, ...): A list of nodes to be added.
         """
         root = self._document_element
-        if root is None:
-            self.append(node)
-        elif node == root:
-            pass  # do nothing
-        else:
-            children = self.child_nodes
-            children[0].addprevious(node)
+        first_child = None
+        for node in nodes:
+            if isinstance(node, str):
+                raise HierarchyRequestError(
+                    "This node type '{}' cannot insert inside nodes of type "
+                    "'{}'".format('#text',
+                                  self.__class__.__name__))
+            self.ensure_pre_insertion_validity(node)
+            if root is None:
+                self.append(node)
+                root = node
+            elif node == root:
+                continue  # do nothing
+            else:
+                if first_child is None:
+                    first_child = self.first_child
+                first_child.addprevious(node)
 
     def query_selector_all(self, selectors):
         root = self._document_element
@@ -581,19 +600,13 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
         Arguments:
             node (Node): A node to be removed.
         """
+        self.ensure_pre_remove_validity(node)
         root = self._document_element
-        if root is None:
-            raise ValueError(
-                'The operation would yield an incorrect node tree')
-        elif node == root:
+        if node == root:
             self._document_element = None
-        else:
-            children = self.child_nodes
-            if node not in children:
-                raise ValueError('The object can not be found here: '
-                                 + repr(node))
-            root.append(node)  # move
-            root.remove(node)
+            return
+        root.append(node)  # move
+        root.remove(node)
 
     def remove_child(self, node):
         """Removes a child node from this node.
@@ -613,33 +626,29 @@ class Document(Node, NonElementParentNode, ParentNode, Iterable):
             old_node (Node): A reference child node.
             new_node (Node): A node to be replaced.
         """
+        self.ensure_pre_insertion_validity(new_node, old_node)
+        self.ensure_pre_remove_validity(old_node)
         root = self._document_element
-        if root is None:
-            raise ValueError(
-                'The operation would yield an incorrect node tree')
-        elif old_node == root:
+        if old_node == root:
             self.remove(old_node)
             self.append(new_node)
-        else:
-            children = self.child_nodes
-            if old_node not in children:
-                raise ValueError('The object can not be found here: '
-                                 + repr(old_node))
-            pos = children.index(old_node)
-            children[pos].addprevious(new_node)
-            self.remove(old_node)
+            return
+        children = self.child_nodes
+        pos = children.index(old_node)
+        children[pos].addprevious(new_node)
+        self.remove(old_node)
 
     def replace_child(self, node, child):
         """Replaces a child with node.
 
         Arguments:
             node (Node): A node to be replaced.
-            child (Node, None): A reference child node.
+            child (Node): A reference child node.
         Returns:
-            Node: A node to be replaced.
+            Node: A node to be removed.
         """
         self.replace(child, node)
-        return node
+        return child
 
     def tostring(self, **kwargs):
         """Serializes a document to an encoded string representation of its

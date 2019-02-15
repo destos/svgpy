@@ -15,14 +15,14 @@
 
 import re
 from abc import ABC, abstractmethod
-from collections.abc import ItemsView, KeysView, MutableMapping, \
-    MutableSequence, ValuesView
+from collections.abc import KeysView, MutableMapping, MutableSequence
 
 from lxml import cssselect, etree
 
 from .core import CSSUtils, Font, SVGLength
 from .css import CSSStyleDeclaration
-from .exception import InUseAttributeError, InvalidCharacterError
+from .exception import HierarchyRequestError, InUseAttributeError, \
+    InvalidCharacterError, NotFoundError
 from .style import get_css_rules, get_css_style, \
     get_css_style_sheet_from_element
 from .utils import QualifiedName, get_elements_by_class_name, \
@@ -43,6 +43,49 @@ _RE_XML_NAME = re.compile(
     r"|[\u2070-\u218f]|[\u2c00-\u2fef]|[\u3001-\ud7ff]|[\uf900-\ufdcf]"
     r"|[\ufdf0-\ufffd]|[\U00010000-\U000effff]"
     r"|-|\.|[0-9]|\xb7|[\u0300-\u036f]|[\u203f-\u2040])*$")
+
+
+def node_append_data(node, data, tail=True):
+    if tail:
+        text = '' if node.tail is None else node.tail
+        text += data
+        node.tail = text
+    else:
+        text = '' if node.text is None else node.text
+        text += data
+        node.text = text
+
+
+def node_insert_before(parent, node, child=None):
+    """Inserts a node into a parent before a child.
+
+    Arguments:
+        parent (Node): A parent node.
+        node (Node): A node to be inserted.
+        child (Node, optional): A reference child node.
+    Returns:
+        Node: A node to be inserted.
+    """
+    parent.ensure_pre_insertion_validity(node, child)
+    reference_child = child
+    if reference_child is not None and reference_child == node:
+        reference_child = node.getnext()
+    if reference_child is None:
+        parent.append(node)
+    else:
+        reference_child.addprevious(node)
+    return node
+
+
+def node_prepend_data(node, data, tail=True):
+    if tail:
+        text = '' if node.tail is None else node.tail
+        text = data + text
+        node.tail = text
+    else:
+        text = '' if node.text is None else node.text
+        text = data + text
+        node.text = text
 
 
 class DOMStringMap(MutableMapping):
@@ -648,6 +691,37 @@ class Node(ABC):
         self._owner_document = None
         return owner_document
 
+    def ensure_pre_insertion_validity(self, node, child=None):
+        if self.node_type not in (Node.DOCUMENT_NODE, Node.ELEMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' does not have children".format(
+                    self.__class__.__name__))
+        elif child is not None and child not in self:
+            raise NotFoundError(
+                "This node type '{}' is not a child of this node type "
+                "'{}'".format(child.__class__.__name__,
+                              self.__class__.__name__))
+        elif node.node_type not in (Node.ELEMENT_NODE,
+                                    Node.PROCESSING_INSTRUCTION_NODE,
+                                    Node.COMMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' cannot insert inside nodes of type "
+                "'{}'".format(node.__class__.__name__,
+                              self.__class__.__name__))
+        return True
+
+    def ensure_pre_remove_validity(self, child):
+        if self.node_type not in (Node.DOCUMENT_NODE, Node.ELEMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' does not have children".format(
+                    self.__class__.__name__))
+        elif child not in self:
+            raise NotFoundError(
+                "This node type '{}' is not a child of this node type "
+                "'{}'".format(child.__class__.__name__,
+                              self.__class__.__name__))
+        return True
+
     @abstractmethod
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
@@ -690,9 +764,9 @@ class Node(ABC):
 
         Arguments:
             node (Node): A node to be replaced.
-            child (Node, None): A reference child node.
+            child (Node): A reference child node.
         Returns:
-            Node: A node to be replaced.
+            Node: A node to be removed.
         """
         raise NotImplementedError
 
@@ -770,20 +844,20 @@ class ParentNode(ABC):
         return children[-1] if len(children) > 0 else None
 
     @abstractmethod
-    def append(self, node):
-        """Inserts a sub-node after the last child node.
+    def append(self, *nodes):
+        """Inserts sub-nodes after the last child node.
 
         Arguments:
-            node (Node): A node to be added.
+            *nodes (Node, str, ...): A list of nodes to be added.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def prepend(self, node):
-        """Inserts a sub-node before the first child node.
+    def prepend(self, *nodes):
+        """Inserts sub-nodes before the first child node.
 
         Arguments:
-            node (Node): A node to be added.
+            *nodes (Node, str, ...): A list of nodes to be added.
         """
         raise NotImplementedError
 
@@ -943,7 +1017,7 @@ class Attr(Node):
         Returns:
             Node: A node to be added.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(node)
 
     def attach_element(self, element):
         """Attaches an element to an attribute object.
@@ -993,7 +1067,7 @@ class Attr(Node):
         Returns:
             Node: A node to be inserted.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(node, child)
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -1003,18 +1077,19 @@ class Attr(Node):
         Returns:
             Node: A node to be removed.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_remove_validity(child)
 
     def replace_child(self, node, child):
         """Replaces a child with node.
 
         Arguments:
             node (Node): A node to be replaced.
-            child (Node, None): A reference child node.
+            child (Node): A reference child node.
         Returns:
-            Node: A node to be replaced.
+            Node: A node to be removed.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(node, child)
+        self.ensure_pre_remove_validity(child)
 
     def tostring(self, **kwargs):
         """Serializes the attribute's value to a string.
@@ -1131,21 +1206,42 @@ class Comment(etree.CommentBase, CharacterData):
     def text_content(self, text):
         self.data = text
 
-    def addnext(self, element):
+    def addnext(self, node):
         """Reimplemented from lxml.etree.CommentBase.addnext().
 
-        Adds the element as a following sibling directly after this element.
+        Adds the node as a following sibling directly after this node.
         """
-        element.attach_document(self.owner_document)
-        super().addnext(element)
+        if node.node_type not in (Node.ELEMENT_NODE,
+                                  Node.PROCESSING_INSTRUCTION_NODE,
+                                  Node.COMMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' cannot insert as a sibling node of type "
+                "'{}'".format(node.__class__.__name__,
+                              self.__class__.__name__))
+        node.attach_document(self.owner_document)
+        super().addnext(node)
 
-    def addprevious(self, element):
+    def addprevious(self, node):
         """Reimplemented from lxml.etree.CommentBase.addprevious().
 
-        Adds the element as a preceding sibling directly before this element.
+        Adds the node as a preceding sibling directly before this node.
         """
-        element.attach_document(self.owner_document)
-        super().addprevious(element)
+        if node.node_type not in (Node.ELEMENT_NODE,
+                                  Node.PROCESSING_INSTRUCTION_NODE,
+                                  Node.COMMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' cannot insert as a sibling node of type "
+                "'{}'".format(node.__class__.__name__,
+                              self.__class__.__name__))
+        node.attach_document(self.owner_document)
+        super().addprevious(node)
+
+    def append(self, node):
+        """Reimplemented from lxml.etree.CommentBase.append().
+
+        Adds a sub-node to the end of this node.
+        """
+        self.ensure_pre_insertion_validity(node)
 
     def append_child(self, node):
         """Adds a node to the end of this node.
@@ -1155,17 +1251,15 @@ class Comment(etree.CommentBase, CharacterData):
         Returns:
             Node: A node to be added.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(node)
 
-    def extend(self, elements):
+    def extend(self, nodes):
         """Reimplemented from lxml.etree.CommentBase.extend().
 
-        Extends the current children by the elements in the iterable.
+        Extends the current children by the nodes in the iterable.
         """
-        owner_document = self.owner_document
-        for node in elements:
-            node.attach_document(owner_document)
-        super().extend(elements)
+        for node in nodes:
+            self.ensure_pre_insertion_validity(node)
 
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
@@ -1178,6 +1272,14 @@ class Comment(etree.CommentBase, CharacterData):
             root = self
         return root
 
+    def insert(self, index, node):
+        """Reimplemented from lxml.etree.CommentBase.insert().
+
+        Inserts a sub-node at the given position in this node.
+        """
+        _ = index
+        self.ensure_pre_insertion_validity(node)
+
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
 
@@ -1187,15 +1289,15 @@ class Comment(etree.CommentBase, CharacterData):
         Returns:
             Node: A node to be inserted.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(node, child)
 
-    def remove(self, element):
+    def remove(self, node):
         """Reimplemented from lxml.etree.CommentBase.remove().
 
-        Removes a matching subelement. Unlike the find methods, this method
-        compares elements based on identity, not on tag value or contents.
+        Removes a matching sub-node. Unlike the find methods, this method
+        compares nodes based on identity, not on tag value or contents.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_remove_validity(node)
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -1205,27 +1307,27 @@ class Comment(etree.CommentBase, CharacterData):
         Returns:
             Node: A node to be removed.
         """
-        self.remove(child)
-        return child
+        self.ensure_pre_remove_validity(child)
 
-    def replace(self, old_element, new_element):
+    def replace(self, old_node, new_node):
         """Reimplemented from lxml.etree.CommentBase.replace().
 
-        Replaces a subelement with the element passed as second argument.
+        Replaces a sub-node with the node passed as second argument.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(new_node, old_node)
+        self.ensure_pre_remove_validity(old_node)
 
     def replace_child(self, node, child):
         """Replaces a child with node.
 
         Arguments:
             node (Node): A node to be replaced.
-            child (Node, None): A reference child node.
+            child (Node): A reference child node.
         Returns:
-            Node: A node to be replaced.
+            Node: A node to be removed.
         """
-        self.replace(node, child)
-        return node
+        self.ensure_pre_insertion_validity(node, child)
+        self.ensure_pre_remove_validity(child)
 
     def tostring(self, **kwargs):
         """Serializes a comment to an encoded string representation of its
@@ -1461,32 +1563,60 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
                     chars.append(child.tail)
         return chars
 
-    def addnext(self, element):
+    def addnext(self, node):
         """Reimplemented from lxml.etree.ElementBase.addnext().
 
-        Adds the element as a following sibling directly after this element.
+        Adds the node as a following sibling directly after this node.
         """
-        element.attach_document(self.owner_document)
-        super().addnext(element)
+        if node.node_type not in (Node.ELEMENT_NODE,
+                                  Node.PROCESSING_INSTRUCTION_NODE,
+                                  Node.COMMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' cannot insert as a sibling node of type "
+                "'{}'".format(node.__class__.__name__,
+                              self.__class__.__name__))
+        node.attach_document(self.owner_document)
+        super().addnext(node)
 
-    def addprevious(self, element):
+    def addprevious(self, node):
         """Reimplemented from lxml.etree.ElementBase.addprevious().
 
-        Adds the element as a preceding sibling directly before this element.
+        Adds the node as a preceding sibling directly before this node.
         """
-        element.attach_document(self.owner_document)
-        super().addprevious(element)
+        if node.node_type not in (Node.ELEMENT_NODE,
+                                  Node.PROCESSING_INSTRUCTION_NODE,
+                                  Node.COMMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' cannot insert as a sibling node of type "
+                "'{}'".format(node.__class__.__name__,
+                              self.__class__.__name__))
+        node.attach_document(self.owner_document)
+        super().addprevious(node)
 
-    def append(self, node):
-        """Reimplemented from lxml.etree.ElementBase.append().
-
-        Inserts a sub-node after the last child node.
+    def append(self, *nodes):
+        """Inserts sub-nodes after the last child node.
 
         Arguments:
-            node (Node): A node to be added.
+            *nodes (Node, str, ...): A list of nodes to be added.
         """
-        node.attach_document(self.owner_document)
-        super().append(node)
+        data = ''
+        target = self
+        for node in nodes:
+            if isinstance(node, str):
+                data += node
+                continue
+            self.ensure_pre_insertion_validity(node)
+            if len(data) > 0:
+                tail = False if target == self else True
+                node_append_data(target, data, tail)
+                data = ''
+            node.attach_document(self.owner_document)
+            super().append(node)
+            target = node
+
+        if len(data) > 0:
+            tail = False if target == self else True
+            node_append_data(target, data, tail)
 
     def append_child(self, node):
         """Adds a sub-node to the end of this node.
@@ -1597,15 +1727,16 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
             child.detach_document()
         return owner_document
 
-    def extend(self, elements):
+    def extend(self, nodes):
         """Reimplemented from lxml.etree.ElementBase.extend().
 
-        Extends the current children by the elements in the iterable.
+        Extends the current children by the nodes in the iterable.
         """
         owner_document = self.owner_document
-        for node in elements:
+        for node in nodes:
+            self.ensure_pre_insertion_validity(node)
             node.attach_document(owner_document)
-        super().extend(elements)
+        super().extend(nodes)
 
     def get_attribute(self, qualified_name):
         """Returns an attribute's value with the specified name.
@@ -2012,13 +2143,14 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """
         return len(self.attrib) > 0
 
-    def insert(self, index, element):
+    def insert(self, index, node):
         """Reimplemented from lxml.etree.ElementBase.insert().
 
-        Inserts a subelement at the given position in this element.
+        Inserts a sub-node at the given position in this node.
         """
-        element.attach_document(self.owner_document)
-        super().insert(index, element)
+        self.ensure_pre_insertion_validity(node)
+        node.attach_document(self.owner_document)
+        super().insert(index, node)
 
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
@@ -2029,12 +2161,7 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         Returns:
             Node: A node to be inserted.
         """
-        if child is None:
-            return self.append_child(node)
-        elif child not in self:
-            raise ValueError('The object can not be found here')
-        else:
-            child.addprevious(node)
+        node_insert_before(self, node, child)
         return node
 
     def iscontainer(self):
@@ -2065,13 +2192,40 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         """Returns True if this element is transformable element."""
         return self.local_name in Element.TRANSFORMABLE_ELEMENTS
 
-    def prepend(self, node):
-        """Inserts a sub-node before the first child node.
+    def prepend(self, *nodes):
+        """Inserts sub-nodes before the first child node.
 
         Arguments:
-            node (Node): A node to be added.
+            *nodes (Node, str, ...): A list of nodes to be added.
         """
-        self.insert(0, node)
+        first_child = self.first_child
+        data = ''
+        target = self
+        text = '' if self.text is None else self.text
+        if len(text) > 0:
+            self.text = ''
+        for node in nodes:
+            if isinstance(node, str):
+                data += node
+                continue
+            self.ensure_pre_insertion_validity(node)
+            if len(data) > 0:
+                tail = False if target == self else True
+                node_prepend_data(target, data, tail)
+                data = ''
+            node.attach_document(self.owner_document)
+            if first_child is None:
+                super().append(node)
+                first_child = node
+            else:
+                first_child.addprevious(node)
+            target = node
+
+        tail = False if target == self else True
+        if len(data) > 0:
+            node_prepend_data(target, data, tail)
+        if len(text) > 0:
+            node_append_data(target, text, tail)
 
     def query_selector_all(self, selectors):
         nsmap = self.nsmap.copy()
@@ -2081,15 +2235,20 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         sel = cssselect.CSSSelector(selectors, namespaces=nsmap)
         return sel(self)
 
-    def remove(self, element):
-        """Reimplemented from lxml.etree.ElementBase.remove().
+    def remove(self, node=None):
+        """Removes a matching sub-node. Unlike the find methods, this method
+        compares nodes based on identity, not on tag value or contents.
 
-        Removes a matching subelement. Unlike the find methods, this method
-        compares elements based on identity, not on tag value or contents.
+        Arguments:
+            node (Node, optional): A node to be removed.
         """
-        if element not in self:
-            raise ValueError('The object can not be found here')
-        super().remove(element)
+        if node is None:
+            parent = self.getparent()
+            if parent is not None:
+                parent.remove(self)
+            return
+        self.ensure_pre_remove_validity(node)
+        super().remove(node)
 
     def remove_attribute(self, qualified_name):
         """Removes an attribute with the specified name.
@@ -2138,27 +2297,27 @@ class Element(etree.ElementBase, Node, ParentNode, NonDocumentTypeChildNode):
         self.remove(child)
         return child
 
-    def replace(self, old_element, new_element):
+    def replace(self, old_node, new_node):
         """Reimplemented from lxml.etree.ElementBase.replace().
 
-        Replaces a subelement with the element passed as second argument.
+        Replaces a sub-node with the node passed as second argument.
         """
-        if old_element not in self:
-            raise ValueError('The object can not be found here')
-        new_element.attach_document(self.owner_document)
-        super().replace(old_element, new_element)
+        self.ensure_pre_insertion_validity(new_node, old_node)
+        self.ensure_pre_remove_validity(old_node)
+        new_node.attach_document(self.owner_document)
+        super().replace(old_node, new_node)
 
     def replace_child(self, node, child):
         """Replaces a child with node.
 
         Arguments:
             node (Node): A node to be replaced.
-            child (Node, None): A reference child node.
+            child (Node): A reference child node.
         Returns:
-            Node: A node to be replaced.
+            Node: A node to be removed.
         """
         self.replace(child, node)
-        return node
+        return child
 
     def set_attribute(self, qualified_name, value):
         """Sets an attribute with the specified name.
@@ -2349,21 +2508,42 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
     def text_content(self, text):
         self.data = text
 
-    def addnext(self, element):
+    def addnext(self, node):
         """Reimplemented from lxml.etree.PIBase.addnext().
 
-        Adds the element as a following sibling directly after this element.
+        Adds the node as a following sibling directly after this node.
         """
-        element.attach_document(self.owner_document)
-        super().addnext(element)
+        if node.node_type not in (Node.ELEMENT_NODE,
+                                  Node.PROCESSING_INSTRUCTION_NODE,
+                                  Node.COMMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' cannot insert as a sibling node of type "
+                "'{}'".format(node.__class__.__name__,
+                              self.__class__.__name__))
+        node.attach_document(self.owner_document)
+        super().addnext(node)
 
-    def addprevious(self, element):
+    def addprevious(self, node):
         """Reimplemented from lxml.etree.PIBase.addprevious().
 
-        Adds the element as a preceding sibling directly before this element.
+        Adds the node as a preceding sibling directly before this node.
         """
-        element.attach_document(self.owner_document)
-        super().addprevious(element)
+        if node.node_type not in (Node.ELEMENT_NODE,
+                                  Node.PROCESSING_INSTRUCTION_NODE,
+                                  Node.COMMENT_NODE):
+            raise HierarchyRequestError(
+                "This node type '{}' cannot insert as a sibling node of type "
+                "'{}'".format(node.__class__.__name__,
+                              self.__class__.__name__))
+        node.attach_document(self.owner_document)
+        super().addprevious(node)
+
+    def append(self, node):
+        """Reimplemented from lxml.etree.PIBase.append().
+
+        Adds a sub-node to the end of this node.
+        """
+        self.ensure_pre_insertion_validity(node)
 
     def append_child(self, node):
         """Adds a node to the end of this node.
@@ -2373,17 +2553,15 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         Returns:
             Node: A node to be added.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(node)
 
-    def extend(self, elements):
+    def extend(self, nodes):
         """Reimplemented from lxml.etree.PIBase.extend().
 
-        Extends the current children by the elements in the iterable.
+        Extends the current children by the nodes in the iterable.
         """
-        owner_document = self.owner_document
-        for node in elements:
-            node.attach_document(owner_document)
-        super().extend(elements)
+        for node in nodes:
+            self.ensure_pre_insertion_validity(node)
 
     def get_root_node(self):
         """Returns a root node of the document that contains this node.
@@ -2396,6 +2574,14 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
             root = self
         return root
 
+    def insert(self, index, node):
+        """Reimplemented from lxml.etree.PIBase.insert().
+
+        Inserts a sub-node at the given position in this node.
+        """
+        _ = index
+        self.ensure_pre_insertion_validity(node)
+
     def insert_before(self, node, child):
         """Inserts a node into a parent before a child.
 
@@ -2405,15 +2591,15 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         Returns:
             Node: A node to be inserted.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(node, child)
 
-    def remove(self, element):
+    def remove(self, node):
         """Reimplemented from lxml.etree.PIBase.remove().
 
-        Removes a matching subelement. Unlike the find methods, this method
-        compares elements based on identity, not on tag value or contents.
+        Removes a matching sub-node. Unlike the find methods, this method
+        compares nodes based on identity, not on tag value or contents.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_remove_validity(node)
 
     def remove_child(self, child):
         """Removes a child node from this node.
@@ -2423,27 +2609,27 @@ class ProcessingInstruction(etree.PIBase, CharacterData):
         Returns:
             Node: A node to be removed.
         """
-        self.remove(child)
-        return child
+        self.ensure_pre_remove_validity(child)
 
-    def replace(self, old_element, new_element):
+    def replace(self, old_node, new_node):
         """Reimplemented from lxml.etree.PIBase.replace().
 
-        Replaces a subelement with the element passed as second argument.
+        Replaces a sub-node with the node passed as second argument.
         """
-        raise ValueError('The operation would yield an incorrect node tree')
+        self.ensure_pre_insertion_validity(new_node, old_node)
+        self.ensure_pre_remove_validity(old_node)
 
     def replace_child(self, node, child):
         """Replaces a child with node.
 
         Arguments:
             node (Node): A node to be replaced.
-            child (Node, None): A reference child node.
+            child (Node): A reference child node.
         Returns:
-            Node: A node to be replaced.
+            Node: A node to be removed.
         """
-        self.replace(node, child)
-        return node
+        self.ensure_pre_insertion_validity(node, child)
+        self.ensure_pre_remove_validity(child)
 
     def tostring(self, **kwargs):
         """Serializes a processing instruction to an encoded string
