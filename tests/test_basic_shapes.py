@@ -1099,17 +1099,12 @@ class BasicShapesTestCase(unittest.TestCase):
             'stroke-width': '5',
         })
 
-        self.assertEqual(
-            {
-                'style': 'fill: red; stroke-width: 1; stroke: blue;',
-            },
-            dict([(attr.name, attr.value) for attr in group.attributes]))
-        self.assertEqual(
-            {
-                'fill': 'white',
-                'stroke-width': '5',
-            },
-            dict([(attr.name, attr.value) for attr in rect.attributes]))
+        self.assertEqual(1, len(group.attributes))
+        self.assertEqual('fill: red; stroke-width: 1; stroke: blue;',
+                         group.attributes['style'].value)
+        self.assertEqual(2, len(rect.attributes))
+        self.assertEqual('white', rect.attributes['fill'].value)
+        self.assertEqual('5', rect.attributes['stroke-width'].value)
         css_style = rect.get_computed_style()
         self.assertEqual('white', css_style.get('fill'))
         self.assertEqual('blue', css_style.get('stroke'))
@@ -1130,17 +1125,12 @@ class BasicShapesTestCase(unittest.TestCase):
             'stroke-width': '1',
         })
 
-        self.assertEqual(
-            {
-                'fill': 'white',
-                'stroke-width': '5',
-            },
-            dict([(attr.name, attr.value) for attr in group.attributes]))
-        self.assertEqual(
-            {
-                'style': 'fill: red; stroke-width: 1; stroke: blue;',
-            },
-            dict([(attr.name, attr.value) for attr in rect.attributes]))
+        self.assertEqual(2, len(group.attributes))
+        self.assertEqual('white', group.attributes['fill'].value)
+        self.assertEqual('5', group.attributes['stroke-width'].value)
+        self.assertEqual(1, len(rect.attributes))
+        self.assertEqual('fill: red; stroke-width: 1; stroke: blue;',
+                         rect.attributes['style'].value)
         css_style = rect.get_computed_style()
         self.assertEqual('red', css_style.get('fill'))
         self.assertEqual('blue', css_style.get('stroke'))
@@ -1161,16 +1151,12 @@ class BasicShapesTestCase(unittest.TestCase):
             'stroke-width': '5',
         })
 
-        self.assertEqual(
-            {
-                'style': 'fill: red; stroke-width: 1; stroke: blue;',
-            },
-            dict([(attr.name, attr.value) for attr in group.attributes]))
-        self.assertEqual(
-            {
-                'style': 'fill: white; stroke-width: 5;',
-            },
-            dict([(attr.name, attr.value) for attr in rect.attributes]))
+        self.assertEqual(1, len(group.attributes))
+        self.assertEqual('fill: red; stroke-width: 1; stroke: blue;',
+                         group.attributes['style'].value)
+        self.assertEqual(1, len(rect.attributes))
+        self.assertEqual('fill: white; stroke-width: 5;',
+                         rect.attributes['style'].value)
         css_style = rect.get_computed_style()
         self.assertEqual('white', css_style.get('fill'))
         self.assertEqual('blue', css_style.get('stroke'))
