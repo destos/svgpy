@@ -297,7 +297,7 @@ class Document(Node, NonElementParentNode, ParentNode, Collection):
             Attr: A new attribute.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document')
+            raise ValueError('No DOMImplementation found')
         parser = self._implementation.parser
         attr = parser.create_attribute(local_name)
         attr.attach_document(self)
@@ -317,7 +317,7 @@ class Document(Node, NonElementParentNode, ParentNode, Collection):
             Attr: A new attribute.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document')
+            raise ValueError('No DOMImplementation found')
         parser = self._implementation.parser
         attr = parser.create_attribute_ns(namespace, qualified_name)
         attr.attach_document(self)
@@ -333,7 +333,7 @@ class Document(Node, NonElementParentNode, ParentNode, Collection):
             Comment: A new comment.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document')
+            raise ValueError('No DOMImplementation found')
         parser = self._implementation.parser
         comment = parser.create_comment(data)
         comment.attach_document(self)
@@ -353,7 +353,7 @@ class Document(Node, NonElementParentNode, ParentNode, Collection):
             Element: A new element.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document')
+            raise ValueError('No DOMImplementation found')
         parser = self._implementation.parser
         element = parser.create_element(local_name,
                                         attrib=attrib,
@@ -380,7 +380,7 @@ class Document(Node, NonElementParentNode, ParentNode, Collection):
             Element: A new element.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document')
+            raise ValueError('No DOMImplementation found')
         parser = self._implementation.parser
         element = parser.create_element_ns(namespace,
                                            qualified_name,
@@ -400,7 +400,7 @@ class Document(Node, NonElementParentNode, ParentNode, Collection):
             ProcessingInstruction: A new processing instruction.
         """
         if self._implementation is None:
-            raise ValueError('The object is in the wrong document')
+            raise ValueError('No DOMImplementation found')
         parser = self._implementation.parser
         pi = parser.create_processing_instruction(target, data)
         pi.attach_document(self)
